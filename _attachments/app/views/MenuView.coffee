@@ -15,18 +15,24 @@ class MenuView extends Backbone.View
 		<a class='mdl-navigation__link report__link drawer__subtitle' id='dashboard' href='/index.html#dashboard'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>dashboard</i>
 		  Dashboard</a>
+
 		<a class='mdl-navigation__link report__link drawer__subtitle' href='#' id='report-main'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>description</i>
 		Reports</a>
 		<div class='m-l-20 dropdown' id='drawer-reports'>
-	    <a class='mdl-navigation__link report__link' id = 'alerts' href='#reports/alerts'>
-			Alerts</a>
-	    <a class='mdl-navigation__link report__link' id = 'analysis' href='#reports/analysis'>
-			Analysis</a>    
-	    <a class='mdl-navigation__link report__link m-b-20' id = 'casefollowup' href='#reports/casefollowup'>
-			Case Follow Up</a>
-		<a class='mdl-navigation__link report__link' id = 'compareweekly' href='#reports/compareweekly'>
-			Compare Weekly with Cases Followup</a>
+
+      #{
+        links = {
+          alerts: "Alerts"
+          analysis: "Analysis"
+          casefollowup: "Case Followup"
+          compareweekly: "Compare Weekly"
+        }
+        _(links).map (linkText, linkUrl) ->
+          "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/#{linkUrl}'>#{linkText}</a>"
+        .join ""
+      }
+
 		<a class='mdl-navigation__link report__link' id = 'epidemicthreshold' href='#reports/epidemicthresholds'>
 			Epidemic Thresholds</a>		
 		<a class='mdl-navigation__link report__link' id = 'incidentsgraph' href='#reports/incidentsgraph'>
