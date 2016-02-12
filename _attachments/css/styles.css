@@ -29,7 +29,7 @@ header .mdl-button--icon {
 }
 
 header .mdl-layout-title{
-  padding-left:50px;
+  padding-left:30px;
   font-size: 40px;
 }
 
@@ -47,7 +47,7 @@ header .mdl-layout-title{
 }
 
 .coconut-layout .coconut-drawer.is-visible {
-  width: 400px;
+  width: 260px;
 }
 
 .coconut-drawer {
@@ -68,8 +68,8 @@ header .mdl-layout-title{
   -webkit-justify-content: flex-end;
       -ms-flex-pack: end;
           justify-content: flex-end;
-  padding: 16px;
-  height: 151px;
+  /* padding: 16px;
+  height: 151px; */
 }
 .coconut-avatar-dropdown {
   display: -webkit-box;
@@ -123,6 +123,10 @@ header .mdl-layout-title{
   line-height:24px;
 }
 
+.coconut-navigation .mdl-navigation__link .report__link {
+	font-size: 14px;
+}
+	
 .coconut-content {
   max-width: 1080px;
 }
@@ -240,6 +244,10 @@ _:-ms-input-placeholder, :root .coconut-graph {
   -webkit-align-items: center;
       -ms-flex-align: center;
           align-items: center;
+}
+
+.coconut-header .material-icons {
+   font-size: 34px;	
 }
 
 .drawer_question_set_link i{

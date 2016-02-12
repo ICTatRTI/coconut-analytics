@@ -17,7 +17,7 @@ HeaderView = require './views/HeaderView'
 # These are views that should always be shown so render them now
 menuView = new MenuView
   # Set the element that this view should render to
-  el: "header.coconut-drawer-header"
+  el: ".coconut-drawer"
 menuView.render()
 
 headerView = new HeaderView

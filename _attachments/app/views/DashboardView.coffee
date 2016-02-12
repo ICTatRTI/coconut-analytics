@@ -12,7 +12,7 @@ class DashboardView extends Backbone.View
   render: =>
 
     @$el.html "
-      <h2>Dashboard</h2>
+      <h4>Dashboard</h4>
       <div id='dateSelector'></div>
       Start Date: #{@startDate}
       End Date: #{@endDate}
