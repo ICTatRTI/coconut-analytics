@@ -5,13 +5,7 @@ Backbone.$  = $
 
 class MenuView extends Backbone.View
   events:
-    "click a#dashboard": "showDashboard"
-    "click a.report__link": "showReports"
-    "click a.activity__link": "showActivity"
-    "click a.drawer__link": "showLink"
-    "click a.setting__link": "showSetting"
-    "click a.admin__link": "showAdmin"
-    "click a.graphs__link": "showGraph"
+    "click a.mdl-navigation__link": "changeStatus"
     "click a.drawer__subtitle": "toggleDropdownMenu"
 
   toggleDropdownMenu: (e) =>
@@ -24,62 +18,16 @@ class MenuView extends Backbone.View
     else
       $target.next("div.dropdown").slideToggle()
 
-  showDashboard: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    @setTitle(e, 'Dashboard')
-	
-  showReports: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    if classStr.indexOf('drawer_subtitle') is -1
-      @setActiveLink(e)
-    @setTitle(e, 'Reports')
-
-  showLink: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    @setActiveLink(e)
-
-  showSetting: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    @setActiveLink(e)
-    @setTitle(e, 'Settings')	 
-
-  showAdmin: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    @setActiveLink(e) 
-    @setTitle(e, 'Admin')
-
-  showActivity: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    @setActiveLink(e) 
-    @setTitle(e, 'Activity')
-
-  showGraph: (e) =>
-    e.preventDefault
-    reportname = e.currentTarget.id
-    classStr = $(e.currentTarget).attr('class')
-    @setActiveLink(e)
-    @setTitle(e,'Graph')
-
-  setTitle: (e, title) ->
+  changeStatus: (e) =>
     id = e.currentTarget.id
-    subtitle = e.currentTarget.innerText
-    if (subtitle == '' || id == 'dashboard')
-      newtitle = title
-    else
-      newtitle = title + ": <span class='menu-subtitle'>" + subtitle + "</span>"
-    $('#layout-title').html(newtitle)
+    category = e.currentTarget.dataset.category
+    title = e.currentTarget.dataset.title
+    if (category != 'menuHeader')
+      if (category != 'menuLink')
+        subtitle = e.currentTarget.innerHTML
+        title = title + ": <span class='menu-subtitle'>" + subtitle + "</span>"
+      $('#layout-title').html(title)
+    @setActiveLink(e)
 
   setActiveLink: (e) =>
     @removeActive()
@@ -97,15 +45,15 @@ class MenuView extends Backbone.View
 	  </div>
 	  </header>		  
 	  <nav class='coconut_navigation mdl-navigation'>
-		<a class='mdl-navigation__link drawer__subtitle' id='dashboard' href='/index.html#dashboard'>  
+		<a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='/index.html#dashboard'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>dashboard</i>Dashboard</a>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='report-main'>  
+		<a class='mdl-navigation__link drawer__subtitle' href='#' id='report-main' data-title='Reports' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>description</i>
 		Reports</a>
 		<div class='m-l-20 dropdown' id='drawer-reports'>
 
       #{
-        links = {
+        reportLinks = {
           alerts: "Alerts"
           analysis: "Analysis"
           casefollowup: "Case Followup"
@@ -120,68 +68,89 @@ class MenuView extends Backbone.View
           weeklyreports: "Weekly Reports"
           weeklysummary: "Weekly Summary"
         }
-        _(links).map (linkText, linkUrl) ->
-          "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/#{linkUrl}'>#{linkText}</a>"
+        _(reportLinks).map (linkText, linkUrl) ->
+          "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
         .join ""
       }
 	  </div>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='activity-main'>  
+		<a class='mdl-navigation__link drawer__subtitle' href='#' id='activity-main' data-title='Activities' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>local_activity</i>
 		Activities
 	    </a>
-		<div class='m-l-20 dropdown' id='drawer-activities'> 
-			<a class='mdl-navigation__link  activity__link' id='issues' href='#'>Issues</a> 
-			<a class='mdl-navigation__link activity__link' id='todos' href='#'>To Do</a> 
-			<a class='mdl-navigation__link  activity__link' id='sms' href='#'>Send SMS to users</a> 
+		<div class='m-l-20 dropdown' id='drawer-activities'>
+        #{
+             activityLinks = {
+               issues: "Issues"
+               todos: "To Do"
+               sms: "Send SMS to users"
+             }
+             _(activityLinks).map (linkText, linkUrl) ->
+               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
+             .join ""
+        }
 		</div>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='graphs-main'>  
+		<a class='mdl-navigation__link drawer__subtitle' href='#' id='graphs-main' data-title='Graphs' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>assessment</i>
 		Graphs
 	    </a>
 		<div class='m-l-20 dropdown' id='drawer-graphs'>
       #{
-           links2 = {
+           graphLinks = {
              graph_attendance: "Attendance"
              graph_positivity: "Positivity"
              graph_testrate: "Test Rate"
              positivity_with_rainfall: "Positivity with Rainfall"
              positivity_by_year: "Positivity cases by year"
            }
-           _(links2).map (linkText, linkUrl) ->
-             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#reports/#{linkUrl}'>#{linkText}</a>"
+           _(graphLinks).map (linkText, linkUrl) ->
+             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
            .join ""
       }		   
 		</div>
-		<a class='mdl-navigation__link drawer__link' href='#reports/maps' id='maps' data-name='Maps'>  
+		<a class='mdl-navigation__link drawer__link' href='#reports/maps' id='maps' data-title='Maps' data-category='menuLink'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>map</i>
 		  <span class='link-title'>Maps</span>
 	    </a>
-		<a class='mdl-navigation__link drawer__link' href='#reports/export' id='export' data-name='Data Export'>  
+		<a class='mdl-navigation__link drawer__link' href='#reports/export' id='export' data-title='Data Export' data-category='menuLink'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>cloud_download</i>
 		  <span class='link-title'>Data Export</span>
 	    </a>		
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='setting-main'>  
+		<a class='mdl-navigation__link drawer__subtitle' href='#' id='setting-main' data-title='Settings' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>settings</i>
 		Settings
 	    </a>
-		<div class='m-l-20 dropdown' id='drawer-settings'> 
-	        <a class='mdl-navigation__link setting__link' id='setting_theme' href='#'>Color Theme</a>				
-	        <a class='mdl-navigation__link setting__link' id='setting_general' href='#'>General</a>				   
-	        <a class='mdl-navigation__link setting__link' id='setting_language' href='#'>Language</a>	
-	        <a class='mdl-navigation__link setting__link' id='setting_misc' href='#'>Miscellaneous</a>
+		<div class='m-l-20 dropdown' id='drawer-settings'>
+        #{
+             settingLinks = {
+               setting_theme: "Color Theme"
+               setting_general: "General"
+               setting_language: "Language"
+               setting_misc: "Miscellaneous"
+             }
+             _(settingLinks).map (linkText, linkUrl) ->
+               "<a class='mdl-navigation__link setting__link' id = '#{linkUrl}' href='#settings/#{linkUrl}' data-title='Settings'>#{linkText}</a>"
+             .join ""
+        }
 		</div>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='admin-main'>  
+		<a class='mdl-navigation__link drawer__subtitle' href='#' id='admin-main' data-title='Admin' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>build</i>
 		Admin
 	    </a>
-		<div class='m-l-20 dropdown' id='drawer-admin'> 				   
-			<a class='mdl-navigation__link admin__link' id='facilities' href='#'>Facilities</a>
-			 <a class='mdl-navigation__link admin__link' id='questions' href='#'>Question Sets</a>	
-			<a class='mdl-navigation__link admin__link' id='rainfall-station' href='#'>Rainfall Station</a>
-			<a class='mdl-navigation__link admin__link' id='regions-districts-shehias' href='#'>Regions, Districts & Shehias </a>	
-			<a class='mdl-navigation__link admin__link' id='shehias-irs' href='#'>Shehias received IRS</a>
-			<a class='mdl-navigation__link admin__link' id='high-risk' href='#'>Shehias high risk</a>
-	        <a class='mdl-navigation__link admin__link' id='users' href='#'>Users</a>				
+		<div class='m-l-20 dropdown' id='drawer-admin'>
+        #{
+             adminLinks = {
+               facilities: "Facilities"
+               questions: "Question Sets"
+               rainfall_station: "Rainfall Station"
+               regions_districts_shehias: "Regions, Districts & Shehias"
+               shehias_irs: "Shehias received IRS"
+               high_risk: "Shehias high risk"
+               users: "Users"
+             }
+             _(adminLinks).map (linkText, linkUrl) ->
+               "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"
+             .join ""
+        }				   			
         </div>	
      </nav>
    "
