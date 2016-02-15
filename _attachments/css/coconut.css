@@ -181,11 +181,15 @@ button.not-followed-up-after-48-hours-false {
 }
 
 #filters-section {
-	padding-top: 20px;
+	padding: 0px 30px;
 }
 
 #alerts-drop, #cases-drop, #legend-drop {
 	width: 100px;
+}
+
+#dateSelector {
+   padding: 0 30px;	
 }
 
 /* Layout styling */
@@ -755,4 +759,13 @@ div.login-group input:focus ~ .login-highlight {
 @keyframes inputHighlighter {
   from  { background:#5264AE; }
   to    { width:0; background:transparent; }
+}
+
+/* DateSelectorView */
+.select_by_date {
+	display: none;
+}
+
+.width30 {
+	width: 30px;
 }

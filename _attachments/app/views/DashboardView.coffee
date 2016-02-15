@@ -9,13 +9,29 @@ DateSelectorView = require './DateSelectorView'
 
 class DashboardView extends Backbone.View
 
+  events: 
+    "click button#dateFilter": "showForm"
+  
+  showForm: (e) =>
+    e.preventDefault
+    $("div#filters-section").slideToggle()
+
   render: =>
 
     @$el.html "
-      <h4>Dashboard</h4>
-      <div id='dateSelector'></div>
-      Start Date: #{@startDate}
-      End Date: #{@endDate}
+	  <div id='date-range'>
+		<span id='filters-drop' class='drop-pointer'>
+		     <button class='mdl-button mdl-js-button mdl-button--icon' id='dateFilter'> 
+				<i class='material-icons'>event</i> 
+			 </button> 
+		</span>
+		<span id='date-period'>#{@startDate} to #{@endDate}</span>
+  	    <div id='filters-section' class='hide'>
+		  <hr />
+          <div id='dateSelector'></div>
+		  <hr />
+  	    </div>
+	  </div>
     "
 
     Coconut.dateSelectorView = new DateSelectorView() unless Coconut.dateSelectorView
