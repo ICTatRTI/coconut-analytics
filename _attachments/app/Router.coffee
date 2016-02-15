@@ -8,8 +8,6 @@ Cookie = require 'js-cookie'
 
 DashboardView = require './views/DashboardView'
 UsersView = require './views/UsersView'
-User = require './models/User'
-UserCollection = require './models/UserCollection'
 
 class Router extends Backbone.Router
   routes:
