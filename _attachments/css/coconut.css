@@ -58,7 +58,7 @@ table.tablesorter tr {
 }
 
 table.tablesorter thead tr .header {
-	background-image: url(../img/bg.gif);
+	background-image: url(../images/bg.gif);
 	background-repeat: no-repeat;
 	background-position: center right;
 	cursor: pointer;
@@ -85,10 +85,10 @@ table.tablesorter tbody tr.odd td {
 */
 
 table.tablesorter thead tr .headerSortUp {
-	background-image: url(../img/asc.gif);
+	background-image: url(../images/asc.gif);
 }
 table.tablesorter thead tr .headerSortDown {
-	background-image: url(../img/desc.gif);
+	background-image: url(../images/desc.gif);
 }
 
 table.tablesorter tbody td.high-risk-shehia{
@@ -552,22 +552,22 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 }
 
 #summary1 {
-	background-image: url(../img/summary1.png);
+	background-image: url(../images/summary1.png);
 	background-repeat: no-repeat;
 }
 
 #summary2 {
-	background-image: url(../img/summary2.png);
+	background-image: url(../images/summary2.png);
 	background-repeat: no-repeat;
 }
 
 #summary3 {
-	background-image: url(../img/summary3.png);
+	background-image: url(../images/summary3.png);
 	background-repeat: no-repeat;
 }
 
 #summary4 {
-	background-image: url(../img/summary4.png);
+	background-image: url(../images/summary4.png);
 	background-repeat: no-repeat;
 }
 

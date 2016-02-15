@@ -4,13 +4,18 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Moment = require 'moment'
 PouchDB = require 'pouchdb'
+Cookie = require 'js-cookie'
 
 DashboardView = require './views/DashboardView'
+UsersView = require './views/UsersView'
+User = require './models/User'
+UserCollection = require './models/UserCollection'
 
 class Router extends Backbone.Router
   routes:
     "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
+    "admin/users": "users"
 
   dashboard: (startDate,endDate) =>
     @dashboardView = new DashboardView() unless @dashboardView
@@ -26,5 +31,9 @@ class Router extends Backbone.Router
     @dashboardView.startDate = startDate
     @dashboardView.endDate = endDate
     @dashboardView.render()
+
+  users: () =>
+    @usersView = new UsersView() unless @usersView
+    @usersView.render()
 
 module.exports = Router
