@@ -11,8 +11,8 @@ class MenuView extends Backbone.View
   toggleDropdownMenu: (e) =>
     e.preventDefault
     $target = $(e.target)
-    hidden = $target.next("div.dropdown").is(":hidden");
-    $("div.dropdown").slideUp();
+    hidden = $target.next("div.dropdown").is(":hidden")
+    $("div.dropdown").slideUp()
     if (!hidden)
       $target.next("div.dropdown").slideUp()
     else
@@ -36,7 +36,7 @@ class MenuView extends Backbone.View
   removeActive: =>
     $("a.mdl-navigation__link").removeClass("active")
 
-  render: => 
+  render: =>
     @$el.html "
       <header class='coconut-drawer-header'>
 	  <div class='clear m-t-30'>
@@ -55,7 +55,7 @@ class MenuView extends Backbone.View
       #{
         reportLinks = {
           alerts: "Alerts"
-          analysis: "Analysis"
+          Analysis: "Analysis"
           casefollowup: "Case Followup"
           compareweekly: "Compare Weekly"
           epidemicthreshold: "Epidemic Thresholds"

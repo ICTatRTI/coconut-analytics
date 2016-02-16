@@ -24,8 +24,27 @@ headerView = new HeaderView
   el: "header.coconut-header"
 headerView.render()
 
+
 # Coconut is just a global object useful for keeping things in one scope
-global.Coconut = {}
-Coconut.database = new PouchDB("http://localhost:5984/zanzibar")
-Coconut.router = new Router()
-Backbone.history.start()
+global.Coconut = {
+  database: new PouchDB("http://localhost:5984/zanzibar")
+  router: new Router()
+  #TODO load config from a _local database doc
+  config: {
+    dateFormat: "YYYY-MM-DD"
+  }
+}
+
+#TODO stubbing this out until login is implemented
+global.User = {
+  currentUser:  {
+    hasRole: -> "reports"
+  }
+}
+
+GeoHierarchyClass = require './models/GeoHierarchy'
+global.GeoHierarchy = new GeoHierarchyClass
+  error: (error) -> console.error error
+  success: =>
+    Backbone.history.start()
+

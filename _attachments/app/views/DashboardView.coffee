@@ -9,7 +9,7 @@ DateSelectorView = require './DateSelectorView'
 
 class DashboardView extends Backbone.View
 
-  events: 
+  events:
     "click button#dateFilter": "showForm"
   
   showForm: (e) =>
