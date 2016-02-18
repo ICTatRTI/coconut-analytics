@@ -221,7 +221,7 @@ button.not-followed-up-after-48-hours-false {
 	float: left;
 }
 
-#select-by-date, #select-by-week {
+.select-by-date, .select-by-week {
 	padding-top: 20px;
 }
 
@@ -690,7 +690,7 @@ div.chart {
   position:relative; 
   margin-bottom:25px; 
 }
-input#username, input#password {
+.login-group input#username, .login-group input#password {
   font-size:14px;
   padding:10px 10px 10px 5px;
   display:block;
@@ -698,7 +698,7 @@ input#username, input#password {
   border:none;
   border-bottom:1px solid #757575;
 }
-input#username:focus, input#password:focus     { outline:none; }
+.login-group input#username:focus, .login-group input#password:focus     { outline:none; }
 
 div.login-group label          {
   color:#999; 
@@ -768,4 +768,29 @@ div.login-group input:focus ~ .login-highlight {
 
 .width30 {
 	width: 30px;
+}
+
+/* UserView */
+div#form-inputs {
+	margin: 10px 0;
+	min-height: 170px;
+	border: 1px solid;
+	padding: 10px;
+	display: none;
+}
+div#form-inputs td {
+	padding: 0 10px;
+}
+
+div#form-inputs input {
+	padding: 5px;
+	color: blue;
+	font-size: 13px;
+	width: 180px;
+}
+
+div#form-title {
+	font-weight: bold;
+	font-size: 1.1em;
+	margin-bottom: 5px;
 }

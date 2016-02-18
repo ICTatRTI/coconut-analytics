@@ -9,69 +9,93 @@ class DateSelectorView extends Backbone.View
   selectBy: (e) =>
     selected = $('#select-by :selected').text()
     if (selected == 'Date')
-      $('td.select_by_date').show()
-      $('td.select_by_week').hide()
+      $('tr.select-by-date').show()
+      $('tr.select-by-week').hide()
     else
-      $('td.select_by_date').hide()
-      $('td.select_by_week').show()
+      $('tr.select-by-date').hide()
+      $('tr.select-by-week').show()
 
   render: =>
     @$el.html "
-	  <table>
-	    <tr>
-		 <td>Select By</td>
-	     <td><select name = 'SelectBy' id='select-by'> 
-		   <option value='Week'>Week</option>
-		   <option value='Date'>Date</option></select>
-	     </td>
-		 <td class='select_by_date width30'> </td>
-		 <td class= 'select_by_date'>
-            <div>Start date <input value='#{@startDate}'></input></div>
-            <div>End date &nbsp;<input value='#{@endDate}'></input></div>
-		 </td>
-		 <td class= 'select_by_week width30'> </td>
-		 <td class= 'select_by_week'>
-		    <div>
-		     <label style='display:inline' for='StartYear'>Start Year &nbsp;</label>
-		     <select name='StartYear'> 
- 		       #{
+      <table style='width: 400px; margin-left: 30px'>
+        <tbody>
+		   <tr id='select-date-week'>
+             <td colspan='2'>Select By</td>
+             <td><select name='SelectBy' id='select-by'> 
+                <option value='Week'>Week</option>
+                <option value='Date'>Date</option></select>
+             </td>
+             <td clospan='4'> &nbsp; </td>
+           </tr>
+           <tr class='select-by-date hide'>
+               <td colspan='2'>
+                 <label style='display:inline' for='StartDate'>Start Date</label>
+               </td>
+			   <td>
+			      <div><input value='#{@startDate}'></input></div>
+			   </td>
+			   <td colspan='4'> </td>
+		   </tr>
+		   <tr class='select-by-date hide'>	   
+               <td colspan='2'>
+                 <label style='display:inline' for='EndDate'>End Date</label>
+               </td>
+			   <td>
+			      <div><input value='#{@endDate}'></input></div>
+			   </td>
+			   <td colspan='4'></td>
+		   </tr>	   
+           <tr class='select-by-week'>
+             <td colspan='2'>
+               <label style='display:inline' for='StartYear'>Start Year</label>
+             </td>
+             <td>
+               <select name='StartYear'>
+                 #{
                    for i in [2015..2012] 
-                     "<option value='#{i}'>#{i}</option>" 
- 			   }
-			 </select>
-			</div>
-			<div> 
-		     <label style='display:inline' for='StartWeek'>Start Week </label>
-		     <select name='StartWeek'><option></option>
-			    #{
-                   for i in [1..53] 
-                     "<option value='#{i}'>Week #{i}</option>" 
-				} 
-			 </select>
-			</div> 
-		 </td>
-		 <td class='width30'> </td>
-		 <td class= 'select_by_week'>
-		    <div>
-		     <label style='display:inline' for='EndYear'>End Year &nbsp;</label>
-		     <select name='EndYear'>
-		       #{
-                  for i in [2015..2012] 
-                    "<option value='#{i}'>#{i}</option>" 
-			   }
-			 </select>
-			</div>
-			<div> 
-		     <label style='display:inline' for='EndWeek'>End Week </label>
-		     <select name='EndWeek'><option></option>
-			    #{
-                   for i in [1..53] 
-                     "<option value='#{i}'>Week #{i}</option>" 
-				} 
-			 </select>
-			</div> 
-		 </td>
-		</tr>
+                      "<option value='#{i}'>#{i}</option>" 
+                 }
+               </select>
+             </td>
+             <td> </td>
+             <td colspan='2'>
+               <label style='display:inline' for='StartWeek'>Start Week</label>
+             </td>
+             <td>
+               <select name='StartWeek'> <option></option>
+                 #{
+                     for i in [1..53] 
+                       "<option value='#{i}'>Week #{i}</option>" 
+                 } 
+               </select>
+             </td>
+           </tr>
+           <tr class='select-by-week'>
+               <td colspan='2'>
+                 <label style='display:inline' for='EndYear'>End Year</label>
+               </td>
+               <td>
+                 <select name='EndYear'> 
+                   #{
+	                    for i in [2015..2012] 
+	                      "<option value='#{i}'>#{i}</option>" 
+                    }
+                 </select>
+               </td>
+               <td> </td>
+               <td colspan='2'>
+                  <label style='display:inline' for='EndWeek'>End Week</label>
+               </td>
+               <td>
+                  <select name='EndWeek'>
+	 			    #{
+	                    for i in [1..53] 
+	                      "<option value='#{i}'>Week #{i}</option>" 
+	 				}
+                  </select>
+               </td> 
+           </tr>	
+		 </tbody>
 	   </table> 	
     "
     
