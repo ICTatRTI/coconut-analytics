@@ -28,7 +28,7 @@ class UsersView extends Backbone.View
       $('form#user input').val('')
 	  	  
     editUser: (e) =>
-      e.preventDefault	  
+      e.preventDefault
       $('#form-title').html("Edit User")
       $('#form-inputs').slideDown()
 	  #move focus to the top of edit form
@@ -41,7 +41,7 @@ class UsersView extends Backbone.View
          include_docs: true
       .catch (error) -> console.error error
       .then (user) =>
-         @user = user
+         @user = _.clone(user)
          user._id = user._id.substring(5)
          Form2js.js2form($('form#user').get(0), user)
          if (user.roles)
@@ -49,14 +49,26 @@ class UsersView extends Backbone.View
              $("[name=role][value=#{role}]").prop("checked", true)
        return false
 	   
-    formSave: ->
-      userData = $('form#user').toObject(skipEmpty: false)
-      userData._id = "user." + userData._id
-      userData.inactive = true if userData.inactive is 'on'
-      userData.isApplicationDoc = true
-      userData.district = userData.district.toUpperCase() if userData.district?
-      user = new User
-        _id: userData._id
+    formSave: =>
+      if not @user
+        @user = {
+          _id: "user." + $("#_id").val()
+        }
+      
+      @user.inactive = $("#inactive").is(":checked")
+      @user.isApplicationDoc = true
+      @user.district = $("#district").val().toUpperCase()
+      @user.password = $('#password').val()
+      @user.name = $('#name').val()
+      @user.roles = $('#roles').val()
+      @user.comments = $('#comments').val()
+
+      console.log @user
+
+      Coconut.database.put @user
+      .catch (error) -> console.error error
+      .then =>
+        @render()
       
 
     formCancel: (e) =>
@@ -97,11 +109,11 @@ class UsersView extends Backbone.View
 		           <form id='user'>
 				    <div class='mdl-grid'>
 		             #{
-		               _.map( fields, (field) ->
+		               _.map( fields, (field) =>
 		                 "
 						 <div class='mdl-cell mdl-cell--2-col mdl-cell--4-col-tablet'>
 		                   <label style='display:block' for='#{field}'>#{if field is "_id" then "Username" else humanize(field)}</label>
-		                   <input id='#{field}' name='#{field}' type='text'></input>
+		                   <input id='#{field}' name='#{field}' type='text' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
 						 </div>
 		                 "
 		               ).join("")
@@ -135,7 +147,7 @@ class UsersView extends Backbone.View
 	            </thead> 
 	            <tbody>
 	              #{
-                    _(users).map (user) -> 
+                    _(users).map (user) ->
                       "
 					  <tr>
 	                    <td>#{user._id.substring(5)}</td>
