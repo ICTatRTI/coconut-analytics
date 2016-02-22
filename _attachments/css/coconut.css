@@ -794,3 +794,9 @@ div#form-title {
 	font-size: 1.1em;
 	margin-bottom: 5px;
 }
+
+#analysis-spinner {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+}

@@ -3,6 +3,9 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
+global.jQuery = require 'jquery'
+require 'tablesorter'
+
 Reports = require '../models/Reports'
 
 class AnalysisView extends Backbone.View
@@ -13,7 +16,6 @@ class AnalysisView extends Backbone.View
   ###
 
   render: =>
-    console.log "ASDASA"
     @$el.html "
       <style>
         td button.same-cell-disaggregatable{
