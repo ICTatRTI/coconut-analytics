@@ -6,7 +6,7 @@ class Reports
 
   positiveCaseLocations: (options) ->
 
-    $.couch.db(Coconut.config.database_name()).view "#{Coconut.config.design_doc_name()}/positiveCaseLocations",
+    Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCaseLocations",
       startkey: moment(options.endDate).endOf("day").format(Coconut.config.get "date_format")
       endkey: options.startDate
       descending: true
@@ -260,8 +260,7 @@ class Reports
         options.finished(data)
 
   @systemErrors: (options) ->
-
-    $.couch.db(Coconut.config.database_name()).view "#{Coconut.config.design_doc_name()}/errorsByDate",
+    Coconut.database.query "#{Coconut.config.design_doc_name}/errorsByDate",
       # Note that these seem reversed due to descending order
       startkey: options?.endDate || moment().format("YYYY-MM-DD")
       endkey: options?.startDate || moment().subtract(1,'days').format("YYYY-MM-DD")
@@ -414,7 +413,7 @@ class Reports
     }
 
     # Get the the caseids for all of the results in the data range with the user id
-    $.couch.db(Coconut.config.database_name()).view "zanzibar-server/resultsByDateWithUserAndCaseId",
+    Coconut.database.query "zanzibar-server/resultsByDateWithUserAndCaseId",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
@@ -440,7 +439,7 @@ class Reports
           # Get the time differences within each case
           caseIds = _(userData.cases).map (foo, caseId) -> caseId
 
-          $.couch.db(Coconut.config.database_name()).view "#{Coconut.config.design_doc_name()}/cases",
+          Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
             keys: caseIds
             include_docs: true
             error: (error) ->
@@ -523,7 +522,7 @@ class Reports
     aggregationArea = options.aggregationArea
     aggregationPeriod = options.aggregationPeriod
     facilityType = options.facilityType or "All"
-    $.couch.db(Coconut.config.database_name()).view "zanzibar-server/weeklyDataBySubmitDate",
+    Coconut.database.query "zanzibar-server/weeklyDataBySubmitDate",
       startkey: [startYear,startWeek]
       endkey: [endYear,endWeek]
       include_docs: true
@@ -666,7 +665,7 @@ class Reports
     aggregationPeriod = options.aggregationPeriod
 
 
-    $.couch.db(Coconut.config.database_name()).view "zanzibar-server/positiveFacilityCasesByDate",
+    Coconut.database.query "zanzibar-server/positiveFacilityCasesByDate",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
@@ -760,7 +759,7 @@ class Reports
     aggregationPeriod = options.aggregationPeriod
     facilityType = options.facilityType
 
-    $.couch.db(Coconut.config.database_name()).view "zanzibar-server/positiveFacilityCasesByDate",
+    Coconut.database.query "zanzibar-server/positiveFacilityCasesByDate",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
@@ -799,7 +798,7 @@ class Reports
         .uniq()
         .value()
 
-        $.couch.db(Coconut.config.database_name()).view "#{Coconut.config.design_doc_name()}/cases",
+        Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
           keys: caseIdsToFetch
           include_docs: true
           error: => options?.error()
