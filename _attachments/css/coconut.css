@@ -502,7 +502,7 @@ td.CaseID a:hover{
 	font-weight: bold;
 }
 
-.analysis-report {
+div.analysis-report {
 	display: none;
 }
 
@@ -799,4 +799,12 @@ div#form-title {
 	position: fixed;
 	top: 50%;
 	left: 50%;
+}
+
+#alerts-drop-section, #cases-drop-section, #legend-drop-section {
+	display: none;
+}
+
+#summary-dropdown, #dropdown-container {
+	margin-bottom: 20px;
 }

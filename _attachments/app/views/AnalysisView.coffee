@@ -10,10 +10,17 @@ Reports = require '../models/Reports'
 
 class AnalysisView extends Backbone.View
 
-  ###
   events:
-    "click button#dateFilter": "showForm"
-  ###
+    "click div.analysis.dropDownBtn": "showDropDown"
+
+  showDropDown: (e) =>
+    $target =  $(e.target).closest('.analysis')
+    $target.next(".analysis-report").slideToggle()
+    if ($target.find("i").text()== "play_arrow")
+       iconStatus = "details"	
+    else
+       iconStatus = "play_arrow"
+    $target.find("i").text(iconStatus)
 
   render: =>
     @$el.html "
@@ -28,8 +35,7 @@ class AnalysisView extends Backbone.View
       Aggregation Type:
       <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "District" then "checked='true'" else ""} value='District'>District</input>
       <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>Shehia</input>
-      <hr/>
-      <div style='font-style:italic'>Click on a column heading to sort.</div>
+      <div style='font-style:italic; margin-top: 10px'>Click on arrow button/title to show table.</div>
       <hr/>
       <img id='analysis-spinner' src='images/spinner.gif'/>
       </div>
@@ -62,7 +68,11 @@ class AnalysisView extends Backbone.View
           "%"
         ]
 
-        $("#analysis").append "<h2>Cases Followed Up<small> <button onClick='$(\".details\").toggle()'>Toggle Details</button></small></h2>"
+        $("#analysis").append "
+		  <div class='analysis dropDownBtn'>
+			  <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  Cases Followed Up<small> <button onClick='$(\".details\").toggle()'>Toggle Details</button></small></h4></div>
+		"
         $("#analysis").append @createTable headings, "
           #{
             _.map(data.followups, (values,location) =>
@@ -101,7 +111,7 @@ class AnalysisView extends Backbone.View
                 </tr>
               "
             ).join("")
-          }
+          }  
         ", "cases-followed-up"
 
         _([
@@ -139,8 +149,12 @@ class AnalysisView extends Backbone.View
 
 
         $("#analysis").append "
+          </div>
           <hr>
-          <h2>Index Household and Neighbors</h2>
+		  <div class='analysis dropDownBtn'>
+		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='material-icons'>play_arrow</i></button>
+            Index Household and Neighbors</h4>
+		  </div>
         "
         $("#analysis").append @createTable """
           District
@@ -173,11 +187,15 @@ class AnalysisView extends Backbone.View
               "
             ).join("")
           }
-        "
+        ",'index-house-neighbors'
 
         $("#analysis").append "
+
           <hr>
-          <h2>Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h2>
+          <div class='analysis dropDownBtn'>
+            <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h4>
+          </div>
         "
         $("#analysis").append @createTable "District, Total, <5, %, 5<15, %, 15<25, %, >=25, %, Unknown, %".split(/, */), "
           #{
@@ -201,12 +219,17 @@ class AnalysisView extends Backbone.View
               "
             ).join("")
           }
-        "
+        ", 'age'
 
         $("#analysis").append "
+		  </div>
           <hr>
-          <h2>Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h2>
-          <button type='button' onclick='$(\".gender-unknown\").toggle()'>Toggle Unknown</button>
+		  <div class='analysis dropDownBtn'>
+		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  		Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small> 
+				<button type='button'' onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>
+		  	</h4>
+		  </div>
         "
         $("#analysis").append @createTable "District, Total, Male, %, Female, %, Unknown, %".split(/, */), "
           #{
@@ -226,14 +249,18 @@ class AnalysisView extends Backbone.View
               "
             ).join("")
           }
-
         ", "gender"
         $("table#gender th:nth-child(7)").addClass("gender-unknown").css("display", "none")
         $("table#gender th:nth-child(8)").addClass("gender-unknown").css("display", "none")
 
         $("#analysis").append "
+          </div>
           <hr>
-          <h2>Nets and Spraying: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h2>
+		  <div class='analysis dropDownBtn'>
+		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  		Nets and Spraying: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
+		  	</h4>
+		  </div>
         "
         $("#analysis").append @createTable "District, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
           #{
@@ -250,11 +277,16 @@ class AnalysisView extends Backbone.View
               "
             ).join("")
           }
-        "
+        ", 'nets-and-spraying'
 
         $("#analysis").append "
+		  </div>
           <hr>
-          <h2>Travel History (within past month): <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h2>
+		  <div class='analysis dropDownBtn'>
+		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  		Travel History (within past month): <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
+		  	</h4>
+		  </div>
         "
         $("#analysis").append @createTable """
           #{options.aggregationLevel}
@@ -301,6 +333,7 @@ class AnalysisView extends Backbone.View
               "
             .join("")
           }
+		  </div>
         "
         , "travel-history-table"
   
@@ -397,20 +430,23 @@ class AnalysisView extends Backbone.View
 
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
-      <table #{if id? then "id=#{id}" else ""} class='tablesorter'>
-        <thead>
-          <tr>
+      <div id='#{id}' class='analysis-report dropdown-section'>
+		<div style='font-style:italic'>Click on a column heading to sort.</div>
+        <table #{if id? then "id=#{id}" else ""} class='tablesorter'>
+          <thead>
+            <tr>
             #{
               _.map(headerValues, (header) ->
-                "<th colspan='#{colspan}'>#{header}</th>"
+                "<th class='header' colspan='#{colspan}'>#{header}</th>"
               ).join("")
             }
-          </tr>
-        </thead>
-        <tbody>
-          #{rows}
-        </tbody>
-      </table>
+            </tr>
+          </thead>
+          <tbody>
+            #{rows}
+          </tbody>
+        </table>
+      </div>	
     "
 
 module.exports = AnalysisView
