@@ -54,22 +54,21 @@ class MenuView extends Backbone.View
 
       #{
         reportLinks = {
-          alerts: "Alerts"
           Analysis: "Analysis"
-          casefollowup: "Case Followup"
-          compareweekly: "Compare Weekly"
-          epidemicthreshold: "Epidemic Thresholds"
-          incidentsgraph: "Incidents Graph"
-          periodsummary: "Period Summary"
-          pilotnotification: "Pilot Notifications"
-          rainfallreport: "Rainfall Report"
-          systemerrors: "System Errors"
-          usersreport: "Users Report"
-          weeklyreports: "Weekly Reports"
-          weeklysummary: "Weekly Summary"
+          Casefollowup: "Case Followup Status"
+          Compareweekly: "Compare MEEDS or ISMS Weekly Facility Reports with Case Followups"
+          Epidemicthreshold: "Epidemic Thresholds"
+          Systemerrors: "Errors Detected by System"
+          Incidentsgraph: "Incidents Graph - cases by week"
+          Periodsummary: "Period Trends compared to previous 3 weeks"
+          Pilotnotification: "Pilot Notifications"
+          Rainfallreport: "Rainfall Submission"
+          Usersreport: "Users Report - how fast are followups occuring"
+          Weeklyreports: "Weekly Facility Reports from MEEDS or ISMS"
+          Weeklysummary: "Weekly Trends compared to previous 3 weeks"
         }
         _(reportLinks).map (linkText, linkUrl) ->
-          "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
+          "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
         .join ""
       }
 	  </div>

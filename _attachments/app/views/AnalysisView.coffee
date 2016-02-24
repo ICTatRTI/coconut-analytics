@@ -29,7 +29,7 @@ class AnalysisView extends Backbone.View
           float:right;
         }
       </style>
-
+      <div id='dateSelector'></div>
       <div id='analysis'>
       <hr/>
       Aggregation Type:
@@ -40,7 +40,7 @@ class AnalysisView extends Backbone.View
       <img id='analysis-spinner' src='images/spinner.gif'/>
       </div>
     "
-
+	
     options = Coconut.router.reportViewOptions
 
     Reports.casesAggregatedForAnalysis

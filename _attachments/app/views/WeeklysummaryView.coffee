@@ -4,8 +4,9 @@ Backbone = require 'backbone'
 Backbone.$  = $
 
 DataTables = require 'datatables'
+Reports = require '../models/Reports'
 
-class DashboardView extends Backbone.View
+class WeeklysummaryView extends Backbone.View
   el: "#content"
 
   events:
@@ -20,6 +21,6 @@ class DashboardView extends Backbone.View
     @$el.html "
         <div id='dateSelector'></div>
     "
-    Coconut.router.showDateFilter(@startDate,@endDate)
+    options = Coconut.router.reportViewOptions
 
-module.exports = DashboardView
+module.exports = WeeklysummaryView

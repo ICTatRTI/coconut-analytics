@@ -176,8 +176,9 @@ button.not-followed-up-after-48-hours-false {
 }
 
 /* Case Followup Report */
-#filters-section, #alerts-section, #cases-section, #legend-section {
+#filters-section, #alerts-drop-section, #cases-drop-section, #legend-drop-section {
 	padding-bottom: 20px;
+	display: none;
 }
 
 #filters-section {
@@ -186,10 +187,6 @@ button.not-followed-up-after-48-hours-false {
 
 #alerts-drop, #cases-drop, #legend-drop {
 	width: 100px;
-}
-
-#dateSelector {
-   padding: 0 30px;	
 }
 
 /* Layout styling */
