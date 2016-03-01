@@ -3,6 +3,9 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
+global.jQuery = require 'jquery'
+require 'tablesorter'
+
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
@@ -96,7 +99,10 @@ class UsersView extends Backbone.View
         fields =  "_id,password,district,name,roles,comments".split(",")
 		
         @$el.html "
-            <div id='top-of-form' tabindex='1'>	</div>
+            <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
+				<i class='material-icons'>add</i>
+			</button>
+			<div id='top-of-form' tabindex='1'>	</div>
             <div id='form-inputs'>
 				<div id='user-form'>
 				   <div id='form-title'> </div>
@@ -118,31 +124,32 @@ class UsersView extends Backbone.View
 		                 "
 		               ).join("")
 		             }
-					 <div class='mdl-cell mdl-cell--2-col mdl-cell--4-col-tablet'>
-		               <label for='inactive'>Inactive</label>
-		               <input id='inactive' name='inactive' type='checkbox' style='width:50px'></input>
-					 </div>
+
+                       <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive'>
+		                  <input type='checkbox' id='inactive' name='inactive' class='mdl-switch__input'>
+                          <span class='mdl-switch__label'>Inactive</span>
+                       </label>
+
 					 <div style='margin-top: 5px; padding-left: 10px'>
-		               <button type='button' id='formSave'>Save</button>
-		               <button type='button' id='formCancel'>Cancel</button>
+		               <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave'>Save</button> &nbsp;
+		               <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel'>Cancel</button>
 					 </div> 
                    </div>	  
 		         </form>
               </div>
 			</div>
-            <button class='btn btn-primary' id='new-user-btn'>Create New User</button>
 	        <div id='results' class='result'>
 	          <table class='summary tablesorter'> 
 	            <thead>
 	              <tr> 
 	              <th class='header headerSortUp'>Username</th>
-	              <th class='header'>Password</th>
+	              <th>Password</th>
 	              <th class='header'>District</th>
 	              <th class='header'>Name</th>
 	              <th class='header'>Roles</th>
-	              <th class='header'>Comments</th>
+	              <th>Comments</th>
 	              <th class='header'>Inactive</th>
-	              <th class='header'>Actions</th>
+	              <th>Actions</th>
 	              </tr>
 	            </thead> 
 	            <tbody>
@@ -158,9 +165,7 @@ class UsersView extends Backbone.View
 	                    <td>#{user.comments}</td>
 					    <td>#{user.inactive}</td>
 		                <td> <button class='mdl-button mdl-js-button mdl-button--icon'>
-		                   <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons'>mode_edit</i></a></button> 
-		                   <button class='mdl-button mdl-js-button mdl-button--icon'>
-		                   <a href='#' class='user-delete' data-user-id='#{user._id}'><i class='material-icons'>delete</i></a></button>
+		                   <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons'>mode_edit</i></a></button>
 		                </td>
 					 </tr> 
 	                 "
@@ -170,5 +175,6 @@ class UsersView extends Backbone.View
 	          </table>
 	        </div>
         "
-
+        $("table.summary").tablesorter({sortList: [[0,0]]})
+		
 module.exports = UsersView
