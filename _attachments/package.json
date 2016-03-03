@@ -2,10 +2,11 @@
   "name": "coconut-reports",
   "version": "0.9.0",
   "scripts": {
-    "start": "npm run watch & npm run livereload & npm run static",
+    "dev": "sed -i 's/https:\/\/cococloud.co\/zanzibar/http:\/\/localhost:5984\/zanzibar/' app/start.coffee;npm run watch & npm run livereload & npm run static",
     "watch": "watchify -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js",
     "livereload": "livereloadify ./",
-    "static": "static --port 8081 ./"
+    "static": "static --port 8081 ./",
+    "deploy": "sed -i 's/http:\\/\\/localhost:5984\\/zanzibar/https:\\/\\/cococloud.co\\/zanzibar/' app/start.coffee;browserify -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js;couchapp push cloud"
   },
   "dependencies": {
     "backbone": "^1.2.1",
