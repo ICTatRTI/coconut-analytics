@@ -701,6 +701,31 @@ class Reports
 
         options.success aggregatedData
 
+  @formattedPercent: (number) ->
+    percent = (number * 100).toFixed(0)
+    if isNaN(percent) then "--" else "#{percent}%"
+	
+  @createCaseLink: (options) ->
+    options.buttonText ?= options.caseID
+    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='#{options.buttonClass}'>#{options.buttonText}</button></a>"
+
+
+  # Can handle either full case object or just array of caseIDs
+  @createCasesLinks: (cases) ->
+    _.map(cases, (malariaCase) =>
+      @createCaseLink  caseID: (malariaCase.caseID or malariaCase)
+    ).join("")
+
+  @createDisaggregatableCaseGroup: (cases, text) ->
+    text = cases.length unless text?
+    "
+      <button class='sort-value same-cell-disaggregatable'>#{text}</button>
+      <div class='cases' style='padding:10px;display:none'>
+        <br/>
+        #{@createCasesLinks cases}
+      </div>
+    "
+	
   @aggregateWeeklyReportsAndFacilityCases = (options) =>
     options.localSuccess = options.success
     #Note that the order of the commands below is confusing
