@@ -30,7 +30,7 @@ class DateSelectorView extends Backbone.View
           <hr />
           <table style='width: 400px; margin-left: 30px'>
             <tbody>
-		       <tr id='select-date-week'>
+               <tr id='select-date-week'>
                  <td colspan='2'>Select By</td>
                  <td><select name='SelectBy' id='select-by'> 
                     <option value='Week'>Week</option>
@@ -42,20 +42,20 @@ class DateSelectorView extends Backbone.View
                    <td colspan='2'>
                      <label style='display:inline' for='StartDate'>Start Date</label>
                    </td>
-			       <td>
-			          <div><input value='#{@startDate}'></input></div>
-			       </td>
-			       <td colspan='4'> </td>
-		       </tr>
-		       <tr class='select-by-date hide'>	   
+                   <td>
+                      <div><input value='#{@startDate}'></input></div>
+                   </td>
+                   <td colspan='4'> </td>
+               </tr>
+               <tr class='select-by-date hide'>	   
                    <td colspan='2'>
                      <label style='display:inline' for='EndDate'>End Date</label>
                    </td>
-			       <td>
-			          <div><input value='#{@endDate}'></input></div>
-			       </td>
-			       <td colspan='4'></td>
-		       </tr>	   
+                   <td>
+                      <div><input value='#{@endDate}'></input></div>
+                   </td>
+                   <td colspan='4'></td>
+               </tr>	   
                <tr class='select-by-week'>
                  <td colspan='2'>
                    <label style='display:inline' for='StartYear'>Start Year</label>
@@ -88,8 +88,8 @@ class DateSelectorView extends Backbone.View
                    <td>
                      <select name='EndYear'> 
                         #{
-	                        for i in [2015..2012] 
-	                          "<option value='#{i}'>#{i}</option>" 
+                            for i in [2015..2012] 
+                              "<option value='#{i}'>#{i}</option>" 
                         }
                       </select>
                    </td>
@@ -99,18 +99,18 @@ class DateSelectorView extends Backbone.View
                    </td>
                    <td>
                       <select name='EndWeek'>
-	 			        #{
-	                        for i in [1..53] 
-	                          "<option value='#{i}'>Week #{i}</option>" 
-	 				    }
+                        #{
+                            for i in [1..53] 
+                              "<option value='#{i}'>Week #{i}</option>" 
+                        }
                       </select>
                    </td> 
                </tr>	
-		     </tbody>
-	       </table>
+             </tbody>
+           </table>
            <hr />
          </div>
-       </div> 	
+       </div>
     "
-    
+
 module.exports = DateSelectorView
