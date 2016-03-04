@@ -119,6 +119,7 @@ table.tablesorter tbody tr.odd.followed-up-false td {
     float: right;
     text-align: right;
     padding-right: 10px;
+    margin-bottom: 10px;
 }
 
 /* Reports Case Followup Buttons */
