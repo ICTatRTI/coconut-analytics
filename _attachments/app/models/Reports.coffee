@@ -777,7 +777,18 @@ class Reports
       @aggregateTimelinessForCases options
     @aggregateWeeklyReports options
 
-  
+  @mostSpecificLocationSelected: ->
+    mostSpecificLocationType = "region"
+    mostSpecificLocationValue = "ALL"
+    _.each @locationTypes, (locationType) ->
+      unless this[locationType] is "ALL"
+        mostSpecificLocationType = locationType
+        mostSpecificLocationValue = this[locationType]
+    return {
+      type: mostSpecificLocationType
+      name: mostSpecificLocationValue
+    }
+   
 
   @aggregateTimelinessForCases = (options) ->
     aggregationArea = options.aggregationArea
