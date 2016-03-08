@@ -17,10 +17,12 @@ class WeeklysummaryView extends Backbone.View
     $("div#filters-section").slideToggle()
 
   render: =>
-
-    @$el.html "
+      options = Coconut.router.reportViewOptions
+      $('#analysis-spinner').show()
+      @$el.html "
         <div id='dateSelector'></div>
-    "
-    options = Coconut.router.reportViewOptions
-
+        <div id='messages'></div>
+        <h3>Data Summary</h3>
+      "
+      $('#analysis-spinner').hide()
 module.exports = WeeklysummaryView

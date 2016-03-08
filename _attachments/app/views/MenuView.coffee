@@ -45,7 +45,7 @@ class MenuView extends Backbone.View
 	  </div>
 	  </header>		  
 	  <nav class='coconut_navigation mdl-navigation'>
-		<a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='/index.html#dashboard'>  
+		<a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='#dashboard'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>dashboard</i>Dashboard</a>
 		<a class='mdl-navigation__link drawer__subtitle' href='#' id='report-main' data-title='Reports' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>description</i>
@@ -60,8 +60,7 @@ class MenuView extends Backbone.View
           Epidemicthreshold: "Epidemic Thresholds"
           Systemerrors: "Errors Detected by System"
           Incidentsgraph: "Incidents Graph - cases by week"
-          Periodsummary: "Period Trends compared to previous 3 weeks"
-          Pilotnotification: "Pilot Notifications"
+          Periodtrends: "Period Trends compared to previous 3 weeks"
           Rainfallreport: "Rainfall Submission"
           Usersreport: "Users Report - how fast are followups occuring"
           Weeklyreports: "Weekly Facility Reports from MEEDS or ISMS"
@@ -79,12 +78,12 @@ class MenuView extends Backbone.View
 		<div class='m-l-20 dropdown' id='drawer-activities'>
         #{
              activityLinks = {
-               issues: "Issues"
-               todos: "To Do"
-               sms: "Send SMS to users"
+               Issues: "Issues"
+               Todos: "To Do"
+               Sms: "Send SMS to users"
              }
              _(activityLinks).map (linkText, linkUrl) ->
-               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
+               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/type/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
              .join ""
         }
 		</div>

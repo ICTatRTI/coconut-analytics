@@ -97,84 +97,84 @@ class UsersView extends Backbone.View
         users = _(result.rows).pluck("doc")
 
         fields =  "_id,password,district,name,roles,comments".split(",")
-		
+
         @$el.html "
             <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
-				<i class='material-icons'>add</i>
-			</button>
-			<div id='top-of-form' tabindex='1'>	</div>
+              <i class='material-icons'>add</i>
+            </button>
+            <div id='top-of-form' tabindex='1'>	</div>
             <div id='form-inputs'>
-				<div id='user-form'>
-				   <div id='form-title'> </div>
- 	               <div>
+               <div id='user-form'>
+                  <div id='form-title'> </div>
+ 	              <div>
                      <ul>
                        <li>DMSO's must have a username that corresponds to their phone number.</li>
                        <li>If a DMSO is no longer working, mark their account as inactive to stop notification messages from being sent.</li>
                      </ul>
-                   </div>
-		           <form id='user'>
-				    <div class='mdl-grid'>
-		             #{
-		               _.map( fields, (field) =>
-		                 "
-						 <div class='mdl-cell mdl-cell--2-col mdl-cell--4-col-tablet'>
-		                   <label style='display:block' for='#{field}'>#{if field is "_id" then "Username" else humanize(field)}</label>
-		                   <input id='#{field}' name='#{field}' type='text' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
-						 </div>
-		                 "
-		               ).join("")
-		             }
+                  </div>
+                  <form id='user'>
+                    <div class='mdl-grid'>
+                     #{
+                      _.map( fields, (field) =>
+                        "
+                        <div class='mdl-cell mdl-cell--2-col mdl-cell--4-col-tablet'>
+                           <label style='display:block' for='#{field}'>#{if field is "_id" then "Username" else humanize(field)}</label>
+                           <input id='#{field}' name='#{field}' type='text' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
+                        </div>
+                        "
+                        ).join("")
+                      }
 
-                       <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive'>
-		                  <input type='checkbox' id='inactive' name='inactive' class='mdl-switch__input'>
+                       <label class='mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect' for='inactive'>
+                       <input type='checkbox' id='inactive' name='inactive' class='mdl-checkbox__input'>
                           <span class='mdl-switch__label'>Inactive</span>
                        </label>
 
-					 <div style='margin-top: 5px; padding-left: 10px'>
-		               <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave'>Save</button> &nbsp;
-		               <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel'>Cancel</button>
-					 </div> 
+                <div style='margin-top: 5px; padding-left: 10px'>
+                       <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave'>Save</button> &nbsp;
+                       <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel'>Cancel</button>
+                     </div> 
                    </div>	  
-		         </form>
+                 </form>
               </div>
-			</div>
-	        <div id='results' class='result'>
-	          <table class='summary tablesorter'> 
-	            <thead>
-	              <tr> 
-	              <th class='header headerSortUp'>Username</th>
-	              <th>Password</th>
-	              <th class='header'>District</th>
-	              <th class='header'>Name</th>
-	              <th class='header'>Roles</th>
-	              <th>Comments</th>
-	              <th class='header'>Inactive</th>
-	              <th>Actions</th>
-	              </tr>
-	            </thead> 
-	            <tbody>
-	              #{
+            </div>
+            <div id='results' class='result'>
+              <table class='summary tablesorter'>
+                <thead>
+                  <tr> 
+                  <th class='header headerSortUp'>Username</th>
+                  <th>Password</th>
+                  <th class='header'>District</th>
+                  <th class='header'>Name</th>
+                  <th class='header'>Roles</th>
+                  <th>Comments</th>
+                  <th class='header'>Inactive</th>
+                  <th>Actions</th>
+                  </tr>
+                </thead> 
+                <tbody>
+                  #{
                     _(users).map (user) ->
                       "
-					  <tr>
-	                    <td>#{user._id.substring(5)}</td>
-	                    <td>#{user.password}</td>
-	                    <td>#{user.district}</td>
-	                    <td>#{user.name}</td>
-	                    <td>#{user.roles}</td>
-	                    <td>#{user.comments}</td>
-					    <td>#{user.inactive}</td>
-		                <td> <button class='mdl-button mdl-js-button mdl-button--icon'>
-		                   <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons'>mode_edit</i></a></button>
-		                </td>
-					 </tr> 
-	                 "
+                      <tr>
+                        <td>#{user._id.substring(5)}</td>
+                        <td>#{user.password}</td>
+                        <td>#{user.district}</td>
+                        <td>#{user.name}</td>
+                        <td>#{user.roles}</td>
+                        <td>#{user.comments}</td>
+                        <td>#{user.inactive}</td>
+                        <td> <button class='mdl-button mdl-js-button mdl-button--icon'>
+                           <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons'>mode_edit</i></a></button>
+                        </td>
+                     </tr> 
+                     "
                     .join("")
-	              }
-	            </tbody>
-	          </table>
-	        </div>
+                  }
+                </tbody>
+              </table>
+            </div>
         "
         $("table.summary").tablesorter({sortList: [[0,0]]})
-		
+
 module.exports = UsersView

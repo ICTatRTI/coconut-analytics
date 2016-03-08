@@ -17,8 +17,10 @@ class CaseFollowupView extends Backbone.View
     $("#{id}").slideToggle()
 	
   render: =>
+    $('#analysis-spinner').show()
     @$el.html "
-      <div id='dateSelector'></div>  	
+      <div id='dateSelector'></div>
+      <img id='analysis-spinner' src='/images/spinner.gif'/> 	
       <div id='summary-dropdown'>
         <div id='unhide-icons'>
 		  <!--
@@ -27,7 +29,7 @@ class CaseFollowupView extends Backbone.View
 		 	   <i class='material-icons'>functions</i> 
 		     </button>Summary
 		  </span>
-	      -->	  
+          -->	  
 		  <span id='legend-drop' class='drop-pointer rpt-suboptions'>
 		 	<button class='mdl-button mdl-js-button mdl-button--icon'> 
 		 	   <i class='material-icons'>dashboard</i> 
@@ -59,7 +61,7 @@ class CaseFollowupView extends Backbone.View
                  </tbody>
                </table>
              </div>	
-			 <hr />
+             <hr />
            </div>
            
            <div id='legend-drop-section'>
@@ -72,9 +74,10 @@ class CaseFollowupView extends Backbone.View
              <span style='font-size:75%;color:#3F51B5;font-weight:bold'>SHEHIA</span> - is a shehia classified as high risk based on previous data. <br />
              <button class='btn btn-small  mdl-button--primary'>caseid</button> - Case not followed up after 48 hours. <br />
           </div>
-      </div>	
+      </div>
+      <script>$('#analysis-spinner').hide()</script>	
       <div id='results' class='result'>
-	     <table class='summary tablesorter'>
+         <table class='summary tablesorter'>
            <thead>
              <tr> 
                <th class='header'>Case ID (<span id='th-CaseID-count'>51</span>)</th>
