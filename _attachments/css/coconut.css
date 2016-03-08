@@ -796,6 +796,7 @@ div#form-title {
 	position: fixed;
 	top: 50%;
 	left: 50%;
+	display: none;
 }
 
 #alerts-drop-section, #cases-drop-section, #legend-drop-section {

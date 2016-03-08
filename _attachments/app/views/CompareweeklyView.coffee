@@ -306,7 +306,9 @@ class CompareweeklyView extends Backbone.View
     @aggregationPeriod = @options.aggregationPeriod or "Month"
     @aggregationArea = @options.aggregationArea or "Zone"
     @facilityType = @options.facilityType or "All"
-	
+
+    $('#analysis-spinner').show()
+
     Reports.aggregateWeeklyReportsAndFacilityTimeliness
       startDate: @options.startDate
       endDate: @options.endDate
@@ -317,6 +319,7 @@ class CompareweeklyView extends Backbone.View
       console.log error
     .then (results) =>
       @results = results
+      $('#analysis-spinner').hide()
       @renderFacilityTimeliness()
 	  
 module.exports = CompareweeklyView

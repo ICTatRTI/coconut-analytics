@@ -19,6 +19,7 @@ class RainfallreportView extends Backbone.View
 
   render: =>
     options = Coconut.router.reportViewOptions
+    $('#analysis-spinner').show()
     @$el.html "
       <div id='dateSelector'></div>
       <div id='messages'></div>
@@ -38,6 +39,7 @@ class RainfallreportView extends Backbone.View
       include_docs: true
     .catch (error) -> console.error error
     .then (results) =>
+       $('#analysis-spinner').hide()
        @$el.append "
           #{
               _(results.rows).map (row) =>

@@ -30,6 +30,8 @@ class EpidemicthresholdView extends Backbone.View
     thresholdShehiaUnder5 = 5
     thresholdVillage = 5
     
+    $('#analysis-spinner').show()
+
     @$el.html "
         <div id='dateSelector'></div>
         <h3>Epidemic Thresholds</h3>
@@ -66,6 +68,7 @@ class EpidemicthresholdView extends Backbone.View
     alertsByDistrictAndWeek = {}
 
     finished = _.after alerts.length, ->
+      $('#analysis-spinner').hide()
       $('#content').append "
         <table class='tablesorter' id='thresholdTable'>
           <thead>

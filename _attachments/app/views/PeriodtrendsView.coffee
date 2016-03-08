@@ -19,18 +19,6 @@ class PeriodtrendsView extends Backbone.View
     e.preventDefault
     $("div#filters-section").slideToggle()
 
-  mostSpecificLocationSelected: ->
-    mostSpecificLocationType = "region"
-    mostSpecificLocationValue = "ALL"
-    _.each @locationTypes, (locationType) ->
-      unless this[locationType] is "ALL"
-        mostSpecificLocationType = locationType
-        mostSpecificLocationValue = this[locationType]
-    return {
-      type: mostSpecificLocationType
-      name: mostSpecificLocationValue
-    }
-
   render: =>
     @reportOptions = Coconut.router.reportViewOptions
     district = @reportOptions.district || "ALL"
@@ -38,10 +26,11 @@ class PeriodtrendsView extends Backbone.View
     @reportOptions.startDate = @reportOptions.startDate || moment(new Date).subtract(7,'days').format("YYYY-MM-DD")
     @reportOptions.endDate = @reportOptions.endDate || moment(new Date).format("YYYY-MM-DD")
 
+    $('#analysis-spinner').show()
+
     @$el.html "
         <div id='dateSelector'></div>
         <div id='messages'></div>
-        <img id='analysis-spinner' src='images/spinner.gif'/>
     "
 
     Coconut.database.query "zanzibar/byCollection",
@@ -205,7 +194,7 @@ class PeriodtrendsView extends Backbone.View
         aggregationLevel: "District"
         startDate: options.startDate
         endDate: options.endDate
-        mostSpecificLocation: @mostSpecificLocationSelected()
+        mostSpecificLocation: Reports.mostSpecificLocationSelected()
         success: (data) =>
           anyTravelOutsideZanzibar = _.union(data.travel[district]["Yes outside Zanzibar"], data.travel[district]["Yes within and outside Zanzibar"])
 

@@ -23,6 +23,7 @@ class AnalysisView extends Backbone.View
     $target.find("i").text(iconStatus)
 
   render: =>
+    $('#analysis-spinner').show()
     @$el.html "
       <style>
         td button.same-cell-disaggregatable{
