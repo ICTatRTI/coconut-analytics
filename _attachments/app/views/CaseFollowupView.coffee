@@ -7,6 +7,8 @@ global.jQuery = require 'jquery'
 require 'tablesorter'
 
 Reports = require '../models/Reports'
+FacilityHierarchy = require '../models/FacilityHierarchy'
+Questions = require '../models/QuestionCollection'
 
 class CaseFollowupView extends Backbone.View
   events:
@@ -15,9 +17,24 @@ class CaseFollowupView extends Backbone.View
   showDropDown: (e) =>
     id = '#'+ e.currentTarget.id + '-section'
     $("#{id}").slideToggle()
-	
+  
+  getCases: (options) =>
+    reports = new Reports()
+    reports.getCases
+      startDate: @startDate
+      endDate: @endDate
+      success: options.success
+      mostSpecificLocation: Reports.mostSpecificLocationSelected()
+
   render: =>
+    @reportOptions = Coconut.router.reportViewOptions
+    district = @reportOptions.district || "ALL"
+
+    @startDate = @reportOptions.startDate || moment(new Date).subtract(7,'days').format("YYYY-MM-DD")
+    @endDate = @reportOptions.endDate || moment(new Date).format("YYYY-MM-DD")
+
     $('#analysis-spinner').show()
+
     @$el.html "
       <div id='dateSelector'></div>
       <img id='analysis-spinner' src='/images/spinner.gif'/> 	
@@ -30,15 +47,15 @@ class CaseFollowupView extends Backbone.View
 		     </button>Summary
 		  </span>
           -->	  
-		  <span id='legend-drop' class='drop-pointer rpt-suboptions'>
-		 	<button class='mdl-button mdl-js-button mdl-button--icon'> 
-		 	   <i class='material-icons'>dashboard</i> 
-		     </button>
-		 	Legend
-		  </span>
-		</div>
+          <span id='legend-drop' class='drop-pointer rpt-suboptions'>
+            <button class='mdl-button mdl-js-button mdl-button--icon'> 
+              <i class='material-icons'>dashboard</i> 
+            </button>
+              Legend
+          </span>
+        </div>
       </div>	
-	  <div id='dropdown-container'>
+      <div id='dropdown-container'>
            <div id='cases-drop-section'>
              <h4>Summary</h4>
              <div>
@@ -75,38 +92,132 @@ class CaseFollowupView extends Backbone.View
              <button class='btn btn-small  mdl-button--primary'>caseid</button> - Case not followed up after 48 hours. <br />
           </div>
       </div>
-      <script>$('#analysis-spinner').hide()</script>	
       <div id='results' class='result'>
-         <table class='summary tablesorter'>
-           <thead>
-             <tr> 
-               <th class='header'>Case ID (<span id='th-CaseID-count'>51</span>)</th>
-               <th class='header headerSortUp'>Diagnosis Date (<span id='th-DiagnosisDate-count'>0</span>)</th>
-               <th class='header'>Health Facility District (<span id='th-HealthFacility District-count'></span>)</th>
-               <th class='header'>Shehia (<span id='th-Shehia-count'>0</span>)</th>
-               <th class='header'>USSD Notification (<span id='th-USSDNotification-count'>49</span>)</th>
-               <th class='header'>Case Notification (<span id='th-CaseNotification-count'>44</span>)</th>
-               <th class='header'>Facility (<span id='th-Facility-count'>35</span>)</th>
-               <th class='header'>Household (<span id='th-Household-count'>34</span>)</th>
-               <th class='header'>Household Members (<span id='th-HouseholdMembers-count'>137</span>)</th>
-             </tr>
-           </thead>
+        <table class='summary tablesorter'>
+          <thead><tr></tr></thead>
           <tbody>
-		    <tr id='case-109535' class='odd'> 
-             <td class='CaseID'> <a class='btn btn-small  mdl-button--primary' href='#show/case/109535'>109535</button> </a> </td> 
-             <td class='IndexCaseDiagnosisDate'> 2015-11-27 </td> 
-             <td class='HealthFacilityDistrict'> MICHEWENI </td> 
-             <td class='HealthFacilityDistrict high-risk-shehia'> TUMBE MASHARIKI </td> 
-             <td class='USSDNotification'> <a href='#show/case/109535/e3f8034cfa0787f62c3e2828ff23f6f3'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>open_in_browser</i></button></a> </td> 
-             <td class='CaseNotification'> <a href='#show/case/109535/5D6BE0EF-0BC7-14D7-86FD-CB5276243847'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>tap_and_play</i></button></a> </td> 
-             <td class='Facility'> <a href='#show/case/109535/82E6F3E6-9490-CD3A-841E-1867BDBC3F31'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>error_outline</i></button></a> </td> 
-             <td class='Household'> <a href='#show/case/109535/21D6F874-0017-5E31-B668-CF22FB69F327'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons household-incomplete'>home</i></button></a> </td> 
-             <td class='HouseholdMembers'>  </td> 
-	        </tr>
-          </tbody> 
-         </table>	
-      </div>
-    </div>
-	"
-	
+          </tbody>
+        </table>
+      </div>	
+    "
+    $('#analysis-spinner').hide()
+    tableColumns = ["Case ID","Diagnosis Date","Health Facility District","Shehia","USSD Notification"]
+    Coconut.questions.fetch
+      success: ->
+        tableColumns = tableColumns.concat Coconut.questions.map (question) ->
+          question.label()
+        _.each tableColumns, (text) ->
+          $("table.summary thead tr").append "<th>#{text} (<span id='th-#{text.replace(/\s/,"")}-count'></span>)</th>"
+
+    @getCases
+      success: (cases) =>
+        _.each cases, (malariaCase) =>
+
+          $("table.summary tbody").append "
+            <tr id='case-#{malariaCase.caseID}'>
+              <td class='CaseID'>
+                <a href='#show/case/#{malariaCase.caseID}'>
+                  <button class='not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
+                </a>
+              </td>
+              <td class='IndexCaseDiagnosisDate'>
+                #{malariaCase.indexCaseDiagnosisDate()}
+              </td>
+              <td class='HealthFacilityDistrict'>
+                #{
+                  if malariaCase["USSD Notification"]?
+                    FacilityHierarchy.getDistrict(malariaCase["USSD Notification"].hf)
+                  else
+                    ""
+                }
+              </td>
+              <td class='HealthFacilityDistrict #{if malariaCase.highRiskShehia() then "high-risk-shehia" else ""}'>
+                #{
+                  malariaCase.shehia()
+                }
+              </td>
+              <td class='USSDNotification'>
+                #{@createDashboardLinkForResult(malariaCase,"USSD Notification", "<img src='images/ussd.png'/>")}
+              </td>
+              <td class='CaseNotification'>
+                #{@createDashboardLinkForResult(malariaCase,"Case Notification","<img src='images/caseNotification.png'/>")}
+              </td>
+              <td class='Facility'>
+                #{@createDashboardLinkForResult(malariaCase,"Facility", "<img src='images/facility.png'/>","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
+              </td>
+              <td class='Household'>
+                #{@createDashboardLinkForResult(malariaCase,"Household", "<img src='images/household.png'/>","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
+              </td>
+              <td class='HouseholdMembers'>
+                #{
+                  _.map(malariaCase["Household Members"], (householdMember) =>
+                    malariaPositive = householdMember.MalariaTestResult? and (householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed")
+                    noTravelPositive = householdMember.OvernightTravelinpastmonth isnt "Yes outside Zanzibar" and malariaPositive
+                    buttonText = "<img src='images/householdMember.png'/>"
+                    unless householdMember.complete?
+                      unless householdMember.complete
+                        buttonText = buttonText.replace(".png","Incomplete.png")
+                    @createCaseLink
+                      caseID: malariaCase.caseID
+                      docId: householdMember._id
+                      buttonClass: if malariaPositive and noTravelPositive
+                       "no-travel-malaria-positive"
+                      else if malariaPositive
+                       "malaria-positive"
+                      else ""
+                      buttonText: buttonText
+                  ).join("")
+                }
+              </td>
+            </tr>
+          "
+
+        _.each tableColumns, (text) ->
+          columnId = text.replace(/\s/,"")
+          $("#th-#{columnId}-count").html $("td.#{columnId} button").length
+
+        $("#Cases-Reported-at-Facility").html $("td.CaseID button").length
+        $("#Additional-People-Tested").html $("td.HouseholdMembers button").length
+        $("#Additional-People-Tested-Positive").html $("td.HouseholdMembers button.malaria-positive").length
+
+        if $("table.summary tr").length > 1
+          $("table.summary").tablesorter
+            widgets: ['zebra']
+            sortList: [[1,1]]
+
+        districtsWithFollowup = {}
+        _.each $("table.summary tr"), (row) ->
+            row = $(row)
+            if row.find("td.USSDNotification button").length > 0
+              if row.find("td.CaseNotification button").length is 0
+                if moment().diff(row.find("td.IndexCaseDiagnosisDate").html(),"days") > 2
+                  districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()] = 0 unless districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()]?
+                  districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()] += 1
+        $("#alerts").append "
+        <style>
+          #alerts,table.alerts{
+            font-size: 80% 
+          }
+
+        </style>
+        The following districts have USSD Notifications that have not been followed up after two days. Recommendation call the DMSO:
+          <table class='alerts'>
+            <thead>
+              <tr>
+                <th>District</th><th>Number of cases</th>
+              </tr>
+            </thead>
+            <tbody>
+              #{
+                _.map(districtsWithFollowup, (numberOfCases,district) -> "
+                  <tr>
+                    <td>#{district}</td>
+                    <td>#{numberOfCases}</td>
+                  </tr>
+                ").join("")
+              }
+            </tbody>
+          </table>
+        "
+
 module.exports = CaseFollowupView
