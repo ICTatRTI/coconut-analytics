@@ -8,7 +8,8 @@ require 'tablesorter'
 
 Reports = require '../models/Reports'
 FacilityHierarchy = require '../models/FacilityHierarchy'
-Questions = require '../models/QuestionCollection'
+
+global.HTMLHelpers = require '../HTMLHelpers'
 
 class CaseFollowupView extends Backbone.View
   events:
@@ -102,12 +103,15 @@ class CaseFollowupView extends Backbone.View
     "
     $('#analysis-spinner').hide()
     tableColumns = ["Case ID","Diagnosis Date","Health Facility District","Shehia","USSD Notification"]
-    Coconut.questions.fetch
-      success: ->
-        tableColumns = tableColumns.concat Coconut.questions.map (question) ->
-          question.label()
-        _.each tableColumns, (text) ->
-          $("table.summary thead tr").append "<th>#{text} (<span id='th-#{text.replace(/\s/,"")}-count'></span>)</th>"
+
+    Coconut.database.query "zanzibar/byCollection",
+      key: "question"
+    .catch (error) -> console.error error
+    .then (result) ->
+      tableColumns = tableColumns.concat _(result.rows).pluck("id")
+      
+      _.each tableColumns, (text) ->
+        $("table.summary thead tr").append "<th>#{text} (<span id='th-#{text.replace(/\s/,"")}-count'></span>)</th>"
 
     @getCases
       success: (cases) =>
@@ -137,16 +141,16 @@ class CaseFollowupView extends Backbone.View
                 }
               </td>
               <td class='USSDNotification'>
-                #{@createDashboardLinkForResult(malariaCase,"USSD Notification", "<img src='images/ussd.png'/>")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "<img src='images/ussd.png'/>")}
               </td>
               <td class='CaseNotification'>
-                #{@createDashboardLinkForResult(malariaCase,"Case Notification","<img src='images/caseNotification.png'/>")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","<img src='images/caseNotification.png'/>")}
               </td>
               <td class='Facility'>
-                #{@createDashboardLinkForResult(malariaCase,"Facility", "<img src='images/facility.png'/>","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "<img src='images/facility.png'/>","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
               </td>
               <td class='Household'>
-                #{@createDashboardLinkForResult(malariaCase,"Household", "<img src='images/household.png'/>","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "<img src='images/household.png'/>","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
               </td>
               <td class='HouseholdMembers'>
                 #{
@@ -157,7 +161,7 @@ class CaseFollowupView extends Backbone.View
                     unless householdMember.complete?
                       unless householdMember.complete
                         buttonText = buttonText.replace(".png","Incomplete.png")
-                    @createCaseLink
+                    HTMLHelpers.createCaseLink
                       caseID: malariaCase.caseID
                       docId: householdMember._id
                       buttonClass: if malariaPositive and noTravelPositive

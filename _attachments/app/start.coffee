@@ -13,7 +13,6 @@ PouchDB = require 'pouchdb'
 Router = require './Router'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
-QuestionCollection = require './models/QuestionCollection'
 
 # These are views that should always be shown so render them now
 menuView = new MenuView
@@ -34,7 +33,6 @@ global.Coconut = {
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar-server"
   }
-  questions: new QuestionCollection()
 }
 
 #TODO stubbing this out until login is implemented
@@ -45,11 +43,10 @@ global.User = {
 }
 
 _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
-  Coconut.database.get docId,
-    error: (error) -> console.error JSON.stringify error
-    success: (result) ->
-      Coconut[docId] = result
-
+  Coconut.database.get docId
+  .catch (error) -> console.error error
+  .then (result) ->
+    Coconut[docId] = result
 
 GeoHierarchyClass = require './models/GeoHierarchy'
 global.GeoHierarchy = new GeoHierarchyClass

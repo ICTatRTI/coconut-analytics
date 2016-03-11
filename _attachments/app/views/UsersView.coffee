@@ -90,7 +90,7 @@ class UsersView extends Backbone.View
 
     render: =>
 
-      Coconut.database.query "zanzibar-server/users", 
+      Coconut.database.query "zanzibar-server/users",
         include_docs: true
       .catch (error) -> console.error error
       .then (result) =>
