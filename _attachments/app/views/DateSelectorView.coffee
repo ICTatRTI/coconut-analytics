@@ -7,6 +7,26 @@ class DateSelectorView extends Backbone.View
 
   events:
     "change #select-by": "selectBy"
+    "change .dateField": "updateReportView"
+
+  updateReportView: =>
+    startDate = $('#startDate').val()
+    endDate = $('#endDate').val()
+
+    if $('#select-by :selected').text() is "Week"
+      startYearWeek = "#{$('[name=StartYear]').val()}-#{$('[name=StartWeek]').val()}"
+      endYearWeek = "#{$('[name=EndYear]').val()}-#{$('[name=EndWeek]').val()}"
+
+      startDate = moment( startYearWeek, 'YYYY-W').startOf("isoweek").format("YYYY-MM-DD")
+      endDate = moment( endYearWeek, 'YYYY-W').endOf("isoweek").format("YYYY-MM-DD")
+   
+    # TODO
+    # Select by week should update the startDate/endDate
+    # Select by date should update the startWeek/endWeek (tricky because they don't line up)
+    
+    @reportView.updateDate
+      startDate: startDate
+      endDate: endDate
 
   selectBy: (e) =>
     selected = $('#select-by :selected').text()
@@ -43,7 +63,7 @@ class DateSelectorView extends Backbone.View
                      <label style='display:inline' for='StartDate'>Start Date</label>
                    </td>
                    <td>
-                      <div><input value='#{@startDate}'></input></div>
+                      <div><input id='startDate' class='dateField' value='#{@startDate}'></input></div>
                    </td>
                    <td colspan='4'> </td>
                </tr>
@@ -52,7 +72,7 @@ class DateSelectorView extends Backbone.View
                      <label style='display:inline' for='EndDate'>End Date</label>
                    </td>
                    <td>
-                      <div><input value='#{@endDate}'></input></div>
+                      <div><input id='endDate' class='dateField' value='#{@endDate}'></input></div>
                    </td>
                    <td colspan='4'></td>
                </tr>	   
@@ -61,7 +81,7 @@ class DateSelectorView extends Backbone.View
                    <label style='display:inline' for='StartYear'>Start Year</label>
                  </td>
                  <td>
-                   <select name='StartYear'>
+                   <select class='dateField' name='StartYear'>
                      #{
                        for i in [2015..2012] 
                           "<option value='#{i}'>#{i}</option>" 
@@ -73,7 +93,7 @@ class DateSelectorView extends Backbone.View
                    <label style='display:inline' for='StartWeek'>Start Week</label>
                  </td>
                  <td>
-                   <select name='StartWeek'> <option></option>
+                   <select class='dateField' name='StartWeek'> <option></option>
                      #{
                          for i in [1..53] 
                            "<option value='#{i}'>Week #{i}</option>" 

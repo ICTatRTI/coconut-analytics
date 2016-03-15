@@ -75,8 +75,8 @@ class Router extends Backbone.Router
     type = @reportViewOptions["type"]
     @views[type] = new reportViews[type]() unless @views[type]
     @views[type].setElement "#content"
+    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type])
     @views[type].render()
-    @showDateFilter(@reportViewOptions.startDate,@reportViewOptions.endDate)
 
   # Needs to refactor later to keep it DRY
   activities: (options) =>
@@ -95,7 +95,7 @@ class Router extends Backbone.Router
     @views[type] = new activityViews[type]() unless @views[type]
     @views[type].setElement "#content"
     @views[type].render()
-    @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate)
+    @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate, @views[type])
 
   dashboard: (startDate,endDate) =>
     @dashboardView = new DashboardView() unless @dashboardView
@@ -117,11 +117,12 @@ class Router extends Backbone.Router
     endDate = endDate || moment().format("YYYY-MM-DD")
     [startDate, endDate]
 
-  showDateFilter: (startDate, endDate) ->
+  showDateFilter: (startDate, endDate, reportView) ->
     Coconut.dateSelectorView = new DateSelectorView() unless Coconut.dateSelectorView
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.startDate = startDate
     Coconut.dateSelectorView.endDate = endDate
+    Coconut.dateSelectorView.reportView = reportView
     Coconut.dateSelectorView.render()
 
   setDefaultOptions: () ->
