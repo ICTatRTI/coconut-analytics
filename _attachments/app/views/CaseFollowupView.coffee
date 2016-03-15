@@ -87,8 +87,11 @@ class CaseFollowupView extends Backbone.View
              <h6>Click on a button for more details about the case.</h6>
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>account_circle</i></button> - Positive malaria result found at household<br />
              <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  c_orange'>account_circle</i></button> - Positive malaria result found at household with no travel history (probable local transmission). <br />
+             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>home</i></button> - Index case had travel history.<br />
              <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  household'>home</i></button> - Index case had no travel history (probable local transmission).<br />
+             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>home</i></button> - Household incomplete.<br />
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>error_outline</i></button> - Case not followed up to facility after 24 hours. <br />
+             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>tap_and_play</i></button> - Case notification incomplete.<br />
              <span style='font-size:75%;color:#3F51B5;font-weight:bold'>SHEHIA</span> - is a shehia classified as high risk based on previous data. <br />
              <button class='btn btn-small  mdl-button--primary'>caseid</button> - Case not followed up after 48 hours. <br />
           </div>
@@ -101,7 +104,6 @@ class CaseFollowupView extends Backbone.View
         </table>
       </div>	
     "
-    $('#analysis-spinner').hide()
     tableColumns = ["Case ID","Diagnosis Date","Health Facility District","Shehia","USSD Notification"]
 
     Coconut.database.query "zanzibar/byCollection",
@@ -115,13 +117,14 @@ class CaseFollowupView extends Backbone.View
 
     @getCases
       success: (cases) =>
+        $('#analysis-spinner').hide()
         _.each cases, (malariaCase) =>
 
           $("table.summary tbody").append "
             <tr id='case-#{malariaCase.caseID}'>
               <td class='CaseID'>
                 <a href='#show/case/#{malariaCase.caseID}'>
-                  <button class='not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
+                  <button class='btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
                 </a>
               </td>
               <td class='IndexCaseDiagnosisDate'>
@@ -141,26 +144,27 @@ class CaseFollowupView extends Backbone.View
                 }
               </td>
               <td class='USSDNotification'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "<img src='images/ussd.png'/>")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "open_in_browser")}
               </td>
               <td class='CaseNotification'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","<img src='images/caseNotification.png'/>")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","tap_and_play")}
               </td>
               <td class='Facility'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "<img src='images/facility.png'/>","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "error_outline","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
               </td>
               <td class='Household'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "<img src='images/household.png'/>","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
+                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "home","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
               </td>
               <td class='HouseholdMembers'>
                 #{
                   _.map(malariaCase["Household Members"], (householdMember) =>
                     malariaPositive = householdMember.MalariaTestResult? and (householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed")
                     noTravelPositive = householdMember.OvernightTravelinpastmonth isnt "Yes outside Zanzibar" and malariaPositive
-                    buttonText = "<img src='images/householdMember.png'/>"
+                    buttonText = "account_circle"
                     unless householdMember.complete?
                       unless householdMember.complete
-                        buttonText = buttonText.replace(".png","Incomplete.png")
+                         buttonClass = "mdl-button--accent"
+#                        buttonText = buttonText.replace(".png","Incomplete.png")
                     HTMLHelpers.createCaseLink
                       caseID: malariaCase.caseID
                       docId: householdMember._id

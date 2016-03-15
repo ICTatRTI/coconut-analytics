@@ -5,7 +5,8 @@ class HTMLHelpers
     if malariaCase[resultType]?
       unless malariaCase[resultType].complete?
         unless malariaCase[resultType].complete
-          buttonText = buttonText.replace(".png","Incomplete.png") unless resultType is "USSD Notification"
+           buttonClass = "incomplete" unless resultType is "USSD Notification"
+#          buttonText = buttonText.replace(".png","Incomplete.png") unless resultType is "USSD Notification"
       @createCaseLink
         caseID: malariaCase.caseID
         docId: malariaCase[resultType]._id
@@ -14,8 +15,9 @@ class HTMLHelpers
     else ""
 
   @createCaseLink = (options) ->
-    options.buttonText ?= options.caseID
-    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='#{options.buttonClass}'>#{options.buttonText}</button></a>"
+#    options.buttonText ?= options.caseID
+    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
+      </button></a>"
 
 
   # Can handle either full case object or just array of caseIDs

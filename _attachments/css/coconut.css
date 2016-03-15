@@ -124,31 +124,34 @@ table.tablesorter tbody tr.odd.followed-up-false td {
 
 /* Reports Case Followup Buttons */
 
-button.malaria-default{
+i.malaria-default{
 	background-color: #f0f0;
 }
 
-button.malaria-positive {
+i.malaria-positive {
   /* background-color: #ff5722; */	
-  background-color: #de5842;
+  color: rgb(255,64,129);
   width: 28px;
   height: 25px;
 }
 
-button.no-travel-malaria-positive {
+i.no-travel-malaria-positive {
 	/* background: #ffc107 */
-    background-color: #fcd059;
+    color: #fcd059;
     width: 28px;
     height: 25px;
 }
 
-button.travel-history-false {
-	/* background: #b2ff59 
-    background-color: #bfe1bf; */
+i.travel-history-false {
 	background-color: #fcd059;
+	color: black;
     width: 28px;
     height: 25px;
 	padding: 0px;
+}
+i.incomplete {
+    background-color: #fcd059;
+	color: rgb(255,64,129);
 }
 
 button.not-complete-facility-after-24-hours-true {
@@ -159,9 +162,9 @@ button.not-complete-facility-after-24-hours-true {
     height: 25px;
 }
 
-button.not-followed-up-after-48-hours {
+button.not-followed-up-after-48-hours-true {
    /* background: #9c27b0 */
-   background-color: rgb(33,150,243);
+   color: rgb(33,150,243);
    font-size: 9pt;
 }
 
