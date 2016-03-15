@@ -27,7 +27,10 @@ class DateSelectorView extends Backbone.View
     
     Coconut.router.reportViewOptions['startDate'] = startDate
     Coconut.router.reportViewOptions['endDate'] = endDate
-    @reportView.updateDate()
+
+    # Update the URL and rerender page
+    url = "reports/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+    Coconut.router.navigate(url,{trigger: true})
 
   selectBy: (e) =>
     selected = $('#select-by :selected').text()
