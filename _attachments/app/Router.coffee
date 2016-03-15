@@ -71,12 +71,12 @@ class Router extends Backbone.Router
     # Set the default option if it isn't already set
     _(defaultOptions).each (defaultValue, option) =>
       @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
-	
     type = @reportViewOptions["type"]
     @views[type] = new reportViews[type]() unless @views[type]
     @views[type].setElement "#content"
-    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type])
     @views[type].render()
+    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type])
+
 
   # Needs to refactor later to keep it DRY
   activities: (options) =>

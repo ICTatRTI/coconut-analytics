@@ -19,13 +19,10 @@ class CaseFollowupView extends Backbone.View
     id = '#'+ e.currentTarget.id + '-section'
     $("#{id}").slideToggle()
   
-  updateDate: (options) =>
+  updateDate:  =>
     # Update the URL
-    url = _(Coconut.router.reportViewOptions).map (value, option) ->
-      "#{option}/#{value}"
-    .join("/")
-    Coconut.router.navigate url
-      trigger: true
+    url = "reports/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+    Coconut.router.navigate(url,{trigger: true})
 
   getCases: (options) =>
     reports = new Reports()
