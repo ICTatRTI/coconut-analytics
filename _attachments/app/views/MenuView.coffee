@@ -7,6 +7,7 @@ class MenuView extends Backbone.View
   events:
     "click a.mdl-navigation__link": "changeStatus"
     "click a.drawer__subtitle": "toggleDropdownMenu"
+    "click span.drawer__subtitle": "toggleDropdownMenu"
 
   toggleDropdownMenu: (e) =>
     e.preventDefault
@@ -47,16 +48,16 @@ class MenuView extends Backbone.View
 	  <nav class='coconut_navigation mdl-navigation'>
 		<a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='#dashboard'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>dashboard</i>Dashboard</a>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='report-main' data-title='Reports' data-category='menuHeader'>  
+		<span class='mdl-navigation__link drawer__subtitle' id='report-main' data-title='Reports' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>description</i>
-		Reports</a>
+		Reports</span>
 		<div class='m-l-20 dropdown' id='drawer-reports'>
 
       #{
         reportLinks = {
           Analysis: "Analysis"
           Casefollowup: "Case Followup Status"
-          Compareweekly: "Compare MEEDS or ISMS Weekly Facility Reports with Case Followups"
+          Compareweekly: "Compare Weekly Facility Reports with Case Followups"
           Epidemicthreshold: "Epidemic Thresholds"
           Systemerrors: "Errors Detected by System"
           Incidentsgraph: "Incidents Graph - cases by week"
@@ -71,10 +72,10 @@ class MenuView extends Backbone.View
         .join ""
       }
 	  </div>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='activity-main' data-title='Activities' data-category='menuHeader'>  
+		<span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>local_activity</i>
 		Activities
-	    </a>
+	    </span>
 		<div class='m-l-20 dropdown' id='drawer-activities'>
         #{
              activityLinks = {
@@ -87,10 +88,10 @@ class MenuView extends Backbone.View
              .join ""
         }
 		</div>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='graphs-main' data-title='Graphs' data-category='menuHeader'>  
+		<span class='mdl-navigation__link drawer__subtitle' id='graphs-main' data-title='Graphs' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>assessment</i>
 		Graphs
-	    </a>
+	    </span>
 		<div class='m-l-20 dropdown' id='drawer-graphs'>
       #{
            graphLinks = {
@@ -113,10 +114,10 @@ class MenuView extends Backbone.View
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>cloud_download</i>
 		  <span class='link-title'>Data Export</span>
 	    </a>		
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='setting-main' data-title='Settings' data-category='menuHeader'>  
+		<span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>settings</i>
 		Settings
-	    </a>
+	    </span>
 		<div class='m-l-20 dropdown' id='drawer-settings'>
         #{
              settingLinks = {
@@ -130,10 +131,10 @@ class MenuView extends Backbone.View
              .join ""
         }
 		</div>
-		<a class='mdl-navigation__link drawer__subtitle' href='#' id='admin-main' data-title='Admin' data-category='menuHeader'>  
+		<span class='mdl-navigation__link drawer__subtitle' id='admin-main' data-title='Admin' data-category='menuHeader'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>build</i>
 		Admin
-	    </a>
+	    </span>
 		<div class='m-l-20 dropdown' id='drawer-admin'>
         #{
              adminLinks = {
