@@ -18,19 +18,8 @@ class CompareweeklyView extends Backbone.View
     @renderFacilityTimeliness()
 
   renderFacilityTimeliness: =>
-    @$el.html "
-        <style>
-          td.number{
-            text-align: center;
-            vertical-align: middle;
-          }
-          table.tablesorter tbody td.mismatch, button.mismatch, span.mismatch{
-            color:#FF4081
-          }
-        </style>
-        <div id='dateSelector'></div>
-        <br/><br/>
-        <h5>MEEDS or iSMS Weekly Reports and Coconut cases aggregated by 
+    @$el.append "
+        <h5>Compare Weekly Reports and Coconut cases aggregated by 
         <select style='height:50px;font-size:90%' id='aggregationPeriod'>
           #{
             _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
@@ -302,6 +291,18 @@ class CompareweeklyView extends Backbone.View
     @aggregationArea = @options.aggregationArea or "Zone"
     @facilityType = @options.facilityType or "All"
 
+    @$el.html "
+        <style>
+          td.number{
+            text-align: center;
+            vertical-align: middle;
+          }
+          table.tablesorter tbody td.mismatch, button.mismatch, span.mismatch{
+            color:#FF4081
+          }
+        </style>
+        <div id='dateSelector'></div>
+    "	
     $('#analysis-spinner').show()
 
     Reports.aggregateWeeklyReportsAndFacilityTimeliness
