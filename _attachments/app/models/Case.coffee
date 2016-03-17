@@ -1,3 +1,7 @@
+_ = require 'underscore'
+$ = require 'jquery'
+Backbone = require 'backbone'
+Backbone.$  = $
 moment = require 'moment'
 
 class Case
@@ -59,7 +63,7 @@ class Case
     
 
   fetch: (options) =>
-    Coconut.database.query "cases",
+    Coconut.database.query "zanzibar/cases",
       key: @caseID
       include_docs: true
     .catch (error) ->

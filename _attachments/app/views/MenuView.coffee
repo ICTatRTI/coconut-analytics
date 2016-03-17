@@ -6,7 +6,6 @@ Backbone.$  = $
 class MenuView extends Backbone.View
   events:
     "click a.mdl-navigation__link": "changeStatus"
-    "click a.drawer__subtitle": "toggleDropdownMenu"
     "click span.drawer__subtitle": "toggleDropdownMenu"
 
   toggleDropdownMenu: (e) =>
@@ -106,11 +105,11 @@ class MenuView extends Backbone.View
            .join ""
       }		   
 		</div>
-		<a class='mdl-navigation__link drawer__link' href='#reports/maps' id='maps' data-title='Maps' data-category='menuLink'>  
+		<a class='mdl-navigation__link drawer__link' href='#maps' id='maps' data-title='Maps' data-category='menuLink'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>map</i>
 		  <span class='link-title'>Maps</span>
 	    </a>
-		<a class='mdl-navigation__link drawer__link' href='#reports/export' id='export' data-title='Data Export' data-category='menuLink'>  
+		<a class='mdl-navigation__link drawer__link' href='#export' id='export' data-title='Data Export' data-category='menuLink'>  
 		  <i class='mdl-color-text--blue-grey-400 material-icons'>cloud_download</i>
 		  <span class='link-title'>Data Export</span>
 	    </a>		

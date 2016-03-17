@@ -10,6 +10,10 @@ DashboardView = require './views/DashboardView'
 UsersView = require './views/UsersView'
 DateSelectorView = require './views/DateSelectorView'
 IssuesView = require './views/IssuesView'
+Case = require './models/Case'
+CaseView = require './views/CaseView'
+DataExportView = require './views/DataExportView'
+MapView = require './views/MapView'
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
@@ -45,11 +49,15 @@ class Router extends Backbone.Router
   activityViewOptions: {}
   
   routes:
+    "admin/users": "users"
     "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
-    "admin/users": "users"
+    "export": "dataExport"
+    "maps": "maps"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
+    "show/case/:caseID": "showCase"
+    "show/case/:caseID/:docID": "showCase"
     "activities": "activities"
     "activities/*options": "activities" 
     "*noMatch": "noMatch"
@@ -97,6 +105,16 @@ class Router extends Backbone.Router
     @views[type].render()
     @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate, @views[type])
 
+  showCase: (caseID, docID) ->
+#    @userLoggedIn
+#      success: ->
+        Coconut.caseView ?= new CaseView()
+        Coconut.caseView.case = new Case
+          caseID: caseID
+        Coconut.caseView.case.fetch
+          success: ->
+            Coconut.caseView.render(docID)
+
   dashboard: (startDate,endDate) =>
     @dashboardView = new DashboardView() unless @dashboardView
     [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
@@ -108,9 +126,30 @@ class Router extends Backbone.Router
     @dashboardView.endDate = endDate
     @dashboardView.render()
 
+  dataExport: ->
+    [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
+    @dataExportView = new DataExportView unless @dataExportView
+    @dataExportView.startDate = startDate
+    @dataExportView.endDate = endDate
+    @dataExportView.render()
+    @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView)
+
+  maps: ->
+    @mapView = new MapView unless @mapView
+    @mapView.render()
+
   users: () =>
     @usersView = new UsersView() unless @usersView
     @usersView.render()
+
+  userLoggedIn: (callback) ->
+    true
+#    User.isAuthenticated
+#      success: (user) ->
+#        callback.success(user)
+#      error: ->
+#        Coconut.loginView.callback = callback
+#        Coconut.loginView.render()
 
   setStartEndDateIfMissing: (startDate,endDate) =>
     startDate = startDate || moment().subtract("7","days").format("YYYY-MM-DD")
