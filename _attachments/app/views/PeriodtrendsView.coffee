@@ -12,13 +12,6 @@ Reports = require '../models/Reports'
 class PeriodtrendsView extends Backbone.View
   el: "#content"
 
-  events:
-    "click button#dateFilter": "showForm"
-
-  showForm: (e) =>
-    e.preventDefault
-    $("div#filters-section").slideToggle()
-
   render: =>
     @reportOptions = Coconut.router.reportViewOptions
     district = @reportOptions.district || "ALL"

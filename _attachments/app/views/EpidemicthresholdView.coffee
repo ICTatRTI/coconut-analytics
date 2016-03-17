@@ -11,13 +11,6 @@ Reports = require '../models/Reports'
 
 class EpidemicthresholdView extends Backbone.View
   el: "#content"
-		  
-  events:
-    "click button#dateFilter": "showForm"
-  
-  showForm: (e) =>
-    e.preventDefault
-    $("div#filters-section").slideToggle()
 
   render: =>
     $("#row-region").hide()

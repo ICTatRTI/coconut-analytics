@@ -9,13 +9,6 @@ Reports = require '../models/Reports'
 class PilotnotificationView extends Backbone.View
   el: "#content"
 
-  events:
-    "click button#dateFilter": "showForm"
-  
-  showForm: (e) =>
-    e.preventDefault
-    $("div#filters-section").slideToggle()
-
   render: =>
 
     @$el.html "

@@ -10,12 +10,6 @@ Reports = require '../models/Reports'
 
 class RainfallreportView extends Backbone.View
   el: "#content"
-	
-  events:
-    "click button#dateFilter": "showForm"
-
-  showForm: (e) =>
-    $("div#filters-section").slideToggle()
 
   render: =>
     options = Coconut.router.reportViewOptions

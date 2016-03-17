@@ -11,12 +11,7 @@ class CompareweeklyView extends Backbone.View
   el: "#content"
 
   events:
-    "click button#dateFilter": "showForm"
     "click #csv": "toggleCSVMode"
-
-  showForm: (e) =>
-    e.preventDefault
-    $("div#filters-section").slideToggle()
 
   toggleCSVMode: () =>
     if @csvMode then @csvMode = false else @csvMode = true

@@ -9,13 +9,6 @@ Reports = require '../models/Reports'
 class WeeklysummaryView extends Backbone.View
   el: "#content"
 
-  events:
-    "click button#dateFilter": "showForm"
-  
-  showForm: (e) =>
-    e.preventDefault
-    $("div#filters-section").slideToggle()
-
   render: =>
       options = Coconut.router.reportViewOptions
       $('#analysis-spinner').show()

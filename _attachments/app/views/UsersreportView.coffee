@@ -10,12 +10,7 @@ class UsersreportView extends Backbone.View
   el: "#content"
 
   events:
-    "click button#dateFilter": "showForm"
     "click .userReports": "showDropDown"
-
-  showForm: (e) =>
-    e.preventDefault
-    $("div#filters-section").slideToggle()
 
   showDropDown: (e) =>
     $target =  $(e.target).closest('.userReports')

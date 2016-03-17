@@ -9,6 +9,11 @@ class DateSelectorView extends Backbone.View
   events:
     "change #select-by": "selectBy"
     "click .submitBtn": "updateReportView"
+    "click button#dateFilter": "showDateFilter"
+
+  showDateFilter: (e) =>
+    e.preventDefault
+    $("div#filters-section").slideToggle()
 
   updateReportView: =>
     startDate = $('#startDate').val()
