@@ -8,6 +8,7 @@ global._ = require 'underscore'
 global.Backbone = require 'backbone'
 Backbone.$  = $
 PouchDB = require 'pouchdb'
+BackbonePouch = require 'backbone-pouch'
 
 # These are local .coffee files
 Router = require './Router'
@@ -34,6 +35,14 @@ global.Coconut = {
     design_doc_name: "zanzibar-server"
   }
 }
+
+
+# This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
+Backbone.sync = BackbonePouch.sync
+  db: Coconut.database
+  fetch: 'query'
+
+Backbone.Model.prototype.idAttribute = '_id'
 
 #TODO stubbing this out until login is implemented
 global.User = {
