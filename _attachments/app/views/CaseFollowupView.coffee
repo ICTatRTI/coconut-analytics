@@ -57,31 +57,6 @@ class CaseFollowupView extends Backbone.View
         </div>
       </div>	
       <div id='dropdown-container'>
-           <div id='cases-drop-section'>
-             <h4>Summary</h4>
-             <div>
-               <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-                 <thead>
-                   <tr>
-                     <td class='mdl-data-table__cell--non-numeric'>Cases Reported at Facility</td>
-                     <td>51</td>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   <tr>
-                     <td class='mdl-data-table__cell--non-numeric'>Additional People Tested</td>
-                     <td>137</td>
-                   </tr>
-                   <tr>
-                     <td class='mdl-data-table__cell--non-numeric'>Additional People Tested Positive</td>
-                     <td>6</td>
-                   </tr>
-                 </tbody>
-               </table>
-             </div>	
-             <hr />
-           </div>
-           
            <div id='legend-drop-section'>
              <h4>Legends</h4>	
              <h6>Click on a button for more details about the case.</h6>
@@ -113,7 +88,7 @@ class CaseFollowupView extends Backbone.View
       tableColumns = tableColumns.concat _(result.rows).pluck("id")
       
       _.each tableColumns, (text) ->
-        $("table.summary thead tr").append "<th>#{text} (<span id='th-#{text.replace(/\s/,"")}-count'></span>)</th>"
+        $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{text} (<span id='th-#{text.replace(/\s/,"")}-count'></span>)</th>"
 
     @getCases
       success: (cases) =>
@@ -122,15 +97,15 @@ class CaseFollowupView extends Backbone.View
 
           $("table.summary tbody").append "
             <tr id='case-#{malariaCase.caseID}'>
-              <td class='CaseID'>
+              <td class='CaseID mdl-data-table__cell--non-numeric'>
                 <a href='#show/case/#{malariaCase.caseID}'>
                   <button class='btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
                 </a>
               </td>
-              <td class='IndexCaseDiagnosisDate'>
+              <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
                 #{malariaCase.indexCaseDiagnosisDate()}
               </td>
-              <td class='HealthFacilityDistrict'>
+              <td class='HealthFacilityDistrict mdl-data-table__cell--non-numeric'>
                 #{
                   if malariaCase["USSD Notification"]?
                     FacilityHierarchy.getDistrict(malariaCase["USSD Notification"].hf)
@@ -138,24 +113,24 @@ class CaseFollowupView extends Backbone.View
                     ""
                 }
               </td>
-              <td class='HealthFacilityDistrict #{if malariaCase.highRiskShehia() then "high-risk-shehia" else ""}'>
+              <td class='mdl-data-table__cell--non-numeric HealthFacilityDistrict #{if malariaCase.highRiskShehia() then "high-risk-shehia" else ""}'>
                 #{
                   malariaCase.shehia()
                 }
               </td>
-              <td class='USSDNotification'>
+              <td class='USSDNotification mdl-data-table__cell--non-numeric'>
                 #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "open_in_browser")}
               </td>
-              <td class='CaseNotification'>
+              <td class='CaseNotification mdl-data-table__cell--non-numeric'>
                 #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","tap_and_play")}
               </td>
-              <td class='Facility'>
+              <td class='Facility mdl-data-table__cell--non-numeric'>
                 #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "error_outline","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
               </td>
-              <td class='Household'>
+              <td class='Household mdl-data-table__cell--non-numeric'>
                 #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "home","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
               </td>
-              <td class='HouseholdMembers'>
+              <td class='HouseholdMembers mdl-data-table__cell--non-numeric'>
                 #{
                   _.map(malariaCase["Household Members"], (householdMember) =>
                     malariaPositive = householdMember.MalariaTestResult? and (householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed")

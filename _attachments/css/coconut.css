@@ -53,8 +53,8 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
 	padding: 4px;
 }
 
-table.tablesorter tr {
-	border-bottom: 1px solid #e0e0e0;
+table.tablesorter thead tr {
+	border-bottom: 1px solid #000000;
 }
 
 table.tablesorter thead tr .header {
@@ -70,6 +70,11 @@ table.tablesorter tbody td {
 	background-color: #FFF;
 	vertical-align: top;
 }
+
+table.tablesorter tbody tr {
+    border-bottom: 1px solid #ccc;
+}
+
 table.tablesorter tbody tr td {
 	vertical-align: middle;
 	line-height: 20pt;

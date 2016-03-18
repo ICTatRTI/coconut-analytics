@@ -14,7 +14,8 @@ class CaseView extends Backbone.View
     Coconut.case = @case
     @$el.html "
       <style>
-        table.tablesorter {font-size: 125%}
+        table#caseTable {width: 95%}
+        table#caseTable th {width: 47%; font-weight: bold; font-size: 1.1em}
       </style>
 
       <h3>Case ID: #{@case.MalariaCaseID()}</h3>
@@ -65,12 +66,12 @@ class CaseView extends Backbone.View
 
   createObjectTable: (name,object) =>
     "
-      <h3 id=#{object._id}>#{name} <small><a href='#edit/result/#{object._id}'>Edit</a></small></h3>
-      <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp tablesorter'>
+      <h4 id=#{object._id}>#{name} <small><a href='#edit/result/#{object._id}'>Edit</a></small></h4>
+      <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp' id='caseTable'>
         <thead>
           <tr>
-            <th>Field</th>
-            <th>Value</th>
+            <th class='mdl-data-table__cell--non-numeric'>Field</th>
+            <th class='mdl-data-table__cell--non-numeric'>Value</th>
           </tr>
         </thead>
         <tbody>
@@ -79,12 +80,12 @@ class CaseView extends Backbone.View
               return if "#{field}".match(/_id|_rev|collection/)
               "
                 <tr>
-                  <td>
+                  <td class='mdl-data-table__cell--non-numeric'>
                     #{
                       @mappings[field] or field
                     }
                   </td>
-                  <td>#{value}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{value}</td>
                 </tr>
               "
             ).join("")
