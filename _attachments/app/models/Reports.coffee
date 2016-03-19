@@ -266,21 +266,22 @@ class Reports
       endkey: options?.startDate || moment().subtract(1,'days').format("YYYY-MM-DD")
       descending: true
       include_docs: true
-      success: (result) ->
-        errorsByType = {}
-        _.chain(result.rows)
-          .pluck("doc")
-          .each (error) ->
-            if errorsByType[error.message]?
-              errorsByType[error.message].count++
-            else
-              errorsByType[error.message]= {}
-              errorsByType[error.message].count = 0
-              errorsByType[error.message]["Most Recent"] = error.datetime
-              errorsByType[error.message]["Source"] = error.source
-
+    .catch (error) -> console.error
+    .then (result) ->
+      console.log(result)
+      errorsByType = {}
+      _.chain(result.rows)
+        .pluck("doc")
+        .each (error) ->
+          if errorsByType[error.message]?
+            errorsByType[error.message].count++
+          else
+            errorsByType[error.message]= {}
+            errorsByType[error.message].count = 0
+            errorsByType[error.message]["Most Recent"] = error.datetime
+            errorsByType[error.message]["Source"] = error.source
             errorsByType[error.message]["Most Recent"] = error.datetime if errorsByType[error.message]["Most Recent"] < error.datetime
-        options.success(errorsByType)
+      options.success(errorsByType)
 
   @casesWithoutCompleteHouseholdVisit: (options) ->
     reports = new Reports()
@@ -417,99 +418,98 @@ class Reports
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
-      success: (results) ->
-        _(results.rows).each (result) ->
-          caseId = result.value[1]
-          user = result.value[0]
-          dataByUser[user].caseIds[caseId] = true
-          dataByUser[user].cases[caseId] = {}
-          total.caseIds[caseId] = true
-          total.cases[caseId] = {}
+    .catch (error) -> console.error
+    .then (results) ->
+      _(results.rows).each (result) ->
+        caseId = result.value[1]
+        user = result.value[0]
+        dataByUser[user].caseIds[caseId] = true
+        dataByUser[user].cases[caseId] = {}
+        total.caseIds[caseId] = true
+        total.cases[caseId] = {}
 
-        _(dataByUser).each (userData,user) ->
-          if _(dataByUser[user].cases).size() is 0
-            delete dataByUser[user]
+      _(dataByUser).each (userData,user) ->
+        if _(dataByUser[user].cases).size() is 0
+          delete dataByUser[user]
 
-        successWhenDone = _.after _(dataByUser).size(), ->
-          options.success
-            dataByUser: dataByUser
-            total: total
+      successWhenDone = _.after _(dataByUser).size(), ->
+        options.success
+          dataByUser: dataByUser
+          total: total
 
-        _(dataByUser).each (userData,user) ->
-          # Get the time differences within each case
-          caseIds = _(userData.cases).map (foo, caseId) -> caseId
+      _(dataByUser).each (userData,user) ->
+        # Get the time differences within each case
+        caseIds = _(userData.cases).map (foo, caseId) -> caseId
 
-          Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
-            keys: caseIds
-            include_docs: true
-            error: (error) ->
-              console.error "Error finding cases: " + JSON.stringify error
-            success: (result) ->
-              caseId = null
+        Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
+          keys: caseIds
+          include_docs: true
+        .catch (error) ->
+          console.error "Error finding cases: " + JSON.stringify error
+        .then (result) ->
+          caseId = null
+          caseResults = []
+          # Collect all of the results for each caseid, then create the case and process it
+          _.each result.rows, (row) ->
+            if caseId? and caseId isnt row.key
+              malariaCase = new Case
+                caseID: caseId
+                results: caseResults
               caseResults = []
-              # Collect all of the results for each caseid, then create the case and process it
-              _.each result.rows, (row) ->
-                if caseId? and caseId isnt row.key
-                  malariaCase = new Case
-                    caseID: caseId
-                    results: caseResults
-                  caseResults = []
 
-                  userData.cases[caseId] = malariaCase
-                  total.cases[caseId] = malariaCase
+              userData.cases[caseId] = malariaCase
+              total.cases[caseId] = malariaCase
 
-                  if malariaCase.notCompleteFacilityAfter24Hours()
-                    userData.casesWithoutCompleteFacilityAfter24Hours[caseId] = malariaCase
-                    total.casesWithoutCompleteFacilityAfter24Hours[caseId] = malariaCase
-                  unless malariaCase.hasCompleteFacility
-                    userData.casesWithoutCompleteFacility[caseId] = malariaCase
-                    total.casesWithoutCompleteFacility[caseId] = malariaCase
+              if malariaCase.notCompleteFacilityAfter24Hours()
+                userData.casesWithoutCompleteFacilityAfter24Hours[caseId] = malariaCase
+                total.casesWithoutCompleteFacilityAfter24Hours[caseId] = malariaCase
+              unless malariaCase.hasCompleteFacility
+                userData.casesWithoutCompleteFacility[caseId] = malariaCase
+                total.casesWithoutCompleteFacility[caseId] = malariaCase
 
-                  if malariaCase.notFollowedUpAfter48Hours()
-                    userData.casesWithoutCompleteHouseholdAfter48Hours[caseId] = malariaCase
-                    total.casesWithoutCompleteHouseholdAfter48Hours[caseId] = malariaCase
+              if malariaCase.notFollowedUpAfter48Hours()
+                userData.casesWithoutCompleteHouseholdAfter48Hours[caseId] = malariaCase
+                total.casesWithoutCompleteHouseholdAfter48Hours[caseId] = malariaCase
 
-                  if malariaCase.followedUp()
-                    userData.casesWithCompleteHousehold[caseId] = malariaCase
-                    total.casesWithCompleteHousehold[caseId] = malariaCase
-                  else
-                    userData.casesWithoutCompleteHousehold[caseId] = malariaCase
-                    total.casesWithoutCompleteHousehold[caseId] = malariaCase
+              if malariaCase.followedUp()
+                userData.casesWithCompleteHousehold[caseId] = malariaCase
+                total.casesWithCompleteHousehold[caseId] = malariaCase
+              else
+                userData.casesWithoutCompleteHousehold[caseId] = malariaCase
+                total.casesWithoutCompleteHousehold[caseId] = malariaCase
 
+              _([
+                "SMSToCaseNotification"
+                "CaseNotificationToCompleteFacility"
+                "FacilityToCompleteHousehold"
+                "SMSToCompleteHousehold"
+              ]).each (property) ->
 
-                  _([
-                    "SMSToCaseNotification"
-                    "CaseNotificationToCompleteFacility"
-                    "FacilityToCompleteHousehold"
-                    "SMSToCompleteHousehold"
-                  ]).each (property) ->
+                userData["timesFrom#{property}"].push malariaCase["timeFrom#{property}"]()
+                total["timesFrom#{property}"].push malariaCase["timeFrom#{property}"]()
 
-                    userData["timesFrom#{property}"].push malariaCase["timeFrom#{property}"]()
-                    total["timesFrom#{property}"].push malariaCase["timeFrom#{property}"]()
+            caseResults.push row.doc
+            caseId = row.key
 
-                caseResults.push row.doc
-                caseId = row.key
+          _(userData.cases).each (results,caseId) ->
+            _([
+              "SMSToCaseNotification"
+              "CaseNotificationToCompleteFacility"
+              "FacilityToCompleteHousehold"
+              "SMSToCompleteHousehold"
+            ]).each (property) ->
+              _(["quartile1","median","quartile3"]).each (dataPoint) ->
+                try
+                  userData["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](userData["timesFrom#{property}"])
+                  userData["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](userData["timesFrom#{property}"])
+                catch error
+                  console.error "Error processing data for the following user:"
+                  console.error userData
 
-              _(userData.cases).each (results,caseId) ->
-                _([
-                  "SMSToCaseNotification"
-                  "CaseNotificationToCompleteFacility"
-                  "FacilityToCompleteHousehold"
-                  "SMSToCompleteHousehold"
-                ]).each (property) ->
-                  _(["quartile1","median","quartile3"]).each (dataPoint) ->
-                    try
-                      userData["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](userData["timesFrom#{property}"])
-                      userData["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](userData["timesFrom#{property}"])
-                    catch error
-                      console.error "Error processing data for the following user:"
-                      console.error userData
+                total["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](total["timesFrom#{property}"])
+                total["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](total["timesFrom#{property}"])
 
-                    total["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](total["timesFrom#{property}"])
-                    total["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](total["timesFrom#{property}"])
-
-
-              successWhenDone()
+          successWhenDone()
 
 
   @aggregateWeeklyReports = (options) ->
@@ -526,7 +526,8 @@ class Reports
       startkey: [startYear,startWeek]
       endkey: [endYear,endWeek]
       include_docs: true
-      success: (results) =>
+    .catch (error) -> console.error
+    .then (results) =>
         cumulativeFields = {
           "All OPD < 5" : 0
           "Mal POS < 5" : 0
@@ -669,37 +670,38 @@ class Reports
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
-      success: (result) ->
-        aggregatedData = {}
+    .catch (error) -> console.error
+    .then (result) ->
+      aggregatedData = {}
 
-        _.each result.rows, (row) ->
-          date = moment(row.key)
+      _.each result.rows, (row) ->
+        date = moment(row.key)
 
-          period = switch aggregationPeriod
-            when "Week" then date.format("YYYY-WW")
-            when "Month" then date.format("YYYY-MM")
-            when "Quarter" then "#{date.format("YYYY")}q#{Math.floor((date.month() + 3) / 3)}"
-            when "Year" then date.format("YYYY")
+        period = switch aggregationPeriod
+          when "Week" then date.format("YYYY-WW")
+          when "Month" then date.format("YYYY-MM")
+          when "Quarter" then "#{date.format("YYYY")}q#{Math.floor((date.month() + 3) / 3)}"
+          when "Year" then date.format("YYYY")
 
-          [caseId, facility, shehia, village] = row.value
-          data =
-            Zone: FacilityHierarchy.getZone(facility)
-            District: FacilityHierarchy.getDistrict(facility)
-            Facility: row.value[1]
-            Shehia: row.value[2]
-            Village: row.value[3]
-            Age: row.value[4]
-            CaseId: row.value[0]
+        [caseId, facility, shehia, village] = row.value
+        data =
+          Zone: FacilityHierarchy.getZone(facility)
+          District: FacilityHierarchy.getDistrict(facility)
+          Facility: row.value[1]
+          Shehia: row.value[2]
+          Village: row.value[3]
+          Age: row.value[4]
+          CaseId: row.value[0]
 
-          area = data[aggregationArea]
-          if area is null
-            area = "Unknown"
+        area = data[aggregationArea]
+        if area is null
+          area = "Unknown"
 
-          aggregatedData[period] = {} unless aggregatedData[period]
-          aggregatedData[period][area] = [] unless aggregatedData[period][area]
-          aggregatedData[period][area].push data
+        aggregatedData[period] = {} unless aggregatedData[period]
+        aggregatedData[period][area] = [] unless aggregatedData[period][area]
+        aggregatedData[period][area].push data
 
-        options.success aggregatedData
+      options.success aggregatedData
 
   @formattedPercent: (number) ->
     percent = (number * 100).toFixed(0)
@@ -799,84 +801,85 @@ class Reports
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
-      success: (result) ->
-        aggregatedData = {}
+    .catch (error) -> console.error
+    .then (result) ->
+      aggregatedData = {}
 
-        _.each result.rows, (row) ->
-          date = moment(row.key)
+      _.each result.rows, (row) ->
+        date = moment(row.key)
 
-          period = Reports.getAggregationPeriodDate(aggregationPeriod,date)
+        period = Reports.getAggregationPeriodDate(aggregationPeriod,date)
 
-          caseId = row.value[0]
-          if caseId is null
-            console.log "Case missing case ID: #{row.id}, skipping"
-            return
-          facility = row.value[1]
+        caseId = row.value[0]
+        if caseId is null
+          console.log "Case missing case ID: #{row.id}, skipping"
+          return
+        facility = row.value[1]
 
-          if facilityType isnt "All"
-            return if FacilityHierarchy.facilityType(facility) isnt facilityType.toUpperCase()
+        if facilityType isnt "All"
+          return if FacilityHierarchy.facilityType(facility) isnt facilityType.toUpperCase()
 
-          area = switch aggregationArea
-            when "Zone" then FacilityHierarchy.getZone(facility)
-            when "District" then FacilityHierarchy.getDistrict(facility)
-            when "Facility" then facility
-          area = "Unknown" if area is null
+        area = switch aggregationArea
+          when "Zone" then FacilityHierarchy.getZone(facility)
+          when "District" then FacilityHierarchy.getDistrict(facility)
+          when "Facility" then facility
+        area = "Unknown" if area is null
 
-          aggregatedData[period] = {} unless aggregatedData[period]
-          aggregatedData[period][area] = {} unless aggregatedData[period][area]
-          aggregatedData[period][area]["cases"] = [] unless aggregatedData[period][area]["cases"]
-          aggregatedData[period][area]["cases"].push caseId
+        aggregatedData[period] = {} unless aggregatedData[period]
+        aggregatedData[period][area] = {} unless aggregatedData[period][area]
+        aggregatedData[period][area]["cases"] = [] unless aggregatedData[period][area]["cases"]
+        aggregatedData[period][area]["cases"].push caseId
 
-        caseIdsToFetch = _.chain(aggregatedData).map (areaData,period) ->
-          _(areaData).map (caseData,area) ->
-            caseData.cases
-        .flatten()
-        .uniq()
-        .value()
+      caseIdsToFetch = _.chain(aggregatedData).map (areaData,period) ->
+         _(areaData).map (caseData,area) ->
+          caseData.cases
+      .flatten()
+      .uniq()
+      .value()
 
-        Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
-          keys: caseIdsToFetch
-          include_docs: true
-          error: => options?.error()
-          success: (result) =>
-            cases = {}
-            _.chain(result.rows).groupBy (row) =>
-              row.key
-            .each (resultsByCaseID) =>
-              cases[resultsByCaseID[0].key] = new Case
-                results: _.pluck resultsByCaseID, "doc"
+      Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
+        keys: caseIdsToFetch
+        include_docs: true
+      .catch (error) -> options?.error()
+      .then (result) =>
+          cases = {}
+          _.chain(result.rows).groupBy (row) =>
+            row.key
+          .each (resultsByCaseID) =>
+            cases[resultsByCaseID[0].key] = new Case
+              results: _.pluck resultsByCaseID, "doc"
 
-            _(aggregatedData).each (areaData,period) ->
-              _(areaData).each (caseData,area) ->
-                _(caseData.cases).each (caseId) ->
-                  _([
-                    "daysBetweenPositiveResultAndNotification"
-                    "daysFromCaseNotificationToCompleteFacility"
-                    "daysFromSMSToCompleteHousehold"
-                  ]).each (property) ->
-                    aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
-                    value = cases[caseId][property]()
-                    aggregatedData[period][area][property].push value if value?
+          _(aggregatedData).each (areaData,period) ->
+            _(areaData).each (caseData,area) ->
+              _(caseData.cases).each (caseId) ->
+                _([
+                  "daysBetweenPositiveResultAndNotification"
+                  "daysFromCaseNotificationToCompleteFacility"
+                  "daysFromSMSToCompleteHousehold"
+                ]).each (property) ->
+                  aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
+                  value = cases[caseId][property]()
+                  aggregatedData[period][area][property].push value if value?
 
-                  _([
-                    "numberHouseholdOrNeighborMembers"
-                    "numberHouseholdOrNeighborMembersTested"
-                    "numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"
-                  ]).each (property) ->
-                    aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
-                    aggregatedData[period][area][property]+= cases[caseId][property]()
+                _([
+                  "numberHouseholdOrNeighborMembers"
+                  "numberHouseholdOrNeighborMembersTested"
+                  "numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"
+                ]).each (property) ->
+                  aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
+                  aggregatedData[period][area][property]+= cases[caseId][property]()
 
-                  aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]
-                  aggregatedData[period][area]["householdFollowedUp"]+= 1 if cases[caseId].followedUp()
+                aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]
+                aggregatedData[period][area]["householdFollowedUp"]+= 1 if cases[caseId].followedUp()
 
-                  _(["hasCompleteFacility","followedUpWithin48Hours"]).each (property) ->
-                    aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
-                    aggregatedData[period][area][property].push caseId if cases[caseId][property]()
+                _(["hasCompleteFacility","followedUpWithin48Hours"]).each (property) ->
+                  aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
+                  aggregatedData[period][area][property].push caseId if cases[caseId][property]()
 
-                  aggregatedData[period][area]["casesNotified"] = [] unless aggregatedData[period][area]["casesNotified"]
-                  aggregatedData[period][area]["casesNotified"].push caseId
+                aggregatedData[period][area]["casesNotified"] = [] unless aggregatedData[period][area]["casesNotified"]
+                aggregatedData[period][area]["casesNotified"].push caseId
 
-            options.success aggregatedData
+          options.success aggregatedData
 
 Reports.getAggregationPeriodDate = (aggregationPeriod,date) ->
   switch aggregationPeriod
@@ -917,23 +920,23 @@ Reports.getIssues = (options) ->
       startkey: "#{prefix}-#{startYear}-#{startWeek}"
       endkey: "#{prefix}-#{endYear}-#{endWeek}-\ufff0"
       include_docs: true
-      error: (error) ->
-        console.error error
-        options.error(error)
-      success: (result) ->
-        issues = issues.concat _(result.rows).pluck "doc"
-        finished()
+    .catch (error) ->
+      console.error error
+      options.error(error)
+    .then (result) ->
+      issues = issues.concat _(result.rows).pluck "doc"
+      finished()
   
   _(issuePrefixesForDocumentIdsIndexedByDate).each (prefix) ->
     Coconut.database.allDocs
       startkey: "#{prefix}-#{startDate}"
       endkey: "#{prefix}-#{endDate}-\ufff0"
       include_docs: true
-      error: (error) ->
-        console.error error
-        options.error(error)
-      success: (result) ->
-        issues = issues.concat _(result.rows).pluck "doc"
-        finished()
+    .catch (error) ->
+      console.error error
+      options.error(error)
+    .then (result) ->
+      issues = issues.concat _(result.rows).pluck "doc"
+      finished()
 
 module.exports = Reports
