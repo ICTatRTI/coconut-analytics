@@ -14,6 +14,7 @@ Case = require './models/Case'
 CaseView = require './views/CaseView'
 DataExportView = require './views/DataExportView'
 MapView = require './views/MapView'
+FacilityHierarchyView = require './views/FacilityHierarchyView'
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
@@ -50,6 +51,7 @@ class Router extends Backbone.Router
   
   routes:
     "admin/users": "users"
+    "admin/facilities": "editFacilityHierarchy"
     "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
     "export": "dataExport"
@@ -137,6 +139,10 @@ class Router extends Backbone.Router
   maps: ->
     @mapView = new MapView unless @mapView
     @mapView.render()
+
+  editFacilityHierarchy: =>
+    @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
+    @facilityHierarchyView.render()
 
   users: () =>
     @usersView = new UsersView() unless @usersView

@@ -32,7 +32,7 @@ global.Coconut = {
   #TODO load config from a _local database doc
   config: {
     dateFormat: "YYYY-MM-DD"
-    design_doc_name: "zanzibar-server"
+    design_doc_name: "zanzibar"
   }
 }
 

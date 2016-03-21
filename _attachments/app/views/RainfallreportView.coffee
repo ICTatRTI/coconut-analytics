@@ -33,22 +33,22 @@ class RainfallreportView extends Backbone.View
       include_docs: true
     .catch (error) -> console.error error
     .then (results) =>
-       $('#analysis-spinner').hide()
-       @$el.append "
-          #{
-              _(results.rows).map (row) =>
-                "
-                  <tr>
-                    <td>#{row.value[0]}</td>
-                    <td>#{row.key[0]}</td>
-                    <td>#{row.key[1]}</td>
-                    <td>#{row.value[1]}</td>
-                  </tr>
-                "
-              .join("")
-            }
-          </tbody>
-        </table>
+      $('#analysis-spinner').hide()
+      @$el.append "
+        #{
+           _(results.rows).map (row) =>
+             "
+              <tr>
+                <td>#{row.value[0]}</td>
+                <td>#{row.key[0]}</td>
+                <td>#{row.key[1]}</td>
+                <td>#{row.value[1]}</td>
+              </tr>
+             "
+           .join("")
+        }
+        </tbody>
+      </table>
       "
 
     $("#rainfallReports").dataTable
