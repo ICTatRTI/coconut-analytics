@@ -12,6 +12,10 @@ class AnalysisView extends Backbone.View
 
   events:
     "click div.analysis.dropDownBtn": "showDropDown"
+    "click button.same-cell-disaggregatable": "toggleDisaggregation"
+
+  toggleDisaggregation: (event) ->
+    $(event.target).parents("td").children(".cases").toggle()
 
   showDropDown: (e) =>
     $target =  $(e.target).closest('.analysis')
