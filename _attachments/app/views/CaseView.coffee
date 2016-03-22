@@ -14,7 +14,7 @@ class CaseView extends Backbone.View
     Coconut.case = @case
     @$el.html "
       <style>
-        table#caseTable {width: 95%}
+        table#caseTable {width: 95%; margin-bottom: 30px}
         table#caseTable th {width: 47%; font-weight: bold; font-size: 1.1em}
       </style>
 
@@ -66,7 +66,9 @@ class CaseView extends Backbone.View
 
   createObjectTable: (name,object) =>
     "
-      <h4 id=#{object._id}>#{name} <small><a href='#edit/result/#{object._id}'>Edit</a></small></h4>
+      <h4 id=#{object._id}>#{name} 
+        <!-- <small><a href='#edit/result/#{object._id}'>Edit</a></small> --> 
+      </h4>
       <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp' id='caseTable'>
         <thead>
           <tr>
