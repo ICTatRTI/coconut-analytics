@@ -27,7 +27,7 @@ headerView.render()
 
 # Coconut is just a global object useful for keeping things in one scope
 global.Coconut = {
-  database: new PouchDB("https://cococloud.co/zanzibar")
+  database: new PouchDB("http://localhost:5984/zanzibar")
   router: new Router()
   #TODO load config from a _local database doc
   config: {
