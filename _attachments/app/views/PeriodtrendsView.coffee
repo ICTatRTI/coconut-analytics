@@ -12,6 +12,26 @@ Reports = require '../models/Reports'
 class PeriodtrendsView extends Backbone.View
   el: "#content"
 
+  events:
+    "click button.toggle-trend-data": "toggleTrendData"
+    "click .toggleDisaggregation": "toggleDisaggregation"
+    "click .same-cell-disaggregatable": "toggleDisaggregationSameCell"
+
+  toggleTrendData: (e) ->
+    if $(".toggle-trend-data").html() is "Show trend data"
+      $(".data").show()
+      $(".toggle-trend-data").html "Hide trend data"
+    else
+      $(".data").hide()
+      $(".period-0.data").show()
+      $(".toggle-trend-data").html "Show trend data"
+
+  toggleDisaggregation: (event) ->
+    $(event.target).parents("td").siblings(".cases").toggle()
+
+  toggleDisaggregationSameCell: (event) ->
+    $(event.target).siblings(".cases").toggle()
+
   render: =>
     @reportOptions = Coconut.router.reportViewOptions
     district = @reportOptions.district || "ALL"
@@ -137,7 +157,7 @@ class PeriodtrendsView extends Backbone.View
           dataElement = $(dataElement)
           current = extractNumber(dataElement)
           previous = extractNumber(dataElement.prev().prev())
-          dataElement.prev().html if current is previous then "-" else if current > previous then "<span class='up-arrow'>&uarr;</span>" else "<span class='down-arrow'>&darr;</span>"
+          dataElement.prev().html if current is previous then "-" else if current > previous then "<span class='up-arrow'><i class='material-icons'>arrow_upward</i></span>" else "<span class='down-arrow'><i class='material-icons'>arrow_downward</i></span>"
           
       _.each $(".period-0.trend"), (period0Trend) ->
         period0Trend = $(period0Trend)
