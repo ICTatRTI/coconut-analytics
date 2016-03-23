@@ -5,6 +5,7 @@ Backbone.$  = $
 moment = require 'moment'
 PouchDB = require 'pouchdb'
 require 'moment-range'
+capitalize = require "underscore.string/capitalize"
 
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
@@ -13,62 +14,93 @@ class EpidemicthresholdView extends Backbone.View
   el: "#content"
 
   render: =>
+    @startDate = Coconut.router.reportViewOptions.startDate
+    @endDate = Coconut.router.reportViewOptions.endDate
     $("#row-region").hide()
-    options = Coconut.router.reportViewOptions
-	
-    # Thresholds per facility per week
-    thresholdFacility = 10
-    thresholdFacilityUnder5s = 5
-    thresholdShehia = 10
-    thresholdShehiaUnder5 = 5
-    thresholdVillage = 5
-    
-    $('#analysis-spinner').show()
 
     @$el.html "
-        <div id='dateSelector'></div>
-        <h3>Epidemic Thresholds</h3>
-        <div>
-        Alerts:<br/>
-        <ul>
-          <li>Facility with #{thresholdFacility} or more cases</li>
-          <li>Facility with #{thresholdFacilityUnder5s} or more cases in under 5s</li>
-          <li>Shehia with #{thresholdShehia} or more cases</li>
-          <li>Shehia with #{thresholdShehiaUnder5} or more cases in under 5s</li>
-          <li>Village (household + neighbors) with  #{thresholdVillage} or more cases</li>
-          <li>District - statistical method (todo)</li>
-        </ul>
-        </div>
+      <style>
+        .threshold {
+          border: solid 1px
+        }
+        .alarmAlert {
+          color:black;
+          background-color:#EEEEEE;
+          font-weight:bold;
+        }
+        th{
+          text-align:center;
+        }
+      </style>
+      <h2>Epidemic Thresholds</h2>
+      <div id='dateSelector'></div>
+
+      <table class='tablesorter tableData'>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Facility</th>
+            <th>Shehia</th>
+            <th>Village</th>
+            <th>District</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class='alarmAlert'>Alert</td>
+            <td class='threshold' colspan='2'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
+            <td class='threshold'>5 or more total cases within 7 days</td>
+            <td class='threshold'rowspan='2'>Specific for each district and week, based on 5 years of previous data</td>
+          </tr>
+          <tr>
+            <td class='alarmAlert'>Alarm <span style='font-weight:normal'><br/>(in <span style='color:red'>red</span>)</span></td>
+            <td class='threshold' colspan='2'>10 or more under 5 cases or 20 or more total cases within 14 days</td>
+            <td class='threshold'>10 or more total cases within 14 days</td>
+          </tr>
+        </tbody>
+      </table>
+
+      (Note that cases counted for district thresholds don't include household and neighbor cases)
+      <br/>
+      <br/>
     "
-    startDate = moment(options.startDate)
-    startYear = startDate.format("GGGG") # ISO week year
-    startWeek =startDate.format("WW")
-    endDate = moment(options.endDate).endOf("day")
-    endYear = endDate.format("GGGG")
-    endWeek = endDate.format("WW")
+    startDate = moment(Coconut.router.reportViewOptions.startDate)
+    endDate = moment(Coconut.router.reportViewOptions.endDate).endOf("day")
     weekRange = []
     moment.range(startDate,endDate).by 'week', (moment) ->
-      weekRange.push moment.format("YYYY-WW")
+      weekRange.push moment.format("GGGG-WW")
 
-    alerts = [
-      "alert-weekly-facility-total-cases"
-      "alert-weekly-facility-under-5-cases"
-      "alert-weekly-shehia-cases"
-      "alert-weekly-shehia-under-5-cases"
-      "alert-weekly-village-cases"
-    ]
+    # Need to look for any that start or end within our target period - longest alert/alarm range is 14 days
+    startkeyDate = startDate.subtract(14,'days').format("YYYY-MM-DD")
+    endkeyDate = endDate.add(14,'days').format("YYYY-MM-DD")
 
-    alertsByDistrictAndWeek = {}
+    Coconut.database.allDocs
+      startkey: "threshold-#{startkeyDate}"
+      endkey: "threshold-#{endkeyDate}\ufff0"
+      include_docs: true
+    .catch (error) -> console.error error
+    .then (result) =>
+      console.debug result
+      thresholdsByDistrictAndWeek = {}
+      _(result.rows).each (row) =>
+        # If the threshold is starts or ends during the relevant week, then include it, otherwise ignore it
+        if (row.doc.StartDate >= @startDate and row.doc.StartDate <= @endDate) or (row.doc.EndDate >= @startDate and row.doc.EndDate <= @endDate)
+          district = row.doc.District
+          week = moment(row.doc.EndDate).format "GGGG-WW"
+          thresholdsByDistrictAndWeek[district] = {} unless thresholdsByDistrictAndWeek[district]
+          thresholdsByDistrictAndWeek[district][week] = [] unless thresholdsByDistrictAndWeek[district][week]
+          thresholdsByDistrictAndWeek[district][week].push row.doc
+          
+      console.debug thresholdsByDistrictAndWeek
 
-    finished = _.after alerts.length, ->
-      $('#analysis-spinner').hide()
-      $('#content').append "
+      @$el.append "
+
         <table class='tablesorter' id='thresholdTable'>
           <thead>
-            <th class='mdl-data-table__cell--non-numeric'>District</th>
+            <th>District</th>
             #{
               _(weekRange).map (week) ->
-                "<th class='mdl-data-table__cell--non-numeric'>#{week}</th>"
+                "<th>#{week}</th>"
               .join("")
             }
           </thead>
@@ -77,15 +109,15 @@ class EpidemicthresholdView extends Backbone.View
               _(GeoHierarchy.allDistricts()).map (district) ->
                 "
                 <tr> 
-                  <td class='mdl-data-table__cell--non-numeric'>#{district}</td>
+                  <td>#{district}</td>
                   #{
                   _(weekRange).map (week) ->
                     "
-                    <td class='mdl-data-table__cell--non-numeric'>
+                    <td>
                       #{
-                        _(alertsByDistrictAndWeek[district]?[week]).map (alert) ->
-                          "<small><a href='#show/issue/#{alert._id}'>#{alert.Description}</a></small>"
-                        .join("<br/>")
+                        _(thresholdsByDistrictAndWeek[district]?[week]).map (threshold) ->
+                          "<small><a style='color:#{if threshold.ThresholdType is 'Alarm' then 'red' else 'black'}' href='#show/issue/#{threshold._id}'>#{capitalize(threshold.Description)}</a></small>"
+                        .join("<br/><br/>")
                       }
                     </td>
                     "
@@ -98,29 +130,7 @@ class EpidemicthresholdView extends Backbone.View
           </tbody>
         </table>
       "
-      $("#thresholdTable").dataTable
-        aaSorting: [[0,"desc"]]
-        iDisplayLength: 50
-        dom: 'T<"clear">lfrtip'
-        tableTools:
-          sSwfPath: "js-libraries/copy_csv_xls.swf"
-          aButtons: [
-            "csv",
-            ]
 
-    _(alerts).each (alert) ->
-      Coconut.database.allDocs
-        startkey: "#{alert}-#{startYear}-#{startWeek}"
-        endkey: "#{alert}-#{endYear}-#{endWeek}-\ufff0"
-        include_docs: true
-      .catch (error) ->
-        console.log error
-      .then (result) ->
-        _(result.rows).each (row) ->
-          alert = row.doc
-          alertsByDistrictAndWeek[alert.District] = {} unless alertsByDistrictAndWeek[alert.District]
-          alertsByDistrictAndWeek[alert.District][alert.Week] = [] unless alertsByDistrictAndWeek[alert.District][alert.Week]
-          alertsByDistrictAndWeek[alert.District][alert.Week].push alert
-        finished()
+      $('#analysis-spinner').hide()
 
 module.exports = EpidemicthresholdView
