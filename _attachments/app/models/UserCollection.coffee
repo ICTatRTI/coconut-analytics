@@ -9,10 +9,14 @@ User = require './User'
 class UserCollection extends Backbone.Collection
   model: User
   pouch:
+    fetch: 'query'
     options:
       query:
         include_docs: true
-        fun: "users"
+        fun:
+          map: (doc) ->
+            if (doc.collection && doc.collection == 'user')
+              emit(doc.name + " - " + doc.district, null)
 
   parse: (response) ->
     _(response.rows).pluck("doc")

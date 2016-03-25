@@ -5,7 +5,6 @@ Backbone.$  = $
 Cookie = require 'js-cookie'
 
 class User extends Backbone.Model
-  url: "/user"
 
   username: ->
     @get("_id").replace(/^user\./,"")
