@@ -800,7 +800,7 @@ div#form-inputs input {
 
 div#form-title {
 	font-weight: bold;
-	font-size: 1.1em;
+	font-size: 1.2em;
 	margin-bottom: 5px;
 }
 
@@ -817,4 +817,12 @@ div#form-title {
 
 #summary-dropdown, #dropdown-container {
 	margin-bottom: 20px;
+}
+
+#IssueForm {
+	margin-top: 10px;
+	padding: 10px 30px 10px 50px;
+	border-top: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	display: none 
 }
