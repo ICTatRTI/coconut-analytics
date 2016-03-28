@@ -15,6 +15,9 @@ CaseView = require './views/CaseView'
 DataExportView = require './views/DataExportView'
 MapView = require './views/MapView'
 FacilityHierarchyView = require './views/FacilityHierarchyView'
+RainfallStationView = require './views/RainfallStationView'
+GeoHierarchyView = require './views/GeoHierarchyView'
+EditDataView = require './views/EditDataView'
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
@@ -51,7 +54,10 @@ class Router extends Backbone.Router
   
   routes:
     "admin/users": "users"
-    "admin/facilities": "editFacilityHierarchy"
+    "admin/facilities": "FacilityHierarchy"
+    "admin/rainfall_station": "rainfallStation"
+    "admin/geo_hierarchy": "geoHierarchy"
+    "admin/edit_data/:document_type": "editData"
     "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
     "export": "dataExport"
@@ -60,6 +66,8 @@ class Router extends Backbone.Router
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
     "show/case/:caseID": "showCase"
     "show/case/:caseID/:docID": "showCase"
+    "new/issue": "newIssue"
+    "show/issue/:issueID": "showIssue"
     "activities": "activities"
     "activities/*options": "activities" 
     "*noMatch": "noMatch"
@@ -140,13 +148,60 @@ class Router extends Backbone.Router
     @mapView = new MapView unless @mapView
     @mapView.render()
 
-  editFacilityHierarchy: =>
+  FacilityHierarchy: =>
     @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
     @facilityHierarchyView.render()
+
+  rainfallStation: =>
+    @rainfallStationView = new RainfallStationView unless @rainfallStationView
+    @rainfallStationView.render()
+
+  geoHierarchy: =>
+    @geoHierarchyView = new GeoHierarchyView unless @geoHierarchyView
+    @geoHierarchyView.render()
+
+  shehiasHighRisk: =>
+    @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
+     @shehiasHighRiskView.render()
+
+  editData: (document_id) ->
+#    @adminLoggedIn
+#      success: ->
+        console.log(document_id)
+        Coconut.EditDataView = new EditDataView() unless Coconut.EditDataView
+        Coconut.database.get document_id
+        .catch (error) -> 
+          Coconut.EditDataView.document = {
+            _id: document_id
+          }
+          Coconut.EditDataView.render()
+        .then (result) ->
+          Coconut.EditDataView.document = result
+          Coconut.EditDataView.render()
+
+#      error: ->
+#        alert("#{User.currentUser} is not an admin")
 
   users: () =>
     @usersView = new UsersView() unless @usersView
     @usersView.render()
+
+  newIssue: (issueID) ->
+#    @userLoggedIn
+#      success: ->
+        Coconut.issueView ?= new IssueView()
+        Coconut.issueView.issue = null
+        Coconut.issueView.render()
+
+  showIssue: (issueID) ->
+    @userLoggedIn
+      success: ->
+        Coconut.issueView ?= new IssueView()
+        Coconut.database.get issueID
+        .catch (error) -> console.error error
+        .then (result) ->
+          Coconut.issueView.issue = result
+          Coconut.issueView.render()
 
   userLoggedIn: (callback) ->
     true

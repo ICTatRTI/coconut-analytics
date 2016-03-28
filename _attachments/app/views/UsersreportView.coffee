@@ -5,6 +5,7 @@ Backbone.$  = $
 
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
+UserCollection = require '../models/UserCollection'
 
 class UsersreportView extends Backbone.View
   el: "#content"
@@ -23,6 +24,9 @@ class UsersreportView extends Backbone.View
 	
   render: =>
     $('#analysis-spinner').show()
+    Users = new UserCollection()
+    Users.fetch
+
     Reports.userAnalysisForUsers
       # Pass list of usernames
       usernames:  Users.map (user) -> user.username()
