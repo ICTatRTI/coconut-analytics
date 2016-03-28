@@ -13,10 +13,7 @@ class UserCollection extends Backbone.Collection
     options:
       query:
         include_docs: true
-        fun:
-          map: (doc) ->
-            if (doc.collection && doc.collection == 'user')
-              emit(doc.name + " - " + doc.district, null)
+        fun: "zanzibar/users"
 
   parse: (response) ->
     _(response.rows).pluck("doc")
