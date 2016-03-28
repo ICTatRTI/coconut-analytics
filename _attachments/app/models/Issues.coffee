@@ -1,22 +1,27 @@
 _ = require 'underscore'
 $ = require 'jquery'
-Backbone = require 'backbone'
-Backbone.$  = $
 moment = require 'moment'
 
 class Issues
 
-  @updateEpidemicAlertsAndAlarmsForLastXDays = (days) =>
+  @updateEpidemicAlertsAndAlarmsForLastXDaysShowResult = (days) =>
+    @updateEpidemicAlertsAndAlarmsForLastXDays days,
+      success: (result) ->
+        $("body").html result
+
+  @updateEpidemicAlertsAndAlarmsForLastXDays = (days, options) =>
     endDate = moment().subtract(days, 'days').format("YYYY-MM-DD")
     days -=1
+    allResults = {}
     Issues.updateEpidemicAlertsAndAlarms
       endDate: endDate
       error: (error) -> console.error error
       success: (result) =>
+        allResults.extend result
         if days > 0
           @updateEpidemicAlertsAndAlarmsForLastXDays(days)
         else
-          options?.success?(result)
+          options?.success?(allResults)
 
   @updateEpidemicAlertsAndAlarms = (options) =>
     endDate = options?.endDate   or moment().subtract(2,'days').format("YYYY-MM-DD")
@@ -69,11 +74,10 @@ class Issues
     docsToSave = {}
 
     afterAllThresholdRangesProcessed = _.after _(thresholds).size(), ->
-      Coconut.database.bulkDocs {docs: _(docsToSave).values()}
-      .catch (error) -> console.error error
-      .then () ->
-          console.log docsToSave
+      Coconut.database.bulkDocs _(docsToSave).values()
+      .then ->
           options.success(docsToSave)
+      .catch (error) -> console.error error
     
     # Load the district thresholds so that they can be used in the above function
     Coconut.database.get "district_thresholds"
@@ -90,6 +94,7 @@ class Issues
           startDate: startDate
           endDate: endDate
           ignoreHouseholdNeighborForDistrict: true
+          error: (error) -> console.error error
           success: (result,allCases) ->
 
             _(alarmOrAlertData).each (thresholdsForRange, alarmOrAlert) ->
@@ -131,7 +136,6 @@ class Issues
             Coconut.database.allDocs
               startkey: "threshold-#{moment(startDate).subtract(2*amountOfTime,timeUnit).format("YYYY-MM-DD")}"
               endkey:   "threshold-#{endDate}"
-            .catch (error) -> console.error error
             .then (result) ->
               _(docsToSave).each (docToSave) ->
                 #console.debug "Checking for existing thresholds that match #{docToSave._id}"
@@ -153,8 +157,9 @@ class Issues
                     return true if existingThresholdIdNoDates.replace(/Alarm/,"") is docToSaveIdNoDates.replace(/Alert/,"")
                   return false
                 )
-                  delete docsToSave[docToSave._id]
-                  
+                  delete docsToSave[docToSave._id]            
               afterAllThresholdRangesProcessed()
+            .catch (error) -> console.error error
+
 
 module.exports = Issues

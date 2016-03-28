@@ -27,119 +27,122 @@ class IssuesView extends Backbone.View
   render: =>
     options = Coconut.router.reportViewOptions
     global.Users = new UserCollection()
-    Users.fetch()
 
-    @$el.html "
-      <style>
-        .errorMsg { color: red; display: none }
-        td.label {vertical-align: top; padding-right: 10px}
-        textarea { width: 300px; height: 50px}
-      </style>
-      <div id='dateSelector'></div>
-        <div style='padding: 10px 0'>
-          <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-issue-btn'>
-            <i class='material-icons'>add</i>
-          </button></a>
-        </div>
-        <div id='IssueForm'>
-           <div id='issue-form'>
-              <div id='form-title'> </div>
-              <div class='errorMsg' id='message'></div>
-              <form id='issue'>
-                <table>
-                  <tr>
-                    <td class='label'>Description</td>
-                    <td><textarea name='description'>#{@issue?.Description || ""}</textarea></td>
-                  </tr>
-                  <tr>
-                    <td class='label'>Assigned To</td>
-                    <td><select name='assignedTo'>
-                          <option></option>
-                         #{
-                           Users.map (user) =>
-                             userId = user.get "_id"
-                             console.log(user)
-                             "<option value='#{userId}' #{if @issue?["Assigned To"] is userId then "selected='true'" else ""}>
-                                #{user.nameOrUsernameWithDescription()}
-                              </option>"
-                             .join ""
-                          }
-                       </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class='label'>Action Taken</td>
-                    <td><textarea name='actionTaken'>#{@issue?['Action Taken'] || ""}</textarea></td>
-                  </tr>
-                  <tr>
-                    <td class='label'>Solution</td>
-                    <td><textarea name='solution'>#{@issue?['Solution'] || ""}</textarea></td>
-                  </tr>
-                  <tr>
-                    <td style='padding-right: 10px'>Date Resolved</td>
-                    <td>
-                      <input type='date' name='dateResolved' #{
-                         if @issue?['Date Resolved']
-                           "value = '#{@issue['Date Resolved']}'"
-                         else ""
-                       }
-                    </td>
-                  </tr>
-                  <tr>
-                    <td> </td>
-                    <td>
-                      <div style='margin-top: 10px; float: right'>
-                        <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave'>Save</button> &nbsp;
-                        <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel'>Cancel</button>
-                      </div>   
-                    </td>
-                  </tr>
-                </table>
-             </form>
-          </div>  
-        </div>
-        <br/>
-        <table class='tablesorter' id='issuesTable'>
-          <thead>
-            <th>Description</th>
-            <th>Date Created</th>
-            <th>Assigned To</th>
-            <th>Date Resolved</th>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>	  
-    "
-    Reports.getIssues
-      startDate: options.startDate
-      endDate: options.endDate
-      error: (error) -> console.log error
-      success: (issues) ->
-        $("#issuesTable tbody").html _(issues).map (issue) ->
+    
+    Users.fetch
+      success: ->
+        console.log "AZZZ"
 
-          date = if issue.Week
-            moment(issue.Week, "GGGG-WW").format("YYYY-MM-DD")
-          else
-            issue["Date Created"]
+        @$el.html "
+          <style>
+            .errorMsg { color: red; display: none }
+            td.label {vertical-align: top; padding-right: 10px}
+            textarea { width: 300px; height: 50px}
+          </style>
+          <div id='dateSelector'></div>
+            <div style='padding: 10px 0'>
+              <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-issue-btn'>
+                <i class='material-icons'>add</i>
+              </button></a>
+            </div>
+            <div id='IssueForm'>
+               <div id='issue-form'>
+                  <div id='form-title'> </div>
+                  <div class='errorMsg' id='message'></div>
+                  <form id='issue'>
+                    <table>
+                      <tr>
+                        <td class='label'>Description</td>
+                        <td><textarea name='description'>#{@issue?.Description || ""}</textarea></td>
+                      </tr>
+                      <tr>
+                        <td class='label'>Assigned To</td>
+                        <td><select name='assignedTo'>
+                              <option></option>
+                             #{
+                               Users.map (user) =>
+                                 userId = user.get "_id"
+                                 "<option value='#{userId}' #{if @issue?["Assigned To"] is userId then "selected='true'" else ""}>
+                                    #{user.nameOrUsernameWithDescription()}
+                                  </option>"
+                                 .join ""
+                              }
+                           </select>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='label'>Action Taken</td>
+                        <td><textarea name='actionTaken'>#{@issue?['Action Taken'] || ""}</textarea></td>
+                      </tr>
+                      <tr>
+                        <td class='label'>Solution</td>
+                        <td><textarea name='solution'>#{@issue?['Solution'] || ""}</textarea></td>
+                      </tr>
+                      <tr>
+                        <td style='padding-right: 10px'>Date Resolved</td>
+                        <td>
+                          <input type='date' name='dateResolved' #{
+                             if @issue?['Date Resolved']
+                               "value = '#{@issue['Date Resolved']}'"
+                             else ""
+                           }
+                        </td>
+                      </tr>
+                      <tr>
+                        <td> </td>
+                        <td>
+                          <div style='margin-top: 10px; float: right'>
+                            <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave'>Save</button> &nbsp;
+                            <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel'>Cancel</button>
+                          </div>   
+                        </td>
+                      </tr>
+                    </table>
+                 </form>
+              </div>  
+            </div>
+            <br/>
+            <table class='tablesorter' id='issuesTable'>
+              <thead>
+                <th>Description</th>
+                <th>Date Created</th>
+                <th>Assigned To</th>
+                <th>Date Resolved</th>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>	  
+        "
+        Reports.getIssues
+          startDate: options.startDate
+          endDate: options.endDate
+          error: (error) -> console.log error
+          success: (issues) ->
+            $("#issuesTable tbody").html _(issues).map (issue) ->
 
-          "
-          <tr>
-            <td><a href='#' class='issue-edit' data-issue-id='#{issue._id}'>#{issue.Description}</a></td>
-            <td>#{date}</td>
-            <td>#{issue["Assigned To"] or "-"}</td>
-            <td>#{issue["Date Resolved"] or "-"}</td>
-          </tr>
-          "
+              date = if issue.Week
+                moment(issue.Week, "GGGG-WW").format("YYYY-MM-DD")
+              else
+                issue["Date Created"]
 
-        $("#issuesTable").dataTable
-          aaSorting: [[1,"desc"]]
-          iDisplayLength: 50
-          dom: 'T<"clear">lfrtip'
-          tableTools:
-            sSwfPath: "js-libraries/copy_csv_xls.swf"
-            aButtons: [
-              "csv",
-              ]
+              "
+              <tr>
+                <td><a href='#' class='issue-edit' data-issue-id='#{issue._id}'>#{issue.Description}</a></td>
+                <td>#{date}</td>
+                <td>#{issue["Assigned To"] or "-"}</td>
+                <td>#{issue["Date Resolved"] or "-"}</td>
+              </tr>
+              "
+
+            $("#issuesTable").dataTable
+              aaSorting: [[1,"desc"]]
+              iDisplayLength: 50
+              dom: 'T<"clear">lfrtip'
+              tableTools:
+                sSwfPath: "js-libraries/copy_csv_xls.swf"
+                aButtons: [
+                  "csv",
+                  ]
 
   issueForm: => "
     <div>

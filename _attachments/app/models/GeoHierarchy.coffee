@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 class GeoHierarchy
 
   constructor: (options) ->

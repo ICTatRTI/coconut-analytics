@@ -63,3 +63,4 @@ global.GeoHierarchy = new GeoHierarchyClass
   success: =>
     Backbone.history.start()
 
+global.Issues = require './models/Issues'
