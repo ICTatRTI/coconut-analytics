@@ -17,6 +17,7 @@
     "form2js": "git://github.com/maxatwork/form2js",
     "jquery": "^2.1.4",
     "js-cookie": "^2.1.0",
+    "leaflet": "^0.7.7",
     "livereloadify": "^2.0.0",
     "material-design-icons": "^2.0.0",
     "material-design-lite": "^1.0.0-3",

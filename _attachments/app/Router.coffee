@@ -1,4 +1,5 @@
 _ = require 'underscore'
+
 $ = jQuery = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
@@ -50,10 +51,10 @@ class Router extends Backbone.Router
   activityViewOptions: {}
   
   routes:
-    "admin/users": "users"
-    "admin/facilities": "editFacilityHierarchy"
-    "dashboard/:startDate/:endDate": "dashboard"
-    "dashboard": "dashboard"
+    "admin/users":                    "users"
+    "admin/facilities":               "editFacilityHierarchy"
+    "dashboard/:startDate/:endDate":  "dashboard"
+    "dashboard":                      "dashboard"
     "export": "dataExport"
     "maps": "maps"
     "reports": "reports"
