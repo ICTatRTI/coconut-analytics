@@ -424,6 +424,7 @@ class Reports
       _(results.rows).each (result) ->
         caseId = result.value[1]
         user = result.value[0]
+        console.log(dataByUser[user])
         dataByUser[user].caseIds[caseId] = true
         dataByUser[user].cases[caseId] = {}
         total.caseIds[caseId] = true
@@ -890,62 +891,62 @@ class Reports
 
           options.success aggregatedData
 
-Reports.getAggregationPeriodDate = (aggregationPeriod,date) ->
-  switch aggregationPeriod
-    when "Week" then date.format("GGGG-WW")
-    when "Month" then date.format("YYYY-MM")
-    when "Quarter" then "#{date.format("YYYY")}q#{Math.floor((date.month() + 3) / 3)}"
-    when "Year" then date.format("YYYY")
+  @getAggregationPeriodDate = (aggregationPeriod,date) ->
+    switch aggregationPeriod
+      when "Week" then date.format("GGGG-WW")
+      when "Month" then date.format("YYYY-MM")
+      when "Quarter" then "#{date.format("YYYY")}q#{Math.floor((date.month() + 3) / 3)}"
+      when "Year" then date.format("YYYY")
 
 
-Reports.getIssues = (options) ->
-  startDate = moment(options.startDate)
-  startYear = startDate.format("GGGG") # ISO week year
-  startWeek =startDate.format("WW")
-  endDate = moment(options.endDate).endOf("day")
-  endYear = endDate.format("GGGG")
-  endWeek = endDate.format("WW")
+  @getIssues = (options) ->
+    startDate = moment(options.startDate)
+    startYear = startDate.format("GGGG") # ISO week year
+    startWeek =startDate.format("WW")
+    endDate = moment(options.endDate).endOf("day")
+    endYear = endDate.format("GGGG")
+    endWeek = endDate.format("WW")
 
-  issuePrefixesForDocumentIdsIndexedByWeek = [
-    "alert-weekly-facility-total-cases"
-    "alert-weekly-facility-under-5-cases"
-    "alert-weekly-shehia-cases"
-    "alert-weekly-shehia-under-5-cases"
-    "alert-weekly-village-cases"
-  ]
+    issuePrefixesForDocumentIdsIndexedByWeek = [
+      "alert-weekly-facility-total-cases"
+      "alert-weekly-facility-under-5-cases"
+      "alert-weekly-shehia-cases"
+      "alert-weekly-shehia-under-5-cases"
+      "alert-weekly-village-cases"
+    ]
 
-  issuePrefixesForDocumentIdsIndexedByDate = [
-    "issue"
-    "alarm"
-  ]
+    issuePrefixesForDocumentIdsIndexedByDate = [
+      "issue"
+      "alarm"
+    ]
 
-  issues = []
+    issues = []
 
-  finished = _.after issuePrefixesForDocumentIdsIndexedByWeek.length + issuePrefixesForDocumentIdsIndexedByDate.length, ->
-    options.success(issues)
+    finished = _.after issuePrefixesForDocumentIdsIndexedByWeek.length + issuePrefixesForDocumentIdsIndexedByDate.length, ->
+      options.success(issues)
 
-  _(issuePrefixesForDocumentIdsIndexedByWeek).each (prefix) ->
-    Coconut.database.allDocs
-      startkey: "#{prefix}-#{startYear}-#{startWeek}"
-      endkey: "#{prefix}-#{endYear}-#{endWeek}-\ufff0"
-      include_docs: true
-    .catch (error) ->
-      console.error error
-      options.error(error)
-    .then (result) ->
-      issues = issues.concat _(result.rows).pluck "doc"
-      finished()
+    _(issuePrefixesForDocumentIdsIndexedByWeek).each (prefix) ->
+      Coconut.database.allDocs
+        startkey: "#{prefix}-#{startYear}-#{startWeek}"
+        endkey: "#{prefix}-#{endYear}-#{endWeek}-\ufff0"
+        include_docs: true
+      .catch (error) ->
+        console.error error
+        options.error(error)
+      .then (result) ->
+        issues = issues.concat _(result.rows).pluck "doc"
+        finished()
   
-  _(issuePrefixesForDocumentIdsIndexedByDate).each (prefix) ->
-    Coconut.database.allDocs
-      startkey: "#{prefix}-#{startDate}"
-      endkey: "#{prefix}-#{endDate}-\ufff0"
-      include_docs: true
-    .catch (error) ->
-      console.error error
-      options.error(error)
-    .then (result) ->
-      issues = issues.concat _(result.rows).pluck "doc"
-      finished()
+    _(issuePrefixesForDocumentIdsIndexedByDate).each (prefix) ->
+      Coconut.database.allDocs
+        startkey: "#{prefix}-#{startDate}"
+        endkey: "#{prefix}-#{endDate}-\ufff0"
+        include_docs: true
+      .catch (error) ->
+        console.error error
+        options.error(error)
+      .then (result) ->
+        issues = issues.concat _(result.rows).pluck "doc"
+        finished()
 
 module.exports = Reports

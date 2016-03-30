@@ -27,7 +27,7 @@ class UsersView extends Backbone.View
     createUser: (e) =>
       e.preventDefault
       $('#form-title').html("Create New User")
-      $('#form-inputs').slideDown()
+      $('#form-inputs').slideToggle()
       $('form#user input').val('')
 	  	  
     editUser: (e) =>

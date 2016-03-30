@@ -1,0 +1,10 @@
+{
+  "env" : {
+    "default" : {
+      "db" : "http://user:pass@0.0.0.0:5985/coconut"
+    },
+    "public" : {
+      "db" : "http://user:pass.@username.iriscouch.com/coconut"
+    }
+  }
+}

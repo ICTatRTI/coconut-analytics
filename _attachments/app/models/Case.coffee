@@ -592,7 +592,7 @@ Case.updateSpreadsheetForCases = (options) ->
   options.success() if options.caseIDs.length is 0
 
   finished = _.after options.caseIDs.length, ->
-    Coconut.database.bulkSave docsToSave
+    Coconut.database.bulkDocs docsToSave
     .catch (error) -> console.error error
     .then -> options.success()
 

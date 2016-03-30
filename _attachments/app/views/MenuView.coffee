@@ -138,11 +138,11 @@ class MenuView extends Backbone.View
         #{
              adminLinks = {
                facilities: "Facilities"
-               questions: "Question Sets"
                rainfall_station: "Rainfall Station"
-               regions_districts_shehias: "Regions, Districts & Shehias"
-               shehias_irs: "Shehias received IRS"
-               high_risk: "Shehias high risk"
+               geo_hierarchy: "Regions, Districts & Shehias"
+               "edit_data/shehias_received_irs": "Shehias received IRS"
+               "edit_data/shehias_high_risk": "Shehias high risk"
+               questions: "Question Sets"
                users: "Users"
              }
              _(adminLinks).map (linkText, linkUrl) ->
