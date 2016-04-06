@@ -92,8 +92,8 @@ class DateSelectorView extends Backbone.View
                  <td>
                    <select name='StartYear'>
                      #{
-                       for i in [2015..2012] 
-                          "<option value='#{i}'>#{i}</option>" 
+                       for i in [moment().year()..2012]
+                          "<option value='#{i}'>#{i}</option>"
                      }
                    </select>
                  </td>
@@ -104,8 +104,8 @@ class DateSelectorView extends Backbone.View
                  <td>
                    <select name='StartWeek'> <option></option>
                      #{
-                         for i in [1..53] 
-                           "<option value='#{i}'>Week #{i}</option>" 
+                         for i in [1..53]
+                           "<option value='#{i}'>Week #{i}</option>"
                      } 
                    </select>
                  </td>
@@ -117,8 +117,8 @@ class DateSelectorView extends Backbone.View
                    <td>
                      <select name='EndYear'> 
                         #{
-                            for i in [2015..2012] 
-                              "<option value='#{i}'>#{i}</option>" 
+                            for i in [moment().year()..2012]
+                              "<option value='#{i}'>#{i}</option>"
                         }
                       </select>
                    </td>

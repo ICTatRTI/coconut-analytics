@@ -63,6 +63,7 @@ class Router extends Backbone.Router
     "dashboard": "dashboard"
     "export": "dataExport"
     "maps": "maps"
+    "maps/*options": "maps"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
     "show/case/:caseID": "showCase"
@@ -145,9 +146,22 @@ class Router extends Backbone.Router
     @dataExportView.render()
     @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView)
 
-  maps: ->
+  maps: (options) ->
+
+    options = _(options?.split(/\//)).map (option) -> unescape(option)
+
+    _.each options, (option,index) =>
+      @reportViewOptions[option] = options[index+1] unless index % 2
+    
+    defaultOptions = @setDefaultOptions()
+
+    # Set the default option if it isn't already set
+    _(defaultOptions).each (defaultValue, option) =>
+      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+
     @mapView = new MapView unless @mapView
     @mapView.render()
+    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @mapView)
 
   FacilityHierarchy: =>
     @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
