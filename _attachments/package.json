@@ -19,6 +19,7 @@
     "jquery": "^2.1.4",
     "js-cookie": "^2.1.0",
     "leaflet": "^0.7.7",
+    "leaflet-image": "^0.1.0",
     "leaflet-material-controls": "^1.0.0",
     "livereloadify": "^2.0.0",
     "mapbox.js": "^2.4.0",
