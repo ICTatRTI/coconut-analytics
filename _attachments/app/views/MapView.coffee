@@ -6,15 +6,18 @@ Backbone.$  = $
 
 require 'mapbox.js'
 materialControl = require 'leaflet-material-controls'
-global.L = require 'leaflet'
+#global.L = require 'leaflet'
 Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
-
 class MapView extends Backbone.View
+  
+  heatMapCoords = []
+    
   el: '#content'
 
   events:
     "click #pembaToggle, #ungugaToggle ": "buttonClick"
+    "click #heatMapToggle": "heatMapToggle"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
     "click #snapImage": "snapImage"
@@ -31,6 +34,35 @@ class MapView extends Backbone.View
         $('#ungugaToggle').toggleClass 'mdl-button--raised', true
         console.log "you're in ugunga dawg"
         @map.setView([-5.187, 39.746], 10, {animate:true})
+  
+  heatMapToggle: =>
+    coords = [
+          [
+            50.5
+            30.5
+            0.2
+          ]
+          [
+            50.6
+            30.4
+            0.5
+          ]
+        ]
+    console.log("coords = "+coords[0][1])
+    console.log("@heatmapcoords: "+heatMapCoords[0])
+    heat = L.heatLayer([
+      [
+        50.5
+        30.5
+        0.2
+      ]
+      [
+        50.6
+        30.4
+        0.5
+      ]
+    ], radius: 25).addTo(map) 
+        
   mapFocus: =>
     console.log("scrolwheelStatus: "+@map.scrollWheelZoom.enabled())
     if @map.scrollWheelZoom.enabled() == false
@@ -48,17 +80,21 @@ class MapView extends Backbone.View
     console.log "snapped"         
 #    progressBar.showPleaseWait()
 
-    console.log @map.scrollWheelZoom.enabled()
     leafletImage @map, (err, canvas) =>
       console.log("snapshot: "+ @snapshot)
       console.log 'image Snap'
-      img = document.createElement('img') 
-      dimensions = @map.getSize()
-      console.log "dimensions: "+dimensions
-      img.width = dimensions.x
-      img.height = dimensions.y
-      console.log "img.width: "+img.width
-      img.src = canvas.toDataURL()
+#      img = document.createElement('img') 
+#      dimensions = @map.getSize()
+#      console.log "dimensions: "+dimensions
+#      img.width = dimensions.x
+#      img.height = dimensions.y
+#      console.log "img.width: "+img.width
+#      img.src = canvas.toDataURL()
+      a = document.createElement('a')
+      a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
+      a.download = 'coconutMap.jpg'
+      a.click()
+
       @snapshot.innerHTML = ''
       @snapshot.appendChild img
       console.log "snapshot: "+snapshot.innerHTML
@@ -100,16 +136,17 @@ class MapView extends Backbone.View
 
         updateMap GeoJSONOb
 
-
     @$el.html "
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
             <div class='mdl-cell mdl-cell--10-col'>
                 <div id='dateSelector'></div>
-<label for='pembeToggle'>Switch to: </label>
-        <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
-            <label for='ungugaToggle'>or</label>
-        <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>
+                <label for='pembeToggle'>Switch to: </label>
+                <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
+                    <label for='ungugaToggle'>or</label>
+                <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>    
+                <label for='heatMapToggle'>Turn Heat Map</label>
+                <button id='heatMapToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>On</button>
         
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -141,7 +178,6 @@ class MapView extends Backbone.View
       Streets: L.mapbox.tileLayer('mapbox.streets')
       Outdoors: L.mapbox.tileLayer('mapbox.outdoors')
       Satellite: L.mapbox.tileLayer('mapbox.satellite')
-    @geojson = {}
     overlays = 
       Cases: L.geoJson().addTo(@map)
       Shahias: L.geoJson()
@@ -175,9 +211,12 @@ class MapView extends Backbone.View
         console.log "updateFinished"
         return
     onEachFeature = (feature, layer) ->
-      console.log "feature: "+JSON.stringify feature
-      console.log "layer: "+JSON.stringify layer
+      coords = feature.geometry.coordinates
+      coords.push 1
+      heatMapCoords.push feature.geometry.coordinates
+      console.log "heatmapCoords: "+heatMapCoords
       layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.hasAdditionalPositiveCasesAtIndexHousehold + "<br />\n Date: "+feature.properties.date 
       return
-
+   
 module.exports = MapView
+    
