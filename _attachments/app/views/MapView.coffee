@@ -48,21 +48,23 @@ class MapView extends Backbone.View
             0.5
           ]
         ]
+    console.log("@map.scrollWheelZoom.enabled() = "+@map.scrollWheelZoom.enabled())
     console.log("coords = "+coords[0][1])
     console.log("@heatmapcoords: "+heatMapCoords[0])
     heat = L.heatLayer([
       [
-        50.5
-        30.5
-        0.2
+        -5.178
+        39.808
+        100
       ]
       [
-        50.6
-        30.4
-        0.5
+        -5.18
+        39.81
+        100
       ]
-    ], radius: 25).addTo(map) 
-        
+    ], radius: 25) 
+    heat.addTo(@map)
+    
   mapFocus: =>
     console.log("scrolwheelStatus: "+@map.scrollWheelZoom.enabled())
     if @map.scrollWheelZoom.enabled() == false
@@ -96,7 +98,6 @@ class MapView extends Backbone.View
       a.click()
 
       @snapshot.innerHTML = ''
-      @snapshot.appendChild img
       console.log "snapshot: "+snapshot.innerHTML
 #      progressBar.hidePleaseWait()
       return
