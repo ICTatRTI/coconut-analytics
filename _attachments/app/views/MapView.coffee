@@ -36,33 +36,22 @@ class MapView extends Backbone.View
         @map.setView([-5.187, 39.746], 10, {animate:true})
   
   heatMapToggle: =>
-    coords = [
-          [
-            50.5
-            30.5
-            0.2
-          ]
-          [
-            50.6
-            30.4
-            0.5
-          ]
-        ]
+#    coords = [
+#      [
+#        -5.178
+#        39.808
+#        5000
+#      ]
+#      [
+#        -5.18
+#        39.81
+#        5000
+#      ]
+#    ]
     console.log("@map.scrollWheelZoom.enabled() = "+@map.scrollWheelZoom.enabled())
-    console.log("coords = "+coords[0][1])
-    console.log("@heatmapcoords: "+heatMapCoords[0])
-    heat = L.heatLayer([
-      [
-        -5.178
-        39.808
-        100
-      ]
-      [
-        -5.18
-        39.81
-        100
-      ]
-    ], radius: 25) 
+#    console.log("coords: "+coords);
+    console.log("@heatmapcoords: "+heatMapCoords)
+    heat = L.heatLayer(heatMapCoords, radius: 25) 
     heat.addTo(@map)
     
   mapFocus: =>
@@ -132,8 +121,8 @@ class MapView extends Backbone.View
                 ]
             }
         .compact().value()
-    
-#        console.log 'dataForMaps: ' + JSON.stringify GeoJSONOb
+        console.log JSON.stringify GeoJSONOb
+        
 
         updateMap GeoJSONOb
 
@@ -212,9 +201,12 @@ class MapView extends Backbone.View
         console.log "updateFinished"
         return
     onEachFeature = (feature, layer) ->
-      coords = feature.geometry.coordinates
-      coords.push 1
-      heatMapCoords.push feature.geometry.coordinates
+      coords = [
+        feature.geometry.coordinates[1]
+        feature.geometry.coordinates[0]
+        100
+      ]
+      heatMapCoords.push coords
       console.log "heatmapCoords: "+heatMapCoords
       layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.hasAdditionalPositiveCasesAtIndexHousehold + "<br />\n Date: "+feature.properties.date 
       return
