@@ -12,14 +12,18 @@ leafletImage = require 'leaflet-image'
 class MapView extends Backbone.View
   
   heatMapCoords = []
+  
+  casesGeoJSON = 
+    'type': 'FeatureCollection'
+    'features': []
     
   el: '#content'
 
   events:
     "click #pembaToggle, #ungugaToggle ": "buttonClick"
     "click #heatMapToggle": "heatMapToggle"
-    "focus #map": "mapFocus"
-    "blur #map": "mapBlur"
+#    "focus #map": "mapFocus"
+#    "blur #map": "mapBlur"
     "click #snapImage": "snapImage"
     
   buttonClick: (event)=>
@@ -136,7 +140,7 @@ class MapView extends Backbone.View
                     <label for='ungugaToggle'>or</label>
                 <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>    
                 <label for='heatMapToggle'>Turn Heat Map</label>
-                <button id='heatMapToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>On</button>
+                <button id='heatMapToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>ON</button>
         
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -163,14 +167,37 @@ class MapView extends Backbone.View
     L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
     @map = L.mapbox.map('map', 'mapbox.streets',
       zoomControl: false
-      attributionControl: true).setView([-5.67, 39.489], 9)
+      attributionControl: false).setView([-5.67, 39.489], 9)
     layers = 
       Streets: L.mapbox.tileLayer('mapbox.streets')
       Outdoors: L.mapbox.tileLayer('mapbox.outdoors')
       Satellite: L.mapbox.tileLayer('mapbox.satellite')
-    overlays = 
-      Cases: L.geoJson().addTo(@map)
-      Shahias: L.geoJson()
+#    overlays = 
+#      'Bike Stations': L.geoJson(
+#        'type': 'Feature'
+#        'properties':
+#          'name': 'Coors Field'
+#          'amenity': 'Baseball Stadium'
+#          'popupContent': 'This is where the Rockies play!'
+#        'geometry':
+#          'type': 'Point'
+#          'coordinates': [
+#            -104.99404
+#            39.75621
+#          ]).addTo(@map)
+#      'Bike Lanes': L.geoJson({
+#        "type": "Feature",
+#        "properties": {
+#            "name": "Coors Field",
+#            "amenity": "Baseball Stadium",
+#            "popupContent": "This is where the Rockies play!"
+#        },
+#        "geometry": {
+#            "type": "Point",
+#            "coordinates": [-104.99404, 39.75621]
+#        }
+#    })
+    overlays = null
     materialOptions = 
       fab: true
       miniFab: true
@@ -179,6 +206,8 @@ class MapView extends Backbone.View
       color: 'cyan'
     materialZoomControl = new (materialControl.Zoom)(
       position: 'topright'
+      materialOptions: materialOptions).addTo(@map)
+    materialFullscreen = new (L.materialControl.Fullscreen)(position: 'topright',
       materialOptions: materialOptions).addTo(@map)
     materialLayerControl = new (materialControl.Layers)(layers, overlays,
       position: 'topright'
@@ -195,21 +224,35 @@ class MapView extends Backbone.View
           weight: 1
           opacity: 1
           fillOpacity: 0.8
-        @geojson = L.geoJson(geojsonFeature, onEachFeature: onEachFeature, pointToLayer: (feature, latlng) =>
-          L.circleMarker latlng, geojsonMarkerOptions
-        ).addTo(@map)
+        @geojson = L.geoJson(geojsonFeature, 
+          onEachFeature: (feature, layer) =>
+            coords = [
+              feature.geometry.coordinates[1]
+              feature.geometry.coordinates[0]
+              10000/data.features.length#adjust with slider
+            ]
+            heatMapCoords.push coords
+            console.log "heatmapCoords: "+heatMapCoords
+            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.hasAdditionalPositiveCasesAtIndexHousehold + "<br />\n Date: "+feature.properties.date 
+            return
+          pointToLayer: (feature, latlng) =>
+            
+            # household markers with secondary cases
+            #clusering as well
+            L.circleMarker latlng, geojsonMarkerOptions
+          ).addTo(@map)
         console.log "updateFinished"
         return
-    onEachFeature = (feature, layer) ->
-      coords = [
-        feature.geometry.coordinates[1]
-        feature.geometry.coordinates[0]
-        100
-      ]
-      heatMapCoords.push coords
-      console.log "heatmapCoords: "+heatMapCoords
-      layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.hasAdditionalPositiveCasesAtIndexHousehold + "<br />\n Date: "+feature.properties.date 
-      return
+#    onEachFeature = (feature, layer) ->
+#      coords = [
+#        feature.geometry.coordinates[1]
+#        feature.geometry.coordinates[0]
+#        100
+#      ]
+#      heatMapCoords.push coords
+#      console.log "heatmapCoords: "+heatMapCoords
+#      layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.hasAdditionalPositiveCasesAtIndexHousehold + "<br />\n Date: "+feature.properties.date 
+#      return
    
 module.exports = MapView
     

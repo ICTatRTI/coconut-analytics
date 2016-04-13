@@ -30,6 +30,7 @@
     "moment-range": "^2.2.0",
     "node-static": "^0.7.7",
     "pouchdb": "*",
+    "react": "^0.14.8",
     "tablesorter": "^2.25.4",
     "underscore": "^1.8.3",
     "underscore.string": "^3.2.2",
