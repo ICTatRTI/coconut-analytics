@@ -92,6 +92,7 @@ class Router extends Backbone.Router
     _(defaultOptions).each (defaultValue, option) =>
       @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
     type = @reportViewOptions["type"]
+    console.log("type: " + type)
     @views[type] = new reportViews[type]() unless @views[type]
     @views[type].setElement "#content"
     @views[type].render()
