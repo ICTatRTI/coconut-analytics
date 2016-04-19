@@ -1,0 +1,40 @@
+#! /usr/bin/env ruby
+require 'rubygems'
+require 'couchrest'
+require 'json'
+
+@db = CouchRest.new(ARGV.shift).database(ARGV.shift)
+
+puts @db
+
+#Get all .coffee files
+
+Dir.glob("*.coffee").each do |view|
+  view_name = view.sub(/\.coffee/,"")
+  document_id = "_design/#{view_name}"
+  local_view = File.read(view)
+
+  local_view_doc = {
+    "_id" => document_id, 
+    "language" => "coffeescript",
+    :views => {
+      "#{view_name}" => {
+        :map => local_view
+        }
+      }
+  }
+
+
+  begin
+    db_view_doc = @db.get(document_id)
+    local_view_doc["_rev"] = db_view_doc["_rev"] if db_view_doc
+  rescue
+  end
+
+    
+  puts local_view_doc.to_json
+
+  @db.save_doc(local_view_doc)
+
+end
+
