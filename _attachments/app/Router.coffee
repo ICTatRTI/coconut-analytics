@@ -92,10 +92,12 @@ class Router extends Backbone.Router
     _(defaultOptions).each (defaultValue, option) =>
       @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
     type = @reportViewOptions["type"]
+    console.log("type: " + type)
     @views[type] = new reportViews[type]() unless @views[type]
     @views[type].setElement "#content"
     @views[type].render()
-    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type])
+    @reportType = 'reports'
+    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type], @reportType)
 
 
   # Needs to refactor later to keep it DRY
@@ -115,7 +117,8 @@ class Router extends Backbone.Router
     @views[type] = new activityViews[type]() unless @views[type]
     @views[type].setElement "#content"
     @views[type].render()
-    @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate, @views[type])
+    @reportType = 'activities'
+    @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate, @views[type], @reportType)
 
   showCase: (caseID, docID) ->
 #    @userLoggedIn
@@ -144,12 +147,14 @@ class Router extends Backbone.Router
     @dataExportView.startDate = startDate
     @dataExportView.endDate = endDate
     @dataExportView.render()
-    @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView)
+    @reportType = 'export'
+    @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
 
   maps: (options) ->
 
     options = _(options?.split(/\//)).map (option) -> unescape(option)
-
+    # remove type option
+    options.splice(0,2)
     _.each options, (option,index) =>
       @reportViewOptions[option] = options[index+1] unless index % 2
     
@@ -161,7 +166,8 @@ class Router extends Backbone.Router
 
     @mapView = new MapView unless @mapView
     @mapView.render()
-    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @mapView)
+    @reportType = 'maps'
+    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @mapView, @reportType)
 
   FacilityHierarchy: =>
     @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
@@ -232,12 +238,13 @@ class Router extends Backbone.Router
     endDate = endDate || moment().format("YYYY-MM-DD")
     [startDate, endDate]
 
-  showDateFilter: (startDate, endDate, reportView) ->
+  showDateFilter: (startDate, endDate, reportView, reportType) ->
     Coconut.dateSelectorView = new DateSelectorView() unless Coconut.dateSelectorView
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.startDate = startDate
     Coconut.dateSelectorView.endDate = endDate
     Coconut.dateSelectorView.reportView = reportView
+    Coconut.dateSelectorView.reportType = reportType
     Coconut.dateSelectorView.render()
 
   setDefaultOptions: () ->
