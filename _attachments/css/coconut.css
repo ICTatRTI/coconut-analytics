@@ -826,3 +826,48 @@ div#form-title {
 	border-bottom: 1px solid #ccc; 
 	display: none 
 }
+
+
+/*map slider classes*/
+/*
+body {
+  background-color: #393939;
+  font-size: 14px;
+  font-family: 'Raleway', sans-serif;
+}
+
+p {
+  color: white;
+  margin: 50px;
+}
+
+a {
+  color: #4FDEF2;
+}
+*/
+
+.axis {
+  fill: gray;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.axis .halo {
+  stroke: gray;
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+
+.slider .handle path {
+  stroke: white;
+  stroke-width: 8px;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.slider .handle text {
+  fill: white;
+  text-align: center;
+  font-size: 14px;
+}

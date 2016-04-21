@@ -10,18 +10,44 @@ materialControl = require 'leaflet-material-controls'
 Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
 class MapView extends Backbone.View
-  
+  map = undefined
+  clusters = undefined
+  caseMarkerOptions = 
+    radius: 4
+    fillColor: '#ff7800'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8
+  casesMarkerOptions = 
+    radius: 6
+    fillColor: 'red'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8   
   heatMapCoords = []
-  
-  casesGeoJSON = 
-    'type': 'FeatureCollection'
-    'features': []
+  heatMapOn = false
+  heat = undefined
+  startDate = undefined
+  endDate = undefined
+  timeInterval = '2014-09-30/2014-10-30'
+  materialHeatMapControl = undefined
+  materialClusterControl = undefined
+  materialTimeControl = undefined
+  casesLayer = undefined
+  casesGeoJSON = undefined
+  turnCasesLayerOn = false;
+  timeCasesGeoJSON = undefined
+  timeLayer = undefined
     
   el: '#content'
 
   events:
     "click #pembaToggle, #ungugaToggle ": "buttonClick"
-    "click #heatMapToggle": "heatMapToggle"
+    "click .heatMapButton, #heatMapToggle": "heatMapToggle"
+    "click .timeButton": "timeToggle"
+    "click .clusterButton": "clusterToggle"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
     "click #snapImage": "snapImage"
@@ -40,23 +66,103 @@ class MapView extends Backbone.View
         @map.setView([-5.187, 39.746], 10, {animate:true})
   
   heatMapToggle: =>
-#    coords = [
-#      [
-#        -5.178
-#        39.808
-#        5000
-#      ]
-#      [
-#        -5.18
-#        39.81
-#        5000
-#      ]
-#    ]
-    console.log("@map.scrollWheelZoom.enabled() = "+@map.scrollWheelZoom.enabled())
-#    console.log("coords: "+coords);
-    console.log("@heatmapcoords: "+heatMapCoords)
-    heat = L.heatLayer(heatMapCoords, radius: 10) 
-    heat.addTo(@map)
+    if heatMapCoords.length>0
+        if !materialHeatMapControl.toggleState
+            console.log('StartDate: ' + startDate + " " + endDate)
+            materialHeatMapControl.toggleState = true
+            $('.heatMapButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+            heat = L.heatLayer(heatMapCoords, radius: 10) 
+            @map.addLayer(heat)
+            if @map.hasLayer casesLayer
+              console.log('remove')
+              @map.removeLayer casesLayer
+              turnCasesLayerOn = true
+        else
+            materialHeatMapControl.toggleState = false
+            $('.heatMapButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
+            @map.removeLayer(heat)
+            if turnCasesLayerOn == true
+              @map.addLayer casesLayer
+              turnCasesLayerOn = false
+  timeToggle: =>
+    console.log 'timeToggle: '+startDate
+    console.log 'clustersToggleState: '+materialClusterControl.toggleState
+    if !materialTimeControl.toggleState
+      $("#sliderContainer").toggle()
+      $('.timeButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+      materialTimeControl.toggleState = true
+      if @map.hasLayer casesLayer
+        console.log('remove')
+        @map.removeLayer casesLayer
+        turnCasesLayerOn = true
+    else
+      materialTimeControl.toggleState = false
+      $("#sliderContainer").toggle()
+      $('.timeButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
+      console.log 'turnOnCaseLayer: '+turnCasesLayerOn
+      if turnCasesLayerOn == true
+        @map.addLayer casesLayer
+        turnCasesLayerOn = false          
+    
+  clusterToggle: =>
+    console.log 'clustersToggleState: '+materialClusterControl.toggleState
+    if !materialClusterControl.toggleState
+      materialClusterControl.toggleState = true
+      $('.clusterButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+      if @map.hasLayer casesLayer
+        @map.removeLayer casesLayer
+        turnCasesLayerOn = true
+        console.log 'turnOnCaseLayer: '+turnCasesLayerOn
+      clusters.addTo map
+    else
+      materialClusterControl.toggleState = false
+      $('.clusterButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
+      @map.removeLayer clusters
+      console.log 'turnOnCaseLayer: '+turnCasesLayerOn
+      if turnCasesLayerOn == true
+        @map.addLayer casesLayer
+        turnCasesLayerOn = false
+    console.log 'clusterToggle'
+  updateFeaturesByDate = (date) ->
+#    console.log 'updatefeaturesbydate: '+date 
+#    console.log 'casesGEoJSON.length: '+JSON.stringify casesGeoJSON.features
+    timeFeatures = []
+    for fCount of casesGeoJSON.features
+      feature = casesGeoJSON.features[fCount]
+      fDate = feature.properties.date.substring(0,10)
+      console.log 'fDate: '+ fDate + ' date: ' + date
+      if fDate == date
+        console.log 'fDate: '+ fDate
+        console.log 'date: '+ date
+        timeFeatures.push feature
+    console.log 'timeFeatures: '+ timeFeatures
+    timeCasesGeoJSON.features = timeFeatures
+    if !map.hasLayer timeLayer
+          console.log 'timeCasesGeoJSON: '+ JSON.stringify timeCasesGeoJSON
+          timeLayer = L.geoJson(timeCasesGeoJSON, 
+          onEachFeature: (feature, layer) =>
+#            coords = [
+#              feature.geometry.coordinates[1]
+#              feature.geometry.coordinates[0]
+#              5000/data.features.length#adjust with slider
+#            ]
+#            heatMapCoords.push coords
+            console.log('onEachFeature')
+            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+            return
+          pointToLayer: (feature, latlng) =>
+            # household markers with secondary cases
+            #clusering as well
+            console.log('pointToLayer')
+            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+                L.circleMarker latlng, caseMarkerOptions
+            else
+                L.circleMarker latlng, casesMarkerOptions
+          ).addTo(map)
+        else
+          timeLayer.clearLayers()
+          timeLayer.addData(timeFeatures)      
+      
     
   mapFocus: =>
     console.log("scrolwheelStatus: "+@map.scrollWheelZoom.enabled())
@@ -100,17 +206,20 @@ class MapView extends Backbone.View
     
   render: =>
     options = Coconut.router.reportViewOptions
-    casesOb = 
+    casesGeoJSON = 
       'type': 'FeatureCollection'
       'features': []
-    console.log options.startDate
-    console.log options.endDate
+    timeCasesGeoJSON =  
+      'type': 'FeatureCollection'
+      'features': []
+    startDate = options.startDate
+    endDate = options.endDate
     Reports.getCases
-      startDate: options.startDate
-      endDate: options.endDate
+      startDate: startDate
+      endDate: endDate
       success: (results) ->
 #        console.log "results: " + JSON.stringify results
-        casesOb.features =  _(results).chain().map (malariaCase) ->
+        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
           if malariaCase.Household?["HouseholdLocation-latitude"]
             { 
               type: 'Feature'
@@ -128,8 +237,8 @@ class MapView extends Backbone.View
                 ]
             }
         .compact().value()
-        
-        updateMap casesOb
+#        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
+        updateMap casesGeoJSON
 
     @$el.html "
         <style>
@@ -163,6 +272,13 @@ class MapView extends Backbone.View
           height: 10px;
           margin-top: 8px;
         }
+        #sliderContainer{
+            background-color: #393939;
+            font-size: 14px;
+            font-family: 'Raleway', sans-serif;
+            display: none;
+        }
+        
         </style>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -188,9 +304,7 @@ class MapView extends Backbone.View
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
             <div class='mdl-cell mdl-cell--10-col'>
-                <button id='snapImage' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Snap Image</button>
-                <div id = 'snapshot' style='width:100%;'>
-                </div>
+                <div id = 'sliderContainer'></div>
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>  
@@ -217,22 +331,231 @@ class MapView extends Backbone.View
         streets
       ]
       zoomControl: false
-      attributionControl: false)
+      attributionControl: false
+#      timeDimension: true
+#      timeDimensionOptions:
+#        timeInterval: timeInterval
+#        period: 'PT1H'
+      )
+    
     @map.lat = -5.67
     @map.lng = 39.489
     @map.zoom = 9
+    map = @map
     materialOptions = 
       fab: true
       miniFab: true
       rippleEffect: true
       toolTips: false
       color: 'cyan'
-    materialZoomControl = new (materialControl.Zoom)(
+    materialZoomControl = new (zoomControl)(
       position: 'topright'
       materialOptions: materialOptions).addTo(@map)
+    materialHeatMapControl = new (heatMapControl)(
+      position: 'topleft'
+      materialOptions: materialOptions).addTo(@map)
+#    $('.heatMapButton button').attr('disabled')
+    materialClusterControl = new (clusterControl)(
+      position: 'topleft'
+      materialOptions: materialOptions).addTo(@map)
+    materialTimeControl = new (timeControl)(
+      position: 'topleft'
+      materialOptions: materialOptions).addTo(@map)
+    console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
     materialFullscreen = new (L.materialControl.Fullscreen)(position: 'topright',
       materialOptions: materialOptions).addTo(@map)
-    layerControl = L.control.layers(layers, overlays).addTo @map
+#    leafletTimeControl = L.Control.extend(
+#      options: position: 'bottomleft'
+#      onAdd: (@map) ->
+#        console.log 'onAdd1'
+#        container = L.DomUtil.create('div', 'info')
+#        container.setAttribute("id", "leafTime");
+#        formatDate = d3.time.format('%b %d')
+#        # parameters
+#        margin = 
+#          top: 50
+#          right: 50
+#          bottom: 50
+#          left: 50
+#        console.log 'margin'
+#        console.log 'onAdd2'
+#        width = 250- (margin.left) - (margin.right)
+#        height = 137 - (margin.bottom) - (margin.top)
+#        # scale function
+#        console.log 'onAdd3'
+#        timeScale = d3.time.scale().domain([
+#          new Date(startDate)
+#          new Date(endDate)
+#        ]).range([
+#          0
+#          width
+#        ]).clamp(true)
+#        # initial value
+#        console.log "startDate: "+startDate
+#        console.log "endDate: "+endDate
+#        startValue = timeScale(new Date(startDate))
+#        startingValue = new Date(startDate)
+#        #////////
+#        # defines brush
+#        console.log 'theBrush'
+#        brush = d3.svg.brush().x(timeScale).extent([
+#          startingValue
+#          startingValue
+#        ]).on('brush', brushed)
+#        console.log 'leaftime: '+$('.leafTime')
+#        svg = d3.select(container).append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+#        svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
+#          formatDate d
+#        ).tickSize(0).tickPadding(12).tickValues([
+#          timeScale.domain()[0]
+#          timeScale.domain()[1]
+#        ])).select('.domain').select(->
+#          console.log this
+#          @parentNode.appendChild @cloneNode(true)
+#        ).attr 'class', 'halo'
+#        slider = svg.append('g').attr('class', 'slider').call(brush)
+#        slider.selectAll('.extent,.resize').remove()
+#        slider.select('.background').attr 'height', height
+#        handle = slider.append('g').attr('class', 'handle')
+#        handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
+#        console.log 'startingValue: '+startingValue
+#        handle.append('text').text(startingValue);
+#        slider.call brush.event
+#        
+#        brushed = ->
+#          console.log('map: '+map.scrollWheelZoom.enabled())
+#          value = brush.extent()[0]
+#          outFormat = d3.time.format("%Y-%m-%d")
+#          console.log('value: '+value)
+#          if d3.event.sourceEvent
+#            value = timeScale.invert(d3.mouse(this)[0])
+#            outDate = outFormat(value)     
+#            updateFeaturesByDate(outDate)
+#            brush.extent [
+#              value
+#              value
+#            ]
+#          handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
+#          handle.select('text').text formatDate(value)
+#          return
+#        
+#        svg.on 'mouseover', ->
+#          map.dragging.disable()
+#          return
+#        # Re-enable dragging when user's cursor leaves the element
+#        container.addEventListener 'mouseout', ->
+#          map.dragging.enable()
+#          return
+#        container
+#    )
+#    @map.addControl(new leafletTimeControl());
+    
+#        legend = L.control(position: 'topleft')
+#
+#        legend.onAdd = (map) ->
+#          div = L.DomUtil.create('div', 'info legend')
+#          grades = [
+#            0
+#            10
+#            20
+#            50
+#            100
+#            200
+#            500
+#            1000
+#          ]
+#          labels = []
+#          # loop through our density intervals and generate a label with a colored square for each interval
+#          i = 0
+#          while i < grades.length
+#            div.innerHTML += 'LEGEND'
+#            i++
+#          div
+#
+#        legend.addTo map
+#        legend.onAdd = (@map) =>
+#          div = L.DomUtil.create('div', 'legend')
+#          div.innerHTML 'Legend'
+##          categories = [
+##            'Single Case'
+##            'Multiple Cases'
+##          ]
+##          i = 0
+##          while i < categories.length
+##            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
+##            i++
+##          div
+#
+#        legend.addTo @map    
+    brushed = ->
+      console.log('map: '+map.scrollWheelZoom.enabled())
+      value = brush.extent()[0]
+      outFormat = d3.time.format("%Y-%m-%d")
+      console.log('value: '+value)
+      if d3.event.sourceEvent
+        value = timeScale.invert(d3.mouse(this)[0])
+        outDate = outFormat(value)     
+        updateFeaturesByDate(outDate)
+        brush.extent [
+          value
+          value
+        ]
+      handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
+      handle.select('text').text formatDate(value)
+      return
+
+    formatDate = d3.time.format('%b %d')
+    # parameters
+    margin = 
+      top: 50
+      right: 50
+      bottom: 50
+      left: 50
+    console.log 'margin'
+    width = 480 - (margin.left) - (margin.right)
+    height = 137 - (margin.bottom) - (margin.top)
+    # scale function
+    timeScale = d3.time.scale().domain([
+      new Date(startDate)
+      new Date(endDate)
+    ]).range([
+      0
+      width
+    ]).clamp(true)
+    # initial value
+    console.log "startDate: "+startDate
+    console.log "endDate: "+endDate
+    startValue = timeScale(new Date(startDate))
+    startingValue = new Date(startDate)
+    #////////
+    # defines brush
+    console.log 'theBrush'
+    brush = d3.svg.brush().x(timeScale).extent([
+      startingValue
+      startingValue
+    ]).on('brush', brushed)
+    svg = d3.select('#sliderContainer').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+    svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
+      formatDate d
+    ).tickSize(0).tickPadding(12).tickValues([
+      timeScale.domain()[0]
+      timeScale.domain()[1]
+    ])).select('.domain').select(->
+      console.log this
+      @parentNode.appendChild @cloneNode(true)
+    ).attr 'class', 'halo'
+    slider = svg.append('g').attr('class', 'slider').call(brush)
+    slider.selectAll('.extent,.resize').remove()
+    slider.select('.background').attr 'height', height
+    handle = slider.append('g').attr('class', 'handle')
+    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
+    console.log 'startingValue: '+startingValue
+    handle.append('text').text(startingValue);
+    slider.call brush.event
+#    customLayers = new (layersControl)(layers, overlays,
+#      position: 'topright'
+#      materialOptions: materialOptions).addTo(@map)
+    customLayers = L.control.layers(layers, overlays).addTo @map
 #    $('.leaflet-control-layers').addClass 'mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-color--cyan'
     #    materialLayerControl = new (materialControl.Layers)(layers, overlays,
 #      position: 'topright'
@@ -240,31 +563,24 @@ class MapView extends Backbone.View
 #    materialLayerControl = new (materialControl.Layers)(layers, overlays,
 #      position: 'topright'
 #      materialOptions: materialOptions).addTo(@map)
+    
     updateMap = (data) =>
-        console.log "data: "+JSON.stringify data
-        caseMarkerOptions = 
-          radius: 4
-          fillColor: '#ff7800'
-          color: '#000'
-          weight: 0.5
-          opacity: 1
-          fillOpacity: 0.8
-        casesMarkerOptions = 
-          radius: 6
-          fillColor: 'red'
-          color: '#000'
-          weight: 0.5
-          opacity: 1
-          fillOpacity: 0.8    
-        casesGeoJSON = L.geoJson(data, 
+#        console.log "data: "+JSON.stringify data
+        if data.features.length == 0
+#            disable heatmap button else enable it
+            heatMapCoords = []
+        clusters = L.markerClusterGroup()
+        casesLayer = L.geoJson(data, 
           onEachFeature: (feature, layer) =>
             coords = [
               feature.geometry.coordinates[1]
               feature.geometry.coordinates[0]
               5000/data.features.length#adjust with slider
             ]
+            
             heatMapCoords.push coords
             layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+            clusters.addLayer layer
             return
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
@@ -274,26 +590,21 @@ class MapView extends Backbone.View
             else
                 L.circleMarker latlng, casesMarkerOptions
           ).addTo(@map)
-        console.log "updateFinished"
-        layerControl.addOverlay casesGeoJSON, 'Cases'
+        console.log('getreadytocluster')
+        console.log 'clusters: '+clusters
+        if heatMapCoords.length == 0
+          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
+          $('.timeButton button').toggleClass 'mdl-button--disabled', true
+        else
+          $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
+          $('.timeButton button').toggleClass 'mdl-button--disabled', false
+        if data.features.length > 0
+          console.log('multiCase')
+          customLayers.addOverlay casesLayer, 'Cases'
+        if casesLayer.features.length > 0
+          customLayers.addOverlay casesLayer, 'Cases'
         
-        legend = L.control(position: 'topleft')
-
-        legend.onAdd = (@map) =>
-          div = L.DomUtil.create('div', 'legend')
-          div.innerHTML 'Legend'
-          categories = [
-            'Single Case'
-            'Multiple Cases'
-          ]
-          i = 0
-          while i < categories.length
-            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
-            i++
-          div
-
-        legend.addTo @map
-        return
+    return
 #    onEachFeature = (feature, layer) ->
 #      coords = [
 #        feature.geometry.coordinates[1]

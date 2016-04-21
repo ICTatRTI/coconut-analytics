@@ -236,7 +236,7 @@ class Case
   hasCompleteIndexCaseHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
 
-  positiveCasesAtIndexHousehold: =>
+  positiveCasesAtIndexHousehold: ->
     _(@completeIndexCaseHouseholdMembers()).filter (householdMember) ->
       householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed"
 
