@@ -76,7 +76,7 @@ class AnalysisView extends Backbone.View
         $("#analysis").append "
 		  <div class='analysis dropDownBtn'>
 			  <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-		  Cases Followed Up<small> <button onClick='$(\".details\").toggle()'>Toggle Details</button></small></h4></div>
+		  Cases Followed Up<small></small></h4></div>
 		"
         $("#analysis").append @createTable headings, "
           #{
@@ -152,6 +152,7 @@ class AnalysisView extends Backbone.View
 
         ,2000
 
+        $("div#cases-followed-up span.toggle-btn").html("<button onClick='$(\".details\").toggle()'>Toggle Details</button>")
 
         $("#analysis").append "
           </div>
@@ -232,7 +233,6 @@ class AnalysisView extends Backbone.View
 		  <div class='analysis dropDownBtn'>
 		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small> 
-				<button type='button'' onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>
 		  	</h4>
 		  </div>
         "
@@ -257,6 +257,7 @@ class AnalysisView extends Backbone.View
         ", "gender"
         $("table#gender th:nth-child(7)").addClass("gender-unknown").css("display", "none")
         $("table#gender th:nth-child(8)").addClass("gender-unknown").css("display", "none")
+        $("div#gender span.toggle-btn").html("<button type='button'' onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>")
 
         $("#analysis").append "
           </div>
@@ -436,7 +437,7 @@ class AnalysisView extends Backbone.View
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
       <div id='#{id}' class='analysis-report dropdown-section'>
-		<div style='font-style:italic'>Click on a column heading to sort.</div>
+		<div style='font-style:italic'><span class='toggle-btn'></span> &nbsp; Click on a column heading to sort.</div>
         <table #{if id? then "id=#{id}" else ""} class='tablesorter'>
           <thead>
             <tr>

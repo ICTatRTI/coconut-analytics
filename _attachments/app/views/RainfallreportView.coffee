@@ -23,7 +23,9 @@ class RainfallreportView extends Backbone.View
       startkey: [moment(options.startDate).year(), moment(options.startDate).week()]
       endkey: [moment(options.endDate).year(), moment(options.endDate).week()] 
       include_docs: true
-    .catch (error) -> console.error error
+    .catch (error) -> 
+      coconut.debug "Error: #{JSON.stringify error}"
+      console.error error
     .then (results) =>
       $('#analysis-spinner').hide()
       @$el.append "
