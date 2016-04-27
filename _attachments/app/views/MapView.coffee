@@ -9,6 +9,9 @@ materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
+require '../../mapdata/DistrictsWGS84.json'
+require '../../mapdata/ShahiasWGS84.json'
+require '../../mapdata/VillagesWGS84.json'
 class MapView extends Backbone.View
   map = undefined
   clusters = undefined
@@ -25,10 +28,18 @@ class MapView extends Backbone.View
     color: '#000'
     weight: 0.5
     opacity: 1
-    fillOpacity: 0.8   
-  heatMapCoords = []
+    fillOpacity: 0.8 
+  adminPolyOptions =
+    fillColor: '#4292C6'
+    color: '#ffffff'
+    weight: 0.2
+    opacity: 1
+    fillOpacity: 0.8
+  heatMapCoords = [] 
+  heatMapCoordsTime = []
   heatMapOn = false
   heat = undefined
+  heatTime = undefined
   startDate = undefined
   endDate = undefined
   timeInterval = '2014-09-30/2014-10-30'
@@ -40,7 +51,10 @@ class MapView extends Backbone.View
   turnCasesLayerOn = false;
   timeCasesGeoJSON = undefined
   timeLayer = undefined
-    
+  districtsData = undefined
+  shahiasData = undefined
+  villagesData = undefined
+        
   el: '#content'
 
   events:
@@ -95,6 +109,8 @@ class MapView extends Backbone.View
         console.log('remove')
         @map.removeLayer casesLayer
         turnCasesLayerOn = true
+      if @map.hasLayer heat
+        @map.removeLayer heat
     else
       materialTimeControl.toggleState = false
       $("#sliderContainer").toggle()
@@ -137,16 +153,19 @@ class MapView extends Backbone.View
         timeFeatures.push feature
     console.log 'timeFeatures: '+ timeFeatures
     timeCasesGeoJSON.features = timeFeatures
+    #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are 
+    #if cases are on:
     if !map.hasLayer timeLayer
           console.log 'timeCasesGeoJSON: '+ JSON.stringify timeCasesGeoJSON
+          #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
           timeLayer = L.geoJson(timeCasesGeoJSON, 
           onEachFeature: (feature, layer) =>
-#            coords = [
-#              feature.geometry.coordinates[1]
-#              feature.geometry.coordinates[0]
-#              5000/data.features.length#adjust with slider
-#            ]
-#            heatMapCoords.push coords
+            coords = [
+              feature.geometry.coordinates[1]
+              feature.geometry.coordinates[0]
+              5000/timeCasesGeoJSON.features.length#adjust with slider
+            ]
+            heatMapCoordsTime.push coords
             console.log('onEachFeature')
             layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
             return
@@ -159,9 +178,16 @@ class MapView extends Backbone.View
             else
                 L.circleMarker latlng, casesMarkerOptions
           ).addTo(map)
-        else
-          timeLayer.clearLayers()
-          timeLayer.addData(timeFeatures)      
+    else
+      timeLayer.clearLayers()
+      timeLayer.addData(timeFeatures)      
+    #if heatmap is on:
+    console.log 'heatmaptoggle: '+!materialHeatMapControl.toggleState
+    if !materialHeatMapControl.toggleState
+      console.log 'heatmapcontrolOn'
+    
+    
+    #if clusters are on
       
     
   mapFocus: =>
@@ -321,7 +347,8 @@ class MapView extends Backbone.View
       Streets: streets
       Outdoors: outdoors
       Satellite: satellite
-    overlays = undefined
+    
+    
     @map = L.map('map',
       center: [
         -5.67, 39.489
@@ -342,6 +369,55 @@ class MapView extends Backbone.View
     @map.lng = 39.489
     @map.zoom = 9
     map = @map
+    $.ajax
+      url: '../../mapdata/DistrictsWGS84.json'
+      dataType: 'json'
+      type: 'GET'
+      async: false
+      success: (data) ->
+        console.log 'district data loadeds'
+        districtsData = data
+        return
+    districtsLayer = L.geoJson(districtsData,
+      style: adminPolyOptions
+      onEachFeature: (feature, layer) ->
+        layer.bindPopup 'test'
+        return
+    ).addTo @map
+    $.ajax
+      url: '../../mapdata/ShahiasWGS84.json'
+      dataType: 'json'
+      type: 'GET'
+      async: false
+      success: (data) ->
+        console.log 'district data loadeds'
+        shahiasData = data
+        return
+    shahiasLayer = L.geoJson(shahiasData,
+      style: adminPolyOptions
+      onEachFeature: (feature, layer) ->
+        layer.bindPopup 'test'
+        return
+    )
+    $.ajax
+      url: '../../mapdata/VillagesWGS84.json'
+      dataType: 'json'
+      type: 'GET'
+      async: false
+      success: (data) ->
+        console.log 'district data loadeds'
+        villagesData = data
+        return
+    villagesLayer = L.geoJson(villagesData,
+      style: adminPolyOptions
+      onEachFeature: (feature, layer) ->
+        layer.bindPopup 'test'
+        return
+    )
+    overlays =
+      Districts: districtsLayer
+      Shahias: shahiasLayer
+      Villages: villagesLayer
     materialOptions = 
       fab: true
       miniFab: true
@@ -364,6 +440,7 @@ class MapView extends Backbone.View
     console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
     materialFullscreen = new (L.materialControl.Fullscreen)(position: 'topright',
       materialOptions: materialOptions).addTo(@map)
+    customLayers = L.control.layers(layers, overlays).addTo @map
 #    leafletTimeControl = L.Control.extend(
 #      options: position: 'bottomleft'
 #      onAdd: (@map) ->
@@ -555,7 +632,7 @@ class MapView extends Backbone.View
 #    customLayers = new (layersControl)(layers, overlays,
 #      position: 'topright'
 #      materialOptions: materialOptions).addTo(@map)
-    customLayers = L.control.layers(layers, overlays).addTo @map
+    
 #    $('.leaflet-control-layers').addClass 'mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-color--cyan'
     #    materialLayerControl = new (materialControl.Layers)(layers, overlays,
 #      position: 'topright'
