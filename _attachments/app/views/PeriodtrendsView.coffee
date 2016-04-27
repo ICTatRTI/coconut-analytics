@@ -141,7 +141,7 @@ class PeriodtrendsView extends Backbone.View
             }
           </tbody>
         </table> 
-        <button class='toggle-trend-data'>Show trend data</button>
+        <button class='toggle-trend-data mdl-button mdl-js-button mdl-button--raised mdl-button--colored'>Show trend data</button>
       "
 
       extractNumber = (element) ->

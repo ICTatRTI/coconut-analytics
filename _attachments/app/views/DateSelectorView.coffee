@@ -134,7 +134,7 @@ class DateSelectorView extends Backbone.View
                         }
                       </select>
                    </td>
-                   <td><button class='btn btn-small mdl-button--raised submitBtn'>Submit</button></td> 
+                   <td><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td> 
                </tr>	
              </tbody>
            </table>
