@@ -15,7 +15,6 @@ class WeeklysummaryView extends Backbone.View
       @$el.html "
         <div id='dateSelector'></div>
         <div id='messages'></div>
-        <h3>Data Summary</h3>
       "
       $('#analysis-spinner').hide()
 

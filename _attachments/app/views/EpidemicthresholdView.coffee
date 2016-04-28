@@ -32,7 +32,6 @@ class EpidemicthresholdView extends Backbone.View
           text-align:center;
         }
       </style>
-      <h2>Epidemic Thresholds</h2>
       <div id='dateSelector'></div>
 
       <table class='tablesorter tableData'>

@@ -223,12 +223,23 @@ button.not-followed-up-after-48-hours-false {
 	padding: 0 7px;
 }
 
+.report-subtitle {
+	font-size: 20px;
+	line-height: 32px;
+	-moz-osx-font-smoothing: grayscale;
+	margin: 24px 0 16px;	
+}
+
 #cases-section {
 	padding-bottom: 20px;
 }
 
 #spinner, #p3 {
 	float: left;
+}
+
+#dateSelector {
+   margin-bottom: 20px;	
 }
 
 .select-by-date, .select-by-week {
@@ -782,10 +793,11 @@ div.login-group input:focus ~ .login-highlight {
 
 /* UserView */
 div#form-inputs {
-	margin: 10px 0;
+/*	margin: 10px 0;
 	min-height: 170px;
 	border: 1px solid;
 	padding: 10px;
+*/
 	display: none;
 }
 div#form-inputs td {
@@ -825,6 +837,13 @@ div#form-title {
 	border-top: 1px solid #ccc; 
 	border-bottom: 1px solid #ccc; 
 	display: none 
+}
+
+.icon-28 {font-size: 28px}
+.icon-24 {font-size: 24px}
+
+th.action {
+	width: 100px;
 }
 
 

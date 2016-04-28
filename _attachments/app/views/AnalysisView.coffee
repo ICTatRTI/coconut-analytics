@@ -75,8 +75,8 @@ class AnalysisView extends Backbone.View
 
         $("#analysis").append "
 		  <div class='analysis dropDownBtn'>
-			  <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-		  Cases Followed Up<small></small></h4></div>
+			  <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  Cases Followed Up<small></small></div></div>
 		"
         $("#analysis").append @createTable headings, "
           #{
@@ -152,14 +152,14 @@ class AnalysisView extends Backbone.View
 
         ,2000
 
-        $("div#cases-followed-up span.toggle-btn").html("<button onClick='$(\".details\").toggle()'>Toggle Details</button>")
+        $("div#cases-followed-up span.toggle-btn").html("<button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' onClick='$(\".details\").toggle()'>Toggle Details</button>")
 
         $("#analysis").append "
           </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='material-icons'>play_arrow</i></button>
-            Index Household and Neighbors</h4>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='material-icons'>play_arrow</i></button>
+            Index Household and Neighbors</div>
 		  </div>
         "
         $("#analysis").append @createTable """
@@ -199,8 +199,8 @@ class AnalysisView extends Backbone.View
 
           <hr>
           <div class='analysis dropDownBtn'>
-            <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h4>
+            <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></div>
           </div>
         "
         $("#analysis").append @createTable "District, Total, <5, %, 5<15, %, 15<25, %, >=25, %, Unknown, %".split(/, */), "
@@ -231,9 +231,9 @@ class AnalysisView extends Backbone.View
 		  </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small> 
-		  	</h4>
+		  	</div>
 		  </div>
         "
         $("#analysis").append @createTable "District, Total, Male, %, Female, %, Unknown, %".split(/, */), "
@@ -257,15 +257,15 @@ class AnalysisView extends Backbone.View
         ", "gender"
         $("table#gender th:nth-child(7)").addClass("gender-unknown").css("display", "none")
         $("table#gender th:nth-child(8)").addClass("gender-unknown").css("display", "none")
-        $("div#gender span.toggle-btn").html("<button type='button'' onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>")
+        $("div#gender span.toggle-btn").html("<button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored'  onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>")
 
         $("#analysis").append "
           </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Nets and Spraying: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
-		  	</h4>
+		  	</div>
 		  </div>
         "
         $("#analysis").append @createTable "District, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
@@ -289,9 +289,9 @@ class AnalysisView extends Backbone.View
 		  </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Travel History (within past month): <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
-		  	</h4>
+		  	</div>
 		  </div>
         "
         $("#analysis").append @createTable """

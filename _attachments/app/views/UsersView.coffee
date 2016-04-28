@@ -99,9 +99,9 @@ class UsersView extends Backbone.View
         fields =  "_id,password,district,name,roles,comments".split(",")
 
         @$el.html "
-            <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
+            <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
               <i class='material-icons'>add</i>
-            </button>
+            </button></h4>
             <div id='top-of-form' tabindex='1'>	</div>
             <div id='form-inputs'>
                <div id='user-form'>

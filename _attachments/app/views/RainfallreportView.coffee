@@ -17,7 +17,6 @@ class RainfallreportView extends Backbone.View
     @$el.html "
       <div id='dateSelector'></div>
       <div id='messages'></div>
-      <h3>Rainfall Data Submission</h3>
     "
     Coconut.database.query "zanzibar-server/rainfallDataByDateAndLocation",
       startkey: [moment(options.startDate).year(), moment(options.startDate).week()]

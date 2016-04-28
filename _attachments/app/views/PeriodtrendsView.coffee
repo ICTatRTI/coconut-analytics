@@ -104,7 +104,6 @@ class PeriodtrendsView extends Backbone.View
     renderTable = _.after optionsArray.length, =>
       $("#analysis-spinner").hide()
       $("#content").append "
-        <h3>Data Summary</h3>
         <table id='alertsTable' class='tablesorter'>
           <tbody>
             #{
