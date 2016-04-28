@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class SystemerrorsView extends Backbone.View
+class SystemErrorsView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -53,4 +53,4 @@ class SystemerrorsView extends Backbone.View
 
     options = Coconut.router.reportViewOptions
 
-module.exports = SystemerrorsView
+module.exports = SystemErrorsView

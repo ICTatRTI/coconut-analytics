@@ -7,7 +7,7 @@ DataTables = require 'datatables'
 Reports = require '../models/Reports'
 FacilityHierarchy = require '../models/FacilityHierarchy'
 
-class CompareweeklyView extends Backbone.View
+class CompareWeeklyView extends Backbone.View
   el: "#content"
 
   events:
@@ -318,4 +318,4 @@ class CompareweeklyView extends Backbone.View
       $('#analysis-spinner').hide()
       @renderFacilityTimeliness()
 	  
-module.exports = CompareweeklyView
+module.exports = CompareWeeklyView

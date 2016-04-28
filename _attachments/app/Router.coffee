@@ -30,15 +30,15 @@ EditDataView = require './views/EditDataView'
 reportViews = {
   "Analysis": require './views/AnalysisView'
   "Casefollowup": require './views/CaseFollowupView'
-  "Compareweekly": require './views/CompareweeklyView'
-  "Epidemicthreshold": require './views/EpidemicthresholdView'
-  "Systemerrors": require './views/SystemerrorsView'
-  "Incidentsgraph": require './views/IncidentsgraphView'
-  "Periodtrends": require './views/PeriodtrendsView'
-  "Rainfallreport": require './views/RainfallreportView'
+  "Compareweekly": require './views/CompareWeeklyView'
+  "Epidemicthreshold": require './views/EpidemicThresholdView'
+  "Systemerrors": require './views/SystemErrorsView'
+  "Incidentsgraph": require './views/IncidentsGraphView'
+  "Periodtrends": require './views/PeriodTrendsView'
+  "Rainfallreport": require './views/RainfallReportView'
   "Usersreport": require './views/UsersReportView'
-  "Weeklyreports": require './views/WeeklyreportsView'
-  "Weeklysummary": require './views/WeeklysummaryView'
+  "Weeklyreports": require './views/WeeklyReportsView'
+  "Weeklysummary": require './views/WeeklySummaryView'
 }
 
 activityViews = {

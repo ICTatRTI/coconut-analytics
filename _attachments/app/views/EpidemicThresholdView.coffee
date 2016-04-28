@@ -10,7 +10,7 @@ capitalize = require "underscore.string/capitalize"
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class EpidemicthresholdView extends Backbone.View
+class EpidemicThresholdView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -132,4 +132,4 @@ class EpidemicthresholdView extends Backbone.View
 
       $('#analysis-spinner').hide()
 
-module.exports = EpidemicthresholdView
+module.exports = EpidemicThresholdView

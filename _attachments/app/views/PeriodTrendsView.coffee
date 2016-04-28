@@ -9,7 +9,7 @@ require 'moment-range'
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class PeriodtrendsView extends Backbone.View
+class PeriodTrendsView extends Backbone.View
   el: "#content"
 
   events:
@@ -263,4 +263,4 @@ class PeriodtrendsView extends Backbone.View
           ]
           renderTable()
 		  
-module.exports = PeriodtrendsView
+module.exports = PeriodTrendsView

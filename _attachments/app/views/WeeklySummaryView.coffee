@@ -6,7 +6,7 @@ moment = require 'moment'
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class WeeklysummaryView extends Backbone.View
+class WeeklySummaryView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -42,4 +42,4 @@ class WeeklysummaryView extends Backbone.View
       @["Period Trends compared to previous 3 periods"](options)
 
 
-module.exports = WeeklysummaryView
+module.exports = WeeklySummaryView

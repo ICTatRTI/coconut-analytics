@@ -8,7 +8,7 @@ moment = require 'moment'
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class RainfallreportView extends Backbone.View
+class RainfallReportView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -52,16 +52,16 @@ class RainfallreportView extends Backbone.View
         </table>
       "
 
-      $("#rainfallReports").dataTable
-        aaSorting: [[1,"desc"],[2,"desc"]]
-        iDisplayLength: 50
-        dom: 'T<"clear">lfrtip'
-        tableTools:
-          sSwfPath: "js-libraries/copy_csv_xls.swf"
-          aButtons: [
-            "copy",
-            "csv",
-            "print"
-          ]
+    $("#rainfallReports").dataTable
+      aaSorting: [[1,"desc"],[2,"desc"]]
+      iDisplayLength: 5
+      dom: 'T<"clear">lfrtip'
+      tableTools:
+        sSwfPath: "js-libraries/copy_csv_xls.swf"
+        aButtons: [
+          "copy",
+          "csv",
+          "print"
+        ]
 
-module.exports = RainfallreportView
+module.exports = RainfallReportView

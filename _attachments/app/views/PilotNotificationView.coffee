@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class IncidentsgraphView extends Backbone.View
+class PilotNotificationView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -16,4 +16,4 @@ class IncidentsgraphView extends Backbone.View
     "
     options = Coconut.router.reportViewOptions
 
-module.exports = IncidentsgraphView
+module.exports = PilotNotificationView

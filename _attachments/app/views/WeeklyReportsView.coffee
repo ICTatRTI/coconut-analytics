@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class WeeklyreportsView extends Backbone.View
+class WeeklyReportsView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -132,4 +132,4 @@ class WeeklyreportsView extends Backbone.View
             "print"
           ]
  
-module.exports = WeeklyreportsView
+module.exports = WeeklyReportsView
