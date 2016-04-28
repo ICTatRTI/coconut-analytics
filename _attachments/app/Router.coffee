@@ -36,7 +36,7 @@ reportViews = {
   "Incidentsgraph": require './views/IncidentsgraphView'
   "Periodtrends": require './views/PeriodtrendsView'
   "Rainfallreport": require './views/RainfallreportView'
-  "Usersreport": require './views/UsersreportView'
+  "Usersreport": require './views/UsersReportView'
   "Weeklyreports": require './views/WeeklyreportsView'
   "Weeklysummary": require './views/WeeklysummaryView'
 }
