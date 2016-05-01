@@ -16,10 +16,11 @@ class DateSelectorView extends Backbone.View
     e.preventDefault
     $("div#filters-section").slideToggle()
 
-  updateReportView: =>
+  updateReportView: (e) =>
+    e.preventDefault
     startDate = $('#startDate').val()
     endDate = $('#endDate').val()
-
+    
     if $('#select-by :selected').text() is "Week"
       startYearWeek = "#{$('[name=StartYear]').val()}-#{$('[name=StartWeek]').val()}"
       endYearWeek = "#{$('[name=EndYear]').val()}-#{$('[name=EndWeek]').val()}"
@@ -30,13 +31,19 @@ class DateSelectorView extends Backbone.View
     # TODO
     # Select by week should update the startDate/endDate
     # Select by date should update the startWeek/endWeek (tricky because they don't line up)
-    
-    Coconut.router.reportViewOptions['startDate'] = startDate
-    Coconut.router.reportViewOptions['endDate'] = endDate
-
-    # Update the URL and rerender page
-    url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
-    Coconut.router.navigate(url,{trigger: true})
+    if moment(startDate, 'YYYY-MM-DD', true).isValid() and moment(endDate, 'YYYY-MM-DD', true).isValid()
+      if !(moment(endDate).isSameOrAfter(moment(startDate)))
+        $('#errMsg').html("End Date must be equal or after Start Date")
+      else
+        $("div#filters-section").slideToggle()
+        # Update the URL and rerender page
+        Coconut.router.reportViewOptions['startDate'] = startDate
+        Coconut.router.reportViewOptions['endDate'] = endDate
+      
+        url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+        Coconut.router.navigate(url,{trigger: true})
+    else
+      $('#errMsg').html("Invalid Date Format detected")
 
   selectBy: (e) =>
     selected = $('#select-by :selected').text()
@@ -137,9 +144,13 @@ class DateSelectorView extends Backbone.View
                       </select>
                    </td>
                    <td><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td> 
+               </tr>
+               <tr>
+                   <td colspan='5'><div id='errMsg'></div></td>
                </tr>	
              </tbody>
            </table>
+           
            <hr />
          </div>
        </div>

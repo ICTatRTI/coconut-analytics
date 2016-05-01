@@ -38,8 +38,8 @@ class AnalysisView extends Backbone.View
       <div id='analysis'>
       <hr/>
       Aggregation Type:
-      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "District" then "checked='true'" else ""} value='District'>District</input>
-      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>Shehia</input>
+      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "District" then "checked='true'" else ""} value='District'>&nbsp; District</input>
+      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>&nbsp; Shehia</input>
       <div style='font-style:italic; margin-top: 10px'>Click on arrow button/title to show table.</div>
       <hr/>
       <img id='analysis-spinner' src='images/spinner.gif'/>

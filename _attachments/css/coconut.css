@@ -246,6 +246,10 @@ button.not-followed-up-after-48-hours-false {
 	padding-top: 20px;
 }
 
+#errMsg {
+	color: red;
+}
+
 /* Material Design styling */
 
 .mdl-grid.mdl-grid-p-15 {
