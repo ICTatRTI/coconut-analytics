@@ -2,6 +2,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
+Pikaday = require 'pikaday'
 
 class DateSelectorView extends Backbone.View
   el: "#dateSelector"
@@ -72,7 +73,7 @@ class DateSelectorView extends Backbone.View
                      <label style='display:inline' for='StartDate'>Start Date</label>
                    </td>
                    <td>
-                      <div><input id='startDate' value='#{@startDate}'></input></div>
+                      <div><input id='startDate' class='datepicker' value='#{@startDate}'></input></div>
                    </td>
                    <td colspan='4'> </td>
                </tr>
@@ -81,9 +82,9 @@ class DateSelectorView extends Backbone.View
                      <label style='display:inline' for='EndDate'>End Date</label>
                    </td>
                    <td>
-                      <div><input id='endDate' value='#{@endDate}'></input></div>
+                      <div><input id='endDate' class='datepicker' value='#{@endDate}'></input></div>
                    </td>
-                   <td colspan='4'><button class='btn btn-small mdl-button--raised submitBtn'>Submit</button></td>
+                   <td colspan='4'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
                </tr>	   
                <tr class='select-by-week'>
                  <td colspan='2'>
@@ -142,5 +143,9 @@ class DateSelectorView extends Backbone.View
          </div>
        </div>
     "
+    startDatePicker = new Pikaday
+      field: $(".datepicker")[0]
+    endDatePicker = new Pikaday
+      field: $(".datepicker")[1]
 
 module.exports = DateSelectorView
