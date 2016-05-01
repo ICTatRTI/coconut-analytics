@@ -56,6 +56,7 @@ class DateSelectorView extends Backbone.View
           </button> 
         </span>
         <span id='date-period'>#{@startDate} to #{@endDate}</span>
+        <div><small><i>Click calendar icon to change date</i></small></div>
         <div id='filters-section'>
           <hr />
           <table style='width: 400px; margin-left: 30px'>
@@ -145,7 +146,11 @@ class DateSelectorView extends Backbone.View
     "
     startDatePicker = new Pikaday
       field: $(".datepicker")[0]
+      position: "bottom right"
+      reposition: false
     endDatePicker = new Pikaday
       field: $(".datepicker")[1]
+      position: "bottom right"
+      reposition: false
 
 module.exports = DateSelectorView
