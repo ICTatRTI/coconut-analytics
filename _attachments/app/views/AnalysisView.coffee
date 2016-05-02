@@ -13,9 +13,17 @@ class AnalysisView extends Backbone.View
   events:
     "click div.analysis.dropDownBtn": "showDropDown"
     "click button.same-cell-disaggregatable": "toggleDisaggregation"
+    "click #switch-details": "toggleDetails"
+    "click #switch-unknown": "toggleGenderUnknown"
 
   toggleDisaggregation: (event) ->
     $(event.target).parents("td").children(".cases").toggle()
+
+  toggleDetails: (e)->
+    $(".details").toggle()
+
+  toggleGenderUnknown: (e)->
+    $('.gender-unknown').toggle()
 
   showDropDown: (e) =>
     $target =  $(e.target).closest('.analysis')
@@ -152,8 +160,12 @@ class AnalysisView extends Backbone.View
 
         ,2000
 
-        $("div#cases-followed-up span.toggle-btn").html("<button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' onClick='$(\".details\").toggle()'>Toggle Details</button>")
-
+        $("div#cases-followed-up span.toggle-btn").html "
+          <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='switch-details'>
+            <input type='checkbox' id='switch-details' class='mdl-switch__input'>
+            <span class='mdl-switch__label'>Toggle Details</span>
+          </label>
+        "
         $("#analysis").append "
           </div>
           <hr>
@@ -257,8 +269,14 @@ class AnalysisView extends Backbone.View
         ", "gender"
         $("table#gender th:nth-child(7)").addClass("gender-unknown").css("display", "none")
         $("table#gender th:nth-child(8)").addClass("gender-unknown").css("display", "none")
-        $("div#gender span.toggle-btn").html("<button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored'  onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>")
 
+        $("div#gender span.toggle-btn").html "
+          <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='switch-unknown'>
+            <input type='checkbox' id='switch-unknown' class='mdl-switch__input'>
+            <span class='mdl-switch__label'>Toggle Unknown</span>
+          </label>
+        "
+		
         $("#analysis").append "
           </div>
           <hr>
@@ -372,6 +390,8 @@ class AnalysisView extends Backbone.View
               else
                 $(node).text()
 
+        # This is for MDL switch
+        componentHandler.upgradeAllRegistered()
 
 
   createDashboardLinkForResult: (malariaCase,resultType,buttonText, buttonClass = "") ->
@@ -437,7 +457,7 @@ class AnalysisView extends Backbone.View
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
       <div id='#{id}' class='analysis-report dropdown-section'>
-		<div style='font-style:italic'><span class='toggle-btn'></span> &nbsp; Click on a column heading to sort.</div>
+		<div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>
         <table #{if id? then "id=#{id}" else ""} class='tablesorter'>
           <thead>
             <tr>
