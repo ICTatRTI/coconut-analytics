@@ -54,10 +54,10 @@ class WeeklyReportsView extends Backbone.View
     .then (results) =>
       $("#analysis-spinner").hide()
       @$el.append "
-          <table class='tablesorter' id='weeklyReports'>
+          <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='weeklyReports'>
             <thead>
-              <th>#{@aggregationPeriod}</th>
-              <th>#{@aggregationArea}</th>
+              <th class='mdl-data-table__cell--non-numeric'>#{@aggregationPeriod}</th>
+              <th class='mdl-data-table__cell--non-numeric'>#{@aggregationArea}</th>
               #{
                 _.map results.fields, (field) ->
                   "<th>#{field}</th>"

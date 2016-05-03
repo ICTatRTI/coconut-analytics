@@ -19,71 +19,6 @@ class CompareWeeklyView extends Backbone.View
 
   renderFacilityTimeliness: =>
     @$el.append "
-        <h5>Compare Weekly Reports and Coconut cases aggregated by 
-        <select style='height:50px;font-size:90%' id='aggregationPeriod'>
-          #{
-            _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
-              "
-                <option #{if aggregationPeriod is @aggregationPeriod then "selected='true'" else ''}>
-                  #{aggregationPeriod}
-                </option>"
-            .join ""
-          }
-        </select>
-        and
-        <select style='height:50px;font-size:90%' id='aggregationArea'>
-          #{
-            _("Zone,District,Facility".split(",")).map (aggregationArea) =>
-              "
-                <option #{if aggregationArea is @aggregationArea then "selected='true'" else ''}>
-                  #{aggregationArea}
-                </option>"
-            .join ""
-          }
-        </select>
-
-        for <select style='height:50px;font-size:90%' id='facilityType'>
-          #{
-            _("All,Private,Public".split(",")).map (facilityType) =>
-              "
-                <option #{if facilityType is @facilityType then "selected='true'" else ''}>
-                  #{facilityType}
-                </option>"
-            .join ""
-          }
-        </select>
-        facilities.
-        </h5>
-        <div>If the total positive cases from the weekly reports don't match the number of cases notified, the <span class='mismatch'>mismatched values are colored</span>.</div>
-        <button style='float:right' id='csv'>#{if @csvMode then "Table Mode" else "CSV Mode"}</button>
-        <br/><br/>
-        <table class='tablesorter' id='facilityTimeliness' style='#{if @csvMode then "display:none" else ""}'>
-          <thead>
-            <th>#{@aggregationPeriod}</th>
-            <th>Zone</th>
-            #{if @aggregationArea is "District" or @aggregationArea is "Facility" then "<th>District</th>" else ""}
-            #{if @aggregationArea is "Facility" then "<th>Facility</th>"  else ""}
-            <th>Reports expected for period</th>
-            <th>Reports submitted for period</th>
-            <th>Percent submitted for period</th>
-            <th>Reports submitted within 1 day of period end (Monday)</th>
-            <th>Reports submitted within 1-3 days of period end (by Wednesday)</th>
-            <th>Reports submitted within 3-5 days of period end (by Friday)</th>
-            <th>Reports submitted 7 or more days after period end</th>
-            <th>Total Tested</th>
-            <th>Total Positive (%)</th>
-            <th>Number of cases notified</th>
-            <th>Facility Followed-Up Positive Cases</th>
-            <th>Cases Followed-Up within 48 Hours</th>
-            <th>Median Days from Positive Test Result to Facility Notification (IQR)</th>
-            <th>Median Days from Facility Notification to Complete Facility (IQR)</th>
-            <th>% of Notified Cases with Complete Facility Followup</th>
-            <th>Median Days from Facility Notification to Complete Household (IQR)</th>
-            <th>% of Notified Cases with Complete Household Followup</th>
-            <th>Number of Household or Neighbor Members</th>
-            <th>Number of Household or Neighbor Members Tested (%)</th>
-            <th>Number of Household or Neighbor Members Tested Positive (%)</th>
-          </thead>
           <tbody>
             #{
               quartilesAndMedian = (values)->
@@ -300,8 +235,77 @@ class CompareWeeklyView extends Backbone.View
           table.tablesorter tbody td.mismatch, button.mismatch, span.mismatch{
             color:#FF4081
           }
+          table#facilityTimeliness th {
+            padding: 0 4px 12px 4px;
+            font-size: 9pt;
+          }
         </style>
         <div id='dateSelector'></div>
+        <h5>Compare Weekly Reports and Coconut cases aggregated by 
+        <select style='height:50px;font-size:90%' id='aggregationPeriod'>
+          #{
+            _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
+              "
+                <option #{if aggregationPeriod is @aggregationPeriod then "selected='true'" else ''}>
+                  #{aggregationPeriod}
+                </option>"
+            .join ""
+          }
+        </select>
+        and
+        <select style='height:50px;font-size:90%' id='aggregationArea'>
+          #{
+            _("Zone,District,Facility".split(",")).map (aggregationArea) =>
+              "
+                <option #{if aggregationArea is @aggregationArea then "selected='true'" else ''}>
+                  #{aggregationArea}
+                </option>"
+            .join ""
+          }
+        </select>
+
+        for <select style='height:50px;font-size:90%' id='facilityType'>
+          #{
+            _("All,Private,Public".split(",")).map (facilityType) =>
+              "
+                <option #{if facilityType is @facilityType then "selected='true'" else ''}>
+                  #{facilityType}
+                </option>"
+            .join ""
+          }
+        </select>
+        facilities.
+        </h5>
+        <div>If the total positive cases from the weekly reports don't match the number of cases notified, the <span class='mismatch'>mismatched values are colored</span>.
+        <button style='float:right' id='csv'>#{if @csvMode then "Table Mode" else "CSV Mode"}</button></div>
+        <br/><br/>
+        <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='facilityTimeliness' style='#{if @csvMode then "display:none" else ""}'>
+          <thead>
+            <th>#{@aggregationPeriod}</th>
+            <th>Zone</th>
+            #{if @aggregationArea is "District" or @aggregationArea is "Facility" then "<th>District</th>" else ""}
+            #{if @aggregationArea is "Facility" then "<th>Facility</th>"  else ""}
+            <th>Reports expected for period</th>
+            <th>Reports submitted for period</th>
+            <th>Percent submitted for period</th>
+            <th>Reports submitted within 1 day of period end (Monday)</th>
+            <th>Reports submitted within 1-3 days of period end (by Wednesday)</th>
+            <th>Reports submitted within 3-5 days of period end (by Friday)</th>
+            <th>Reports submitted 7 or more days after period end</th>
+            <th>Total Tested</th>
+            <th>Total Positive (%)</th>
+            <th>Number of cases notified</th>
+            <th>Facility Followed-Up Positive Cases</th>
+            <th>Cases Followed-Up within 48 Hours</th>
+            <th>Median Days from Positive Test Result to Facility Notification (IQR)</th>
+            <th>Median Days from Facility Notification to Complete Facility (IQR)</th>
+            <th>% of Notified Cases with Complete Facility Followup</th>
+            <th>Median Days from Facility Notification to Complete Household (IQR)</th>
+            <th>% of Notified Cases with Complete Household Followup</th>
+            <th>Number of Household or Neighbor Members</th>
+            <th>Number of Household or Neighbor Members Tested (%)</th>
+            <th>Number of Household or Neighbor Members Tested Positive (%)</th>
+          </thead>
     "	
     $('#analysis-spinner').show()
 

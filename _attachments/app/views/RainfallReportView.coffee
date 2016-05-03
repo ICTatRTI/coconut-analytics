@@ -28,9 +28,9 @@ class RainfallReportView extends Backbone.View
     .then (results) =>
       $('#analysis-spinner').hide()
       @$el.append "
-        <table class='tablesorter' id='rainfallReports'>
+        <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='rainfallReports'>
           <thead>
-            <th>Station</th>
+            <th class='mdl-data-table__cell--non-numeric'>Station</th>
             <th>Year</th>
             <th>Week</th>
             <th>Amount</th>
@@ -40,7 +40,7 @@ class RainfallReportView extends Backbone.View
              _(results.rows).map (row) =>
                "
                 <tr>
-                  <td>#{row.value[0]}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{row.value[0]}</td>
                   <td>#{row.key[0]}</td>
                   <td>#{row.key[1]}</td>
                   <td>#{row.value[1]}</td>

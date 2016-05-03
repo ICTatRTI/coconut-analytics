@@ -34,7 +34,7 @@ class EpidemicThresholdView extends Backbone.View
       </style>
       <div id='dateSelector'></div>
 
-      <table class='tablesorter tableData'>
+      <table class='tablesorter tableData '>
         <thead>
           <tr>
             <th></th>
@@ -94,9 +94,9 @@ class EpidemicThresholdView extends Backbone.View
 
       @$el.append "
 
-        <table class='tablesorter' id='thresholdTable'>
+        <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
           <thead>
-            <th>District</th>
+            <th class='mdl-data-table__cell--non-numeric'>District</th>
             #{
               _(weekRange).map (week) ->
                 "<th>#{week}</th>"
@@ -108,7 +108,7 @@ class EpidemicThresholdView extends Backbone.View
               _(GeoHierarchy.allDistricts()).map (district) ->
                 "
                 <tr> 
-                  <td>#{district}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{district}</td>
                   #{
                   _(weekRange).map (week) ->
                     "

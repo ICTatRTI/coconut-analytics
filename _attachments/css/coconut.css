@@ -40,6 +40,7 @@ table.tablesorter {
 	text-align: left;
 	border-collapse: collapse;
 	font-size: 9pt;
+	white-space: normal;
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
 	/*
@@ -48,9 +49,8 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
 	line-height: 24pt;
 	*/
 	background-color: #EEEEEE;
-	font-size: 9pt;
+	font-size: 10pt;
 	color:rgba(0,0,0,0.54);
-	padding: 4px;
 }
 
 table.tablesorter thead tr {
@@ -129,6 +129,10 @@ table#alertsTable td.data{
     text-align: right;
     padding-right: 10px;
     margin-bottom: 10px;
+}
+
+.mdl-data-table thead tr {
+    background-color: #eeeeee;	
 }
 
 /* Reports Case Followup Buttons */

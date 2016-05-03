@@ -38,9 +38,8 @@ class AnalysisView extends Backbone.View
     $('#analysis-spinner').show()
     @$el.html "
       <style>
-        td button.same-cell-disaggregatable{
-          float:right;
-        }
+        td button.same-cell-disaggregatable{ float:right;}
+        .mdl-data-table th { padding: 0 6px}
       </style>
       <div id='dateSelector'></div>
       <div id='analysis'>
@@ -91,22 +90,22 @@ class AnalysisView extends Backbone.View
             _.map(data.followups, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.allCases)}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.casesWithCompleteHouseholdVisit)}</td>
-                  <td>#{@formattedPercent(values.casesWithCompleteHouseholdVisit.length/values.allCases.length)}</td>
-                  <td class='missingUSSD details'>#{@createDisaggregatableCaseGroup(values.missingUssdNotification)}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.missingCaseNotification)}</td>
-                  <td class='details'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteFacilityVisit)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.allCases)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteHouseholdVisit)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.casesWithCompleteHouseholdVisit.length/values.allCases.length)}</td>
+                  <td class='missingUSSD details mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.missingUssdNotification)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.missingCaseNotification)}</td>
+                  <td class='details mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteFacilityVisit)}</td>
                   #{
                     withoutcompletefacilityvisitbutwithcasenotification = _.difference(values.casesWithoutCompleteFacilityVisit,values.missingCaseNotification)
                     ""
                   }
-                  <td>#{@createDisaggregatableCaseGroup(withoutcompletefacilityvisitbutwithcasenotification)}</td>
-                  <td>#{@formattedPercent(withoutcompletefacilityvisitbutwithcasenotification.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(withoutcompletefacilityvisitbutwithcasenotification)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(withoutcompletefacilityvisitbutwithcasenotification.length/values.allCases.length)}</td>
 
-                  <td>#{@createDisaggregatableCaseGroup(values.noFacilityFollowupWithin24Hours)}</td>
-                  <td>#{@formattedPercent(values.noFacilityFollowupWithin24Hours.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.noFacilityFollowupWithin24Hours)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.noFacilityFollowupWithin24Hours.length/values.allCases.length)}</td>
 
 
                   #{
@@ -114,12 +113,12 @@ class AnalysisView extends Backbone.View
                     ""
                   }
 
-                  <td>#{@createDisaggregatableCaseGroup(withoutcompletehouseholdvisitbutwithcompletefacility)}</td>
-                  <td>#{@formattedPercent(withoutcompletehouseholdvisitbutwithcompletefacility.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(withoutcompletehouseholdvisitbutwithcompletefacility)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(withoutcompletehouseholdvisitbutwithcompletefacility.length/values.allCases.length)}</td>
 
 
-                  <td>#{@createDisaggregatableCaseGroup(values.noHouseholdFollowupWithin48Hours)}</td>
-                  <td>#{@formattedPercent(values.noHouseholdFollowupWithin48Hours.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.noHouseholdFollowupWithin48Hours)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.noHouseholdFollowupWithin48Hours.length/values.allCases.length)}</td>
 
                 </tr>
               "
@@ -458,12 +457,12 @@ class AnalysisView extends Backbone.View
    "
       <div id='#{id}' class='analysis-report dropdown-section'>
 		<div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>
-        <table #{if id? then "id=#{id}" else ""} class='tablesorter'>
+        <table #{if id? then "id=#{id}" else ""} class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead>
             <tr>
             #{
               _.map(headerValues, (header) ->
-                "<th class='header' colspan='#{colspan}'>#{header}</th>"
+                "<th class='header mdl-data-table__cell--non-numeric' colspan='#{colspan}'>#{header}</th>"
               ).join("")
             }
             </tr>
