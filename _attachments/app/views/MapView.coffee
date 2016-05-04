@@ -56,6 +56,8 @@ class MapView extends Backbone.View
   villagesData = undefined
   textE = undefined
   textW = undefined
+  timeScale = undefined
+  outFormat = d3.time.format("%Y-%m-%d")
   el: '#content'
 
   events:
@@ -102,6 +104,11 @@ class MapView extends Backbone.View
   timeToggle: =>
     console.log 'timeToggle: '+startDate
     console.log 'clustersToggleState: '+materialClusterControl.toggleState
+    console.log 'timeToggle timeScale.extent: ' + outFormat(timeScale.brush.extent()[0])
+    console.log 'timeToggle timeScale: ' + timeScale.brush.extent().length
+    dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
+    console.log('dateRange: '+ dateRange)                                                     
+    updateFeaturesByDate(dateRange)         
     if !materialTimeControl.toggleState
       $("#sliderContainer").toggle()
       $('.timeButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
@@ -160,6 +167,7 @@ class MapView extends Backbone.View
     timeFeatures = []
     count = 0
     console.log '*****loopOverSelectedFeatures*****'
+    console.log('dateRange: ' + dateRange)
     for fCount of casesGeoJSON.features
       count++
       feature = casesGeoJSON.features[fCount]
@@ -495,15 +503,12 @@ class MapView extends Backbone.View
 #    legend.addTo @map    
     brushed = ->
       console.log 'brushed'
-      value = brush.extent()[0]
-      outFormat = d3.time.format("%Y-%m-%d")
       actives = svg.filter((p) ->
         !timeScale.brush.empty()
       )
       extents = actives.map((p) ->
         timeScale.brush.extent()
       )
-      console.log('value: ' + value)
       console.log('extents: ' + extents)
       console.log('extent0: ' + extents[0] + ' extent1: ' + extents[1])
       endDate = extents[0][1]
@@ -518,7 +523,7 @@ class MapView extends Backbone.View
 #      console.log('startDate: '+startDate);
       startFormat = outFormat(startDate)
       dateRange = [startFormat, endFormat]
-      dayMoFormat = d3.time.format("%m-%d")
+      dayMoFormat = d3.time.format("%b %d")
       textE.text(dayMoFormat(endDate))
       textW.text(dayMoFormat(startDate))
 #      console.log('dateRange: '+ dateRange)
@@ -526,14 +531,8 @@ class MapView extends Backbone.View
 #      console.log('value: '+value)        
       console.log('dateRange[0]: '+dateRange[0] + ' && dateRange[1]: '+dateRange[1])
       if d3.event.sourceEvent
-        value = timeScale.invert(d3.mouse(this)[0])
-        console.log('value: '+value)
-        outDate = outFormat(value)     
         updateFeaturesByDate(dateRange)
-#        brush.extent [
-#          value
-#          value
-#        ]
+
         
 #      *****For Origional Slider
 #      handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
@@ -577,12 +576,14 @@ class MapView extends Backbone.View
     
     startValue = timeScale(new Date(startDate))
     startingValue = new Date(startDate)
+    endValue = timeScale(new Date(endDate))
+    endingValue = new Date(endDate)
     #////////
     # defines brush
-    brush = d3.svg.brush().x(timeScale).extent([
-      startingValue
-      startingValue
-    ]).on('brush', brushed)
+#    brush = d3.svg.brush().x(timeScale).extent([
+#      startingValue
+#      endingValue
+#    ]).on('brush', brushed)
     svg = d3.select('#sliderContainer').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
     svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
       formatDate d
@@ -607,7 +608,10 @@ class MapView extends Backbone.View
 #    Brush extents
     slider = svg.append('g').attr('class', 'brush').each((d) ->
       console.log('each d: ' + d)
-      d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).on('brush', brushed)
+      d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).extent([
+        startingValue
+        endingValue
+      ]).on('brush', brushed)
       return
     ).selectAll('rect').attr('y', 10).attr('height', 16)
     
@@ -618,9 +622,9 @@ class MapView extends Backbone.View
     resizeE.id = 'resizee'
     resizeW = resizes[0][1]
     resizeW.id = 'resizew'
-    textE = d3.select('#resizee').append('text')
+    textE = d3.select('#resizee').append('text').text(formatDate(endingValue))
     textE.id = 'texte'
-    textW = d3.select('#resizew').append('text')
+    textW = d3.select('#resizew').append('text').text(formatDate(startingValue))
     textW.id = 'textw'
     console.log 'resizeE: ' + resizeE
     console.log 'resizeW: ' + resizeW
@@ -628,7 +632,9 @@ class MapView extends Backbone.View
 #    resizeW.append('text').text('w');
     rects = _brush.selectAll('rect')
     rects3 = rects[0][3]
-    
+    outFormat = d3.time.format("%Y-%m-%d")
+    dateRange = [outFormat(startingValue), outFormat(endingValue)]
+    console.log('setup daterange: ' + dateRange)
     
     console.log('rectE: ' + rects)
 #    slider.selectAll('.extent,.resize').remove()
