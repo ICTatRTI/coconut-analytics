@@ -54,7 +54,8 @@ class MapView extends Backbone.View
   districtsData = undefined
   shahiasData = undefined
   villagesData = undefined
-        
+  textE = undefined
+  textW = undefined
   el: '#content'
 
   events:
@@ -139,19 +140,37 @@ class MapView extends Backbone.View
         @map.addLayer casesLayer
         turnCasesLayerOn = false
     console.log 'clusterToggle'
-  updateFeaturesByDate = (date) ->
+#  updateFeaturesByDate = (dateRange) ->
+##    console.log 'updatefeaturesbydate: '+date 
+##    console.log 'casesGEoJSON.length: '+JSON.stringify casesGeoJSON.features
+#    timeFeatures = []
+#    for fCount of casesGeoJSON.features
+#      feature = casesGeoJSON.features[fCount]
+#      fDate = feature.properties.date.substring(0,10)
+##      console.log 'fDate: '+ fDate + ' date: ' + date
+#      console.log 'fDate >= date1 && fDate<=date2'  
+#      console.log fDate+' >= '+dateRange[0]+' && '+fDate+' <= '+dateRange[1]  
+#      if fDate >= dateRange[0]&&fDate<=dateRange[1]
+#        console.log 'fDate: '+ fDate
+#        timeFeatures.push feature
+
+  updateFeaturesByDate = (dateRange) ->
 #    console.log 'updatefeaturesbydate: '+date 
 #    console.log 'casesGEoJSON.length: '+JSON.stringify casesGeoJSON.features
     timeFeatures = []
+    count = 0
+    console.log '*****loopOverSelectedFeatures*****'
     for fCount of casesGeoJSON.features
+      count++
       feature = casesGeoJSON.features[fCount]
       fDate = feature.properties.date.substring(0,10)
-      console.log 'fDate: '+ fDate + ' date: ' + date
-      if fDate == date
-        console.log 'fDate: '+ fDate
-        console.log 'date: '+ date
+      console.log fDate + ' >= ' + dateRange[0] + ' and ' + fDate + ' <= ' + dateRange[1]
+      if fDate >= dateRange[0] and fDate <= dateRange[1]
+        console.log  'fDate: '+ fDate
+#        
         timeFeatures.push feature
-    console.log 'timeFeatures: '+ timeFeatures
+    console.log ' timeFeatures count: ' + count
+    console.log 'timeFeatures: '+ JSON.stringify timeFeatures
     timeCasesGeoJSON.features = timeFeatures
     #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are 
     #if cases are on:
@@ -166,13 +185,11 @@ class MapView extends Backbone.View
               5000/timeCasesGeoJSON.features.length#adjust with slider
             ]
             heatMapCoordsTime.push coords
-            console.log('onEachFeature')
             layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
             return
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
             #clusering as well
-            console.log('pointToLayer')
             if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
                 L.circleMarker latlng, caseMarkerOptions
             else
@@ -314,9 +331,6 @@ class MapView extends Backbone.View
                 <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
                     <label for='ungugaToggle'>or</label>
                 <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>    
-                <label for='heatMapToggle'>Turn Heat Map</label>
-                <button id='heatMapToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>ON</button>
-        
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
@@ -441,146 +455,107 @@ class MapView extends Backbone.View
     materialFullscreen = new (L.materialControl.Fullscreen)(position: 'topright',
       materialOptions: materialOptions).addTo(@map)
     customLayers = L.control.layers(layers, overlays).addTo @map
-#    leafletTimeControl = L.Control.extend(
-#      options: position: 'bottomleft'
-#      onAdd: (@map) ->
-#        console.log 'onAdd1'
-#        container = L.DomUtil.create('div', 'info')
-#        container.setAttribute("id", "leafTime");
-#        formatDate = d3.time.format('%b %d')
-#        # parameters
-#        margin = 
-#          top: 50
-#          right: 50
-#          bottom: 50
-#          left: 50
-#        console.log 'margin'
-#        console.log 'onAdd2'
-#        width = 250- (margin.left) - (margin.right)
-#        height = 137 - (margin.bottom) - (margin.top)
-#        # scale function
-#        console.log 'onAdd3'
-#        timeScale = d3.time.scale().domain([
-#          new Date(startDate)
-#          new Date(endDate)
-#        ]).range([
-#          0
-#          width
-#        ]).clamp(true)
-#        # initial value
-#        console.log "startDate: "+startDate
-#        console.log "endDate: "+endDate
-#        startValue = timeScale(new Date(startDate))
-#        startingValue = new Date(startDate)
-#        #////////
-#        # defines brush
-#        console.log 'theBrush'
-#        brush = d3.svg.brush().x(timeScale).extent([
-#          startingValue
-#          startingValue
-#        ]).on('brush', brushed)
-#        console.log 'leaftime: '+$('.leafTime')
-#        svg = d3.select(container).append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-#        svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
-#          formatDate d
-#        ).tickSize(0).tickPadding(12).tickValues([
-#          timeScale.domain()[0]
-#          timeScale.domain()[1]
-#        ])).select('.domain').select(->
-#          console.log this
-#          @parentNode.appendChild @cloneNode(true)
-#        ).attr 'class', 'halo'
-#        slider = svg.append('g').attr('class', 'slider').call(brush)
-#        slider.selectAll('.extent,.resize').remove()
-#        slider.select('.background').attr 'height', height
-#        handle = slider.append('g').attr('class', 'handle')
-#        handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
-#        console.log 'startingValue: '+startingValue
-#        handle.append('text').text(startingValue);
-#        slider.call brush.event
-#        
-#        brushed = ->
-#          console.log('map: '+map.scrollWheelZoom.enabled())
-#          value = brush.extent()[0]
-#          outFormat = d3.time.format("%Y-%m-%d")
-#          console.log('value: '+value)
-#          if d3.event.sourceEvent
-#            value = timeScale.invert(d3.mouse(this)[0])
-#            outDate = outFormat(value)     
-#            updateFeaturesByDate(outDate)
-#            brush.extent [
-#              value
-#              value
-#            ]
-#          handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
-#          handle.select('text').text formatDate(value)
-#          return
-#        
-#        svg.on 'mouseover', ->
-#          map.dragging.disable()
-#          return
-#        # Re-enable dragging when user's cursor leaves the element
-#        container.addEventListener 'mouseout', ->
-#          map.dragging.enable()
-#          return
-#        container
-#    )
-#    @map.addControl(new leafletTimeControl());
-    
-#        legend = L.control(position: 'topleft')
 #
-#        legend.onAdd = (map) ->
-#          div = L.DomUtil.create('div', 'info legend')
-#          grades = [
-#            0
-#            10
-#            20
-#            50
-#            100
-#            200
-#            500
-#            1000
+#    legend = L.control(position: 'topleft')
+#
+#    legend.onAdd = (map) ->
+#      div = L.DomUtil.create('div', 'info legend')
+#      grades = [
+#        0
+#        10
+#        20
+#        50
+#        100
+#        200
+#        500
+#        1000
+#      ]
+#      labels = []
+#      # loop through our density intervals and generate a label with a colored square for each interval
+#      i = 0
+#      while i < grades.length
+#        div.innerHTML += 'LEGEND'
+#        i++
+#      div
+#
+#    legend.addTo map
+#    legend.onAdd = (@map) =>
+#      div = L.DomUtil.create('div', 'legend')
+#      div.innerHTML 'Legend'
+#          categories = [
+#            'Single Case'
+#            'Multiple Cases'
 #          ]
-#          labels = []
-#          # loop through our density intervals and generate a label with a colored square for each interval
 #          i = 0
-#          while i < grades.length
-#            div.innerHTML += 'LEGEND'
+#          while i < categories.length
+#            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
 #            i++
 #          div
 #
-#        legend.addTo map
-#        legend.onAdd = (@map) =>
-#          div = L.DomUtil.create('div', 'legend')
-#          div.innerHTML 'Legend'
-##          categories = [
-##            'Single Case'
-##            'Multiple Cases'
-##          ]
-##          i = 0
-##          while i < categories.length
-##            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
-##            i++
-##          div
-#
-#        legend.addTo @map    
+#    legend.addTo @map    
     brushed = ->
-      console.log('map: '+map.scrollWheelZoom.enabled())
+      console.log 'brushed'
       value = brush.extent()[0]
       outFormat = d3.time.format("%Y-%m-%d")
-      console.log('value: '+value)
+      actives = svg.filter((p) ->
+        !timeScale.brush.empty()
+      )
+      extents = actives.map((p) ->
+        timeScale.brush.extent()
+      )
+      console.log('value: ' + value)
+      console.log('extents: ' + extents)
+      console.log('extent0: ' + extents[0] + ' extent1: ' + extents[1])
+      endDate = extents[0][1]
+#      endDate = timeScale.invert(d3.mouse(this)[0])
+#      console.log 'this: '+ JSON.stringify this
+#      console.log('d3.mouse(this)[0]: '+d3.mouse(this)[0])
+#      console.log('endDate: '+endDate);
+      endFormat = outFormat(endDate)
+      startDate = extents[0][0]
+#      startDate = timeScale.invert(d3.mouse(this)[1])
+#      console.log('d3.mouse(this)[1]: '+d3.mouse(this)[1])
+#      console.log('startDate: '+startDate);
+      startFormat = outFormat(startDate)
+      dateRange = [startFormat, endFormat]
+      dayMoFormat = d3.time.format("%m-%d")
+      textE.text(dayMoFormat(endDate))
+      textW.text(dayMoFormat(startDate))
+#      console.log('dateRange: '+ dateRange)
+#      console.log('extents: '+ extents.toString().split(',')[0])
+#      console.log('value: '+value)        
+      console.log('dateRange[0]: '+dateRange[0] + ' && dateRange[1]: '+dateRange[1])
       if d3.event.sourceEvent
         value = timeScale.invert(d3.mouse(this)[0])
+        console.log('value: '+value)
         outDate = outFormat(value)     
-        updateFeaturesByDate(outDate)
-        brush.extent [
-          value
-          value
-        ]
-      handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
-      handle.select('text').text formatDate(value)
+        updateFeaturesByDate(dateRange)
+#        brush.extent [
+#          value
+#          value
+#        ]
+        
+#      *****For Origional Slider
+#      handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
+#      handle.select('text').text formatDate(value)
       return
-
+#    brush = ->
+#      console.log 'brush'
+#      actives = dimensions.filter((p) ->
+#        !x[p].brush.empty()
+#      )
+#      extents = actives.map((p) ->
+#        x[p].brush.extent()
+#      )
+#      foreground.style 'display', (d) ->
+#        if actives.every(((p, i) ->
+#          extents[i][0] <= d[p] and d[p] <= extents[i][1]
+#        )) then null else 'none'
+#      return
+#    brushstart = ->
+#      console.log 'brushStart'
+#      d3.event.sourceEvent.stopPropagation()
+#      return
     formatDate = d3.time.format('%b %d')
     # parameters
     margin = 
@@ -588,8 +563,7 @@ class MapView extends Backbone.View
       right: 50
       bottom: 50
       left: 50
-    console.log 'margin'
-    width = 480 - (margin.left) - (margin.right)
+    width = 1000 - (margin.left) - (margin.right)
     height = 137 - (margin.bottom) - (margin.top)
     # scale function
     timeScale = d3.time.scale().domain([
@@ -600,13 +574,11 @@ class MapView extends Backbone.View
       width
     ]).clamp(true)
     # initial value
-    console.log "startDate: "+startDate
-    console.log "endDate: "+endDate
+    
     startValue = timeScale(new Date(startDate))
     startingValue = new Date(startDate)
     #////////
     # defines brush
-    console.log 'theBrush'
     brush = d3.svg.brush().x(timeScale).extent([
       startingValue
       startingValue
@@ -621,20 +593,60 @@ class MapView extends Backbone.View
       console.log this
       @parentNode.appendChild @cloneNode(true)
     ).attr 'class', 'halo'
-    slider = svg.append('g').attr('class', 'slider').call(brush)
-    slider.selectAll('.extent,.resize').remove()
-    slider.select('.background').attr 'height', height
-    handle = slider.append('g').attr('class', 'handle')
-    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
-    console.log 'startingValue: '+startingValue
-    handle.append('text').text(startingValue);
-    slider.call brush.event
+
+#    *****Origional Sliders
+#    slider = svg.append('g').attr('class', 'slider').call(brush)
+#    slider.selectAll('.extent,.resize').remove()
+#    slider.select('.background').attr 'height', height
+#    handle = slider.append('g').attr('class', 'handle')
+#    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
+#    console.log 'startingValue: '+startingValue
+#    handle.append('text').text(startingValue);
+#    slider.call brush.event
+
+#    Brush extents
+    slider = svg.append('g').attr('class', 'brush').each((d) ->
+      console.log('each d: ' + d)
+      d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).on('brush', brushed)
+      return
+    ).selectAll('rect').attr('y', 10).attr('height', 16)
+    
+    _brush = d3.select '.brush'
+    console.log 'brush: ' + _brush
+    resizes = d3.selectAll '.resize'
+    resizeE = resizes[0][0]
+    resizeE.id = 'resizee'
+    resizeW = resizes[0][1]
+    resizeW.id = 'resizew'
+    textE = d3.select('#resizee').append('text')
+    textE.id = 'texte'
+    textW = d3.select('#resizew').append('text')
+    textW.id = 'textw'
+    console.log 'resizeE: ' + resizeE
+    console.log 'resizeW: ' + resizeW
+#    resizeE.append('text').text('e');
+#    resizeW.append('text').text('w');
+    rects = _brush.selectAll('rect')
+    rects3 = rects[0][3]
+    
+    
+    console.log('rectE: ' + rects)
+#    slider.selectAll('.extent,.resize').remove()
+#    slider.select('.extent').attr('width', 6)
+#    slider.select('.background').attr 'height', height
+#    handle = slider.append('g').attr('class', 'handle')
+#    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
+#    slider.selectAll('.extent,.resize').remove()
+#    slider.select('.background').attr 'height', height
+#    handle = slider.append('g').attr('class', 'handle')
+#    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
 #    customLayers = new (layersControl)(layers, overlays,
 #      position: 'topright'
 #      materialOptions: materialOptions).addTo(@map)
-    
+
+#Mapslider
 #    $('.leaflet-control-layers').addClass 'mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-color--cyan'
-    #    materialLayerControl = new (materialControl.Layers)(layers, overlays,
+#    materialLayerControl = new (materialControl.Layers)(layers, overlays,
 #      position: 'topright'
 #      materialOptions: materialOptions).addTo(@map)
 #    materialLayerControl = new (materialControl.Layers)(layers, overlays,
@@ -677,8 +689,6 @@ class MapView extends Backbone.View
           $('.timeButton button').toggleClass 'mdl-button--disabled', false
         if data.features.length > 0
           console.log('multiCase')
-          customLayers.addOverlay casesLayer, 'Cases'
-        if casesLayer.features.length > 0
           customLayers.addOverlay casesLayer, 'Cases'
         
     return
