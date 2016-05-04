@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class SystemerrorsView extends Backbone.View
+class SystemErrorsView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -24,13 +24,13 @@ class SystemerrorsView extends Backbone.View
           alerts = true
 
           @$el.append "
-            <table style='border:1px solid black' class='system-errors'>
+            <table style='border:1px solid black' class='system-errors mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
               <thead>
                 <tr>
-                  <th>Time of most recent error</th>
-                  <th>Message</th>
+                  <th class='mdl-data-table__cell--non-numeric'>Time of most recent error</th>
+                  <th class='mdl-data-table__cell--non-numeric'>Message</th>
                   <th>Number of errors of this type in last 24 hours</th>
-                  <th>Source</th>
+                  <th class='mdl-data-table__cell--non-numeric'>Source</th>
                 </tr>
               </thead>
               <tbody>
@@ -38,10 +38,10 @@ class SystemerrorsView extends Backbone.View
                   _.map(errorsByType, (errorData, errorMessage) ->
                     "
                       <tr>
-                        <td>#{errorData["Most Recent"]}</td>
-                        <td>#{errorMessage}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{errorData["Most Recent"]}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{errorMessage}</td>
                         <td>#{errorData.count}</td>
-                        <td>#{errorData["Source"]}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{errorData["Source"]}</td>
                       </tr>
                     "
                   ).join("")
@@ -53,4 +53,4 @@ class SystemerrorsView extends Backbone.View
 
     options = Coconut.router.reportViewOptions
 
-module.exports = SystemerrorsView
+module.exports = SystemErrorsView

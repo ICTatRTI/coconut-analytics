@@ -2,6 +2,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
+Pikaday = require 'pikaday'
 
 class DateSelectorView extends Backbone.View
   el: "#dateSelector"
@@ -15,10 +16,11 @@ class DateSelectorView extends Backbone.View
     e.preventDefault
     $("div#filters-section").slideToggle()
 
-  updateReportView: =>
+  updateReportView: (e) =>
+    e.preventDefault
     startDate = $('#startDate').val()
     endDate = $('#endDate').val()
-
+    
     if $('#select-by :selected').text() is "Week"
       startYearWeek = "#{$('[name=StartYear]').val()}-#{$('[name=StartWeek]').val()}"
       endYearWeek = "#{$('[name=EndYear]').val()}-#{$('[name=EndWeek]').val()}"
@@ -29,13 +31,19 @@ class DateSelectorView extends Backbone.View
     # TODO
     # Select by week should update the startDate/endDate
     # Select by date should update the startWeek/endWeek (tricky because they don't line up)
-    
-    Coconut.router.reportViewOptions['startDate'] = startDate
-    Coconut.router.reportViewOptions['endDate'] = endDate
-
-    # Update the URL and rerender page
-    url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
-    Coconut.router.navigate(url,{trigger: true})
+    if moment(startDate, 'YYYY-MM-DD', true).isValid() and moment(endDate, 'YYYY-MM-DD', true).isValid()
+      if !(moment(endDate).isSameOrAfter(moment(startDate)))
+        $('#errMsg').html("End Date must be equal or after Start Date")
+      else
+        $("div#filters-section").slideToggle()
+        # Update the URL and rerender page
+        Coconut.router.reportViewOptions['startDate'] = startDate
+        Coconut.router.reportViewOptions['endDate'] = endDate
+      
+        url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+        Coconut.router.navigate(url,{trigger: true})
+    else
+      $('#errMsg').html("Invalid Date Format detected")
 
   selectBy: (e) =>
     selected = $('#select-by :selected').text()
@@ -55,6 +63,7 @@ class DateSelectorView extends Backbone.View
           </button> 
         </span>
         <span id='date-period'>#{@startDate} to #{@endDate}</span>
+        <div><small><i>Click calendar icon to change date</i></small></div>
         <div id='filters-section'>
           <hr />
           <table style='width: 400px; margin-left: 30px'>
@@ -72,7 +81,7 @@ class DateSelectorView extends Backbone.View
                      <label style='display:inline' for='StartDate'>Start Date</label>
                    </td>
                    <td>
-                      <div><input id='startDate' value='#{@startDate}'></input></div>
+                      <div><input id='startDate' class='datepicker' value='#{@startDate}'></input></div>
                    </td>
                    <td colspan='4'> </td>
                </tr>
@@ -81,9 +90,9 @@ class DateSelectorView extends Backbone.View
                      <label style='display:inline' for='EndDate'>End Date</label>
                    </td>
                    <td>
-                      <div><input id='endDate' value='#{@endDate}'></input></div>
+                      <div><input id='endDate' class='datepicker' value='#{@endDate}'></input></div>
                    </td>
-                   <td colspan='4'><button class='btn btn-small mdl-button--raised submitBtn'>Submit</button></td>
+                   <td colspan='4'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
                </tr>	   
                <tr class='select-by-week'>
                  <td colspan='2'>
@@ -135,12 +144,24 @@ class DateSelectorView extends Backbone.View
                       </select>
                    </td>
                    <td><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td> 
+               </tr>
+               <tr>
+                   <td colspan='5'><div id='errMsg'></div></td>
                </tr>	
              </tbody>
            </table>
+           
            <hr />
          </div>
        </div>
     "
+    startDatePicker = new Pikaday
+      field: $(".datepicker")[0]
+      position: "bottom right"
+      reposition: false
+    endDatePicker = new Pikaday
+      field: $(".datepicker")[1]
+      position: "bottom right"
+      reposition: false
 
 module.exports = DateSelectorView

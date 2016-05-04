@@ -321,7 +321,6 @@ class Reports
 
   @userAnalysisForUsers: (options) ->
     usernames = options.usernames
-
     Coconut.medianTimeWithHalves = (values) =>
       return [values[0],values[0],values[0]] if values.length is 1
 
@@ -424,7 +423,6 @@ class Reports
       _(results.rows).each (result) ->
         caseId = result.value[1]
         user = result.value[0]
-        console.log(dataByUser[user])
         dataByUser[user].caseIds[caseId] = true
         dataByUser[user].cases[caseId] = {}
         total.caseIds[caseId] = true

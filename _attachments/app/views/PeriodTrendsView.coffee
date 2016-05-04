@@ -9,22 +9,21 @@ require 'moment-range'
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class PeriodtrendsView extends Backbone.View
+class PeriodTrendsView extends Backbone.View
   el: "#content"
 
   events:
     "click button.toggle-trend-data": "toggleTrendData"
+    "click #switch-trend": "toggleTrendData"
     "click .toggleDisaggregation": "toggleDisaggregation"
     "click .same-cell-disaggregatable": "toggleDisaggregationSameCell"
 
   toggleTrendData: (e) ->
-    if $(".toggle-trend-data").html() is "Show trend data"
+    if $(".mdl-switch__input").is(":checked")
       $(".data").show()
-      $(".toggle-trend-data").html "Hide trend data"
     else
       $(".data").hide()
       $(".period-0.data").show()
-      $(".toggle-trend-data").html "Show trend data"
 
   toggleDisaggregation: (event) ->
     $(event.target).parents("td").siblings(".cases").toggle()
@@ -104,15 +103,18 @@ class PeriodtrendsView extends Backbone.View
     renderTable = _.after optionsArray.length, =>
       $("#analysis-spinner").hide()
       $("#content").append "
-        <h3>Data Summary</h3>
-        <table id='alertsTable' class='tablesorter'>
+        <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='switch-trend'>
+          <input type='checkbox' id='switch-trend' class='mdl-switch__input'>
+          <span class='mdl-switch__label'>Toggle Trend Data</span>
+        </label>
+        <table id='alertsTable' class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <tbody>
             #{
               index = 0
               _(results[0]).map( (firstResult) =>
                 "
                 <tr class='#{if index%2 is 0 then "odd" else "even"}'>
-                  <td>#{firstResult.title}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{firstResult.title}</td>
                   #{
                     period = results.length
                     sum = 0
@@ -123,8 +125,8 @@ class PeriodtrendsView extends Backbone.View
                         dataPoints += 1
                         sum += parseInt(dataValue(result[index]))
                       "
-                        <td class='period-#{period-=1} trend'></td>
-                        <td class='period-#{period} data'>#{renderDataElement(result[index])}</td>
+                        <td class='period-#{period-=1} trend mdl-data-table__cell--non-numeric'></td>
+                        <td class='period-#{period} data mdl-data-table__cell--non-numeric'>#{renderDataElement(result[index])}</td>
                         #{
                           if period is 0
                             "<td class='average-for-previous-periods'>#{Math.round(sum/dataPoints)}</td>"
@@ -141,8 +143,9 @@ class PeriodtrendsView extends Backbone.View
             }
           </tbody>
         </table> 
-        <button class='toggle-trend-data mdl-button mdl-js-button mdl-button--raised mdl-button--colored'>Show trend data</button>
       "
+      # This is for MDL switch
+      componentHandler.upgradeAllRegistered()
 
       extractNumber = (element) ->
         result = parseInt(element.text())
@@ -264,4 +267,4 @@ class PeriodtrendsView extends Backbone.View
           ]
           renderTable()
 		  
-module.exports = PeriodtrendsView
+module.exports = PeriodTrendsView

@@ -25,7 +25,7 @@ class MenuView extends Backbone.View
     if (category != 'menuHeader')
       if (category != 'menuLink')
         subtitle = e.currentTarget.innerHTML
-        title = title + ": <span class='menu-subtitle'>" + subtitle + "</span>"
+        title = title + ": " + subtitle
       $('#layout-title').html(title)
     @setActiveLink(e)
 

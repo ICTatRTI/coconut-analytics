@@ -72,7 +72,7 @@ class CaseFollowupView extends Backbone.View
           </div>
       </div>
       <div id='results' class='result'>
-        <table class='summary tablesorter'>
+        <table class='summary tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead><tr></tr></thead>
           <tbody>
           </tbody>

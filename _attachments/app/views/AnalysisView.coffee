@@ -13,9 +13,17 @@ class AnalysisView extends Backbone.View
   events:
     "click div.analysis.dropDownBtn": "showDropDown"
     "click button.same-cell-disaggregatable": "toggleDisaggregation"
+    "click #switch-details": "toggleDetails"
+    "click #switch-unknown": "toggleGenderUnknown"
 
   toggleDisaggregation: (event) ->
     $(event.target).parents("td").children(".cases").toggle()
+
+  toggleDetails: (e)->
+    $(".details").toggle()
+
+  toggleGenderUnknown: (e)->
+    $('.gender-unknown').toggle()
 
   showDropDown: (e) =>
     $target =  $(e.target).closest('.analysis')
@@ -30,16 +38,15 @@ class AnalysisView extends Backbone.View
     $('#analysis-spinner').show()
     @$el.html "
       <style>
-        td button.same-cell-disaggregatable{
-          float:right;
-        }
+        td button.same-cell-disaggregatable{ float:right;}
+        .mdl-data-table th { padding: 0 6px}
       </style>
       <div id='dateSelector'></div>
       <div id='analysis'>
       <hr/>
       Aggregation Type:
-      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "District" then "checked='true'" else ""} value='District'>District</input>
-      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>Shehia</input>
+      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "District" then "checked='true'" else ""} value='District'>&nbsp; District</input>
+      <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>&nbsp; Shehia</input>
       <div style='font-style:italic; margin-top: 10px'>Click on arrow button/title to show table.</div>
       <hr/>
       <img id='analysis-spinner' src='images/spinner.gif'/>
@@ -75,30 +82,30 @@ class AnalysisView extends Backbone.View
 
         $("#analysis").append "
 		  <div class='analysis dropDownBtn'>
-			  <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-		  Cases Followed Up<small></small></h4></div>
+			  <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  Cases Followed Up<small></small></div></div>
 		"
         $("#analysis").append @createTable headings, "
           #{
             _.map(data.followups, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.allCases)}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.casesWithCompleteHouseholdVisit)}</td>
-                  <td>#{@formattedPercent(values.casesWithCompleteHouseholdVisit.length/values.allCases.length)}</td>
-                  <td class='missingUSSD details'>#{@createDisaggregatableCaseGroup(values.missingUssdNotification)}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.missingCaseNotification)}</td>
-                  <td class='details'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteFacilityVisit)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.allCases)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteHouseholdVisit)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.casesWithCompleteHouseholdVisit.length/values.allCases.length)}</td>
+                  <td class='missingUSSD details mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.missingUssdNotification)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.missingCaseNotification)}</td>
+                  <td class='details mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteFacilityVisit)}</td>
                   #{
                     withoutcompletefacilityvisitbutwithcasenotification = _.difference(values.casesWithoutCompleteFacilityVisit,values.missingCaseNotification)
                     ""
                   }
-                  <td>#{@createDisaggregatableCaseGroup(withoutcompletefacilityvisitbutwithcasenotification)}</td>
-                  <td>#{@formattedPercent(withoutcompletefacilityvisitbutwithcasenotification.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(withoutcompletefacilityvisitbutwithcasenotification)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(withoutcompletefacilityvisitbutwithcasenotification.length/values.allCases.length)}</td>
 
-                  <td>#{@createDisaggregatableCaseGroup(values.noFacilityFollowupWithin24Hours)}</td>
-                  <td>#{@formattedPercent(values.noFacilityFollowupWithin24Hours.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.noFacilityFollowupWithin24Hours)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.noFacilityFollowupWithin24Hours.length/values.allCases.length)}</td>
 
 
                   #{
@@ -106,12 +113,12 @@ class AnalysisView extends Backbone.View
                     ""
                   }
 
-                  <td>#{@createDisaggregatableCaseGroup(withoutcompletehouseholdvisitbutwithcompletefacility)}</td>
-                  <td>#{@formattedPercent(withoutcompletehouseholdvisitbutwithcompletefacility.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(withoutcompletehouseholdvisitbutwithcompletefacility)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(withoutcompletehouseholdvisitbutwithcompletefacility.length/values.allCases.length)}</td>
 
 
-                  <td>#{@createDisaggregatableCaseGroup(values.noHouseholdFollowupWithin48Hours)}</td>
-                  <td>#{@formattedPercent(values.noHouseholdFollowupWithin48Hours.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.noHouseholdFollowupWithin48Hours)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.noHouseholdFollowupWithin48Hours.length/values.allCases.length)}</td>
 
                 </tr>
               "
@@ -152,14 +159,18 @@ class AnalysisView extends Backbone.View
 
         ,2000
 
-        $("div#cases-followed-up span.toggle-btn").html("<button onClick='$(\".details\").toggle()'>Toggle Details</button>")
-
+        $("div#cases-followed-up span.toggle-btn").html "
+          <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='switch-details'>
+            <input type='checkbox' id='switch-details' class='mdl-switch__input'>
+            <span class='mdl-switch__label'>Toggle Details</span>
+          </label>
+        "
         $("#analysis").append "
           </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='material-icons'>play_arrow</i></button>
-            Index Household and Neighbors</h4>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='material-icons'>play_arrow</i></button>
+            Index Household and Neighbors</div>
 		  </div>
         "
         $("#analysis").append @createTable """
@@ -199,8 +210,8 @@ class AnalysisView extends Backbone.View
 
           <hr>
           <div class='analysis dropDownBtn'>
-            <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></h4>
+            <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></div>
           </div>
         "
         $("#analysis").append @createTable "District, Total, <5, %, 5<15, %, 15<25, %, >=25, %, Unknown, %".split(/, */), "
@@ -231,9 +242,9 @@ class AnalysisView extends Backbone.View
 		  </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small> 
-		  	</h4>
+		  	</div>
 		  </div>
         "
         $("#analysis").append @createTable "District, Total, Male, %, Female, %, Unknown, %".split(/, */), "
@@ -257,15 +268,21 @@ class AnalysisView extends Backbone.View
         ", "gender"
         $("table#gender th:nth-child(7)").addClass("gender-unknown").css("display", "none")
         $("table#gender th:nth-child(8)").addClass("gender-unknown").css("display", "none")
-        $("div#gender span.toggle-btn").html("<button type='button'' onclick=\"$('.gender-unknown').toggle()\">Toggle Unknown</button>")
 
+        $("div#gender span.toggle-btn").html "
+          <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='switch-unknown'>
+            <input type='checkbox' id='switch-unknown' class='mdl-switch__input'>
+            <span class='mdl-switch__label'>Toggle Unknown</span>
+          </label>
+        "
+		
         $("#analysis").append "
           </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Nets and Spraying: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
-		  	</h4>
+		  	</div>
 		  </div>
         "
         $("#analysis").append @createTable "District, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
@@ -289,9 +306,9 @@ class AnalysisView extends Backbone.View
 		  </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
 		  		Travel History (within past month): <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
-		  	</h4>
+		  	</div>
 		  </div>
         "
         $("#analysis").append @createTable """
@@ -372,6 +389,8 @@ class AnalysisView extends Backbone.View
               else
                 $(node).text()
 
+        # This is for MDL switch
+        componentHandler.upgradeAllRegistered()
 
 
   createDashboardLinkForResult: (malariaCase,resultType,buttonText, buttonClass = "") ->
@@ -437,13 +456,13 @@ class AnalysisView extends Backbone.View
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
       <div id='#{id}' class='analysis-report dropdown-section'>
-		<div style='font-style:italic'><span class='toggle-btn'></span> &nbsp; Click on a column heading to sort.</div>
-        <table #{if id? then "id=#{id}" else ""} class='tablesorter'>
+		<div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>
+        <table #{if id? then "id=#{id}" else ""} class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead>
             <tr>
             #{
               _.map(headerValues, (header) ->
-                "<th class='header' colspan='#{colspan}'>#{header}</th>"
+                "<th class='header mdl-data-table__cell--non-numeric' colspan='#{colspan}'>#{header}</th>"
               ).join("")
             }
             </tr>

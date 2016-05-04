@@ -40,6 +40,7 @@ table.tablesorter {
 	text-align: left;
 	border-collapse: collapse;
 	font-size: 9pt;
+	white-space: normal;
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
 	/*
@@ -48,9 +49,8 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
 	line-height: 24pt;
 	*/
 	background-color: #EEEEEE;
-	font-size: 9pt;
+	font-size: 10pt;
 	color:rgba(0,0,0,0.54);
-	padding: 4px;
 }
 
 table.tablesorter thead tr {
@@ -129,6 +129,10 @@ table#alertsTable td.data{
     text-align: right;
     padding-right: 10px;
     margin-bottom: 10px;
+}
+
+.mdl-data-table thead tr {
+    background-color: #eeeeee;	
 }
 
 /* Reports Case Followup Buttons */
@@ -223,6 +227,13 @@ button.not-followed-up-after-48-hours-false {
 	padding: 0 7px;
 }
 
+.report-subtitle {
+	font-size: 20px;
+	line-height: 32px;
+	-moz-osx-font-smoothing: grayscale;
+	margin: 24px 0 16px;	
+}
+
 #cases-section {
 	padding-bottom: 20px;
 }
@@ -231,8 +242,16 @@ button.not-followed-up-after-48-hours-false {
 	float: left;
 }
 
+#dateSelector {
+   margin-bottom: 20px;	
+}
+
 .select-by-date, .select-by-week {
 	padding-top: 20px;
+}
+
+#errMsg {
+	color: red;
 }
 
 /* Material Design styling */
@@ -782,10 +801,11 @@ div.login-group input:focus ~ .login-highlight {
 
 /* UserView */
 div#form-inputs {
-	margin: 10px 0;
+/*	margin: 10px 0;
 	min-height: 170px;
 	border: 1px solid;
 	padding: 10px;
+*/
 	display: none;
 }
 div#form-inputs td {
@@ -825,6 +845,13 @@ div#form-title {
 	border-top: 1px solid #ccc; 
 	border-bottom: 1px solid #ccc; 
 	display: none 
+}
+
+.icon-28 {font-size: 28px}
+.icon-24 {font-size: 24px}
+
+th.action {
+	width: 100px;
 }
 
 

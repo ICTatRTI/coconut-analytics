@@ -10,7 +10,7 @@ capitalize = require "underscore.string/capitalize"
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class EpidemicthresholdView extends Backbone.View
+class EpidemicThresholdView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -32,10 +32,9 @@ class EpidemicthresholdView extends Backbone.View
           text-align:center;
         }
       </style>
-      <h2>Epidemic Thresholds</h2>
       <div id='dateSelector'></div>
 
-      <table class='tablesorter tableData'>
+      <table class='tablesorter tableData '>
         <thead>
           <tr>
             <th></th>
@@ -95,9 +94,9 @@ class EpidemicthresholdView extends Backbone.View
 
       @$el.append "
 
-        <table class='tablesorter' id='thresholdTable'>
+        <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
           <thead>
-            <th>District</th>
+            <th class='mdl-data-table__cell--non-numeric'>District</th>
             #{
               _(weekRange).map (week) ->
                 "<th>#{week}</th>"
@@ -109,7 +108,7 @@ class EpidemicthresholdView extends Backbone.View
               _(GeoHierarchy.allDistricts()).map (district) ->
                 "
                 <tr> 
-                  <td>#{district}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{district}</td>
                   #{
                   _(weekRange).map (week) ->
                     "
@@ -133,4 +132,4 @@ class EpidemicthresholdView extends Backbone.View
 
       $('#analysis-spinner').hide()
 
-module.exports = EpidemicthresholdView
+module.exports = EpidemicThresholdView

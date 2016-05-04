@@ -7,7 +7,7 @@ DataTables = require 'datatables'
 Reports = require '../models/Reports'
 UserCollection = require '../models/UserCollection'
 
-class UsersreportView extends Backbone.View
+class UsersReportView extends Backbone.View
   el: "#content"
 
   events:
@@ -191,4 +191,4 @@ class UsersreportView extends Backbone.View
               tableTools:
                 sSwfPath: "js-libraries/copy_csv_xls_pdf.swf"
       
-  module.exports = UsersreportView
+  module.exports = UsersReportView

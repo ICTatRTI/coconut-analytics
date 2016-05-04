@@ -99,9 +99,9 @@ class UsersView extends Backbone.View
         fields =  "_id,password,district,name,roles,comments".split(",")
 
         @$el.html "
-            <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
+            <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
               <i class='material-icons'>add</i>
-            </button>
+            </button></h4>
             <div id='top-of-form' tabindex='1'>	</div>
             <div id='form-inputs'>
                <div id='user-form'>
@@ -139,16 +139,16 @@ class UsersView extends Backbone.View
               </div>
             </div>
             <div id='results' class='result'>
-              <table class='summary tablesorter'>
+              <table class='summary tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
                 <thead>
                   <tr> 
-                  <th class='header headerSortUp'>Username</th>
-                  <th>Password</th>
-                  <th class='header'>District</th>
-                  <th class='header'>Name</th>
-                  <th class='header'>Roles</th>
-                  <th>Comments</th>
-                  <th class='header'>Inactive</th>
+                  <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
+                  <th class='mdl-data-table__cell--non-numeric'>Password</th>
+                  <th class='header mdl-data-table__cell--non-numeric'>District</th>
+                  <th class='header mdl-data-table__cell--non-numeric'>Name</th>
+                  <th class='header mdl-data-table__cell--non-numeric'>Roles</th>
+                  <th class='mdl-data-table__cell--non-numeric'>Comments</th>
+                  <th class='header mdl-data-table__cell--non-numeric'>Inactive</th>
                   <th>Actions</th>
                   </tr>
                 </thead> 
@@ -157,13 +157,13 @@ class UsersView extends Backbone.View
                     _(users).map (user) ->
                       "
                       <tr>
-                        <td>#{user._id.substring(5)}</td>
-                        <td>#{user.password}</td>
-                        <td>#{user.district}</td>
-                        <td>#{user.name}</td>
-                        <td>#{user.roles}</td>
-                        <td>#{user.comments}</td>
-                        <td>#{user.inactive}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.password}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.roles}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.comments}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.inactive}</td>
                         <td> <button class='mdl-button mdl-js-button mdl-button--icon'>
                            <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons'>mode_edit</i></a></button>
                         </td>

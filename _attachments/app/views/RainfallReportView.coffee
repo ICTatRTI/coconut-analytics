@@ -8,7 +8,7 @@ moment = require 'moment'
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
 
-class RainfallreportView extends Backbone.View
+class RainfallReportView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -17,7 +17,6 @@ class RainfallreportView extends Backbone.View
     @$el.html "
       <div id='dateSelector'></div>
       <div id='messages'></div>
-      <h3>Rainfall Data Submission</h3>
     "
     Coconut.database.query "zanzibar-server/rainfallDataByDateAndLocation",
       startkey: [moment(options.startDate).year(), moment(options.startDate).week()]
@@ -29,9 +28,9 @@ class RainfallreportView extends Backbone.View
     .then (results) =>
       $('#analysis-spinner').hide()
       @$el.append "
-        <table class='tablesorter' id='rainfallReports'>
+        <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='rainfallReports'>
           <thead>
-            <th>Station</th>
+            <th class='mdl-data-table__cell--non-numeric'>Station</th>
             <th>Year</th>
             <th>Week</th>
             <th>Amount</th>
@@ -41,7 +40,7 @@ class RainfallreportView extends Backbone.View
              _(results.rows).map (row) =>
                "
                 <tr>
-                  <td>#{row.value[0]}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{row.value[0]}</td>
                   <td>#{row.key[0]}</td>
                   <td>#{row.key[1]}</td>
                   <td>#{row.value[1]}</td>
@@ -53,16 +52,16 @@ class RainfallreportView extends Backbone.View
         </table>
       "
 
-      $("#rainfallReports").dataTable
-        aaSorting: [[1,"desc"],[2,"desc"]]
-        iDisplayLength: 50
-        dom: 'T<"clear">lfrtip'
-        tableTools:
-          sSwfPath: "js-libraries/copy_csv_xls.swf"
-          aButtons: [
-            "copy",
-            "csv",
-            "print"
-          ]
+    $("#rainfallReports").dataTable
+      aaSorting: [[1,"desc"],[2,"desc"]]
+      iDisplayLength: 5
+      dom: 'T<"clear">lfrtip'
+      tableTools:
+        sSwfPath: "js-libraries/copy_csv_xls.swf"
+        aButtons: [
+          "copy",
+          "csv",
+          "print"
+        ]
 
-module.exports = RainfallreportView
+module.exports = RainfallReportView
