@@ -50,12 +50,13 @@ class MapView extends Backbone.View
   casesGeoJSON = undefined
   turnCasesLayerOn = false;
   timeCasesGeoJSON = undefined
-  timeLayer = undefined
   districtsData = undefined
   shahiasData = undefined
   villagesData = undefined
   textE = undefined
   textW = undefined
+  timeLayer = undefined
+  timeHeatMapLayer = undefined
   timeScale = undefined
   outFormat = d3.time.format("%Y-%m-%d")
   el: '#content'
@@ -70,7 +71,6 @@ class MapView extends Backbone.View
     "click #snapImage": "snapImage"
     
   buttonClick: (event)=>
-    console.log event.toElement.id
     if event.toElement.id == "pembaToggle"
         $('#pembaToggle').toggleClass 'mdl-button--raised', true
         $('#ungugaToggle').toggleClass 'mdl-button--raised', false
@@ -85,7 +85,6 @@ class MapView extends Backbone.View
   heatMapToggle: =>
     if heatMapCoords.length>0
         if !materialHeatMapControl.toggleState
-            console.log('StartDate: ' + startDate + " " + endDate)
             materialHeatMapControl.toggleState = true
             $('.heatMapButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
             heat = L.heatLayer(heatMapCoords, radius: 10) 
@@ -102,19 +101,14 @@ class MapView extends Backbone.View
               @map.addLayer casesLayer
               turnCasesLayerOn = false
   timeToggle: =>
-    console.log 'timeToggle: '+startDate
-    console.log 'clustersToggleState: '+materialClusterControl.toggleState
-    console.log 'timeToggle timeScale.extent: ' + outFormat(timeScale.brush.extent()[0])
-    console.log 'timeToggle timeScale: ' + timeScale.brush.extent().length
     dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
-    console.log('dateRange: '+ dateRange)                                                     
-    updateFeaturesByDate(dateRange)         
+    if map.hasLayer casesLayer 
+      updateFeaturesByDate(dateRange)         
     if !materialTimeControl.toggleState
       $("#sliderContainer").toggle()
       $('.timeButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
       materialTimeControl.toggleState = true
       if @map.hasLayer casesLayer
-        console.log('remove')
         @map.removeLayer casesLayer
         turnCasesLayerOn = true
       if @map.hasLayer heat
@@ -123,133 +117,97 @@ class MapView extends Backbone.View
       materialTimeControl.toggleState = false
       $("#sliderContainer").toggle()
       $('.timeButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
-      console.log 'turnOnCaseLayer: '+turnCasesLayerOn
       if turnCasesLayerOn == true
         @map.addLayer casesLayer
         turnCasesLayerOn = false          
     
   clusterToggle: =>
-    console.log 'clustersToggleState: '+materialClusterControl.toggleState
     if !materialClusterControl.toggleState
       materialClusterControl.toggleState = true
       $('.clusterButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
       if @map.hasLayer casesLayer
         @map.removeLayer casesLayer
         turnCasesLayerOn = true
-        console.log 'turnOnCaseLayer: '+turnCasesLayerOn
       clusters.addTo map
     else
       materialClusterControl.toggleState = false
       $('.clusterButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
       @map.removeLayer clusters
-      console.log 'turnOnCaseLayer: '+turnCasesLayerOn
       if turnCasesLayerOn == true
         @map.addLayer casesLayer
         turnCasesLayerOn = false
-    console.log 'clusterToggle'
-#  updateFeaturesByDate = (dateRange) ->
-##    console.log 'updatefeaturesbydate: '+date 
-##    console.log 'casesGEoJSON.length: '+JSON.stringify casesGeoJSON.features
-#    timeFeatures = []
-#    for fCount of casesGeoJSON.features
-#      feature = casesGeoJSON.features[fCount]
-#      fDate = feature.properties.date.substring(0,10)
-##      console.log 'fDate: '+ fDate + ' date: ' + date
-#      console.log 'fDate >= date1 && fDate<=date2'  
-#      console.log fDate+' >= '+dateRange[0]+' && '+fDate+' <= '+dateRange[1]  
-#      if fDate >= dateRange[0]&&fDate<=dateRange[1]
-#        console.log 'fDate: '+ fDate
-#        timeFeatures.push feature
-
   updateFeaturesByDate = (dateRange) ->
-#    console.log 'updatefeaturesbydate: '+date 
-#    console.log 'casesGEoJSON.length: '+JSON.stringify casesGeoJSON.features
     timeFeatures = []
     count = 0
-    console.log '*****loopOverSelectedFeatures*****'
-    console.log('dateRange: ' + dateRange)
+    heatMapCoordsTime = []
     for fCount of casesGeoJSON.features
       count++
       feature = casesGeoJSON.features[fCount]
       fDate = feature.properties.date.substring(0,10)
       console.log fDate + ' >= ' + dateRange[0] + ' and ' + fDate + ' <= ' + dateRange[1]
       if fDate >= dateRange[0] and fDate <= dateRange[1]
-        console.log  'fDate: '+ fDate
-#        
         timeFeatures.push feature
-    console.log ' timeFeatures count: ' + count
-    console.log 'timeFeatures: '+ JSON.stringify timeFeatures
+        coords = [
+          feature.geometry.coordinates[1]
+          feature.geometry.coordinates[0]
+          5000/casesGeoJSON.features.length#adjust with slider
+        ]
+        heatMapCoordsTime.push coords
     timeCasesGeoJSON.features = timeFeatures
-    #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are 
-    #if cases are on:
-    if !map.hasLayer timeLayer
-          console.log 'timeCasesGeoJSON: '+ JSON.stringify timeCasesGeoJSON
-          #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
-          timeLayer = L.geoJson(timeCasesGeoJSON, 
-          onEachFeature: (feature, layer) =>
-            coords = [
-              feature.geometry.coordinates[1]
-              feature.geometry.coordinates[0]
-              5000/timeCasesGeoJSON.features.length#adjust with slider
-            ]
-            heatMapCoordsTime.push coords
-            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
-            return
-          pointToLayer: (feature, latlng) =>
-            # household markers with secondary cases
-            #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, caseMarkerOptions
-            else
-                L.circleMarker latlng, casesMarkerOptions
-          ).addTo(map)
-    else
-      timeLayer.clearLayers()
-      timeLayer.addData(timeFeatures)      
+    
+    if materialHeatMapControl.toggleState
+        console.log 'heatmapcontrolOn'
+        if !map.hasLayer timeHeatMapLayer
+          console.log 'FirstHeatmapLayerCoords: ' + heatMapCoordsTime
+          timeHeatMapLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map)
+        else
+          console.log 'UpdateHeatmapLayerCoords: ' + heatMapCoordsTime
+          timeHeatMapLayer.setLatLngs(heatMapCoordsTime)
+          timeHeatMapLayer.redraw()
+    else    
+        if !map.hasLayer timeLayer
+              #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
+              timeLayer = L.geoJson(timeCasesGeoJSON, 
+              onEachFeature: (feature, layer) =>
+    #            coords = [
+    #              feature.geometry.coordinates[1]
+    #              feature.geometry.coordinates[0]
+    #              5000/timeCasesGeoJSON.features.length#adjust with slider
+    #            ]
+    #            heatMapCoordsTime.push coords
+                layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+                return
+              pointToLayer: (feature, latlng) =>
+                # household markers with secondary cases
+                #clusering as well
+                if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+                    L.circleMarker latlng, caseMarkerOptions
+                else
+                    L.circleMarker latlng, casesMarkerOptions
+              ).addTo(map)
+        else
+          timeLayer.clearLayers()
+          timeLayer.addData(timeFeatures) 
     #if heatmap is on:
-    console.log 'heatmaptoggle: '+!materialHeatMapControl.toggleState
-    if !materialHeatMapControl.toggleState
-      console.log 'heatmapcontrolOn'
     
-    
-    #if clusters are on
-      
-    
+        
   mapFocus: =>
-    console.log("scrolwheelStatus: "+@map.scrollWheelZoom.enabled())
     if @map.scrollWheelZoom.enabled() == false
       @map.scrollWheelZoom.enable()
-      console.log('scrollwheeltrue')
-    console.log("mapFocus")
-
+  
   mapBlur: =>
-    console.log("mapBlur")    
     if @map.scrollWheelZoom.enabled() == true
       @map.scrollWheelZoom.disable()
-      console.log('scrollwheelfalse')
         
   snapImage: =>
-    console.log "snapped"         
 #    progressBar.showPleaseWait()
 
     leafletImage @map, (err, canvas) =>
-      console.log("snapshot: "+ @snapshot)
-      console.log 'image Snap'
-#      img = document.createElement('img') 
-#      dimensions = @map.getSize()
-#      console.log "dimensions: "+dimensions
-#      img.width = dimensions.x
-#      img.height = dimensions.y
-#      console.log "img.width: "+img.width
-#      img.src = canvas.toDataURL()
       a = document.createElement('a')
       a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
       a.download = 'coconutMap.jpg'
       a.click()
-
       @snapshot.innerHTML = ''
-      console.log "snapshot: "+snapshot.innerHTML
-#      progressBar.hidePleaseWait()
       return
     return
 
@@ -369,7 +327,6 @@ class MapView extends Backbone.View
       Streets: streets
       Outdoors: outdoors
       Satellite: satellite
-    
     
     @map = L.map('map',
       center: [
@@ -502,59 +459,23 @@ class MapView extends Backbone.View
 #
 #    legend.addTo @map    
     brushed = ->
-      console.log 'brushed'
       actives = svg.filter((p) ->
         !timeScale.brush.empty()
       )
       extents = actives.map((p) ->
         timeScale.brush.extent()
       )
-      console.log('extents: ' + extents)
-      console.log('extent0: ' + extents[0] + ' extent1: ' + extents[1])
-      endDate = extents[0][1]
-#      endDate = timeScale.invert(d3.mouse(this)[0])
-#      console.log 'this: '+ JSON.stringify this
-#      console.log('d3.mouse(this)[0]: '+d3.mouse(this)[0])
-#      console.log('endDate: '+endDate);
+      endDate = timeScale.brush.extent()[1]
       endFormat = outFormat(endDate)
-      startDate = extents[0][0]
-#      startDate = timeScale.invert(d3.mouse(this)[1])
-#      console.log('d3.mouse(this)[1]: '+d3.mouse(this)[1])
-#      console.log('startDate: '+startDate);
+      startDate = timeScale.brush.extent()[0]
       startFormat = outFormat(startDate)
       dateRange = [startFormat, endFormat]
       dayMoFormat = d3.time.format("%b %d")
       textE.text(dayMoFormat(endDate))
       textW.text(dayMoFormat(startDate))
-#      console.log('dateRange: '+ dateRange)
-#      console.log('extents: '+ extents.toString().split(',')[0])
-#      console.log('value: '+value)        
-      console.log('dateRange[0]: '+dateRange[0] + ' && dateRange[1]: '+dateRange[1])
       if d3.event.sourceEvent
         updateFeaturesByDate(dateRange)
-
-        
-#      *****For Origional Slider
-#      handle.attr 'transform', 'translate(' + timeScale(value) + ',0)'
-#      handle.select('text').text formatDate(value)
       return
-#    brush = ->
-#      console.log 'brush'
-#      actives = dimensions.filter((p) ->
-#        !x[p].brush.empty()
-#      )
-#      extents = actives.map((p) ->
-#        x[p].brush.extent()
-#      )
-#      foreground.style 'display', (d) ->
-#        if actives.every(((p, i) ->
-#          extents[i][0] <= d[p] and d[p] <= extents[i][1]
-#        )) then null else 'none'
-#      return
-#    brushstart = ->
-#      console.log 'brushStart'
-#      d3.event.sourceEvent.stopPropagation()
-#      return
     formatDate = d3.time.format('%b %d')
     # parameters
     margin = 
@@ -578,12 +499,6 @@ class MapView extends Backbone.View
     startingValue = new Date(startDate)
     endValue = timeScale(new Date(endDate))
     endingValue = new Date(endDate)
-    #////////
-    # defines brush
-#    brush = d3.svg.brush().x(timeScale).extent([
-#      startingValue
-#      endingValue
-#    ]).on('brush', brushed)
     svg = d3.select('#sliderContainer').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
     svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
       formatDate d
@@ -595,19 +510,9 @@ class MapView extends Backbone.View
       @parentNode.appendChild @cloneNode(true)
     ).attr 'class', 'halo'
 
-#    *****Origional Sliders
-#    slider = svg.append('g').attr('class', 'slider').call(brush)
-#    slider.selectAll('.extent,.resize').remove()
-#    slider.select('.background').attr 'height', height
-#    handle = slider.append('g').attr('class', 'handle')
-#    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
-#    console.log 'startingValue: '+startingValue
-#    handle.append('text').text(startingValue);
-#    slider.call brush.event
 
 #    Brush extents
     slider = svg.append('g').attr('class', 'brush').each((d) ->
-      console.log('each d: ' + d)
       d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).extent([
         startingValue
         endingValue
@@ -616,7 +521,6 @@ class MapView extends Backbone.View
     ).selectAll('rect').attr('y', 10).attr('height', 16)
     
     _brush = d3.select '.brush'
-    console.log 'brush: ' + _brush
     resizes = d3.selectAll '.resize'
     resizeE = resizes[0][0]
     resizeE.id = 'resizee'
@@ -626,38 +530,10 @@ class MapView extends Backbone.View
     textE.id = 'texte'
     textW = d3.select('#resizew').append('text').text(formatDate(startingValue))
     textW.id = 'textw'
-    console.log 'resizeE: ' + resizeE
-    console.log 'resizeW: ' + resizeW
-#    resizeE.append('text').text('e');
-#    resizeW.append('text').text('w');
     rects = _brush.selectAll('rect')
     rects3 = rects[0][3]
     outFormat = d3.time.format("%Y-%m-%d")
     dateRange = [outFormat(startingValue), outFormat(endingValue)]
-    console.log('setup daterange: ' + dateRange)
-    
-    console.log('rectE: ' + rects)
-#    slider.selectAll('.extent,.resize').remove()
-#    slider.select('.extent').attr('width', 6)
-#    slider.select('.background').attr 'height', height
-#    handle = slider.append('g').attr('class', 'handle')
-#    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
-#    slider.selectAll('.extent,.resize').remove()
-#    slider.select('.background').attr 'height', height
-#    handle = slider.append('g').attr('class', 'handle')
-#    handle.append('path').attr('transform', 'translate(0,' + height / 2 + ')').attr 'd', 'M 0 -4 V 4'
-#    customLayers = new (layersControl)(layers, overlays,
-#      position: 'topright'
-#      materialOptions: materialOptions).addTo(@map)
-
-#Mapslider
-#    $('.leaflet-control-layers').addClass 'mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-color--cyan'
-#    materialLayerControl = new (materialControl.Layers)(layers, overlays,
-#      position: 'topright'
-#      materialOptions: materialOptions).addTo(@map)
-#    materialLayerControl = new (materialControl.Layers)(layers, overlays,
-#      position: 'topright'
-#      materialOptions: materialOptions).addTo(@map)
     
     updateMap = (data) =>
 #        console.log "data: "+JSON.stringify data
@@ -685,8 +561,6 @@ class MapView extends Backbone.View
             else
                 L.circleMarker latlng, casesMarkerOptions
           ).addTo(@map)
-        console.log('getreadytocluster')
-        console.log 'clusters: '+clusters
         if heatMapCoords.length == 0
           $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
           $('.timeButton button').toggleClass 'mdl-button--disabled', true
@@ -698,16 +572,6 @@ class MapView extends Backbone.View
           customLayers.addOverlay casesLayer, 'Cases'
         
     return
-#    onEachFeature = (feature, layer) ->
-#      coords = [
-#        feature.geometry.coordinates[1]
-#        feature.geometry.coordinates[0]
-#        100
-#      ]
-#      heatMapCoords.push coords
-#      console.log "heatmapCoords: "+heatMapCoords
-#      layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.hasAdditionalPositiveCasesAtIndexHousehold + "<br />\n Date: "+feature.properties.date 
-#      return
    
 module.exports = MapView
     
