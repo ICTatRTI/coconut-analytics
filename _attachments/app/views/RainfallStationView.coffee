@@ -44,7 +44,6 @@ class RainfallStationView extends Backbone.View
   formCancel: (e) =>
     e.preventDefault
     console.log("Cancel pressed")
-    dialog.close()
     return false
 
   formSave: (e) =>

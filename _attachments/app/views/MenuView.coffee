@@ -63,7 +63,7 @@ class MenuView extends Backbone.View
           Periodtrends: "Period Trends compared to previous 3 weeks"
           Rainfallreport: "Rainfall Submission"
           Usersreport: "Users Report - how fast are followups occuring"
-          Weeklyreports: "Weekly Facility Reports from MEEDS or ISMS"
+          Weeklyreports: "Weekly Facility Reports"
           Weeklysummary: "Weekly Trends compared to previous 3 weeks"
         }
         _(reportLinks).map (linkText, linkUrl) ->
@@ -142,7 +142,6 @@ class MenuView extends Backbone.View
                geo_hierarchy: "Regions, Districts & Shehias"
                "edit_data/shehias_received_irs": "Shehias received IRS"
                "edit_data/shehias_high_risk": "Shehias high risk"
-               questions: "Question Sets"
                users: "Users"
              }
              _(adminLinks).map (linkText, linkUrl) ->
