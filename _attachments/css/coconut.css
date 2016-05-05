@@ -800,28 +800,29 @@ div.login-group input:focus ~ .login-highlight {
 }
 
 /* UserView */
-div#form-inputs {
-/*	margin: 10px 0;
+.form-inputs, .form-confirm {
+	margin: 10px 0;
 	min-height: 170px;
 	border: 1px solid;
 	padding: 10px;
-*/
 	display: none;
 }
-div#form-inputs td {
+div.form-inputs td {
 	padding: 0 10px;
 }
 
-div#form-inputs input {
+div.form-inputs input {
 	padding: 5px;
 	color: blue;
 	font-size: 13px;
 }
 
-div#form-title {
+div#form-title, div#dialog-title {
+	width: 100%;
 	font-weight: bold;
-	font-size: 1.2em;
-	margin-bottom: 5px;
+	font-size: 1.3em;
+	margin-bottom: 10px;
+	letter-spacing: 3px;
 }
 
 #analysis-spinner {
@@ -897,4 +898,19 @@ a {
   fill: white;
   text-align: center;
   font-size: 14px;
+}
+
+dialog {
+  width: 400px;
+  padding: 30px;
+  border: none;
+  box-shadow: 0 9px 46px 8px rgba(0, 0, 0, 0.14), 0 11px 15px -7px rgba(0, 0, 0, 0.12), 0 24px 38px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+/*  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3); */
+}
+
+#dialogActions {
+	margin-top: 5px;
+	float: right;
 }
