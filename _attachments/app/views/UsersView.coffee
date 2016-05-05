@@ -10,6 +10,8 @@ humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
 
+require 'material-design-lite'
+
 moment = require 'moment'
 
 DataTables = require 'datatables'
@@ -49,6 +51,8 @@ class UsersView extends Backbone.View
          if (user.roles)
            for role in user.roles
              $("[name=role][value=#{role}]").prop("checked", true)
+         if(user.inactive)
+           document.querySelector('#switch-1').MaterialSwitch.on()
          Common.markTextfieldDirty()
        return false
 	   
@@ -61,25 +65,24 @@ class UsersView extends Backbone.View
       @user.inactive = $("#inactive").is(":checked")
       @user.isApplicationDoc = true
       @user.district = $("#district").val().toUpperCase()
-      @user.password = $('#password').val()
+      @user.password = $('#passwd').val()
       @user.name = $('#name').val()
       @user.roles = $('#roles').val()
       @user.comments = $('#comments').val()
 
-      console.log @user
-      dialog.close()
       Coconut.database.put @user
       .catch (error) -> console.error error
       .then =>
         @render()
-
+      return false
+	
     deleteDialog: (e) =>
       e.preventDefault
       dialogTitle = "Are you sure?"
       Common.createDialog(@dialogConfirm, dialogTitle) 
-      console.log("Delete initiated")
       return false
 
+## TODO Need the codes to delete user record
     deleteUser: (e) =>
       e.preventDefault
       console.log("User Deleted")
@@ -89,7 +92,7 @@ class UsersView extends Backbone.View
     formCancel: (e) =>
       e.preventDefault
       console.log("Cancel pressed")
-
+      return false
     # On saving 
     # Coconut.database.get "user.id"
     # (result) ->       
@@ -127,7 +130,7 @@ class UsersView extends Backbone.View
                 "
                 ).join("")
               }
-              <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive'>
+              <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
                    <span class='mdl-switch__label'>Inactive</span>
               </label>
