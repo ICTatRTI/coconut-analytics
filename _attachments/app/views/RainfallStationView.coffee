@@ -38,6 +38,7 @@ class RainfallStationView extends Backbone.View
     $("input#District").val(rec[1].innerText)
     $("input#Name").val(rec[2].innerText)
     $("input[id='Phone Numbers']").val(rec[3].innerText)
+    Common.markTextfieldDirty()
     return false
 	
   formCancel: (e) =>

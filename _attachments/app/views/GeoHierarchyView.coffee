@@ -37,6 +37,7 @@ class GeoHierarchyView extends Backbone.View
     $("input#Region").val(rec[0].innerText)
     $("input#District").val(rec[1].innerText)
     $("input#Shehia").val(rec[2].innerText)
+    Common.markTextfieldDirty()
     return false
 
   formSave: (e) =>

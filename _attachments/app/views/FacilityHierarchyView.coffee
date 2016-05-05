@@ -43,6 +43,7 @@ class FacilityHierarchyView extends Backbone.View
     $("input#Aliases").val(rec[3].innerText)
     $("input[id='Phone Numbers']").val(rec[4].innerText)
     $("input#Type").val(rec[5].innerText)
+    Common.markTextfieldDirty()
     return false
 	  
 #    Coconut.database.get id,
