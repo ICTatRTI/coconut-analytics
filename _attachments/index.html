@@ -7,6 +7,7 @@
     <link rel="icon" sizes="57x57" href="images/icon.png"> 
     <link href="css/fonts/fonts.css" rel="stylesheet">
     <link rel="stylesheet" href="css/material.css">
+    <link rel="stylesheet" type="text/css" href="css/dialog-polyfill.css" />
     <link rel="stylesheet" href="css/styles.css">
 	<link rel="stylesheet" href="css/pikaday.css">
     <link rel="stylesheet" href="css/jquery.dataTables.min.css">
@@ -34,21 +35,18 @@
 
   <div class="coconut-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header coconut-layer">
     <header class="coconut-header mdl-layout__header"> </header>
-    <div class="coconut-drawer mdl-layout__drawer">
-    </div>
+    <div class="coconut-drawer mdl-layout__drawer"></div>
 
     <main class="mdl-layout__content">
         <div class='mdl-spinner mdl-js-spinner is-active' id='analysis-spinner'></div>
-        <div style='padding:15px;' data-role='content' id="content">
-        </div>
+        <div style='padding:15px;' data-role='content' id="content"></div>
         <div id='log'></div>
-      </div>
     </main>
 
   </div>
 
   <!-- There is no material design lite npm package ?? -->
-  <script src="./material.min.js"></script>
+
   <script src="./node_modules/leaflet/dist/leaflet.js"></script>
   <script type="text/javascript" src="./bundle.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -62,7 +60,6 @@
   <script src="./js-libraries/iso8601.min.js"></script>
 <!--  <script src="./js-libraries/leaflet.timedimension.src.js"></script>-->
   <!--leaflet material design control dependency-->    
-  </script>
   </body>
 
 </html>

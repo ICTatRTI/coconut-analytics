@@ -10,6 +10,9 @@ Backbone.$  = $
 PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 
+require 'material-design-lite'
+require 'dialog-polyfill'
+
 # These are local .coffee files
 Router = require './Router'
 MenuView = require './views/MenuView'
