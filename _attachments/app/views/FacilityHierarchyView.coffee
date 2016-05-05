@@ -93,7 +93,7 @@ class FacilityHierarchyView extends Backbone.View
           _.map( @fields, (field) =>
             "
                <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                 <input class='mdl-textfield__input' type='text' id='#{field}' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}>
+                 <input class='mdl-textfield__input' type='text' id='#{field}' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
                  <label class='mdl-textfield__label' for='#{field}'>#{humanize(field)}</label>
                </div>
             "
