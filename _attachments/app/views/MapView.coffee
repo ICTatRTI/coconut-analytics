@@ -136,6 +136,38 @@ class MapView extends Backbone.View
       if turnCasesLayerOn == true
         @map.addLayer casesLayer
         turnCasesLayerOn = false
+
+    
+  setUpTypeAheadData = (geojson) -> 
+    typeAheadAdminNames = {}
+    typeAheadAdminNames.islands = ['Pemba', 'Unguga']
+    districts = []
+    shehias = []
+    villages = []
+    for fCount of geojson.features
+      feature = geojson.features[fCount]
+      district = feature.properties.District_N
+      districts.indexOf(district)
+      if districts.indexOf(district) == -1
+        districts.push district    
+      shehia = feature.properties.Ward_Name
+      if shehias.indexOf(shehia) == -1
+        shehias.push shehia 
+      village = feature.properties.Vil_Mtaa_N
+      if villages.indexOf(village) == -1
+        villages.push village
+      else
+        villages.push village + ': ' + shehia
+    
+    typeAheadAdminNames.districts = districts
+    typeAheadAdminNames.shehias = shehias
+    typeAheadAdminNames.villages = villages
+    
+    console.log 'typeaheadnames districts: ' + JSON.stringify typeAheadAdminNames.districts
+    console.log 'typeaheadnames Shehias: ' + JSON.stringify typeAheadAdminNames.shehias
+    console.log 'typeaheadnames Villages: ' + JSON.stringify typeAheadAdminNames.villages
+    return typeAheadAdminNames 
+        
   updateFeaturesByDate = (dateRange) ->
     timeFeatures = []
     count = 0
@@ -150,7 +182,7 @@ class MapView extends Backbone.View
         coords = [
           feature.geometry.coordinates[1]
           feature.geometry.coordinates[0]
-          5000/casesGeoJSON.features.length#adjust with slider
+          15000/casesGeoJSON.features.length#adjust with slider
         ]
         heatMapCoordsTime.push coords
     timeCasesGeoJSON.features = timeFeatures
@@ -248,7 +280,7 @@ class MapView extends Backbone.View
         .compact().value()
 #        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
         updateMap casesGeoJSON
-
+    
     @$el.html "
         <style>
         .legend {
@@ -293,11 +325,26 @@ class MapView extends Backbone.View
             <div class='mdl-cell mdl-cell--1-col'></div>
             <div class='mdl-cell mdl-cell--10-col'>
                 <div id='dateSelector'></div>
-                <label for='pembeToggle'>Switch to: </label>
-                <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
-                    <label for='ungugaToggle'>or</label>
-                <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>    
-            </div>
+                    <div style='display: inline-block'>
+                        <label for='pembeToggle'>Switch to: </label>
+                        <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
+                        <label for='ungugaToggle'>or</label>
+                        <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>
+                        <!--<form style='display: inline-flex'>
+                          <div class='mui-select'>
+                            <select style='padding-right:20px'>
+                              <option value='island'>Islands</option>
+                              <option value='district'>Districts</option>
+                              <option value='shehias'>Shehias</option>
+                              <option value='villages'>Villages</option>
+                            </select>
+                          </div>
+                          <div class='mui-textfield' style='padding-left:20px'>
+                            <input type='text' class='typeahead' placeholder='Input 1'>
+                          </div>
+                        </form>-->
+                    </div>
+                </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
         <div class='mdl-grid'>
@@ -393,6 +440,9 @@ class MapView extends Backbone.View
         layer.bindPopup 'test'
         return
     )
+    typeAheadNames = setUpTypeAheadData(villagesData)
+    
+    
     overlays =
       Districts: districtsLayer
       Shahias: shahiasLayer
