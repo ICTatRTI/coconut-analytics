@@ -11,6 +11,7 @@
   "dependencies": {
     "backbone": "^1.2.1",
     "backbone-pouch": "^1.5.0",
+    "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
     "coffee-script": "^1.9.3",
     "coffeeify": "^1.1.0",
@@ -19,7 +20,7 @@
     "form2js": "git://github.com/maxatwork/form2js",
     "jquery": "^2.1.4",
     "jquery-ui": "^1.10.5",
-    "js-cookie": "^2.1.0",
+    "js-cookie": "^2.1.1",
     "leaflet": "^0.7.7",
     "leaflet-image": "^0.1.0",
     "leaflet-material-controls": "^1.0.0",
