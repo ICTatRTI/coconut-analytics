@@ -397,7 +397,7 @@ class MapView extends Backbone.View
     @map.zoom = 9
     map = @map
     $.ajax
-      url: '../../mapdata/DistrictsWGS84.json'
+      url: '/mapdata/DistrictsWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
@@ -412,7 +412,7 @@ class MapView extends Backbone.View
         return
     ).addTo @map
     $.ajax
-      url: '../../mapdata/ShahiasWGS84.json'
+      url: '/mapdata/ShahiasWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
@@ -427,7 +427,7 @@ class MapView extends Backbone.View
         return
     )
     $.ajax
-      url: '../../mapdata/VillagesWGS84.json'
+      url: '/mapdata/VillagesWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
