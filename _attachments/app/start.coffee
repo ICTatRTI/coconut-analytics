@@ -11,7 +11,7 @@ PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 
 require 'material-design-lite'
-require 'dialog-polyfill'
+Cookies = require 'js-cookie'
 
 # These are local .coffee files
 Router = require './Router'
@@ -37,8 +37,12 @@ global.Coconut = {
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
   }
+  currentUser: Cookies.get('current_user')
 }
 
+global.Env = {
+  is_chrome: /chrome/i.test(navigator.userAgent)
+}
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync

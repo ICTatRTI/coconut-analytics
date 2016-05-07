@@ -7,6 +7,7 @@ Form2js = require 'form2js'
 Common = require './Common'
 
 User = require '../models/User'
+dialogPolyfill = require 'dialog-polyfill'
 
 class LoginView extends Backbone.View
 
@@ -19,7 +20,16 @@ class LoginView extends Backbone.View
   render: =>
     @$el.html "
       <style>
-        dialog::backdrop {
+        #dialog + .backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        #dialog::backdrop {
           position: fixed;
           top: 0;
           left: 0;
@@ -48,7 +58,12 @@ class LoginView extends Backbone.View
         </form>
       </dialog>
     "
-    dialog.showModal()
+    dialogPolyfill.registerDialog(dialog)
+    # Temporary hack for polyfill issue on non-chrome browsers
+    if (Env.is_chrome)
+       dialog.showModal()
+    else
+       dialog.show()
     componentHandler.upgradeDom()
 
   submitIfEnter: (event) ->

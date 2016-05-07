@@ -569,7 +569,7 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 }
 
 .summary {
-	height: 55px;
+	height: 70px;
 	margin: 0 5px;
 	padding-top: 20px;
 	text-align: left;
@@ -907,6 +907,7 @@ dialog {
   border-radius: 6px;
 /*  border: 1px solid rgba(0, 0, 0, 0.3);
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3); */
+  z-index: 100000;
 }
 
 #dialogActions {

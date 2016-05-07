@@ -6,7 +6,7 @@ Cookies = require 'js-cookie'
 
 class HeaderView extends Backbone.View
   initialize: ->
-    @currentUser = Cookies.get('current_user')
+    @currentUser = Cookies.get('current_user') || ""
 
   events:
     "click a#logout": "Logout"
