@@ -45,7 +45,7 @@ reportViews = {
 activityViews = {
   "Issues": require './views/IssuesView'
 }
-
+  
 class Router extends Backbone.Router
   # caches views
   views: {}
@@ -115,7 +115,7 @@ class Router extends Backbone.Router
         @views[type].setElement "#content"
         @views[type].render()
         @reportType = 'reports'
-        @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type], @reportType)
+        @showDateFilter(Coconut.reportDates.startDate, Coconut.reportDates.endDate, @views[type], @reportType)
 
 
   # Needs to refactor later to keep it DRY
@@ -138,7 +138,7 @@ class Router extends Backbone.Router
         @views[type].setElement "#content"
         @views[type].render()
         @reportType = 'activities'
-        @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate, @views[type], @reportType)
+        @showDateFilter(Coconut.reportDates.startDate, Coconut.reportDates.endDate, @views[type], @reportType)
 
   showCase: (caseID, docID) ->
     @userLoggedIn
@@ -271,15 +271,14 @@ class Router extends Backbone.Router
   adminLoggedIn: (callback) ->
     @userLoggedIn
       success: (user) ->
-        console.log user
         if user.isAdmin()
           callback.success(user)
       error: ->
         $("#content").html "<h2>Must be an admin user</h2>"
 
   setStartEndDateIfMissing: (startDate,endDate) =>
-    startDate = startDate || moment().subtract("7","days").format("YYYY-MM-DD")
-    endDate = endDate || moment().format("YYYY-MM-DD")
+    startDate = Coconut.reportDates.startDate
+    endDate = Coconut.reportDates.endDate
     [startDate, endDate]
 
   showDateFilter: (startDate, endDate, reportView, reportType) ->

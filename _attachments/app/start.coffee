@@ -9,7 +9,7 @@ global.Backbone = require 'backbone'
 Backbone.$  = $
 PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
-
+moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
 
@@ -38,6 +38,10 @@ global.Coconut = {
     design_doc_name: "zanzibar"
   }
   currentUser: Cookies.get('current_user')
+  reportDates: {
+    startDate: moment().subtract("7","days").format("YYYY-MM-DD")
+    endDate: moment().format("YYYY-MM-DD")
+  }
 }
 
 global.Env = {

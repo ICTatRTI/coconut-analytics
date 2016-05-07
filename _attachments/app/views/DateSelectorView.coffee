@@ -37,8 +37,8 @@ class DateSelectorView extends Backbone.View
       else
         $("div#filters-section").slideToggle()
         # Update the URL and rerender page
-        Coconut.router.reportViewOptions['startDate'] = startDate
-        Coconut.router.reportViewOptions['endDate'] = endDate
+        Coconut.reportDates.startDate = startDate
+        Coconut.reportDates.endDate = endDate
       
         url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
         Coconut.router.navigate(url,{trigger: true})
