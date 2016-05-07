@@ -64,7 +64,6 @@ User.login = (options) ->
 User.logout = (options) ->
   Cookies.remove('current_user')
   Cookies.remove('current_password')
-  console.log("Cookie = " + Cookies.get('current_user'))
   $('#district').html ""
   $("a#logout").hide()
   $("a#login").show()

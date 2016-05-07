@@ -5,6 +5,7 @@ Backbone.$  = $
 
 
 require 'mapbox.js'
+require 'leaflet'
 materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
