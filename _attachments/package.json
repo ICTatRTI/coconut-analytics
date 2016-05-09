@@ -6,7 +6,7 @@
     "watch": "watchify -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js",
     "livereload": "livereloadify ./",
     "static": "static --port 8081 ./",
-    "deploy": "sed 's/http:\\/\\/localhost:5984\\/zanzibar/https:\\/\\/cococloud.co\\/zanzibar/' app/start.coffee > /tmp/start.coffee; cp /tmp/start.coffee app/start.coffee;browserify -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js;couchapp push cloud"
+    "deploy": "sed 's/http:\\/\\/localhost:5984\\/zanzibar/https:\\/\\/cococloud.co\\/zanzibar/' app/start.coffee > /tmp/start.coffee; cp /tmp/start.coffee app/start.coffee;browserify -v -t coffeeify --extension='.coffee' app/start.coffee -o bundle.js;couchapp push cloud"
   },
   "dependencies": {
     "backbone": "^1.2.1",
