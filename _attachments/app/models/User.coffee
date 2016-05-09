@@ -25,7 +25,6 @@ class User extends Backbone.Model
   nameOrUsernameWithDescription: =>
     "#{@nameOrUsername()} #{if @district() then " - #{@district()}" else ""}"
 
-
 User.isAuthenticated = (options) ->
   current_user_cookie = Cookies.get('current_user')
   if current_user_cookie? and current_user_cookie isnt ""
@@ -69,4 +68,7 @@ User.logout = (options) ->
   $("a#login").show()
   Coconut.currentUser = null
 
+User.inactiveStatus = (inactive) ->
+    if (inactive) then "Yes" else "No"
+	
 module.exports = User

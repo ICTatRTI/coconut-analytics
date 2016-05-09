@@ -92,6 +92,7 @@ class UsersView extends Backbone.View
     formCancel: (e) =>
       e.preventDefault
       console.log("Cancel pressed")
+      dialog.close()
       return false
     # On saving 
     # Coconut.database.get "user.id"
@@ -176,6 +177,7 @@ class UsersView extends Backbone.View
                 <tbody>
                   #{
                     _(users).map (user) ->
+                      console.log(user.inactive?)
                       "
                       <tr>
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
@@ -184,8 +186,8 @@ class UsersView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.roles}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.comments}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.inactive}</td>
-                        <td> <button class='mdl-button mdl-js-button mdl-button--icon'>
+                        <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
+                        <td>
                            <button class='edit mdl-button mdl-js-button mdl-button--icon'>
                            <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons icon-24'>mode_edit</i></a></button>
                            <button class='delete mdl-button mdl-js-button mdl-button--icon'>

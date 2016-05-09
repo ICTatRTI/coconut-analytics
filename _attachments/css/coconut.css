@@ -900,6 +900,7 @@ a {
 }
 
 dialog {
+  top: 25%;
   width: 400px;
   padding: 30px;
   border: none;
