@@ -5,8 +5,6 @@ Backbone.$  = $
 Cookies = require 'js-cookie'
 
 class HeaderView extends Backbone.View
-  initialize: ->
-    @currentUser = Cookies.get('current_user') || ""
 
   events:
     "click a#logout": "Logout"
@@ -25,7 +23,7 @@ class HeaderView extends Backbone.View
       </div>
 	  <div id='report-title'> </div>
 	  <div class='mdl-layout-spacer'></div>
-	  <div id='logged-in'><i class='material-icons'>account_circle</i> <span id='username'>#{@currentUser}</span></div>	  
+	  <div id='logged-in'><i class='material-icons'>account_circle</i> <span id='username'>#{Coconut.currentlogin}</span></div>	  
 	  <div class='wrapper'>
 	    <button class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon' id='menu-top-right'> 
 			<i class='material-icons'>more_vert</i> 
@@ -40,6 +38,5 @@ class HeaderView extends Backbone.View
 		</ul>
 	  </div>
     "
-  #  $('span#username').html(Coconut.currentLogin)
 
 module.exports = HeaderView

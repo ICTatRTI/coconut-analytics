@@ -199,6 +199,7 @@ class Router extends Backbone.Router
       success: ->
         @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
         @facilityHierarchyView.render()
+        
 
   rainfallStation: =>
     @adminLoggedIn
@@ -273,6 +274,9 @@ class Router extends Backbone.Router
       success: (user) ->
         if user.isAdmin()
           callback.success(user)
+        else
+          $("#drawer-admin, #admin-main").hide()
+          alert("You do not have admin privileges")
       error: ->
         $("#content").html "<h2>Must be an admin user</h2>"
 

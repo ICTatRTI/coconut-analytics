@@ -18,16 +18,6 @@ Router = require './Router'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 
-# These are views that should always be shown so render them now
-menuView = new MenuView
-  # Set the element that this view should render to
-  el: ".coconut-drawer"
-menuView.render()
-
-headerView = new HeaderView
-  el: "header.coconut-header"
-headerView.render()
-
 # Coconut is just a global object useful for keeping things in one scope
 global.Coconut = {
   database: new PouchDB("http://localhost:5984/zanzibar")
@@ -47,6 +37,16 @@ global.Coconut = {
 global.Env = {
   is_chrome: /chrome/i.test(navigator.userAgent)
 }
+
+# These are views that should always be shown so render them now
+menuView = new MenuView
+  # Set the element that this view should render to
+  el: ".coconut-drawer"
+menuView.render()
+
+headerView = new HeaderView
+  el: "header.coconut-header"
+headerView.render()
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
