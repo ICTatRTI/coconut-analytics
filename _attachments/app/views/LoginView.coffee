@@ -4,7 +4,6 @@ Backbone = require 'backbone'
 Backbone.$  = $
 
 Form2js = require 'form2js'
-Common = require './Common'
 
 User = require '../models/User'
 dialogPolyfill = require 'dialog-polyfill'
@@ -85,6 +84,6 @@ class LoginView extends Backbone.View
         Coconut.router.navigate('', true)
       error: =>
         $('.coconut-mdl-card__title').html "<i class='material-icons'>error_outline</i> Invalid username/password."
-    return false
+   
 
   module.exports = LoginView

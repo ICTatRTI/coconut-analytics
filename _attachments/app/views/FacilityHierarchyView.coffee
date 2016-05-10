@@ -6,7 +6,7 @@ PouchDB = require 'pouchdb'
 moment = require 'moment'
 global.jQuery = require 'jquery'
 
-Common = require './Common'
+Dialog = require './Dialog'
 require 'tablesorter'
 
 humanize = require 'underscore.string/humanize'
@@ -27,14 +27,14 @@ class FacilityHierarchyView extends Backbone.View
   createFacility: (e) =>
     e.preventDefault
     dialogTitle = "Add New Facility"
-    Common.createDialog(@dialogEdit, dialogTitle)
+    Dialog.create(@dialogEdit, dialogTitle)
     $('form#facility input').val('')
     return false
 
   editFacility: (e) =>
     e.preventDefault
     dialogTitle = "Edit Facility"
-    Common.createDialog(@dialogEdit, dialogTitle)
+    Dialog.create(@dialogEdit, dialogTitle)
     id = $(e.target).closest("a").attr "data-facility-id"
     rec = $("[id='#{id}']").find('td')
     $("input#Region").val(rec[0].innerText)
@@ -43,7 +43,7 @@ class FacilityHierarchyView extends Backbone.View
     $("input#Aliases").val(rec[3].innerText)
     $("input[id='Phone Numbers']").val(rec[4].innerText)
     $("input#Type").val(rec[5].innerText)
-    Common.markTextfieldDirty()
+    Dialog.markTextfieldDirty()
     return false
 	  
 #    Coconut.database.get id,
@@ -66,7 +66,7 @@ class FacilityHierarchyView extends Backbone.View
   deleteDialog: (e) =>
     e.preventDefault
     dialogTitle = "Are you sure?"
-    Common.createDialog(@dialogConfirm, dialogTitle) 
+    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
     console.log("Delete initiated")
     return false
 
@@ -107,16 +107,6 @@ class FacilityHierarchyView extends Backbone.View
         </div> 
       </form>
     "
-    @dialogConfirm = "
-      <form method='dialog'>
-        <div id='dialog-title'> </div>
-        <div>This will permanently remove the record.</div>
-        <div id='dialogActions'>
-          <button type='submit' id='buttonYes' class='mdl-button mdl-js-button mdl-button--primary' value='yes'>Yes</button>
-          <button type='submit' id='buttonNo' class='mdl-button mdl-js-button mdl-button--primary' value='no' autofocus>No</button>
-        </div>
-      </form>
-    "
     $('#analysis-spinner').show()
 
     @$el.html "
@@ -134,7 +124,6 @@ class FacilityHierarchyView extends Backbone.View
       <dialog id='dialog'>
         <div id='dialogContent'> </div>
       </dialog>
-
       <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='facilityHierarchy'>
         <thead>
           #{_(@fields).map((field) -> "<th class='mdl-data-table__cell--non-numeric'>#{field}</th>").join("")}

@@ -27,7 +27,8 @@ global.Coconut = {
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
   }
-  currentlogin: Cookies.get('current_user')
+  currentlogin: Cookies.get('current_user') || ""
+  currentUser: null
   reportDates: {
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")

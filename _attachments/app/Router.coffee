@@ -20,7 +20,7 @@ GeoHierarchyView = require './views/GeoHierarchyView'
 EditDataView = require './views/EditDataView'
 LoginView = require './views/LoginView'
 User = require './models/User'
-
+Dialog = require './views/Dialog'
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
 # new reportViews[type]() or new reportView["Analysis"]()
@@ -155,10 +155,7 @@ class Router extends Backbone.Router
       success:  =>
         @dashboardView = new DashboardView() unless @dashboardView
         [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
-        @.navigate "dashboard/#{startDate}/#{endDate}"
-
-    # Set the element that the view will render
-   # @dashboardView.setElement "#content"
+        @.navigate "#dashboard/#{startDate}/#{endDate}"
         @dashboardView.startDate = startDate
         @dashboardView.endDate = endDate
         @dashboardView.render()
@@ -276,7 +273,12 @@ class Router extends Backbone.Router
           callback.success(user)
         else
           $("#drawer-admin, #admin-main").hide()
-          alert("You do not have admin privileges")
+          $("#content").html "
+             <dialog id='dialog'>
+               <div id='dialogContent'> </div>
+             </dialog>
+          "
+          Dialog.confirm("You do not have admin privileges", "Warning",["Ok"])
       error: ->
         $("#content").html "<h2>Must be an admin user</h2>"
 

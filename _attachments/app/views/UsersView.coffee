@@ -5,7 +5,7 @@ Backbone.$  = $
 
 global.jQuery = require 'jquery'
 require 'tablesorter'
-Common = require './Common'
+Dialog = require './Dialog'
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
@@ -31,14 +31,14 @@ class UsersView extends Backbone.View
     createUser: (e) =>
       e.preventDefault
       dialogTitle = "Add New User"
-      Common.createDialog(@dialogEdit, dialogTitle)
+      Dialog.create(@dialogEdit, dialogTitle)
       $('form#user input').val('')
       return false
 
     editUser: (e) =>
       e.preventDefault
       dialogTitle = "Edit User"
-      Common.createDialog(@dialogEdit, dialogTitle)
+      Dialog.create(@dialogEdit, dialogTitle)
       id = $(e.target).closest("a").attr "data-user-id"
       
       Coconut.database.get id,
@@ -53,7 +53,7 @@ class UsersView extends Backbone.View
              $("[name=role][value=#{role}]").prop("checked", true)
          if(user.inactive)
            document.querySelector('#switch-1').MaterialSwitch.on()
-         Common.markTextfieldDirty()
+         Dialog.markTextfieldDirty()
        return false
 	   
     formSave: =>
@@ -79,7 +79,7 @@ class UsersView extends Backbone.View
     deleteDialog: (e) =>
       e.preventDefault
       dialogTitle = "Are you sure?"
-      Common.createDialog(@dialogConfirm, dialogTitle) 
+      Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
       return false
 
 ## TODO Need the codes to delete user record
@@ -139,17 +139,6 @@ class UsersView extends Backbone.View
                <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
                <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
               </div> 
-          </form>
-        "
-
-        @dialogConfirm = "
-          <form method='dialog'>
-            <div id='dialog-title'> </div>
-            <div>This will permanently remove the record.</div>
-            <div id='dialogActions'>
-              <button type='submit' id='buttonYes' class='mdl-button mdl-js-button mdl-button--primary' value='yes'>Yes</button>
-              <button type='submit' id='buttonNo' class='mdl-button mdl-js-button mdl-button--primary' value='no' autofocus>No</button>
-            </div>
           </form>
         "
         @$el.html "

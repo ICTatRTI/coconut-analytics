@@ -5,7 +5,7 @@ Backbone.$  = $
 PouchDB = require 'pouchdb'
 moment = require 'moment'
 require 'tablesorter'
-Common = require './Common'
+Dialog = require './Dialog'
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
@@ -24,20 +24,20 @@ class GeoHierarchyView extends Backbone.View
   createGeoHierarchy: (e) =>
     e.preventDefault
     dialogTitle = "Add New Geo Hierarchy"
-    Common.createDialog(@dialogEdit, dialogTitle)
+    Dialog.create(@dialogEdit, dialogTitle)
     $('form#hierarchy input').val('')
     return false
 	
   editGeoHierarchy: (e) =>
     e.preventDefault
     dialogTitle = "Edit Geo Hierarchy"
-    Common.createDialog(@dialogEdit, dialogTitle)
+    Dialog.create(@dialogEdit, dialogTitle)
     id = $(e.target).closest("a").attr "data-geo-id"
     rec = $("[id='#{id}']").find('td')
     $("input#Region").val(rec[0].innerText)
     $("input#District").val(rec[1].innerText)
     $("input#Shehia").val(rec[2].innerText)
-    Common.markTextfieldDirty()
+    Dialog.markTextfieldDirty()
     return false
 
   formSave: (e) =>
@@ -48,7 +48,7 @@ class GeoHierarchyView extends Backbone.View
   deleteDialog: (e) =>
     e.preventDefault
     dialogTitle = "Are you sure?"
-    Common.createDialog(@dialogConfirm, dialogTitle) 
+    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])  
     console.log("Delete initiated")
     return false
 	
@@ -86,16 +86,6 @@ class GeoHierarchyView extends Backbone.View
            <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
            <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
         </div> 
-      </form>
-    "
-    @dialogConfirm = "
-      <form method='dialog'>
-        <div id='dialog-title'> </div>
-        <div>This will permanently remove the record.</div>
-        <div id='dialogActions'>
-          <button type='submit' id='buttonYes' class='mdl-button mdl-js-button mdl-button--primary' value='yes'>Yes</button>
-          <button type='submit' id='buttonNo' class='mdl-button mdl-js-button mdl-button--primary' value='no' autofocus>No</button>
-        </div>
       </form>
     "
     $('#analysis-spinner').show()
