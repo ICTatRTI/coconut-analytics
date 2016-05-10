@@ -117,8 +117,8 @@ class UsersView extends Backbone.View
              <div id='dialog-title'> </div>
              <div>
                 <ul>
-                  <li>DMSO's must have a username that corresponds to their phone number.</li>
-                  <li>If a DMSO is no longer working, mark their account as inactive to stop notification messages from being sent.</li>
+                  <li>We recommend a username that corresponds to the users phone number.</li>
+                  <li>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</li>
                 </ul>
              </div>
              #{
