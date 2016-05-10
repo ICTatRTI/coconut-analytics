@@ -165,7 +165,6 @@ class UsersView extends Backbone.View
                 <thead>
                   <tr> 
                   <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
-                  <th class='mdl-data-table__cell--non-numeric'>Password</th>
                   <th class='header mdl-data-table__cell--non-numeric'>District</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Name</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Roles</th>
@@ -180,7 +179,6 @@ class UsersView extends Backbone.View
                       "
                       <tr>
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.password}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.roles}</td>
