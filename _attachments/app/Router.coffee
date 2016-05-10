@@ -234,7 +234,7 @@ class Router extends Backbone.Router
           Coconut.EditDataView.render()
 
       error: ->
-        alert("#{User.currentUser} is not an admin")
+        alert("You do not have admin privileges")
 
   users: () =>
     @adminLoggedIn

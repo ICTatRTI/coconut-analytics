@@ -40,6 +40,6 @@ class HeaderView extends Backbone.View
 		</ul>
 	  </div>
     "
-  #  $('span#username').html(Coconut.currentUser)
+  #  $('span#username').html(Coconut.currentLogin)
 
 module.exports = HeaderView

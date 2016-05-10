@@ -37,7 +37,7 @@ global.Coconut = {
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
   }
-  currentUser: Cookies.get('current_user')
+  currentlogin: Cookies.get('current_user')
   reportDates: {
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
@@ -54,13 +54,6 @@ Backbone.sync = BackbonePouch.sync
   fetch: 'query'
 
 Backbone.Model.prototype.idAttribute = '_id'
-
-#TODO stubbing this out until login is implemented
-global.User = {
-  currentUser:  {
-    hasRole: -> "reports"
-  }
-}
 
 _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
   Coconut.database.get docId

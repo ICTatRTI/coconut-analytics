@@ -32,9 +32,11 @@ User.isAuthenticated = (options) ->
       _id: "user.#{Cookies.get('current_user')}"
     user.fetch
       success: ->
+        Coconut.currentUser = user
         options.success(user)
       error: (error) ->
         # current user is invalid (should not get here)
+        Coconut.currentUser = null
         console.error "Could not fetch user.#{Cookies.get('current_user')}: #{error}"
         options?.error()
   else

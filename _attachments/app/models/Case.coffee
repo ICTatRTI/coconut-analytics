@@ -15,7 +15,7 @@ class Case
     this["Household Members"] = []
     this["Neighbor Households"] = []
 
-    userRequiresDeidentification = (User.currentUser?.hasRole("reports") or User.currentUser is null) and not User.currentUser?.hasRole("admin")
+    userRequiresDeidentification = (Coconut.currentUser?.hasRole("reports") or Coconut.currentUser is null) and not Coconut.currentUser?.hasRole("admin")
 
     _.each resultDocs, (resultDoc) =>
       resultDoc = resultDoc.toJSON() if resultDoc.toJSON?

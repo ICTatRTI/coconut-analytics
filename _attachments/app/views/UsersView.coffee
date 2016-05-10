@@ -177,7 +177,6 @@ class UsersView extends Backbone.View
                 <tbody>
                   #{
                     _(users).map (user) ->
-                      console.log(user.inactive?)
                       "
                       <tr>
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
