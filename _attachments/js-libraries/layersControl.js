@@ -1,6 +1,5 @@
 'use strict';
 
-console.log("leafletLayers");
 var layersControl = L.Control.Layers.extend({
   options: {
       collapsed: true,

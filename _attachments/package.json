@@ -6,11 +6,12 @@
     "watch": "watchify -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js",
     "livereload": "livereloadify ./",
     "static": "static --port 8081 ./",
-    "deploy": "sed 's/http:\\/\\/localhost:5984\\/zanzibar/https:\\/\\/cococloud.co\\/zanzibar/' app/start.coffee > /tmp/start.coffee; cp /tmp/start.coffee app/start.coffee;browserify -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js;couchapp push cloud"
+    "deploy": "sed 's/http:\\/\\/localhost:5984\\/zanzibar/https:\\/\\/cococloud.co\\/zanzibar/' app/start.coffee > /tmp/start.coffee; cp /tmp/start.coffee app/start.coffee;browserify -v -t coffeeify --extension='.coffee' app/start.coffee -o bundle.js;couchapp push cloud"
   },
   "dependencies": {
     "backbone": "^1.2.1",
     "backbone-pouch": "^1.5.0",
+    "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
     "coffee-script": "^1.9.3",
     "coffeeify": "^1.1.0",
@@ -19,7 +20,7 @@
     "form2js": "git://github.com/maxatwork/form2js",
     "jquery": "^2.1.4",
     "jquery-ui": "^1.10.5",
-    "js-cookie": "^2.1.0",
+    "js-cookie": "^2.1.1",
     "leaflet": "^0.7.7",
     "leaflet-image": "^0.1.0",
     "leaflet-material-controls": "^1.0.0",

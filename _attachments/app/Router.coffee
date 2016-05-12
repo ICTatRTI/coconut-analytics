@@ -5,7 +5,6 @@ Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
 PouchDB = require 'pouchdb'
-Cookie = require 'js-cookie'
 
 DashboardView = require './views/DashboardView'
 UsersView = require './views/UsersView'
@@ -19,7 +18,9 @@ FacilityHierarchyView = require './views/FacilityHierarchyView'
 RainfallStationView = require './views/RainfallStationView'
 GeoHierarchyView = require './views/GeoHierarchyView'
 EditDataView = require './views/EditDataView'
-
+LoginView = require './views/LoginView'
+User = require './models/User'
+Dialog = require './views/Dialog'
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
 # new reportViews[type]() or new reportView["Analysis"]()
@@ -44,7 +45,7 @@ reportViews = {
 activityViews = {
   "Issues": require './views/IssuesView'
 }
-
+  
 class Router extends Backbone.Router
   # caches views
   views: {}
@@ -54,6 +55,9 @@ class Router extends Backbone.Router
   activityViewOptions: {}
   
   routes:
+    "": "dashboard"
+    "login": "login"
+    "logout": "logout"
     "admin/users": "users"
     "admin/facilities": "FacilityHierarchy"
     "admin/rainfall_station": "rainfallStation"
@@ -78,51 +82,67 @@ class Router extends Backbone.Router
     console.error "Invalid URL, no matching route: "
     $("#content").html "Page not found."
 
+  login: ->
+    Coconut.loginView = new LoginView()
+    Coconut.loginView.callback =
+      success: ->
+        Coconut.router.navigate("",true)
+    Coconut.loginView.render()
+
+  logout: ->
+    User.logout()
+    $("span#username").html ""
+    @login()
+
   reports: (options) =>
-    @reportViewOptions = []
-    # Allows us to get name/value pairs from URL
-    options = _(options?.split(/\//)).map (option) -> unescape(option)
+    @userLoggedIn
+      success:  =>
+        @reportViewOptions = []
+        # Allows us to get name/value pairs from URL
+        options = _(options?.split(/\//)).map (option) -> unescape(option)
 
-    _.each options, (option,index) =>
-      @reportViewOptions[option] = options[index+1] unless index % 2
+        _.each options, (option,index) =>
+          @reportViewOptions[option] = options[index+1] unless index % 2
     
-    defaultOptions = @setDefaultOptions()
+        defaultOptions = @setDefaultOptions()
 
-    # Set the default option if it isn't already set
-    _(defaultOptions).each (defaultValue, option) =>
-      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
-    type = @reportViewOptions["type"]
-    console.log("type: " + type)
-    @views[type] = new reportViews[type]() unless @views[type]
-    @views[type].setElement "#content"
-    @views[type].render()
-    @reportType = 'reports'
-    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @views[type], @reportType)
+        # Set the default option if it isn't already set
+        _(defaultOptions).each (defaultValue, option) =>
+          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+        type = @reportViewOptions["type"]
+        console.log("type: " + type)
+        @views[type] = new reportViews[type]() unless @views[type]
+        @views[type].setElement "#content"
+        @views[type].render()
+        @reportType = 'reports'
+        @showDateFilter(Coconut.reportDates.startDate, Coconut.reportDates.endDate, @views[type], @reportType)
 
 
   # Needs to refactor later to keep it DRY
   activities: (options) =>
-    @activityViewOptions =[]
-    options = _(options?.split(/\//)).map (option) -> unescape(option)
+    @userLoggedIn
+      success:  =>
+        @activityViewOptions =[]
+        options = _(options?.split(/\//)).map (option) -> unescape(option)
 
-    _.each options, (option,index) =>
-      @activityViewOptions[option] = options[index+1] unless index % 2
+        _.each options, (option,index) =>
+          @activityViewOptions[option] = options[index+1] unless index % 2
 
-    defaultOptions = @setDefaultOptions()
+        defaultOptions = @setDefaultOptions()
 
-    _(defaultOptions).each (defaultValue, option) =>
-      @activityViewOptions[option] = @activityViewOptions[option] or defaultValue
+        _(defaultOptions).each (defaultValue, option) =>
+          @activityViewOptions[option] = @activityViewOptions[option] or defaultValue
 
-    type = @activityViewOptions["type"]
-    @views[type] = new activityViews[type]() unless @views[type]
-    @views[type].setElement "#content"
-    @views[type].render()
-    @reportType = 'activities'
-    @showDateFilter(@activityViewOptions.startDate,@activityViewOptions.endDate, @views[type], @reportType)
+        type = @activityViewOptions["type"]
+        @views[type] = new activityViews[type]() unless @views[type]
+        @views[type].setElement "#content"
+        @views[type].render()
+        @reportType = 'activities'
+        @showDateFilter(Coconut.reportDates.startDate, Coconut.reportDates.endDate, @views[type], @reportType)
 
   showCase: (caseID, docID) ->
-#    @userLoggedIn
-#      success: ->
+    @userLoggedIn
+      success: ->
         Coconut.caseView ?= new CaseView()
         Coconut.caseView.case = new Case
           caseID: caseID
@@ -131,63 +151,74 @@ class Router extends Backbone.Router
             Coconut.caseView.render(docID)
 
   dashboard: (startDate,endDate) =>
-    @dashboardView = new DashboardView() unless @dashboardView
-    [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
-    @.navigate "dashboard/#{startDate}/#{endDate}"
-
-    # Set the element that the view will render
-   # @dashboardView.setElement "#content"
-    @dashboardView.startDate = startDate
-    @dashboardView.endDate = endDate
-    @dashboardView.render()
+    @userLoggedIn
+      success:  =>
+        @dashboardView = new DashboardView() unless @dashboardView
+        [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
+        @.navigate "#dashboard/#{startDate}/#{endDate}"
+        @dashboardView.startDate = startDate
+        @dashboardView.endDate = endDate
+        @dashboardView.render()
 
   dataExport: ->
-    [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
-    @dataExportView = new DataExportView unless @dataExportView
-    @dataExportView.startDate = startDate
-    @dataExportView.endDate = endDate
-    @dataExportView.render()
-    @reportType = 'export'
-    @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
+    @userLoggedIn
+      success:  =>
+        [startDate,endDate] = @setStartEndDateIfMissing(startDate,endDate)
+        @dataExportView = new DataExportView unless @dataExportView
+        @dataExportView.startDate = startDate
+        @dataExportView.endDate = endDate
+        @dataExportView.render()
+        @reportType = 'export'
+        @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
 
   maps: (options) ->
-
-    options = _(options?.split(/\//)).map (option) -> unescape(option)
-    # remove type option
-    options.splice(0,2)
-    _.each options, (option,index) =>
-      @reportViewOptions[option] = options[index+1] unless index % 2
+    @userLoggedIn
+      success:  =>
+        options = _(options?.split(/\//)).map (option) -> unescape(option)
+        # remove type option
+        options.splice(0,2)
+        _.each options, (option,index) =>
+          @reportViewOptions[option] = options[index+1] unless index % 2
     
-    defaultOptions = @setDefaultOptions()
+        defaultOptions = @setDefaultOptions()
 
-    # Set the default option if it isn't already set
-    _(defaultOptions).each (defaultValue, option) =>
-      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+        # Set the default option if it isn't already set
+        _(defaultOptions).each (defaultValue, option) =>
+          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
 
-    @mapView = new MapView unless @mapView
-    @mapView.render()
-    @reportType = 'maps'
-    @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @mapView, @reportType)
+        @mapView = new MapView unless @mapView
+        @mapView.render()
+        @reportType = 'maps'
+        @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @mapView, @reportType)
 
   FacilityHierarchy: =>
-    @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
-    @facilityHierarchyView.render()
+    @adminLoggedIn
+      success: ->
+        @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
+        @facilityHierarchyView.render()
+        
 
   rainfallStation: =>
-    @rainfallStationView = new RainfallStationView unless @rainfallStationView
-    @rainfallStationView.render()
+    @adminLoggedIn
+      success: ->
+        @rainfallStationView = new RainfallStationView unless @rainfallStationView
+        @rainfallStationView.render()
 
   geoHierarchy: =>
-    @geoHierarchyView = new GeoHierarchyView unless @geoHierarchyView
-    @geoHierarchyView.render()
+    @adminLoggedIn
+      success: ->
+        @geoHierarchyView = new GeoHierarchyView unless @geoHierarchyView
+        @geoHierarchyView.render()
 
   shehiasHighRisk: =>
-    @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
-     @shehiasHighRiskView.render()
+    @adminLoggedIn
+      success: ->
+        @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
+        @shehiasHighRiskView.render()
 
   editData: (document_id) ->
-#    @adminLoggedIn
-#      success: ->
+    @adminLoggedIn
+      success: ->
         console.log(document_id)
         Coconut.EditDataView = new EditDataView() unless Coconut.EditDataView
         Coconut.database.get document_id
@@ -200,16 +231,18 @@ class Router extends Backbone.Router
           Coconut.EditDataView.document = result
           Coconut.EditDataView.render()
 
-#      error: ->
-#        alert("#{User.currentUser} is not an admin")
+      error: ->
+        alert("You do not have admin privileges")
 
   users: () =>
-    @usersView = new UsersView() unless @usersView
-    @usersView.render()
+    @adminLoggedIn
+      success: ->
+        @usersView = new UsersView() unless @usersView
+        @usersView.render()
 
   newIssue: (issueID) ->
-#    @userLoggedIn
-#      success: ->
+    @userLoggedIn
+      success: ->
         Coconut.issueView ?= new IssueView()
         Coconut.issueView.issue = null
         Coconut.issueView.render()
@@ -224,18 +257,34 @@ class Router extends Backbone.Router
           Coconut.issueView.issue = result
           Coconut.issueView.render()
 
-  userLoggedIn: (callback) ->
-    true
-#    User.isAuthenticated
-#      success: (user) ->
-#        callback.success(user)
-#      error: ->
-#        Coconut.loginView.callback = callback
-#        Coconut.loginView.render()
+  userLoggedIn: (callback) =>
+    User.isAuthenticated
+      success: (user) =>
+        callback.success(user)
+      error: ->
+        Coconut.loginView = new LoginView()
+        Coconut.loginView.callback = callback
+        Coconut.loginView.render()
+
+  adminLoggedIn: (callback) ->
+    @userLoggedIn
+      success: (user) ->
+        if user.isAdmin()
+          callback.success(user)
+        else
+          $("#drawer-admin, #admin-main").hide()
+          $("#content").html "
+             <dialog id='dialog'>
+               <div id='dialogContent'> </div>
+             </dialog>
+          "
+          Dialog.confirm("You do not have admin privileges", "Warning",["Ok"])
+      error: ->
+        $("#content").html "<h2>Must be an admin user</h2>"
 
   setStartEndDateIfMissing: (startDate,endDate) =>
-    startDate = startDate || moment().subtract("7","days").format("YYYY-MM-DD")
-    endDate = endDate || moment().format("YYYY-MM-DD")
+    startDate = Coconut.reportDates.startDate
+    endDate = Coconut.reportDates.endDate
     [startDate, endDate]
 
   showDateFilter: (startDate, endDate, reportView, reportType) ->

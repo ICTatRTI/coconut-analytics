@@ -9,14 +9,35 @@ global.Backbone = require 'backbone'
 Backbone.$  = $
 PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
-
+moment = require 'moment'
 require 'material-design-lite'
-require 'dialog-polyfill'
+Cookies = require 'js-cookie'
 
 # These are local .coffee files
 Router = require './Router'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
+
+# Coconut is just a global object useful for keeping things in one scope
+global.Coconut = {
+  database: new PouchDB("http://localhost:5984/zanzibar")
+  router: new Router()
+  #TODO load config from a _local database doc
+  config: {
+    dateFormat: "YYYY-MM-DD"
+    design_doc_name: "zanzibar"
+  }
+  currentlogin: Cookies.get('current_user') || ""
+  currentUser: null
+  reportDates: {
+    startDate: moment().subtract("7","days").format("YYYY-MM-DD")
+    endDate: moment().format("YYYY-MM-DD")
+  }
+}
+
+global.Env = {
+  is_chrome: /chrome/i.test(navigator.userAgent)
+}
 
 # These are views that should always be shown so render them now
 menuView = new MenuView
@@ -28,31 +49,12 @@ headerView = new HeaderView
   el: "header.coconut-header"
 headerView.render()
 
-# Coconut is just a global object useful for keeping things in one scope
-global.Coconut = {
-  database: new PouchDB("http://localhost:5984/zanzibar")
-  router: new Router()
-  #TODO load config from a _local database doc
-  config: {
-    dateFormat: "YYYY-MM-DD"
-    design_doc_name: "zanzibar"
-  }
-}
-
-
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
   db: Coconut.database
   fetch: 'query'
 
 Backbone.Model.prototype.idAttribute = '_id'
-
-#TODO stubbing this out until login is implemented
-global.User = {
-  currentUser:  {
-    hasRole: -> "reports"
-  }
-}
 
 _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
   Coconut.database.get docId

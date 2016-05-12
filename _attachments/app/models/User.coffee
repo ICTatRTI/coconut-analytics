@@ -2,10 +2,11 @@ _ = require 'underscore'
 $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
-Cookie = require 'js-cookie'
+Cookies = require 'js-cookie'
 
 class User extends Backbone.Model
-
+  url: "/user"
+  
   username: ->
     @get("_id").replace(/^user\./,"")
 
@@ -21,70 +22,55 @@ class User extends Backbone.Model
   nameOrUsername: ->
     @get("name") or @username()
 
-  login: ->
-    Coconut.currentUser = @
-    Cookie('current_user', @username())
-    Cookie('current_password', @get "password")
-    $("span#user").html @username()
-    $('#district').html @get "district"
-    $("a[href=#logout]").show()
-    $("a[href=#login]").hide()
-    if @isAdmin() then $("#manage-button").show() else $("#manage-button").hide()
-    if @hasRole "reports"
-      $("#top-menu").hide()
-      $("#bottom-menu").hide()
+  nameOrUsernameWithDescription: =>
+    "#{@nameOrUsername()} #{if @district() then " - #{@district()}" else ""}"
 
 User.isAuthenticated = (options) ->
-  Coconut.isValidDatabase
-    error:  (error) ->
-      # See if we have cookies that can login
-      userCookie = Cookie('current_user')
-      passwordCookie = Cookie('current_password')
-
-      if userCookie and userCookie isnt "" and passwordCookie and passwordCookie isnt ""
-        Coconut.openDatabase
-          username: userCookie
-          password: passwordCookie
-          success: ->
-            options.success()
-          error: ->
-            options.error()
-      else
-        options.error()
-    success: ->
-      if Coconut.currentUser?
-        options.success()
-      else
-        options.error()
+  current_user_cookie = Cookies.get('current_user')
+  if current_user_cookie? and current_user_cookie isnt ""
+    user = new User
+      _id: "user.#{Cookies.get('current_user')}"
+    user.fetch
+      success: ->
+        Coconut.currentUser = user
+        options.success(user)
+      error: (error) ->
+        # current user is invalid (should not get here)
+        Coconut.currentUser = null
+        console.error "Could not fetch user.#{Cookies.get('current_user')}: #{error}"
+        options?.error()
+  else
+    # Not logged in
+    options.error() if options.error?
 
 User.login = (options) ->
   user = new User
     _id: "user.#{options.username}"
   user.fetch
-    success: =>
+    success: ->
+#      if (user.get("password") is options.password)
       Coconut.currentUser = user
-      Cookie('current_user', user.username())
-      Cookie('current_password',user.get "password")
-      $("span#user").html user.username()
-      $("a[href=#logout]").show()
-      $("a[href=#login]").hide()
-      if user.isAdmin() then $("#manage-button").show() else $("#manage-button").hide()
-      if user.hasRole "reports"
-        $("#top-menu").hide()
-        $("#bottom-menu").hide()
-
-
+      Cookies.set('current_user', user.username())
+      Cookies.set('current_password',user.get "password")
+      $("span#username").html user.username()
+      $("a#logout").show()
+      $("a#login").hide()
+      if user.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
       options.success()
-    error: =>
+#      else
+#        options.error("Incorrect Password")
+    error: ->
       options.error()
 
-User.logout = ->
-  Cookie('current_user',"")
-  Cookie('current_password',"")
-  $("span#user").html ""
+User.logout = (options) ->
+  Cookies.remove('current_user')
+  Cookies.remove('current_password')
   $('#district').html ""
-  $("a[href=#logout]").hide()
-  $("a[href=#login]").show()
+  $("a#logout").hide()
+  $("a#login").show()
   Coconut.currentUser = null
 
+User.inactiveStatus = (inactive) ->
+    if (inactive) then "Yes" else "No"
+	
 module.exports = User

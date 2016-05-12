@@ -5,6 +5,7 @@ Backbone.$  = $
 
 
 require 'mapbox.js'
+require 'leaflet'
 materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
@@ -64,7 +65,8 @@ class MapView extends Backbone.View
   el: '#content'
 
   events:
-    "click #pembaToggle, #ungugaToggle ": "buttonClick"
+    "click button#pembaToggle": "pembaClick"
+    "click button#ungujaToggle": "ungujaClick"
     "click .heatMapButton, #heatMapToggle": "heatMapToggle"
     "click .timeButton": "timeToggle"
     "click .clusterButton": "clusterToggle"
@@ -73,15 +75,25 @@ class MapView extends Backbone.View
     "blur #map": "mapBlur"
     "click #snapImage": "snapImage"
     
-  buttonClick: (event)=>
-    if event.toElement.id == "pembaToggle"
+  pembaClick: (event)=>
         $('#pembaToggle').toggleClass 'mdl-button--raised', true
+<<<<<<< HEAD
         $('#ungugaToggle').toggleClass 'mdl-button--raised', false
         @map.setView([-6.1, 39.348], 10, {animate:true})
     else
         $('#pembaToggle').toggleClass 'mdl-button--raised', false
         $('#ungugaToggle').toggleClass 'mdl-button--raised', true
+=======
+        $('#ungujaToggle').toggleClass 'mdl-button--raised', false
+        console.log "you're in pemba dawg"
+>>>>>>> e37492b31f89512a52c6d0649e327153b939fcb1
         @map.setView([-5.187, 39.746], 10, {animate:true})
+
+  ungujaClick: (event)=>
+        $('#pembaToggle').toggleClass 'mdl-button--raised', false
+        $('#ungujaToggle').toggleClass 'mdl-button--raised', true
+        console.log "you're in unguja dawg"
+        @map.setView([-6.1, 39.348], 10, {animate:true})
   
   heatMapToggle: =>
     if heatMapCoords.length>0
@@ -147,7 +159,7 @@ class MapView extends Backbone.View
     
   setUpTypeAheadData = (geojson) -> 
     typeAheadAdminNames = {}
-    typeAheadAdminNames.islands = ['Pemba', 'Unguga']
+    typeAheadAdminNames.islands = ['Pemba', 'Unguja']
     districts = []
     shehias = []
     villages = []
@@ -341,10 +353,10 @@ class MapView extends Backbone.View
             <div class='mdl-cell mdl-cell--10-col'>
                 <div id='dateSelector'></div>
                     <div style='display: inline-block'>
-                        <label for='pembeToggle'>Switch to: </label>
+                        <label for='pembaToggle'>Switch to: </label>
                         <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
-                        <label for='ungugaToggle'>or</label>
-                        <button id='ungugaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguga</button>
+                        <label for='ungujaToggle'>or</label>
+                        <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
                             <select style='padding-right:20px'>
@@ -405,7 +417,7 @@ class MapView extends Backbone.View
     @map.zoom = 9
     map = @map
     $.ajax
-      url: '../../mapdata/DistrictsWGS84.json'
+      url: '/mapdata/DistrictsWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
@@ -420,7 +432,7 @@ class MapView extends Backbone.View
         return
     ).addTo @map
     $.ajax
-      url: '../../mapdata/ShahiasWGS84.json'
+      url: '/mapdata/ShahiasWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
@@ -435,7 +447,7 @@ class MapView extends Backbone.View
         return
     )
     $.ajax
-      url: '../../mapdata/VillagesWGS84.json'
+      url: '/mapdata/VillagesWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false

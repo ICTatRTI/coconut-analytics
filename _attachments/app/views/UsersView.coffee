@@ -5,7 +5,7 @@ Backbone.$  = $
 
 global.jQuery = require 'jquery'
 require 'tablesorter'
-Common = require './Common'
+Dialog = require './Dialog'
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
@@ -31,14 +31,14 @@ class UsersView extends Backbone.View
     createUser: (e) =>
       e.preventDefault
       dialogTitle = "Add New User"
-      Common.createDialog(@dialogEdit, dialogTitle)
+      Dialog.create(@dialogEdit, dialogTitle)
       $('form#user input').val('')
       return false
 
     editUser: (e) =>
       e.preventDefault
       dialogTitle = "Edit User"
-      Common.createDialog(@dialogEdit, dialogTitle)
+      Dialog.create(@dialogEdit, dialogTitle)
       id = $(e.target).closest("a").attr "data-user-id"
       
       Coconut.database.get id,
@@ -53,7 +53,7 @@ class UsersView extends Backbone.View
              $("[name=role][value=#{role}]").prop("checked", true)
          if(user.inactive)
            document.querySelector('#switch-1').MaterialSwitch.on()
-         Common.markTextfieldDirty()
+         Dialog.markTextfieldDirty()
        return false
 	   
     formSave: =>
@@ -79,7 +79,7 @@ class UsersView extends Backbone.View
     deleteDialog: (e) =>
       e.preventDefault
       dialogTitle = "Are you sure?"
-      Common.createDialog(@dialogConfirm, dialogTitle) 
+      Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
       return false
 
 ## TODO Need the codes to delete user record
@@ -92,6 +92,7 @@ class UsersView extends Backbone.View
     formCancel: (e) =>
       e.preventDefault
       console.log("Cancel pressed")
+      dialog.close()
       return false
     # On saving 
     # Coconut.database.get "user.id"
@@ -116,8 +117,8 @@ class UsersView extends Backbone.View
              <div id='dialog-title'> </div>
              <div>
                 <ul>
-                  <li>DMSO's must have a username that corresponds to their phone number.</li>
-                  <li>If a DMSO is no longer working, mark their account as inactive to stop notification messages from being sent.</li>
+                  <li>We recommend a username that corresponds to the users phone number.</li>
+                  <li>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</li>
                 </ul>
              </div>
              #{
@@ -140,17 +141,6 @@ class UsersView extends Backbone.View
               </div> 
           </form>
         "
-
-        @dialogConfirm = "
-          <form method='dialog'>
-            <div id='dialog-title'> </div>
-            <div>This will permanently remove the record.</div>
-            <div id='dialogActions'>
-              <button type='submit' id='buttonYes' class='mdl-button mdl-js-button mdl-button--primary' value='yes'>Yes</button>
-              <button type='submit' id='buttonNo' class='mdl-button mdl-js-button mdl-button--primary' value='no' autofocus>No</button>
-            </div>
-          </form>
-        "
         @$el.html "
             <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
               <i class='material-icons'>add</i>
@@ -164,7 +154,6 @@ class UsersView extends Backbone.View
                 <thead>
                   <tr> 
                   <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
-                  <th class='mdl-data-table__cell--non-numeric'>Password</th>
                   <th class='header mdl-data-table__cell--non-numeric'>District</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Name</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Roles</th>
@@ -179,13 +168,12 @@ class UsersView extends Backbone.View
                       "
                       <tr>
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.password}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.roles}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.comments}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.inactive}</td>
-                        <td> <button class='mdl-button mdl-js-button mdl-button--icon'>
+                        <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
+                        <td>
                            <button class='edit mdl-button mdl-js-button mdl-button--icon'>
                            <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons icon-24'>mode_edit</i></a></button>
                            <button class='delete mdl-button mdl-js-button mdl-button--icon'>
