@@ -30,6 +30,17 @@ var myLayersControl =  L.Control.extend({
   onRemove: function (map) {
     // when removed
   },
+  addBaseLayer: function (layer, name) {
+	this._addLayer(layer, name);
+	this._update();
+	return this;
+  },
+
+  addOverlay: function (layer, name) {
+	this._addLayer(layer, name, true);
+	this._update();
+	return this;
+  },
   initialize: function (baseLayers, overlays, options) {
     L.setOptions(this, options);
     console.log('initialize options: ' + JSON.stringify(options))

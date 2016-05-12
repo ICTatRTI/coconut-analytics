@@ -365,8 +365,8 @@ class MapView extends Backbone.View
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
         <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--12-col'>
-                <div style='width:100%;height:600px;' id='map'></div>
+            <div class='mdl-cell mdl-cell--12-col' style='height:600px'>
+                <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
         </div>
         <div class='mdl-grid'>
@@ -480,11 +480,13 @@ class MapView extends Backbone.View
 #    console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
     materialFullscreen = new (L.materialControl.Fullscreen)(
       position: 'topright'
+      pseudoFullscreen: false
       materialOptions: materialOptions).addTo(@map)
 #    var materialLayerControl = new L.materialControl.Layers(layers, overlays, {position: 'bottomright', materialOptions: materialOptions}).addTo(map);
 
     materialLayersControl = new (myLayersControl)(layers, overlays,
       position: 'topright'
+      pseudoFullscreen: false
       materialOptions: materialOptions).addTo(@map)
 
 
@@ -648,7 +650,7 @@ class MapView extends Backbone.View
           $('.timeButton button').toggleClass 'mdl-button--disabled', false
         if data.features.length > 0
 #          console.log('multiCase')
-          customLayers.addOverlay casesLayer, 'Cases'
+          materialLayersControl.addOverlay casesLayer, 'Cases'
         
     return
    
