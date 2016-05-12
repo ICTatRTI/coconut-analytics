@@ -77,22 +77,12 @@ class MapView extends Backbone.View
     
   pembaClick: (event)=>
         $('#pembaToggle').toggleClass 'mdl-button--raised', true
-<<<<<<< HEAD
-        $('#ungugaToggle').toggleClass 'mdl-button--raised', false
-        @map.setView([-6.1, 39.348], 10, {animate:true})
-    else
-        $('#pembaToggle').toggleClass 'mdl-button--raised', false
-        $('#ungugaToggle').toggleClass 'mdl-button--raised', true
-=======
         $('#ungujaToggle').toggleClass 'mdl-button--raised', false
-        console.log "you're in pemba dawg"
->>>>>>> e37492b31f89512a52c6d0649e327153b939fcb1
         @map.setView([-5.187, 39.746], 10, {animate:true})
 
   ungujaClick: (event)=>
         $('#pembaToggle').toggleClass 'mdl-button--raised', false
         $('#ungujaToggle').toggleClass 'mdl-button--raised', true
-        console.log "you're in unguja dawg"
         @map.setView([-6.1, 39.348], 10, {animate:true})
   
   heatMapToggle: =>
