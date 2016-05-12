@@ -42,10 +42,10 @@ class MapView extends Backbone.View
   heatTime = undefined
   startDate = undefined
   endDate = undefined
-  timeInterval = '2014-09-30/2014-10-30'
   materialHeatMapControl = undefined
   materialClusterControl = undefined
   materialTimeControl = undefined
+  materialLayersControl = undefined
   casesLayer = undefined
   casesGeoJSON = undefined
   turnCasesLayerOn = false;
@@ -59,6 +59,8 @@ class MapView extends Backbone.View
   timeHeatMapLayer = undefined
   timeScale = undefined
   outFormat = d3.time.format("%Y-%m-%d")
+  legend = undefined
+  
   el: '#content'
 
   events:
@@ -66,6 +68,7 @@ class MapView extends Backbone.View
     "click .heatMapButton, #heatMapToggle": "heatMapToggle"
     "click .timeButton": "timeToggle"
     "click .clusterButton": "clusterToggle"
+#    "click .layersButton": "layersToggle"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
     "click #snapImage": "snapImage"
@@ -74,12 +77,10 @@ class MapView extends Backbone.View
     if event.toElement.id == "pembaToggle"
         $('#pembaToggle').toggleClass 'mdl-button--raised', true
         $('#ungugaToggle').toggleClass 'mdl-button--raised', false
-        console.log "you're in pemba dawg"
         @map.setView([-6.1, 39.348], 10, {animate:true})
     else
         $('#pembaToggle').toggleClass 'mdl-button--raised', false
         $('#ungugaToggle').toggleClass 'mdl-button--raised', true
-        console.log "you're in ugunga dawg"
         @map.setView([-5.187, 39.746], 10, {animate:true})
   
   heatMapToggle: =>
@@ -90,7 +91,7 @@ class MapView extends Backbone.View
             heat = L.heatLayer(heatMapCoords, radius: 10) 
             @map.addLayer(heat)
             if @map.hasLayer casesLayer
-              console.log('remove')
+#              console.log('remove')
               @map.removeLayer casesLayer
               turnCasesLayerOn = true
         else
@@ -136,7 +137,13 @@ class MapView extends Backbone.View
       if turnCasesLayerOn == true
         @map.addLayer casesLayer
         turnCasesLayerOn = false
-
+#  layersToggle: =>
+#    if !legend._map
+#      console.log 'not in map'
+#      legend.addTo @map
+#    else
+#      console.log 'in map'
+#      legend.removeFrom @map
     
   setUpTypeAheadData = (geojson) -> 
     typeAheadAdminNames = {}
@@ -163,9 +170,9 @@ class MapView extends Backbone.View
     typeAheadAdminNames.shehias = shehias
     typeAheadAdminNames.villages = villages
     
-    console.log 'typeaheadnames districts: ' + JSON.stringify typeAheadAdminNames.districts
-    console.log 'typeaheadnames Shehias: ' + JSON.stringify typeAheadAdminNames.shehias
-    console.log 'typeaheadnames Villages: ' + JSON.stringify typeAheadAdminNames.villages
+#    console.log 'typeaheadnames districts: ' + JSON.stringify typeAheadAdminNames.districts
+#    console.log 'typeaheadnames Shehias: ' + JSON.stringify typeAheadAdminNames.shehias
+#    console.log 'typeaheadnames Villages: ' + JSON.stringify typeAheadAdminNames.villages
     return typeAheadAdminNames 
         
   updateFeaturesByDate = (dateRange) ->
@@ -188,12 +195,12 @@ class MapView extends Backbone.View
     timeCasesGeoJSON.features = timeFeatures
     
     if materialHeatMapControl.toggleState
-        console.log 'heatmapcontrolOn'
+#        console.log 'heatmapcontrolOn'
         if !map.hasLayer timeHeatMapLayer
-          console.log 'FirstHeatmapLayerCoords: ' + heatMapCoordsTime
+#          console.log 'FirstHeatmapLayerCoords: ' + heatMapCoordsTime
           timeHeatMapLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map)
         else
-          console.log 'UpdateHeatmapLayerCoords: ' + heatMapCoordsTime
+#          console.log 'UpdateHeatmapLayerCoords: ' + heatMapCoordsTime
           timeHeatMapLayer.setLatLngs(heatMapCoordsTime)
           timeHeatMapLayer.redraw()
     else    
@@ -319,7 +326,15 @@ class MapView extends Backbone.View
             font-family: 'Raleway', sans-serif;
             display: none;
         }
-        
+        .demo-card-square.mdl-card {
+  width: 320px;
+  height: 320px;
+}
+.demo-card-square > .mdl-card__title {
+  color: #fff;
+  background:
+    url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
+}
         </style>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -348,11 +363,9 @@ class MapView extends Backbone.View
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
         <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--1-col'></div>
-            <div class='mdl-cell mdl-cell--10-col'>
+            <div class='mdl-cell mdl-cell--12-col'>
                 <div style='width:100%;height:600px;' id='map'></div>
             </div>
-            <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -385,10 +398,6 @@ class MapView extends Backbone.View
       ]
       zoomControl: false
       attributionControl: false
-#      timeDimension: true
-#      timeDimensionOptions:
-#        timeInterval: timeInterval
-#        period: 'PT1H'
       )
     
     @map.lat = -5.67
@@ -401,7 +410,7 @@ class MapView extends Backbone.View
       type: 'GET'
       async: false
       success: (data) ->
-        console.log 'district data loadeds'
+#        console.log 'district data loadeds'
         districtsData = data
         return
     districtsLayer = L.geoJson(districtsData,
@@ -416,7 +425,7 @@ class MapView extends Backbone.View
       type: 'GET'
       async: false
       success: (data) ->
-        console.log 'district data loadeds'
+#        console.log 'district data loadeds'
         shahiasData = data
         return
     shahiasLayer = L.geoJson(shahiasData,
@@ -431,7 +440,7 @@ class MapView extends Backbone.View
       type: 'GET'
       async: false
       success: (data) ->
-        console.log 'district data loadeds'
+#        console.log 'district data loadeds'
         villagesData = data
         return
     villagesLayer = L.geoJson(villagesData,
@@ -466,15 +475,23 @@ class MapView extends Backbone.View
     materialTimeControl = new (timeControl)(
       position: 'topleft'
       materialOptions: materialOptions).addTo(@map)
-    console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
-    materialFullscreen = new (L.materialControl.Fullscreen)(position: 'topright',
+#    console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
+    materialFullscreen = new (L.materialControl.Fullscreen)(
+      position: 'topright'
       materialOptions: materialOptions).addTo(@map)
-    customLayers = L.control.layers(layers, overlays).addTo @map
+#    var materialLayerControl = new L.materialControl.Layers(layers, overlays, {position: 'bottomright', materialOptions: materialOptions}).addTo(map);
+
+    materialLayersControl = new (myLayersControl)(layers, overlays,
+      position: 'topright'
+      materialOptions: materialOptions).addTo(@map)
+
+
+#    customLayers = L.control.layers(layers, overlays).addTo @map
 #
-#    legend = L.control(position: 'topleft')
+#    legend = L.control(position: 'topright')
 #
 #    legend.onAdd = (map) ->
-#      div = L.DomUtil.create('div', 'info legend')
+#      div = L.DomUtil.create('div', '<div class="demo-card-square mdl-card mdl-shadow--2dp">')
 #      grades = [
 #        0
 #        10
@@ -487,16 +504,27 @@ class MapView extends Backbone.View
 #      ]
 #      labels = []
 #      # loop through our density intervals and generate a label with a colored square for each interval
+#      div.innerHTML += '<div class="mdl-card__title mdl-card--expand">
+#    <h2 class="mdl-card__title-text">Update</h2>
+#  </div>
+#  <div class="mdl-card__supporting-text">
+#    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+#    Aenan convallis.
+#  </div>
+#  <div class="mdl-card__actions mdl-card--border">
+#    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+#      View Updates
+#    </a>
+#  </div>'
+#        
 #      i = 0
 #      while i < grades.length
-#        div.innerHTML += 'LEGEND'
 #        i++
 #      div
-#
-#    legend.addTo map
+
+    
 #    legend.onAdd = (@map) =>
-#      div = L.DomUtil.create('div', 'legend')
-#      div.innerHTML 'Legend'
+#      console.log 'legend.onAdd'
 #          categories = [
 #            'Single Case'
 #            'Multiple Cases'
@@ -505,9 +533,8 @@ class MapView extends Backbone.View
 #          while i < categories.length
 #            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
 #            i++
-#          div
-#
-#    legend.addTo @map    
+#          div  
+    
     brushed = ->
       actives = svg.filter((p) ->
         !timeScale.brush.empty()
@@ -556,7 +583,7 @@ class MapView extends Backbone.View
       timeScale.domain()[0]
       timeScale.domain()[1]
     ])).select('.domain').select(->
-      console.log this
+#      console.log this
       @parentNode.appendChild @cloneNode(true)
     ).attr 'class', 'halo'
 
@@ -618,7 +645,7 @@ class MapView extends Backbone.View
           $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
           $('.timeButton button').toggleClass 'mdl-button--disabled', false
         if data.features.length > 0
-          console.log('multiCase')
+#          console.log('multiCase')
           customLayers.addOverlay casesLayer, 'Cases'
         
     return
