@@ -404,7 +404,7 @@ class MapView extends Backbone.View
     @map.zoom = 9
     map = @map
 
-    Coconut.database.get 'DistrictsWGS84.json'
+    Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
     .then (districtsData) ->
       districtsLayer = L.geoJson(districtsData,
@@ -414,7 +414,7 @@ class MapView extends Backbone.View
           return
       ).addTo @map
 
-    Coconut.database.get 'ShahiasWGS84.json'
+    Coconut.database.get 'ShahiasWGS84'
     .catch (error) -> console.error error
     .then (shahiasData) ->
       shahiasLayer = L.geoJson(shahiasData,
@@ -424,7 +424,7 @@ class MapView extends Backbone.View
           return
       )
 
-    Coconut.database.get 'VillagesWGS84.json'
+    Coconut.database.get 'VillagesWGS84'
     .catch (error) -> console.error error
     .then ( villagesData) ->
       villagesLayer = L.geoJson(villagesData,
