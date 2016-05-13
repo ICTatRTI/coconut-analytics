@@ -327,14 +327,13 @@ class MapView extends Backbone.View
             display: none;
         }
         .demo-card-square.mdl-card {
-  width: 320px;
-  height: 320px;
-}
-.demo-card-square > .mdl-card__title {
-  color: #fff;
-  background:
-    url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
-}
+           width: 320px;
+           height: 320px;
+        }
+        .demo-card-square > .mdl-card__title {
+           color: #fff;
+           background: url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
+        }
         </style>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -403,40 +402,41 @@ class MapView extends Backbone.View
     @map.lng = 39.489
     @map.zoom = 9
     map = @map
-
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
-    .then (districtsData) ->
-      districtsLayer = L.geoJson(districtsData,
-        style: adminPolyOptions
-        onEachFeature: (feature, layer) ->
-          layer.bindPopup 'test'
-          return
-      ).addTo @map
+    .then (data) ->
+       districtsData = data
+    districtsLayer = L.geoJson(districtsData,
+      style: adminPolyOptions
+       # onEachFeature: (feature, layer) ->
+        #   layer.bindPopup 'test'
+        #   return
+    ).addTo map
 
     Coconut.database.get 'ShahiasWGS84'
     .catch (error) -> console.error error
-    .then (shahiasData) ->
-      shahiasLayer = L.geoJson(shahiasData,
-        style: adminPolyOptions
-        onEachFeature: (feature, layer) ->
-          layer.bindPopup 'test'
-          return
-      )
+    .then (data) ->
+      shahiasData = data
+    shahiasLayer = L.geoJson(shahiasData,
+      style: adminPolyOptions
+      onEachFeature: (feature, layer) ->
+         layer.bindPopup 'test'
+         return
+    )
 
     Coconut.database.get 'VillagesWGS84'
     .catch (error) -> console.error error
-    .then ( villagesData) ->
-      villagesLayer = L.geoJson(villagesData,
-        style: adminPolyOptions
-        onEachFeature: (feature, layer) ->
-          layer.bindPopup 'test'
-          return
-      )
-
-    typeAheadNames = setUpTypeAheadData(villagesData)
+    .then ( data) ->
+      villagesData = data
+    villagesLayer = L.geoJson(villagesData,
+      style: adminPolyOptions
+      onEachFeature: (feature, layer) ->
+        layer.bindPopup 'test'
+        return
+    )
+ #   typeAheadNames = setUpTypeAheadData(villagesData)
     
-    
+   
     overlays =
       Districts: districtsLayer
       Shahias: shahiasLayer
