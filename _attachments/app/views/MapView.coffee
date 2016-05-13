@@ -10,9 +10,7 @@ materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
-require '../../mapdata/DistrictsWGS84.json'
-require '../../mapdata/ShahiasWGS84.json'
-require '../../mapdata/VillagesWGS84.json'
+
 class MapView extends Backbone.View
   map = undefined
   clusters = undefined
@@ -405,57 +403,37 @@ class MapView extends Backbone.View
     @map.lng = 39.489
     @map.zoom = 9
     map = @map
-# Temporary hack to obtain proper base url for location of files
-    if (document.location.hostname == "localhost")
-      baseUrl = "../.."
-    else
-      baseUrl =  Coconut.dbUrl + '/_design/'+ Coconut.config.couchapp_design_doc
-    console.log(baseUrl)
-    $.ajax
-      url: baseUrl + '/mapdata/DistrictsWGS84.json'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-#        console.log 'district data loadeds'
-        districtsData = data
-        return
-    districtsLayer = L.geoJson(districtsData,
-      style: adminPolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup 'test'
-        return
-    ).addTo @map
-    $.ajax
-      url: baseUrl + '/mapdata/ShahiasWGS84.json'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-#        console.log 'district data loadeds'
-        shahiasData = data
-        return
-    shahiasLayer = L.geoJson(shahiasData,
-      style: adminPolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup 'test'
-        return
-    )
-    $.ajax
-      url: baseUrl + '/mapdata/VillagesWGS84.json'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-#        console.log 'district data loadeds'
-        villagesData = data
-        return
-    villagesLayer = L.geoJson(villagesData,
-      style: adminPolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup 'test'
-        return
-    )
+
+    Coconut.database.get 'DistrictsWGS84.json'
+    .catch (error) -> console.error error
+    .then (districtsData) ->
+      districtsLayer = L.geoJson(districtsData,
+        style: adminPolyOptions
+        onEachFeature: (feature, layer) ->
+          layer.bindPopup 'test'
+          return
+      ).addTo @map
+
+    Coconut.database.get 'ShahiasWGS84.json'
+    .catch (error) -> console.error error
+    .then (shahiasData) ->
+      shahiasLayer = L.geoJson(shahiasData,
+        style: adminPolyOptions
+        onEachFeature: (feature, layer) ->
+          layer.bindPopup 'test'
+          return
+      )
+
+    Coconut.database.get 'VillagesWGS84.json'
+    .catch (error) -> console.error error
+    .then ( villagesData) ->
+      villagesLayer = L.geoJson(villagesData,
+        style: adminPolyOptions
+        onEachFeature: (feature, layer) ->
+          layer.bindPopup 'test'
+          return
+      )
+
     typeAheadNames = setUpTypeAheadData(villagesData)
     
     
