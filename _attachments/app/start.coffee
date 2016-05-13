@@ -18,14 +18,18 @@ Router = require './Router'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 
+
+dbURL = "http://localhost:5984/zanzibar"
 # Coconut is just a global object useful for keeping things in one scope
 global.Coconut = {
-  database: new PouchDB("http://localhost:5984/zanzibar")
+  dbUrl: dbURL
+  database: new PouchDB(dbURL)
   router: new Router()
   #TODO load config from a _local database doc
   config: {
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
+    couchapp_design_doc: "analytics"
   }
   currentlogin: Cookies.get('current_user') || ""
   currentUser: null

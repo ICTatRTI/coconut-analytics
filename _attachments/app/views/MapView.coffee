@@ -401,13 +401,18 @@ class MapView extends Backbone.View
       zoomControl: false
       attributionControl: false
       )
-    
     @map.lat = -5.67
     @map.lng = 39.489
     @map.zoom = 9
     map = @map
+# Temporary hack to obtain proper base url for location of files
+    if (document.location.hostname == "localhost")
+      baseUrl = "../.."
+    else
+      baseUrl =  Coconut.dbUrl + '/_design/'+ Coconut.config.couchapp_design_doc
+    console.log(baseUrl)
     $.ajax
-      url: '/mapdata/DistrictsWGS84.json'
+      url: baseUrl + '/mapdata/DistrictsWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
@@ -422,7 +427,7 @@ class MapView extends Backbone.View
         return
     ).addTo @map
     $.ajax
-      url: '/mapdata/ShahiasWGS84.json'
+      url: baseUrl + '/mapdata/ShahiasWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
@@ -437,7 +442,7 @@ class MapView extends Backbone.View
         return
     )
     $.ajax
-      url: '/mapdata/VillagesWGS84.json'
+      url: baseUrl + '/mapdata/VillagesWGS84.json'
       dataType: 'json'
       type: 'GET'
       async: false
