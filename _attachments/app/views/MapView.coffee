@@ -73,6 +73,7 @@ class MapView extends Backbone.View
 #    "click .layersButton": "layersToggle"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
+#    "overlayadd #map": "mapOnLayerAdd"
     "click #snapImage": "snapImage"
     
   pembaClick: (event)=>
@@ -239,7 +240,10 @@ class MapView extends Backbone.View
   mapBlur: =>
     if @map.scrollWheelZoom.enabled() == true
       @map.scrollWheelZoom.disable()
-        
+  
+  mapOnLayerAdd: =>
+    console.log 'mapOnLayerAdd'
+    
   snapImage: =>
 #    progressBar.showPleaseWait()
 
@@ -405,7 +409,15 @@ class MapView extends Backbone.View
     @map.lat = -5.67
     @map.lng = 39.489
     @map.zoom = 9
+    @map.scrollWheelZoom.disable()
     map = @map
+    map.on 'overlayadd', (a) ->
+      console.log('bringToFront')
+      map.eachLayer (layer) ->
+        console.log(layer.name)
+        return
+      casesLayer.bringToFront
+      return
     $.ajax
       url: '/mapdata/DistrictsWGS84.json'
       dataType: 'json'

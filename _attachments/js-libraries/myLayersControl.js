@@ -2,8 +2,7 @@
 var myLayersControl =  L.Control.extend({
 
   options: {
-      position: 'topright',
-	  autoZIndex: true
+      position: 'topright'
   },
   onAdd: function (map) {
     console.log('onAdd');
@@ -28,7 +27,9 @@ var myLayersControl =  L.Control.extend({
 //    return container;
   },
   onRemove: function (map) {
-    // when removed
+    map
+		    .off('layeradd', this._onLayerChange, this)
+		    .off('layerremove', this._onLayerChange, this);
   },
   addBaseLayer: function (layer, name) {
 	this._addLayer(layer, name);
@@ -44,6 +45,7 @@ var myLayersControl =  L.Control.extend({
   initialize: function (baseLayers, overlays, options) {
     L.setOptions(this, options);
     console.log('initialize options: ' + JSON.stringify(options))
+    this._lastZIndex = 1;
     this._layers = baseLayers;
     this._overlays = overlays;
     for (var i in baseLayers) {
@@ -147,7 +149,7 @@ var myLayersControl =  L.Control.extend({
 	}, 
         
     _addLayer: function (layer, name, overlay) {
-	console.log('addLayer layer: '+layer)
+	console.log('addLayer name: '+name)
     var id = L.stamp(layer);
 
 	this._layers[id] = {
@@ -155,10 +157,22 @@ var myLayersControl =  L.Control.extend({
 		name: name,
 		overlay: overlay
 	};
+    
     console.log('this._layers[id]: '+this._layers[id].layer+ ' ' + this._layers[id].name + ' ' + this._layers[id].overlay)
-	if (this.options.autoZIndex && layer.setZIndex) {
+	console.log('this.options.autoZIndex: '+this.options.autoZIndex)
+    if (this.options.autoZIndex && layer.setZIndex) {
 		this._lastZIndex++;
-		layer.setZIndex(this._lastZIndex);
+        console.log('addLayer name: :'+name+":")
+        
+        if (name == 'Cases'){
+          console.log('ZIndex: '+0)
+          layer.setZIndex(1);
+        }
+		else{
+          layer.setZIndex(this._lastZIndex);
+          console.log('ZIndex: '+this._lastZIndex);
+        }
+        
 	}
   },
   _update: function () {
@@ -190,7 +204,8 @@ var myLayersControl =  L.Control.extend({
 		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
 	},
     _onLayerChange: function (e) {
-		var obj = this._layers[L.stamp(e.layer)];
+		console.log('onLayerChange');
+        var obj = this._layers[L.stamp(e.layer)];
 
 		if (!obj) { return; }
 
@@ -238,6 +253,23 @@ var myLayersControl =  L.Control.extend({
 
 		return label;
 	},
+    _onLayerChange: function (e) {
+		var obj = this._layers[L.stamp(e.layer)];
+
+		if (!obj) { return; }
+
+		if (!this._handlingClick) {
+			this._update();
+		}
+
+		var type = obj.overlay ?
+			(e.type === 'layeradd' ? 'overlayadd' : 'overlayremove') :
+			(e.type === 'layeradd' ? 'baselayerchange' : null);
+
+		if (type) {
+			this._map.fire(type, obj);
+		}
+	},
     _createRadioElement: function (name, checked) {
 
 		var radioHtml = '<input type="radio" class="leaflet-control-layers-selector" name="' + name + '"';
@@ -257,7 +289,6 @@ var myLayersControl =  L.Control.extend({
 		    inputsLen = inputs.length;
 
 		this._handlingClick = true;
-        console.log('')
 		for (i = 0; i < inputsLen; i++) {
 			input = inputs[i];
 			console.log('input.LayerId: '+input.layerId);
