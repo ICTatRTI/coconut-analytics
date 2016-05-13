@@ -18,6 +18,7 @@ Router = require './Router'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 
+
 # Coconut is just a global object useful for keeping things in one scope
 global.Coconut = {
   database: new PouchDB("http://localhost:5984/zanzibar")

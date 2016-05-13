@@ -10,9 +10,7 @@ materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
-require '../../mapdata/DistrictsWGS84.json'
-require '../../mapdata/ShahiasWGS84.json'
-require '../../mapdata/VillagesWGS84.json'
+
 class MapView extends Backbone.View
   map = undefined
   clusters = undefined
@@ -333,14 +331,13 @@ class MapView extends Backbone.View
             display: none;
         }
         .demo-card-square.mdl-card {
-  width: 320px;
-  height: 320px;
-}
-.demo-card-square > .mdl-card__title {
-  color: #fff;
-  background:
-    url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
-}
+           width: 320px;
+           height: 320px;
+        }
+        .demo-card-square > .mdl-card__title {
+           color: #fff;
+           background: url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
+        }
         </style>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -405,12 +402,12 @@ class MapView extends Backbone.View
       zoomControl: false
       attributionControl: false
       )
-    
     @map.lat = -5.67
     @map.lng = 39.489
     @map.zoom = 9
     @map.scrollWheelZoom.disable()
     map = @map
+
     map.on 'overlayadd', (a) ->
       console.log('bringToFront')
       map.eachLayer (layer) ->
@@ -418,54 +415,42 @@ class MapView extends Backbone.View
         return
       casesLayer.bringToFront
       return
-    $.ajax
-      url: '/mapdata/DistrictsWGS84.json'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-#        console.log 'district data loadeds'
-        districtsData = data
-        return
+
+    Coconut.database.get 'DistrictsWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+       districtsData = data
     districtsLayer = L.geoJson(districtsData,
       style: adminPolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup 'test'
-        return
-    ).addTo @map
-    $.ajax
-      url: '/mapdata/ShahiasWGS84.json'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-#        console.log 'district data loadeds'
-        shahiasData = data
-        return
+       # onEachFeature: (feature, layer) ->
+        #   layer.bindPopup 'test'
+        #   return
+    ).addTo map
+
+    Coconut.database.get 'ShahiasWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+      shahiasData = data
     shahiasLayer = L.geoJson(shahiasData,
       style: adminPolyOptions
       onEachFeature: (feature, layer) ->
-        layer.bindPopup 'test'
-        return
+         layer.bindPopup 'test'
+         return
     )
-    $.ajax
-      url: '/mapdata/VillagesWGS84.json'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-#        console.log 'district data loadeds'
-        villagesData = data
-        return
+
+    Coconut.database.get 'VillagesWGS84'
+    .catch (error) -> console.error error
+    .then ( data) ->
+      villagesData = data
     villagesLayer = L.geoJson(villagesData,
       style: adminPolyOptions
       onEachFeature: (feature, layer) ->
         layer.bindPopup 'test'
         return
     )
-    typeAheadNames = setUpTypeAheadData(villagesData)
+ #   typeAheadNames = setUpTypeAheadData(villagesData)
     
-    
+   
     overlays =
       Districts: districtsLayer
       Shahias: shahiasLayer
