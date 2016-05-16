@@ -81,7 +81,7 @@ class LoginView extends Backbone.View
       username: loginData.userName
       password: loginData.passWord
       success: =>
-        Coconut.router.navigate('', true)
+        Coconut.router.navigate('dashboard', true)
       error: =>
         $('.coconut-mdl-card__title').html "<i class='material-icons'>error_outline</i> Invalid username/password."
    
