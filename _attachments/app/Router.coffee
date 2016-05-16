@@ -299,6 +299,10 @@ class Router extends Backbone.Router
        type: "Analysis"
        startDate:  moment().subtract("7","days").format("YYYY-MM-DD")
        endDate: moment().format("YYYY-MM-DD")
+       startYear: moment().year()
+       endYear: moment().year()
+       startWeek: 1
+       endWeek: 1
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
