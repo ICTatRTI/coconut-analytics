@@ -303,6 +303,7 @@ class Router extends Backbone.Router
        endYear: moment().year()
        startWeek: 1
        endWeek: 1
+       dateMode: 'Week'
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }

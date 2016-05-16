@@ -21,7 +21,8 @@ class DateSelectorView extends Backbone.View
     startDate = $('#startDate').val()
     endDate = $('#endDate').val()
     
-    if $('#select-by :selected').text() is "Week"
+    Coconut.router.reportViewOptions['dateMode'] = dateMode = $('#select-by :selected').text()
+    if dateMode is "Week"
       Coconut.router.reportViewOptions['startYear'] = startYear = $('[name=StartYear]').val()
       Coconut.router.reportViewOptions['endYear'] = endYear = $('[name=EndYear]').val()
       Coconut.router.reportViewOptions['startWeek'] = startWeek = $('[name=StartWeek]').val()
@@ -76,8 +77,8 @@ class DateSelectorView extends Backbone.View
                <tr id='select-date-week'>
                  <td colspan='2'>Select By</td>
                  <td><select name='SelectBy' id='select-by'> 
-                    <option value='Week'>Week</option>
-                    <option value='Date'>Date</option></select>
+                    <option value='Week' #{if Coconut.router.reportViewOptions.dateMode is 'Week' then 'Selected'}>Week</option>
+                    <option value='Date' #{if Coconut.router.reportViewOptions.dateMode is 'Date' then 'Selected'}>Date</option></select>
                  </td>
                 <td clospan='4'> &nbsp; </td>
                </tr>
@@ -161,6 +162,8 @@ class DateSelectorView extends Backbone.View
          </div>
        </div>
     "
+    @selectBy()
+
     startDatePicker = new Pikaday
       field: $(".datepicker")[0]
       position: "bottom right"
