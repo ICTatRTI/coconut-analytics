@@ -49,7 +49,8 @@ activityViews = {
 class Router extends Backbone.Router
   # caches views
   views: {}
-
+  reportViewOptions = []
+  
   # holds option pairs for more complex URLs like for reports
   reportViewOptions: {}
   activityViewOptions: {}
@@ -97,7 +98,6 @@ class Router extends Backbone.Router
   reports: (options) =>
     @userLoggedIn
       success:  =>
-        @reportViewOptions = []
         # Allows us to get name/value pairs from URL
         options = _(options?.split(/\//)).map (option) -> unescape(option)
 
@@ -114,30 +114,29 @@ class Router extends Backbone.Router
         @views[type].setElement "#content"
         @views[type].render()
         @reportType = 'reports'
-        @showDateFilter(Coconut.reportDates.startDate, Coconut.reportDates.endDate, @views[type], @reportType)
+        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
 
 
   # Needs to refactor later to keep it DRY
   activities: (options) =>
     @userLoggedIn
       success:  =>
-        @activityViewOptions =[]
         options = _(options?.split(/\//)).map (option) -> unescape(option)
 
         _.each options, (option,index) =>
-          @activityViewOptions[option] = options[index+1] unless index % 2
+          @reportViewOptions[option] = options[index+1] unless index % 2
 
         defaultOptions = @setDefaultOptions()
 
         _(defaultOptions).each (defaultValue, option) =>
-          @activityViewOptions[option] = @activityViewOptions[option] or defaultValue
+          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
 
-        type = @activityViewOptions["type"]
+        type = @reportViewOptions["type"]
         @views[type] = new activityViews[type]() unless @views[type]
         @views[type].setElement "#content"
         @views[type].render()
         @reportType = 'activities'
-        @showDateFilter(Coconut.reportDates.startDate, Coconut.reportDates.endDate, @views[type], @reportType)
+        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
 
   showCase: (caseID, docID) ->
     @userLoggedIn
@@ -184,11 +183,11 @@ class Router extends Backbone.Router
         # Set the default option if it isn't already set
         _(defaultOptions).each (defaultValue, option) =>
           @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
-
+        type = @reportViewOptions["type"]
         @mapView = new MapView unless @mapView
         @mapView.render()
         @reportType = 'maps'
-        @showDateFilter(@reportViewOptions.startDate, @reportViewOptions.endDate, @mapView, @reportType)
+        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @mapView, @reportType)
 
   FacilityHierarchy: =>
     @adminLoggedIn
@@ -282,8 +281,8 @@ class Router extends Backbone.Router
         $("#content").html "<h2>Must be an admin user</h2>"
 
   setStartEndDateIfMissing: (startDate,endDate) =>
-    startDate = Coconut.reportDates.startDate
-    endDate = Coconut.reportDates.endDate
+    startDate = Coconut.router.reportViewOptions.startDate
+    endDate = Coconut.router.reportViewOptions.endDate
     [startDate, endDate]
 
   showDateFilter: (startDate, endDate, reportView, reportType) ->
