@@ -70,6 +70,7 @@ class FacilityHierarchyView extends Backbone.View
     console.log("Delete initiated")
     return false
 
+#TODOS Need to add codes to delete doc
   deleteFacility: (e) =>
     e.preventDefault
     console.log("Record Deleted")
