@@ -108,7 +108,6 @@ class DateSelectorView extends Backbone.View
                    <select name='StartYear'>
                      #{
                        for i in [moment().year()..2012]
-                          console.log(i, Coconut.router.reportViewOptions.startYear)
                           "<option value='#{i}' #{if i.toString() is Coconut.router.reportViewOptions.startYear then 'Selected'}>#{i}</option>"
                      }
                    </select>

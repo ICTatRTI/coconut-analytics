@@ -898,53 +898,29 @@ class Reports
 
 
   @getIssues = (options) ->
-    startDate = moment(options.startDate)
-    startYear = startDate.format("GGGG") # ISO week year
-    startWeek =startDate.format("WW")
-    endDate = moment(options.endDate).endOf("day")
-    endYear = endDate.format("GGGG")
-    endWeek = endDate.format("WW")
+    startDate = moment(options.startDate).format(Coconut.config.dateFormat)
+    endDate = moment(options.endDate).endOf("day").format(Coconut.config.dateFormat)
 
-    issuePrefixesForDocumentIdsIndexedByWeek = [
-      "alert-weekly-facility-total-cases"
-      "alert-weekly-facility-under-5-cases"
-      "alert-weekly-shehia-cases"
-      "alert-weekly-shehia-under-5-cases"
-      "alert-weekly-village-cases"
-    ]
-
-    issuePrefixesForDocumentIdsIndexedByDate = [
+    issueTypes = [
       "issue"
-      "alarm"
+      "threshold"
     ]
 
     issues = []
 
-    finished = _.after issuePrefixesForDocumentIdsIndexedByWeek.length + issuePrefixesForDocumentIdsIndexedByDate.length, ->
+    finished = _.after issueTypes.length, ->
       options.success(issues)
 
-    _(issuePrefixesForDocumentIdsIndexedByWeek).each (prefix) ->
-      Coconut.database.allDocs
-        startkey: "#{prefix}-#{startYear}-#{startWeek}"
-        endkey: "#{prefix}-#{endYear}-#{endWeek}-\ufff0"
-        include_docs: true
-      .catch (error) ->
-        console.error error
-        options.error(error)
-      .then (result) ->
-        issues = issues.concat _(result.rows).pluck "doc"
-        finished()
-  
-    _(issuePrefixesForDocumentIdsIndexedByDate).each (prefix) ->
+    _(issueTypes).each (prefix) ->
       Coconut.database.allDocs
         startkey: "#{prefix}-#{startDate}"
         endkey: "#{prefix}-#{endDate}-\ufff0"
         include_docs: true
-      .catch (error) ->
+      .catch (error) -> 
         console.error error
         options.error(error)
-      .then (result) ->
-        issues = issues.concat _(result.rows).pluck "doc"
-        finished()
+      .then (result) =>
+          issues = issues.concat _(result.rows).pluck "doc"
+          finished()
 
 module.exports = Reports
