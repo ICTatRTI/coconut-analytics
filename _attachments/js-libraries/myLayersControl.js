@@ -44,17 +44,17 @@ var myLayersControl =  L.Control.extend({
   },
   initialize: function (baseLayers, overlays, options) {
     L.setOptions(this, options);
-    console.log('initialize options: ' + JSON.stringify(options))
+//    console.log('initialize options: ' + JSON.stringify(options))
     this._lastZIndex = 1;
     this._layers = baseLayers;
     this._overlays = overlays;
     for (var i in baseLayers) {
-	    console.log('baselayer._addLayer')
+//	    console.log('baselayer._addLayer')
         this._addLayer(baseLayers[i], i);
 	}
 
 	for (i in overlays) {
-	    console.log('overlays._addLayer')
+//	    console.log('overlays._addLayer')
 	    this._addLayer(overlays[i], i, true);
 	}    
     
@@ -97,14 +97,14 @@ var myLayersControl =  L.Control.extend({
 //          </div>'
         var form = this._form = L.DomUtil.create('form', 'demo-card-square mdl-card mdl-shadow--2dp');
         L.DomEvent.on(this._zoomHomeButton, 'click', function() {
-            console.log('domeventCLick')
-            console.log('container.childnodes: ' + container.childNodes)
+//            console.log('domeventCLick')
+//            console.log('container.childnodes: ' + container.childNodes)
             var c = container.childNodes;
 //            for (var i = 0; i < c.length; i++) {
 //                console.log('nodeName: ' + c[i].nodeName);
 //            }
             if (c.length == 1){
-                console.log('formsinthehouse')
+//                console.log('formsinthehouse')
                 container.appendChild(form);
                 
             }
@@ -149,7 +149,7 @@ var myLayersControl =  L.Control.extend({
 	}, 
         
     _addLayer: function (layer, name, overlay) {
-	console.log('addLayer name: '+name)
+//	console.log('addLayer name: '+name)
     var id = L.stamp(layer);
 
 	this._layers[id] = {
@@ -158,25 +158,25 @@ var myLayersControl =  L.Control.extend({
 		overlay: overlay
 	};
     
-    console.log('this._layers[id]: '+this._layers[id].layer+ ' ' + this._layers[id].name + ' ' + this._layers[id].overlay)
-	console.log('this.options.autoZIndex: '+this.options.autoZIndex)
+//    console.log('this._layers[id]: '+this._layers[id].layer+ ' ' + this._layers[id].name + ' ' + this._layers[id].overlay)
+//	console.log('this.options.autoZIndex: '+this.options.autoZIndex)
     if (this.options.autoZIndex && layer.setZIndex) {
 		this._lastZIndex++;
-        console.log('addLayer name: :'+name+":")
+        //console.log('addLayer name: :'+name+":")
         
         if (name == 'Cases'){
-          console.log('ZIndex: '+0)
+          //console.log('ZIndex: '+0)
           layer.setZIndex(1);
         }
 		else{
           layer.setZIndex(this._lastZIndex);
-          console.log('ZIndex: '+this._lastZIndex);
+          //console.log('ZIndex: '+this._lastZIndex);
         }
         
 	}
   },
   _update: function () {
-    console.log('update')
+    //console.log('update')
 		if (!this._container) {
 			return;
 		}
@@ -189,13 +189,13 @@ var myLayersControl =  L.Control.extend({
 		    i, obj;
 
 		for (i in this._layers) {
-			console.log('this._layers[i]: '+this._layers[i])
-			console.log('this._layers[i].name: '+this._layers[i].name)
-			console.log('this._layers[i].layer: '+this._layers[i].layer)
+//			console.log('this._layers[i]: '+this._layers[i])
+//			console.log('this._layers[i].name: '+this._layers[i].name)
+//			console.log('this._layers[i].layer: '+this._layers[i].layer)
             obj = this._layers[i];
-            console.log('update obj: '+obj)
-			console.log('update obj.name: '+obj.name)
-			console.log('update obj.layer: '+ obj.layer)
+//            console.log('update obj: '+obj)
+//			console.log('update obj.name: '+obj.name)
+//			console.log('update obj.layer: '+ obj.layer)
             if(obj.name){ this._addItem(obj)};
 			overlaysPresent = overlaysPresent || obj.overlay;
 			baseLayersPresent = baseLayersPresent || !obj.overlay;
@@ -204,7 +204,7 @@ var myLayersControl =  L.Control.extend({
 		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
 	},
     _onLayerChange: function (e) {
-		console.log('onLayerChange');
+//		console.log('onLayerChange');
         var obj = this._layers[L.stamp(e.layer)];
 
 		if (!obj) { return; }
@@ -222,12 +222,12 @@ var myLayersControl =  L.Control.extend({
 		}
 	},
     _addItem: function (obj) {
-        console.log('addItem obj.name: '+obj.name)
-        console.log('addItem obj.layer: '+obj.layer)
+//        console.log('addItem obj.name: '+obj.name)
+//        console.log('addItem obj.layer: '+obj.layer)
         var label = document.createElement('label'),
 		    input,
 		    checked = this._map.hasLayer(obj.layer);
-        console.log('obj.overlay: '+obj.overlay);
+//        console.log('obj.overlay: '+obj.overlay);
 		if (obj.overlay) {
 			input = document.createElement('input');
 			input.type = 'checkbox';
@@ -238,7 +238,7 @@ var myLayersControl =  L.Control.extend({
 		}
 
 		input.layerId = L.stamp(obj.layer);
-        console.log('input: '+input)
+//        console.log('input: '+input)
         
 		L.DomEvent.on(input, 'click', this._onInputClick, this);
 
@@ -291,10 +291,10 @@ var myLayersControl =  L.Control.extend({
 		this._handlingClick = true;
 		for (i = 0; i < inputsLen; i++) {
 			input = inputs[i];
-			console.log('input.LayerId: '+input.layerId);
+//			console.log('input.LayerId: '+input.layerId);
             obj = this._layers[input.layerId];
-            console.log('obj.layer: '+obj.layer);
-			console.log('obj.name: '+obj.name);
+//            console.log('obj.layer: '+obj.layer);
+//			console.log('obj.name: '+obj.name);
 			if (input.checked && !this._map.hasLayer(obj.layer)) {
 				this._map.addLayer(obj.layer);
 

@@ -13,6 +13,7 @@ leafletImage = require 'leaflet-image'
 
 class MapView extends Backbone.View
   map = undefined
+  layerTollBooth = undefined
   clusters = undefined
   caseMarkerOptions = 
     radius: 4
@@ -69,6 +70,7 @@ class MapView extends Backbone.View
     "click .timeButton": "timeToggle"
     "click .clusterButton": "clusterToggle"
 #    "click .layersButton": "layersToggle"
+    "click #exportMap": "snapImage"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
 #    "overlayadd #map": "mapOnLayerAdd"
@@ -77,30 +79,30 @@ class MapView extends Backbone.View
   pembaClick: (event)=>
         $('#pembaToggle').toggleClass 'mdl-button--raised', true
         $('#ungujaToggle').toggleClass 'mdl-button--raised', false
-        @map.setView([-5.187, 39.746], 10, {animate:true})
+        map.setView([-5.187, 39.746], 10, {animate:true})
 
   ungujaClick: (event)=>
         $('#pembaToggle').toggleClass 'mdl-button--raised', false
         $('#ungujaToggle').toggleClass 'mdl-button--raised', true
-        @map.setView([-6.1, 39.348], 10, {animate:true})
+        map.setView([-6.1, 39.348], 10, {animate:true})
   
   heatMapToggle: =>
     if heatMapCoords.length>0
         if !materialHeatMapControl.toggleState
             materialHeatMapControl.toggleState = true
-            $('.heatMapButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+            layerTollBooth.handleActiveState $('.heatMapButton button'), 'on'
             heat = L.heatLayer(heatMapCoords, radius: 10) 
-            @map.addLayer(heat)
-            if @map.hasLayer casesLayer
+            map.addLayer(heat)
+            if map.hasLayer casesLayer
 #              console.log('remove')
-              @map.removeLayer casesLayer
+              map.removeLayer casesLayer
               turnCasesLayerOn = true
         else
             materialHeatMapControl.toggleState = false
-            $('.heatMapButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
-            @map.removeLayer(heat)
+            layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
+            map.removeLayer(heat)
             if turnCasesLayerOn == true
-              @map.addLayer casesLayer
+              map.addLayer casesLayer
               turnCasesLayerOn = false
   timeToggle: =>
     dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
@@ -108,43 +110,43 @@ class MapView extends Backbone.View
       updateFeaturesByDate(dateRange)         
     if !materialTimeControl.toggleState
       $("#sliderContainer").toggle()
-      $('.timeButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+      layerTollBooth.handleActiveState $('.timeButton button'), 'on'
       materialTimeControl.toggleState = true
-      if @map.hasLayer casesLayer
-        @map.removeLayer casesLayer
+      if map.hasLayer casesLayer
+        map.removeLayer casesLayer
         turnCasesLayerOn = true
-      if @map.hasLayer heat
-        @map.removeLayer heat
+      if map.hasLayer heat
+        map.removeLayer heat
     else
       materialTimeControl.toggleState = false
       $("#sliderContainer").toggle()
-      $('.timeButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
+      layerTollBooth.handleActiveState $('.timeButton button'), 'off'
       if turnCasesLayerOn == true
-        @map.addLayer casesLayer
+        map.addLayer casesLayer
         turnCasesLayerOn = false          
     
   clusterToggle: =>
     if !materialClusterControl.toggleState
       materialClusterControl.toggleState = true
-      $('.clusterButton button').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
-      if @map.hasLayer casesLayer
-        @map.removeLayer casesLayer
+      layerTollBooth.handleActiveState $('.clusterButton button'), 'on'
+      if map.hasLayer casesLayer
+        map.removeLayer casesLayer
         turnCasesLayerOn = true
       clusters.addTo map
     else
       materialClusterControl.toggleState = false
-      $('.clusterButton button').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
-      @map.removeLayer clusters
+      layerTollBooth.handleActiveState $('.clusterButton button'), 'off'
+      map.removeLayer clusters
       if turnCasesLayerOn == true
-        @map.addLayer casesLayer
+        map.addLayer casesLayer
         turnCasesLayerOn = false
 #  layersToggle: =>
 #    if !legend._map
 #      console.log 'not in map'
-#      legend.addTo @map
+#      legend.addTo map
 #    else
 #      console.log 'in map'
-#      legend.removeFrom @map
+#      legend.removeFrom map
     
   setUpTypeAheadData = (geojson) -> 
     typeAheadAdminNames = {}
@@ -193,8 +195,9 @@ class MapView extends Backbone.View
           15000/casesGeoJSON.features.length#adjust with slider
         ]
         heatMapCoordsTime.push coords
-    timeCasesGeoJSON.features = timeFeatures
     
+    timeCasesGeoJSON.features = timeFeatures
+
     if materialHeatMapControl.toggleState
 #        console.log 'heatmapcontrolOn'
         if !map.hasLayer timeHeatMapLayer
@@ -232,25 +235,25 @@ class MapView extends Backbone.View
     
         
   mapFocus: =>
-    if @map.scrollWheelZoom.enabled() == false
-      @map.scrollWheelZoom.enable()
+    if map.scrollWheelZoom.enabled() == false
+      map.scrollWheelZoom.enable()
   
   mapBlur: =>
-    if @map.scrollWheelZoom.enabled() == true
-      @map.scrollWheelZoom.disable()
+    if map.scrollWheelZoom.enabled() == true
+      map.scrollWheelZoom.disable()
   
   mapOnLayerAdd: =>
     console.log 'mapOnLayerAdd'
     
   snapImage: =>
 #    progressBar.showPleaseWait()
-
-    leafletImage @map, (err, canvas) =>
+    console.log('snapImage')
+    leafletImage map, (err, canvas) =>
       a = document.createElement('a')
       a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
       a.download = 'coconutMap.jpg'
       a.click()
-      @snapshot.innerHTML = ''
+      #@snapshot.innerHTML = ''
       return
     return
 
@@ -290,6 +293,21 @@ class MapView extends Backbone.View
             }
         .compact().value()
 #        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
+        console.log 'casesGeoJSON.features: ' + casesGeoJSON.features.length
+#        LayerTollBooth = ->
+#          @CasesLoaded = false
+#          return
+        layerTollBooth = new LayerTollBooth
+        console.log 'layerTollBooth: '+layerTollBooth.CasesLoaded
+        if casesGeoJSON.features.length > 0
+            console.log('set true: ')
+            layerTollBooth.setCasesStatus true
+            layerTollBooth.enableDisableButtons 'enable'
+        else
+            console.log('set false')
+            layerTollBooth.setCasesStatus false
+            layerTollBooth.enableDisableButtons 'disable' 
+        console.log("LayerTollBooth.CasesLoaded: "+layerTollBooth.casesLoaded)
         updateMap casesGeoJSON
     
     @$el.html "
@@ -348,12 +366,15 @@ class MapView extends Backbone.View
                         <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
                         <label for='ungujaToggle'>or</label>
                         <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
+                        <button id='exportMap' class='mdl-button mdl-js-button mdl-button--fab'>
+                          <i class='material-icons'>photo_camera</i>
+                        </button>
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
                             <select style='padding-right:20px'>
                               <option value='island'>Islands</option>
                               <option value='district'>Districts</option>
-                              <option value='shehias'>Shehias</option>
+                              <option value='shehias'>Shahias</option>
                               <option value='villages'>Villages</option>
                             </select>
                           </div>
@@ -365,7 +386,8 @@ class MapView extends Backbone.View
                 </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
-        <div class='mdl-grid'>
+<div class='mdl-grid'>
+                
             <div class='mdl-cell mdl-cell--12-col' style='height:600px'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
@@ -391,7 +413,7 @@ class MapView extends Backbone.View
       Outdoors: outdoors
       Satellite: satellite
     
-    @map = L.map('map',
+    map = L.map('map',
       center: [
         -5.67, 39.489
       ]
@@ -402,12 +424,11 @@ class MapView extends Backbone.View
       zoomControl: false
       attributionControl: false
       )
-    @map.lat = -5.67
-    @map.lng = 39.489
-    @map.zoom = 9
-    @map.scrollWheelZoom.disable()
-    map = @map
-
+    map.lat = -5.67
+    map.lng = 39.489
+    map.zoom = 9
+    map.scrollWheelZoom.disable()
+    
     map.on 'overlayadd', (a) ->
       console.log('bringToFront')
       map.eachLayer (layer) ->
@@ -415,7 +436,7 @@ class MapView extends Backbone.View
         return
       casesLayer.bringToFront
       return
-
+#    layerTollBooth = new LayerTollBooth()
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
     .then (data) ->
@@ -463,31 +484,31 @@ class MapView extends Backbone.View
       color: 'cyan'
     materialZoomControl = new (zoomControl)(
       position: 'topright'
-      materialOptions: materialOptions).addTo(@map)
+      materialOptions: materialOptions).addTo(map)
     materialHeatMapControl = new (heatMapControl)(
       position: 'topleft'
-      materialOptions: materialOptions).addTo(@map)
+      materialOptions: materialOptions).addTo(map)
 #    $('.heatMapButton button').attr('disabled')
     materialClusterControl = new (clusterControl)(
       position: 'topleft'
-      materialOptions: materialOptions).addTo(@map)
+      materialOptions: materialOptions).addTo(map)
     materialTimeControl = new (timeControl)(
       position: 'topleft'
-      materialOptions: materialOptions).addTo(@map)
+      materialOptions: materialOptions).addTo(map)
 #    console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
     materialFullscreen = new (L.materialControl.Fullscreen)(
       position: 'topright'
       pseudoFullscreen: false
-      materialOptions: materialOptions).addTo(@map)
+      materialOptions: materialOptions).addTo(map)
 #    var materialLayerControl = new L.materialControl.Layers(layers, overlays, {position: 'bottomright', materialOptions: materialOptions}).addTo(map);
 
     materialLayersControl = new (myLayersControl)(layers, overlays,
       position: 'topright'
       pseudoFullscreen: false
-      materialOptions: materialOptions).addTo(@map)
+      materialOptions: materialOptions).addTo(map)
 
 
-#    customLayers = L.control.layers(layers, overlays).addTo @map
+#    customLayers = L.control.layers(layers, overlays).addTo map
 #
 #    legend = L.control(position: 'topright')
 #
@@ -524,7 +545,7 @@ class MapView extends Backbone.View
 #      div
 
     
-#    legend.onAdd = (@map) =>
+#    legend.onAdd = (map) =>
 #      console.log 'legend.onAdd'
 #          categories = [
 #            'Single Case'
@@ -638,13 +659,15 @@ class MapView extends Backbone.View
                 L.circleMarker latlng, caseMarkerOptions
             else
                 L.circleMarker latlng, casesMarkerOptions
-          ).addTo(@map)
-        if heatMapCoords.length == 0
-          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
-          $('.timeButton button').toggleClass 'mdl-button--disabled', true
-        else
-          $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
-          $('.timeButton button').toggleClass 'mdl-button--disabled', false
+          ).addTo(map)
+#        if heatMapCoords.length == 0
+#          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
+#          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
+#          $('.timeButton button').toggleClass 'mdl-button--disabled', true
+#        else
+#          $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
+#          $('.clusterButton button').toggleClass 'mdl-button--disabled', false
+#          $('.timeButton button').toggleClass 'mdl-button--disabled', false
         if data.features.length > 0
 #          console.log('multiCase')
           materialLayersControl.addOverlay casesLayer, 'Cases'
