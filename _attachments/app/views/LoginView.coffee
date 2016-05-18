@@ -57,7 +57,6 @@ class LoginView extends Backbone.View
         </form>
       </dialog>
     "
-    dialogPolyfill.registerDialog(dialog)
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        dialog.showModal()
@@ -68,7 +67,7 @@ class LoginView extends Backbone.View
   submitIfEnter: (event) ->
     @login() if event.which == 10 or event.which == 13
 
-  login: (callback) =>
+  login: () =>
     # Useful for reusing the login screen - like for database encryption
     if $("#userName").val() is "" or $("#passWord").val() is ""
       $('.coconut-mdl-card__title').html "<i class='material-icons'>error_outline</i> Please enter both username and password."

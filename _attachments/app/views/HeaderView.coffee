@@ -5,7 +5,8 @@ Backbone.$  = $
 Cookies = require 'js-cookie'
 
 class HeaderView extends Backbone.View
-
+  el: "header.coconut-header"
+  
   events:
     "click a#logout": "Logout"
 

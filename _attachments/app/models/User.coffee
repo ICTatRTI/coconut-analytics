@@ -2,6 +2,8 @@ _ = require 'underscore'
 $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
+PouchDB = require 'pouchdb'
+BackbonePouch = require 'backbone-pouch'
 Cookies = require 'js-cookie'
 
 class User extends Backbone.Model
@@ -25,24 +27,26 @@ class User extends Backbone.Model
   nameOrUsernameWithDescription: =>
     "#{@nameOrUsername()} #{if @district() then " - #{@district()}" else ""}"
 
+  @isAdministrator = (user) ->
+    return user.roles.includes "admin"
+    
 User.isAuthenticated = (options) ->
-  current_user_cookie = Cookies.get('current_user')
-  if current_user_cookie? and current_user_cookie isnt ""
-    user = new User
-      _id: "user.#{Cookies.get('current_user')}"
-    user.fetch
-      success: ->
-        Coconut.currentUser = user
-        options.success(user)
-      error: (error) ->
-        # current user is invalid (should not get here)
-        Coconut.currentUser = null
-        console.error "Could not fetch user.#{Cookies.get('current_user')}: #{error}"
-        options?.error()
+  username = Cookies.get('current_user')
+  if username? and username isnt ""
+    id = "user.#{username}"
+    Coconut.database.get id,
+       include_docs: true
+    .catch (error) -> 
+      Coconut.currentUser = null
+      console.error(error)
+    .then (user) -> 
+      Coconut.currentUser = user 
+      return options.success(user)
   else
     # Not logged in
     options.error() if options.error?
-
+  return
+  
 User.login = (options) ->
   user = new User
     _id: "user.#{options.username}"
@@ -50,7 +54,8 @@ User.login = (options) ->
     success: ->
 #      if (user.get("password") is options.password)
       Coconut.currentUser = user
-      Cookies.set('current_user', user.username())
+      Coconut.currentlogin = user.username()
+      Cookies.set('current_user', Coconut.currentlogin)
       Cookies.set('current_password',user.get "password")
       $("span#username").html user.username()
       $("a#logout").show()

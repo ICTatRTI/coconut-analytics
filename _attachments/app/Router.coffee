@@ -7,6 +7,8 @@ moment = require 'moment'
 PouchDB = require 'pouchdb'
 
 DashboardView = require './views/DashboardView'
+MenuView = require './views/MenuView'
+HeaderView = require './views/HeaderView'
 UsersView = require './views/UsersView'
 DateSelectorView = require './views/DateSelectorView'
 IssuesView = require './views/IssuesView'
@@ -17,7 +19,6 @@ MapView = require './views/MapView'
 FacilityHierarchyView = require './views/FacilityHierarchyView'
 RainfallStationView = require './views/RainfallStationView'
 GeoHierarchyView = require './views/GeoHierarchyView'
-EditDataView = require './views/EditDataView'
 LoginView = require './views/LoginView'
 User = require './models/User'
 Dialog = require './views/Dialog'
@@ -63,7 +64,6 @@ class Router extends Backbone.Router
     "admin/facilities": "FacilityHierarchy"
     "admin/rainfall_station": "rainfallStation"
     "admin/geo_hierarchy": "geoHierarchy"
-    "admin/edit_data/:document_type": "editData"
     "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
     "export": "dataExport"
@@ -84,10 +84,7 @@ class Router extends Backbone.Router
     $("#content").html "Page not found."
 
   login: ->
-    Coconut.loginView = new LoginView()
-    Coconut.loginView.callback =
-      success: ->
-        Coconut.router.navigate("",true)
+    Coconut.loginView = new LoginView() if !Coconut.loginView
     Coconut.loginView.render()
 
   logout: ->
@@ -151,12 +148,16 @@ class Router extends Backbone.Router
   dashboard: (startDate,endDate) =>
     @userLoggedIn
       success:  =>
-        @dashboardView = new DashboardView() unless @dashboardView
+        Coconut.headerView = new HeaderView 
+        Coconut.menuView = new MenuView unless Coconut.menuView
+        Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
         [startDate,endDate] = @setStartEndDateIfMissing()
         @.navigate "#dashboard/#{startDate}/#{endDate}"
-        @dashboardView.startDate = startDate
-        @dashboardView.endDate = endDate
-        @dashboardView.render()
+        Coconut.dashboardView.startDate = startDate
+        Coconut.dashboardView.endDate = endDate
+        Coconut.dashboardView.render()
+        Coconut.headerView.render()
+        Coconut.menuView.render()
 
   dataExport: ->
     @userLoggedIn
@@ -214,24 +215,6 @@ class Router extends Backbone.Router
         @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
         @shehiasHighRiskView.render()
 
-  editData: (document_id) ->
-    @adminLoggedIn
-      success: ->
-        console.log(document_id)
-        Coconut.EditDataView = new EditDataView() unless Coconut.EditDataView
-        Coconut.database.get document_id
-        .catch (error) -> 
-          Coconut.EditDataView.document = {
-            _id: document_id
-          }
-          Coconut.EditDataView.render()
-        .then (result) ->
-          Coconut.EditDataView.document = result
-          Coconut.EditDataView.render()
-
-      error: ->
-        alert("You do not have admin privileges")
-
   users: () =>
     @adminLoggedIn
       success: ->
@@ -267,7 +250,7 @@ class Router extends Backbone.Router
   adminLoggedIn: (callback) ->
     @userLoggedIn
       success: (user) ->
-        if user.isAdmin()
+        if User.isAdministrator(user)
           callback.success(user)
         else
           $("#drawer-admin, #admin-main").hide()
