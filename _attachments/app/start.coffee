@@ -16,6 +16,8 @@ Cookies = require 'js-cookie'
 # These are local .coffee files
 Router = require './Router'
 User = require './models/User'
+MenuView = require './views/MenuView'
+HeaderView = require './views/HeaderView'
 
 cookieUser = Cookies.get('current_user') || null
 
@@ -36,6 +38,10 @@ global.Env = {
   is_chrome: /chrome/i.test(navigator.userAgent)
 }
 
+Coconut.headerView = new HeaderView 
+Coconut.headerView.render()
+Coconut.menuView = new MenuView 
+Coconut.menuView.render()
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync

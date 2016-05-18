@@ -148,16 +148,13 @@ class Router extends Backbone.Router
   dashboard: (startDate,endDate) =>
     @userLoggedIn
       success:  =>
-        Coconut.headerView = new HeaderView 
-        Coconut.menuView = new MenuView unless Coconut.menuView
         Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
         [startDate,endDate] = @setStartEndDateIfMissing()
         @.navigate "#dashboard/#{startDate}/#{endDate}"
         Coconut.dashboardView.startDate = startDate
         Coconut.dashboardView.endDate = endDate
         Coconut.dashboardView.render()
-        Coconut.headerView.render()
-        Coconut.menuView.render()
+
 
   dataExport: ->
     @userLoggedIn
