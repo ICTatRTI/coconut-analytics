@@ -15,7 +15,7 @@ class ExportDataView extends Backbone.View
   render: =>
     @$el.html "
         <div id='dateSelector'></div>
-        <h3>Download Spreadsheet</h3>
+        <h4>Download Spreadsheet</h4>
         <button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' id='export'>Download</button>
     "
 

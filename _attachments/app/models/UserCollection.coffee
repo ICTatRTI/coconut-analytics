@@ -9,11 +9,13 @@ User = require './User'
 class UserCollection extends Backbone.Collection
   model: User
   pouch:
-    fetch: 'query'
     options:
       query:
         include_docs: true
         fun: "zanzibar/users"
+
+      changes:
+        include_docs: true
 
   parse: (response) ->
     _(response.rows).pluck("doc")
@@ -21,6 +23,5 @@ class UserCollection extends Backbone.Collection
   district: (userId) ->
     userId = "user.#{userId}" unless userId.match(/^user\./)
     @get(userId).get("district")
-
 
 module.exports = UserCollection

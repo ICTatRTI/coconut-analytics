@@ -9,14 +9,13 @@ class Dialog
     componentHandler.upgradeAllRegistered()
 
     # Temporary hack for polyfill issue on non-chrome browsers
-    if (Env.is_chrome)
-       dialog.showModal()
-    else
-       dialog.show()
+    if (Env.is_chrome) then dialog.showModal() else dialog.show()
 
   @markTextfieldDirty = () ->
     #hack to make MDL textfield label float in edit mode
     $("input").parent().addClass('is-dirty')
+    $("textarea").parent().addClass('is-dirty')
+    $("select").parent().addClass('is-dirty')
 
   @confirm = (dtext,dtitle,actionBtns) ->
     $("div#dialogContent").html "
