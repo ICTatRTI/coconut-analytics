@@ -15,40 +15,27 @@ Cookies = require 'js-cookie'
 
 # These are local .coffee files
 Router = require './Router'
-MenuView = require './views/MenuView'
-HeaderView = require './views/HeaderView'
+User = require './models/User'
 
+cookieUser = Cookies.get('current_user') || null
 
 # Coconut is just a global object useful for keeping things in one scope
-global.Coconut = {
+#TODO load config from a _local database doc
+global.Coconut =
   database: new PouchDB("http://localhost:5984/zanzibar")
   router: new Router()
-  #TODO load config from a _local database doc
-  config: {
+  config:
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
-  }
-  currentlogin: Cookies.get('current_user') || ""
-  currentUser: null
-  reportDates: {
+  currentlogin: cookieUser
+  reportDates: 
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
-  }
-}
 
 global.Env = {
   is_chrome: /chrome/i.test(navigator.userAgent)
 }
 
-# These are views that should always be shown so render them now
-menuView = new MenuView
-  # Set the element that this view should render to
-  el: ".coconut-drawer"
-menuView.render()
-
-headerView = new HeaderView
-  el: "header.coconut-header"
-headerView.render()
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
@@ -70,3 +57,4 @@ global.GeoHierarchy = new GeoHierarchyClass
     Backbone.history.start()
 
 global.Issues = require './models/Issues'
+
