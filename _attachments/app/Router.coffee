@@ -50,11 +50,11 @@ activityViews = {
 class Router extends Backbone.Router
   # caches views
   views: {}
-  reportViewOptions = []
   
   # holds option pairs for more complex URLs like for reports
   reportViewOptions: {}
   activityViewOptions: {}
+  dateSelectorOptions: {}
   
   routes:
     "": "dashboard"
@@ -279,11 +279,6 @@ class Router extends Backbone.Router
        type: "Analysis"
        startDate:  moment().subtract("7","days").format(Coconut.config.dateFormat)
        endDate: moment().format(Coconut.config.dateFormat)
-       startYear: moment().year()
-       endYear: moment().year()
-       startWeek: 1
-       endWeek: 1
-       dateMode: 'Week'
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }

@@ -6,7 +6,7 @@ Pikaday = require 'pikaday'
 
 class DateSelectorView extends Backbone.View
   el: "#dateSelector"
-
+    
   events:
     "change #select-by": "selectBy"
     "click .submitBtn": "updateReportView"
@@ -20,13 +20,13 @@ class DateSelectorView extends Backbone.View
     e.preventDefault
     startDate = $('#startDate').val()
     endDate = $('#endDate').val()
-    
-    Coconut.router.reportViewOptions['dateMode'] = dateMode = $('#select-by :selected').text()
+
+    Coconut.router.dateSelectorOptions['dateMode'] = dateMode = $('#select-by :selected').text()
     if dateMode is "Week"
-      Coconut.router.reportViewOptions['startYear'] = startYear = $('[name=StartYear]').val()
-      Coconut.router.reportViewOptions['endYear'] = endYear = $('[name=EndYear]').val()
-      Coconut.router.reportViewOptions['startWeek'] = startWeek = $('[name=StartWeek]').val()
-      Coconut.router.reportViewOptions['endWeek'] = endWeek = $('[name=EndWeek]').val()
+      Coconut.router.dateSelectorOptions['startYear'] = startYear = $('[name=StartYear]').val()
+      Coconut.router.dateSelectorOptions['endYear'] = endYear = $('[name=EndYear]').val()
+      Coconut.router.dateSelectorOptions['startWeek'] = startWeek = $('[name=StartWeek]').val()
+      Coconut.router.dateSelectorOptions['endWeek'] = endWeek = $('[name=EndWeek]').val()
       
       startYearWeek = "#{startYear}-#{startWeek}"
       endYearWeek = "#{endYear}-#{endWeek}"
@@ -43,8 +43,11 @@ class DateSelectorView extends Backbone.View
       else
         $("div#filters-section").slideToggle()
         # Update the URL and rerender page
+        Coconut.router.dateSelectorOptions['startDate'] = startDate
+        Coconut.router.dateSelectorOptions['endDate'] = endDate
         Coconut.router.reportViewOptions['startDate'] = startDate
         Coconut.router.reportViewOptions['endDate'] = endDate
+
         url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
         Coconut.router.navigate(url,{trigger: true})
     else
@@ -60,7 +63,6 @@ class DateSelectorView extends Backbone.View
       $('tr.select-by-week').show()
 
   render: =>
-
     @$el.html "
       <div id='date-range'>
         <span id='filters-drop' class='drop-pointer'>
@@ -77,8 +79,8 @@ class DateSelectorView extends Backbone.View
                <tr id='select-date-week'>
                  <td colspan='2'>Select By</td>
                  <td><select name='SelectBy' id='select-by'> 
-                    <option value='Week' #{if Coconut.router.reportViewOptions.dateMode is 'Week' then 'Selected'}>Week</option>
-                    <option value='Date' #{if Coconut.router.reportViewOptions.dateMode is 'Date' then 'Selected'}>Date</option></select>
+                    <option value='Week' #{if Coconut.router.dateSelectorOptions.dateMode is 'Week' then 'Selected'}>Week</option>
+                    <option value='Date' #{if Coconut.router.dateSelectorOptions.dateMode is 'Date' then 'Selected'}>Date</option></select>
                  </td>
                 <td clospan='4'> &nbsp; </td>
                </tr>
@@ -108,7 +110,7 @@ class DateSelectorView extends Backbone.View
                    <select name='StartYear'>
                      #{
                        for i in [moment().year()..2012]
-                          "<option value='#{i}' #{if i.toString() is Coconut.router.reportViewOptions.startYear then 'Selected'}>#{i}</option>"
+                          "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startYear then 'Selected'}>#{i}</option>"
                      }
                    </select>
                  </td>
@@ -120,7 +122,7 @@ class DateSelectorView extends Backbone.View
                    <select name='StartWeek'> <option></option>
                      #{
                          for i in [1..53]
-                           "<option value='#{i}' #{if i.toString() is Coconut.router.reportViewOptions.startWeek then 'Selected'}>Week #{i}</option>"
+                           "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startWeek then 'Selected'}>Week #{i}</option>"
                      } 
                    </select>
                  </td>
@@ -133,7 +135,7 @@ class DateSelectorView extends Backbone.View
                      <select name='EndYear'> 
                         #{
                             for i in [moment().year()..2012]
-                              "<option value='#{i}' #{if i.toString() is Coconut.router.reportViewOptions.endYear then 'Selected'}>#{i}</option>"
+                              "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endYear then 'Selected'}>#{i}</option>"
                         }
                       </select>
                    </td>
@@ -145,7 +147,7 @@ class DateSelectorView extends Backbone.View
                       <select name='EndWeek'><option></option>
                         #{
                             for i in [1..53] 
-                              "<option value='#{i}' #{if i.toString() is Coconut.router.reportViewOptions.endWeek then 'Selected'}>Week #{i}</option>" 
+                              "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endWeek then 'Selected'}>Week #{i}</option>" 
                         }
                       </select>
                    </td>
