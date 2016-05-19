@@ -7,8 +7,9 @@ BackbonePouch = require 'backbone-pouch'
 Cookies = require 'js-cookie'
 
 class User extends Backbone.Model
-  url: "/user"
-  
+  sync: BackbonePouch.sync
+     db: new PouchDB("http://localhost:5984/zanzibar")
+        
   username: ->
     @get("_id").replace(/^user\./,"")
 
@@ -26,22 +27,20 @@ class User extends Backbone.Model
 
   nameOrUsernameWithDescription: =>
     "#{@nameOrUsername()} #{if @district() then " - #{@district()}" else ""}"
-
-  @isAdministrator = (user) ->
-    return user.roles.includes "admin"
+    
     
 User.isAuthenticated = (options) ->
   username = Cookies.get('current_user')
   if username? and username isnt ""
     id = "user.#{username}"
-    Coconut.database.get id,
-       include_docs: true
-    .catch (error) -> 
-      Coconut.currentUser = null
-      console.error(error)
-    .then (user) -> 
-      Coconut.currentUser = user 
-      return options.success(user)
+    Coconut.currentUser = new User()
+    # id is not recognized when put in constructor for some reason
+    Coconut.currentUser.id = id
+    Coconut.currentUser.fetch
+      error: ->
+        console.error error
+      success: ->
+        options.success(Coconut.currentUser)
   else
     # Not logged in
     options.error() if options.error?

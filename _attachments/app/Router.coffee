@@ -247,7 +247,7 @@ class Router extends Backbone.Router
   adminLoggedIn: (callback) ->
     @userLoggedIn
       success: (user) ->
-        if User.isAdministrator(user)
+        if user.isAdmin
           callback.success(user)
         else
           $("#drawer-admin, #admin-main").hide()

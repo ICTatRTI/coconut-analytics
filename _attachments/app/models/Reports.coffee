@@ -59,7 +59,8 @@ class Reports
       Coconut.database.query "zanzibar/cases",
         keys: caseIDs
         include_docs: true
-      .then (result) ->
+      .catch (error) -> console.error error
+      .then (result) =>
         groupedResults = _.chain(result.rows)
           .groupBy (row) =>
             row.key
@@ -73,7 +74,6 @@ class Reports
           .compact()
           .value()
         options.success groupedResults
-      .catch (error) -> console.error
     .catch (error) -> console.error error
 
   # legacy support - use the static one instead

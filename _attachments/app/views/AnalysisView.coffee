@@ -49,7 +49,6 @@ class AnalysisView extends Backbone.View
       <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>&nbsp; Shehia</input>
       <div style='font-style:italic; margin-top: 10px'>Click on arrow button/title to show table.</div>
       <hr/>
-      <img id='analysis-spinner' src='images/spinner.gif'/>
       </div>
     "
 	
@@ -60,6 +59,7 @@ class AnalysisView extends Backbone.View
       startDate:            options.startDate
       endDate:              options.endDate
       mostSpecificLocation: options.mostSpecificLocation
+      error: (error) -> console.error error
       success: (data) =>
         $("#analysis-spinner").hide()
         headings = [

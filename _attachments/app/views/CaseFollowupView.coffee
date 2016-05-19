@@ -24,7 +24,8 @@ class CaseFollowupView extends Backbone.View
     reports.getCases
       startDate: @startDate
       endDate: @endDate
-      success: options.success
+      success: (result) -> 
+        options.success(result)
       mostSpecificLocation: Reports.mostSpecificLocationSelected()
 
   render: =>
@@ -38,7 +39,6 @@ class CaseFollowupView extends Backbone.View
 
     @$el.html "
       <div id='dateSelector'></div>
-      <img id='analysis-spinner' src='/images/spinner.gif'/> 	
       <div id='summary-dropdown'>
         <div id='unhide-icons'>
 		  <!--
