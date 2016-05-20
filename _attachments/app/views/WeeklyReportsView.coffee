@@ -5,6 +5,7 @@ Backbone.$  = $
 
 DataTables = require 'datatables'
 Reports = require '../models/Reports'
+HTMLHelpers = require '../HTMLHelpers'
 
 class WeeklyReportsView extends Backbone.View
   el: "#content"
@@ -18,7 +19,7 @@ class WeeklyReportsView extends Backbone.View
     $('#analysis-spinner').show()
     @$el.html "
       <div id='dateSelector'></div>
-      <h4>Weekly Facility Reports from MEEDS or iSMS aggregated by
+      <h4>Weekly Facility Reports aggregated by
         <select style='height:50px;font-size:90%' id='aggregationPeriod'>
           #{
             _("Year,Month,Week".split(",")).map (aggregationPeriod) =>
@@ -49,87 +50,87 @@ class WeeklyReportsView extends Backbone.View
       endDate: @endDate
       aggregationArea: @aggregationArea
       aggregationPeriod: @aggregationPeriod
-    .catch (error) ->
-      console.log error
-    .then (results) =>
-      $("#analysis-spinner").hide()
-      @$el.append "
-          <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='weeklyReports'>
-            <thead>
-              <th class='mdl-data-table__cell--non-numeric'>#{@aggregationPeriod}</th>
-              <th class='mdl-data-table__cell--non-numeric'>#{@aggregationArea}</th>
-              #{
-                _.map results.fields, (field) ->
-                  "<th>#{field}</th>"
-                .join("")
-              }
-              <th>Weekly Reports Positive Cases</th>
-              <th><5 Test Rate</th>
-              <th><5 POS Rate</th>
-              <th>=>5 Test Rate</th>
-              <th>>=5 POS Rate</th>
-            </thead>
-            <tbody>
-              #{
-                _(results.data).map (aggregationAreas, aggregationPeriod) =>
-                  _(aggregationAreas).map (data,aggregationArea) =>
-
-                    # TODO fix this - we shouldn't skip unknowns
-                    if aggregationArea is "Unknown"
-                      console.error "Unknown aggregation area for:"
-                      console.error data
-                      return if aggregationArea is "Unknown"
-                    "
-                      <tr>
-                        <td>#{aggregationPeriod}</td>
-                        <td>#{aggregationArea}</td>
-                        #{
-                        _.map results.fields, (field) =>
-                          if field is "Facility Followed-Up Positive Cases"
-                            "<td>#{@createDisaggregatableCaseGroupWithLength data[field]}</td>"
-                          else
-                            "<td>#{if data[field]? then data[field] else "-"}</td>"
-                        .join("")
-                        }
-                        <td>
-                          #{
-                            total = data["Mal POS < 5"]+data["Mal POS >= 5"]
-                            if Number.isNaN(total) then '-' else total
-                          }
-                        </td>
-                        #{
-                          percentElement = (number) ->
-                            if Number.isNaN(number)
-                              "<td>-</td>"
-                            else
-                              "<td>#{Math.round(number * 100)}%</td>"
-                          ""
-                        }
-
-                        #{percentElement ((data["Mal POS < 5"]+data["Mal NEG < 5"])/data["All OPD < 5"])}
-                        #{percentElement (data["Mal POS < 5"]/(data["Mal NEG < 5"]+data["Mal POS < 5"]))}
-                        #{percentElement ((data["Mal POS >= 5"]+data["Mal NEG >= 5"])/data["All OPD >= 5"])}
-                        #{percentElement (data["Mal POS >= 5"]/(data["Mal NEG >= 5"]+data["Mal POS >= 5"]))}
-
-                      </tr>
-                    "
+      error: (error) ->
+        console.error error
+      success: (results) =>
+        $("#analysis-spinner").hide()
+        @$el.append "
+            <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='weeklyReports'>
+              <thead>
+                <th class='mdl-data-table__cell--non-numeric'>#{@aggregationPeriod}</th>
+                <th class='mdl-data-table__cell--non-numeric'>#{@aggregationArea}</th>
+                #{
+                  _.map results.fields, (field) ->
+                    "<th>#{field}</th>"
                   .join("")
-                .join("")
-              }
-            </tbody>
-          </table>
-      "
+                }
+                <th>Weekly Reports Positive Cases</th>
+                <th><5 Test Rate</th>
+                <th><5 POS Rate</th>
+                <th>=>5 Test Rate</th>
+                <th>>=5 POS Rate</th>
+              </thead>
+              <tbody>
+                #{
+                  _(results.data).map (aggregationAreas, aggregationPeriod) =>
+                    _(aggregationAreas).map (data,aggregationArea) =>
 
-      $("#weeklyReports").dataTable
-        aaSorting: [[0,"desc"],[1,"asc"],[2,"desc"]]
-        iDisplayLength: 50
-        dom: 'T<"clear">lfrtip'
-        tableTools:
-          sSwfPath: "js-libraries/copy_csv_xls.swf"
-          aButtons: [
-            "copy",
-            "csv",
-            "print"
-          ]
+                      # TODO fix this - we shouldn't skip unknowns
+                      if aggregationArea is "Unknown"
+                        console.error "Unknown aggregation area for:"
+                        console.error data
+                        return if aggregationArea is "Unknown"
+                      "
+                        <tr>
+                          <td>#{aggregationPeriod}</td>
+                          <td>#{aggregationArea}</td>
+                          #{
+                          _.map results.fields, (field) =>
+                            if field is "Facility Followed-Up Positive Cases"
+                              "<td>#{HTMLHelpers.createDisaggregatableCaseGroupWithLength data[field]}</td>"
+                            else
+                              "<td>#{if data[field]? then data[field] else "-"}</td>"
+                          .join("")
+                          }
+                          <td>
+                            #{
+                              total = data["Mal POS < 5"]+data["Mal POS >= 5"]
+                              if Number.isNaN(total) then '-' else total
+                            }
+                          </td>
+                          #{
+                            percentElement = (number) ->
+                              if Number.isNaN(number)
+                                "<td>-</td>"
+                              else
+                                "<td>#{Math.round(number * 100)}%</td>"
+                            ""
+                          }
+
+                          #{percentElement ((data["Mal POS < 5"]+data["Mal NEG < 5"])/data["All OPD < 5"])}
+                          #{percentElement (data["Mal POS < 5"]/(data["Mal NEG < 5"]+data["Mal POS < 5"]))}
+                          #{percentElement ((data["Mal POS >= 5"]+data["Mal NEG >= 5"])/data["All OPD >= 5"])}
+                          #{percentElement (data["Mal POS >= 5"]/(data["Mal NEG >= 5"]+data["Mal POS >= 5"]))}
+
+                        </tr>
+                      "
+                    .join("")
+                  .join("")
+                }
+              </tbody>
+            </table>
+        "
+
+        $("#weeklyReports").dataTable
+          aaSorting: [[0,"desc"],[1,"asc"],[2,"desc"]]
+          iDisplayLength: 50
+          dom: 'T<"clear">lfrtip'
+          tableTools:
+            sSwfPath: "js-libraries/copy_csv_xls.swf"
+            aButtons: [
+              "copy",
+              "csv",
+              "print"
+            ]
  
 module.exports = WeeklyReportsView
