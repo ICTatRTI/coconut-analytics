@@ -37,16 +37,19 @@ class RainfallReportView extends Backbone.View
           </thead>
           <tbody>
           #{
-             _(results.rows).map (row) =>
-               "
-                <tr>
-                  <td class='mdl-data-table__cell--non-numeric'>#{row.value[0]}</td>
-                  <td>#{row.key[0]}</td>
-                  <td>#{row.key[1]}</td>
-                  <td>#{row.value[1]}</td>
-                </tr>
-               "
-             .join("")
+             if (results.rows.length == 0)
+               "<tr><td colspan='4'><center>No result found...</center></td></tr>"
+             else
+               _(results.rows).map (row) =>
+                 "
+                  <tr>
+                    <td class='mdl-data-table__cell--non-numeric'>#{row.value[0]}</td>
+                      <td>#{row.key[0]}</td>
+                      <td>#{row.key[1]}</td>
+                      <td>#{row.value[1]}</td>
+                  </tr>
+                "
+                .join("")
           }
           </tbody>
         </table>
