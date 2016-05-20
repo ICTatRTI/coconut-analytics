@@ -2,7 +2,8 @@ _ = require 'underscore'
 moment = require 'moment'
 
 Case = require './Case'
-
+FacilityHierarchy = require './FacilityHierarchy'
+  
 class Reports
 
   positiveCaseLocations: (options) ->
@@ -53,6 +54,7 @@ class Reports
       endkey: options.startDate
       descending: true
       include_docs: false
+    .catch (error) -> console.error error
     .then (result) ->
       caseIDs = _.unique(_.pluck result.rows, "value")
 
@@ -74,7 +76,6 @@ class Reports
           .compact()
           .value()
         options.success groupedResults
-    .catch (error) -> console.error error
 
   # legacy support - use the static one instead
   getCases: (options) =>
@@ -269,7 +270,6 @@ class Reports
       include_docs: true
     .catch (error) -> console.error
     .then (result) ->
-      console.log(result)
       errorsByType = {}
       _.chain(result.rows)
         .pluck("doc")

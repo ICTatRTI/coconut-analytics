@@ -1,4 +1,3 @@
-GeoHierarchy = require '../models/GeoHierarchy'
 
 class FacilityHierarchy extends Backbone.Model
 

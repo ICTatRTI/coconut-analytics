@@ -19,8 +19,6 @@ User = require './models/User'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 
-cookieUser = Cookies.get('current_user') || null
-
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
 global.Coconut =
@@ -29,7 +27,7 @@ global.Coconut =
   config:
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
-  currentlogin: cookieUser
+  currentlogin: Cookies.get('current_user') || null
   reportDates: 
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
@@ -58,7 +56,8 @@ _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
 
 GeoHierarchyClass = require './models/GeoHierarchy'
 global.GeoHierarchy = new GeoHierarchyClass
-  error: (error) -> console.error error
+  error: (error) -> 
+    console.error error
   success: =>
     Backbone.history.start()
 
