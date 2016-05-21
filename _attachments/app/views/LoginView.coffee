@@ -57,11 +57,15 @@ class LoginView extends Backbone.View
         </form>
       </dialog>
     "
+    dialogPolyfill.registerDialog(dialog)
+    componentHandler.upgradeAllRegistered()
+    
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        dialog.showModal()
     else
        dialog.show()
+       
     componentHandler.upgradeDom()
 
   submitIfEnter: (event) ->
