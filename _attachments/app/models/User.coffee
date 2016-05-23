@@ -8,7 +8,7 @@ Cookies = require 'js-cookie'
 
 class User extends Backbone.Model
   sync: BackbonePouch.sync
-     db: new PouchDB("http://localhost:5984/zanzibar")
+     db: pouchdb
         
   username: ->
     @get("_id").replace(/^user\./,"")
@@ -51,6 +51,7 @@ User.login = (options) ->
     _id: "user.#{options.username}"
   user.fetch
     success: ->
+# temporarily disabled during testing.
 #      if (user.get("password") is options.password)
       Coconut.currentUser = user
       Coconut.currentlogin = user.username()

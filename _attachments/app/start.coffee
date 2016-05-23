@@ -12,6 +12,7 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
+global.pouchdb = new PouchDB("http://localhost:5984/zanzibar")
 
 # These are local .coffee files
 Router = require './Router'
@@ -22,7 +23,7 @@ HeaderView = require './views/HeaderView'
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
 global.Coconut =
-  database: new PouchDB("http://localhost:5984/zanzibar")
+  database: pouchdb
   router: new Router()
   config:
     dateFormat: "YYYY-MM-DD"
