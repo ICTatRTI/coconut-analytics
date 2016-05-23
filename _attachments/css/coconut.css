@@ -359,6 +359,10 @@ i.material-icons{
 	transform: translateX(-50%) translateY(-50%);
 }
 
+#admin-main {
+  display: none;
+}
+
 .snippet-demo {
 	padding: 0 0 10px;
 	display: table-cell;
@@ -829,6 +833,7 @@ div#form-title, div#dialog-title {
 	top: 50%;
 	left: 50%;
 	display: none;
+  z-index: 1000;
 }
 
 #alerts-drop-section, #cases-drop-section, #legend-drop-section {

@@ -152,7 +152,9 @@ class MenuView extends Backbone.View
         }
         </div>	
       </nav>
-    "    
-    if Coconut.currentUser? and Coconut.currentUser.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
+    "
+    Coconut.router.userLoggedIn
+      success: =>
+        if Coconut.currentUser.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
 
 module.exports = MenuView
