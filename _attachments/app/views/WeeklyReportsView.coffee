@@ -10,6 +10,16 @@ HTMLHelpers = require '../HTMLHelpers'
 class WeeklyReportsView extends Backbone.View
   el: "#content"
 
+  events:
+    "change select.aggregation": "updateAggregation"
+
+  updateAggregation: (e) =>
+    Coconut.router.reportViewOptions['aggregationPeriod'] = $("#aggregationPeriod").val()
+    Coconut.router.reportViewOptions['aggregationArea'] = $("#aggregationArea").val()
+    @render()
+    Coconut.dateSelectorView.setElement "#dateSelector"
+    Coconut.dateSelectorView.render()
+    
   render: =>
     options = Coconut.router.reportViewOptions
     @startDate = options.startDate
@@ -17,10 +27,11 @@ class WeeklyReportsView extends Backbone.View
     @aggregationPeriod = options.aggregationPeriod or "Month"
     @aggregationArea = options.aggregationArea or "Zone"
     $('#analysis-spinner').show()
+    console.log("Rendering Weekly Facility")
     @$el.html "
       <div id='dateSelector'></div>
       <h4>Weekly Facility Reports aggregated by
-        <select style='height:50px;font-size:90%' id='aggregationPeriod'>
+        <select style='height:50px;font-size:90%' id='aggregationPeriod' class='aggregation'>
           #{
             _("Year,Month,Week".split(",")).map (aggregationPeriod) =>
               "
@@ -31,7 +42,7 @@ class WeeklyReportsView extends Backbone.View
           }
         </select>
         and
-        <select style='height:50px;font-size:90%' id='aggregationArea'>
+        <select style='height:50px;font-size:90%' id='aggregationArea' class='aggregation'>
           #{
             _("Zone,District,Facility".split(",")).map (aggregationArea) =>
               "
@@ -120,7 +131,6 @@ class WeeklyReportsView extends Backbone.View
               </tbody>
             </table>
         "
-
         $("#weeklyReports").dataTable
           aaSorting: [[0,"desc"],[1,"asc"],[2,"desc"]]
           iDisplayLength: 50

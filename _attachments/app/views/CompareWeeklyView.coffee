@@ -12,7 +12,16 @@ class CompareWeeklyView extends Backbone.View
 
   events:
     "click #csv": "toggleCSVMode"
+    "change select.aggregatedBy": "updateAggregatedBy"
 
+  updateAggregatedBy: (e) =>
+    Coconut.router.reportViewOptions['aggregationPeriod'] = $("#aggregationPeriod").val()
+    Coconut.router.reportViewOptions['aggregationArea'] = $("#aggregationArea").val()
+    Coconut.router.reportViewOptions['facilityType'] = $("#facilityType").val()
+    @render()
+    Coconut.dateSelectorView.setElement "#dateSelector"
+    Coconut.dateSelectorView.render()
+    
   toggleCSVMode: () =>
     if @csvMode then @csvMode = false else @csvMode = true
     @renderFacilityTimeliness()
@@ -225,7 +234,6 @@ class CompareWeeklyView extends Backbone.View
     @aggregationPeriod = @options.aggregationPeriod or "Month"
     @aggregationArea = @options.aggregationArea or "Zone"
     @facilityType = @options.facilityType or "All"
-
     @$el.html "
         <style>
           td.number{
@@ -242,7 +250,7 @@ class CompareWeeklyView extends Backbone.View
         </style>
         <div id='dateSelector'></div>
         <h5>Compare Weekly Reports and Coconut cases aggregated by 
-        <select style='height:50px;font-size:90%' id='aggregationPeriod'>
+        <select style='height:50px;font-size:90%' id='aggregationPeriod' class='aggregatedBy'>
           #{
             _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
               "
@@ -253,7 +261,7 @@ class CompareWeeklyView extends Backbone.View
           }
         </select>
         and
-        <select style='height:50px;font-size:90%' id='aggregationArea'>
+        <select style='height:50px;font-size:90%' id='aggregationArea' class='aggregatedBy'>
           #{
             _("Zone,District,Facility".split(",")).map (aggregationArea) =>
               "
@@ -264,7 +272,7 @@ class CompareWeeklyView extends Backbone.View
           }
         </select>
 
-        for <select style='height:50px;font-size:90%' id='facilityType'>
+        for <select style='height:50px;font-size:90%' id='facilityType' class='aggregatedBy'>
           #{
             _("All,Private,Public".split(",")).map (facilityType) =>
               "
@@ -315,11 +323,12 @@ class CompareWeeklyView extends Backbone.View
       aggregationArea: @aggregationArea
       aggregationPeriod: @aggregationPeriod
       facilityType: @facilityType
-    .catch (error) ->
-      console.log error
-    .then (results) =>
-      @results = results
-      $('#analysis-spinner').hide()
-      @renderFacilityTimeliness()
+      
+      error: (error) ->
+        console.error error
+      success: (results) =>
+        @results = results
+        $('#analysis-spinner').hide()
+        @renderFacilityTimeliness()
 	  
 module.exports = CompareWeeklyView
