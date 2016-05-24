@@ -52,8 +52,7 @@ class CompareWeeklyView extends Backbone.View
     @createDisaggregatableCaseGroup cases, text
     
   renderFacilityTimeliness: =>
-    @$el.append "
-          <tbody>
+    $('table#facilityTimeliness tbody').html "
             #{
               quartilesAndMedian = (values)->
                 [median,h1Values,h2Values] = getMedianWithHalves(values)
@@ -218,14 +217,13 @@ class CompareWeeklyView extends Backbone.View
                 .join("")
               .join("")
             }
-          </tbody>
-        </table>
     "
 
     $("#facilityTimeliness").dataTable
       aaSorting: [[0,"desc"]]
       iDisplayLength: 50
       dom: 'T<"clear">lfrtip'
+      scrollX: true
       tableTools:
         sSwfPath: "js-libraries/copy_csv_xls.swf"
         aButtons: [
@@ -339,6 +337,8 @@ class CompareWeeklyView extends Backbone.View
             <th>Number of Household or Neighbor Members Tested (%)</th>
             <th>Number of Household or Neighbor Members Tested Positive (%)</th>
           </thead>
+          <tbody> </tbody>
+        </table>
     "	
     $('#analysis-spinner').show()
 

@@ -72,7 +72,6 @@ class FacilityHierarchy extends Backbone.Model
     return null
 
   FacilityHierarchy.facilities = (district) ->
-    console.log(FacilityHierarchy)
     _.pluck FacilityHierarchy.hierarchy[district], "facility"
 
   FacilityHierarchy.facilitiesForDistrict = (district) ->
