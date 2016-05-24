@@ -14,7 +14,9 @@ leafletImage = require 'leaflet-image'
 class MapView extends Backbone.View
   map = undefined
   layerTollBooth = undefined
-  clusters = undefined
+  clustersLayer = undefined
+  clustersTimeLayer = undefined
+  timeFeatures = []
   caseMarkerOptions = 
     radius: 4
     fillColor: '#ff7800'
@@ -38,8 +40,8 @@ class MapView extends Backbone.View
   heatMapCoords = [] 
   heatMapCoordsTime = []
   heatMapOn = false
-  heat = undefined
-  heatTime = undefined
+  heatLayer = undefined
+  heatTimeLayer = undefined
   startDate = undefined
   endDate = undefined
   materialHeatMapControl = undefined
@@ -55,8 +57,7 @@ class MapView extends Backbone.View
   villagesData = undefined
   textE = undefined
   textW = undefined
-  timeLayer = undefined
-  timeHeatMapLayer = undefined
+  casesTimeLayer = undefined
   timeScale = undefined
   outFormat = d3.time.format("%Y-%m-%d")
   legend = undefined
@@ -70,7 +71,7 @@ class MapView extends Backbone.View
     "click .timeButton": "timeToggle"
     "click .clusterButton": "clusterToggle"
 #    "click .layersButton": "layersToggle"
-    "click #exportMap": "snapImage"
+    "click .imageButton": "snapImage"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
 #    "overlayadd #map": "mapOnLayerAdd"
@@ -88,58 +89,33 @@ class MapView extends Backbone.View
   
   heatMapToggle: =>
     if heatMapCoords.length>0
-        if !materialHeatMapControl.toggleState
-            materialHeatMapControl.toggleState = true
+        console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
+        if !layerTollBooth.heatLayerOn
+            console.log('heatMaPToggle heatLayerOff')
+            layerTollBooth.setHeatLayerStatus true
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'on'
-            heat = L.heatLayer(heatMapCoords, radius: 10) 
-            map.addLayer(heat)
-            if map.hasLayer casesLayer
-#              console.log('remove')
-              map.removeLayer casesLayer
-              turnCasesLayerOn = true
+            heatLayer = L.heatLayer(heatMapCoords, radius: 10).addTo(map) 
+            heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map) 
+            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, )
         else
-            materialHeatMapControl.toggleState = false
+            console.log('heatMapToggle heatLayerOn')
+            layerTollBooth.setHeatLayerStatus false
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
-            map.removeLayer(heat)
-            if turnCasesLayerOn == true
-              map.addLayer casesLayer
-              turnCasesLayerOn = false
-  timeToggle: =>
-    dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
-    if map.hasLayer casesLayer 
-      updateFeaturesByDate(dateRange)         
-    if !materialTimeControl.toggleState
-      $("#sliderContainer").toggle()
-      layerTollBooth.handleActiveState $('.timeButton button'), 'on'
-      materialTimeControl.toggleState = true
-      if map.hasLayer casesLayer
-        map.removeLayer casesLayer
-        turnCasesLayerOn = true
-      if map.hasLayer heat
-        map.removeLayer heat
-    else
-      materialTimeControl.toggleState = false
-      $("#sliderContainer").toggle()
-      layerTollBooth.handleActiveState $('.timeButton button'), 'off'
-      if turnCasesLayerOn == true
-        map.addLayer casesLayer
-        turnCasesLayerOn = false          
-    
+            if map.hasLayer casesTimeLayer
+                casesTimeLayer.clearLayers()
+                casesTimeLayer.addData(timeFeatures) 
+            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
   clusterToggle: =>
-    if !materialClusterControl.toggleState
-      materialClusterControl.toggleState = true
+    if !layerTollBooth.clustersOn
+      layerTollBooth.setClustersStatus true
       layerTollBooth.handleActiveState $('.clusterButton button'), 'on'
-      if map.hasLayer casesLayer
-        map.removeLayer casesLayer
-        turnCasesLayerOn = true
-      clusters.addTo map
+      layerTollBooth.handleClusters(map, clustersLayer, clustersTimeLayer, casesLayer, casesTimeLayer)
+      clustersLayer.addTo map
     else
-      materialClusterControl.toggleState = false
+      layerTollBooth.setClustersStatus false
       layerTollBooth.handleActiveState $('.clusterButton button'), 'off'
-      map.removeLayer clusters
-      if turnCasesLayerOn == true
-        map.addLayer casesLayer
-        turnCasesLayerOn = false
+      layerTollBooth.handleClusters(map, clustersLayer, clustersTimeLayer, casesLayer, casesTimeLayer)
+      map.removeLayer clustersLayer
 #  layersToggle: =>
 #    if !legend._map
 #      console.log 'not in map'
@@ -147,6 +123,33 @@ class MapView extends Backbone.View
 #    else
 #      console.log 'in map'
 #      legend.removeFrom map
+  
+  timeToggle: =>
+    dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
+#    if map.hasLayer casesLayer 
+#      updateFeaturesByDate(dateRange)
+#    if map.hasLayer heatLayer
+#      updateFeaturesByDate(dateRange)
+    updateFeaturesByDate(dateRange)
+    if !layerTollBooth.timeOn
+      $("#sliderContainer").toggle()
+      layerTollBooth.handleActiveState $('.timeButton button'), 'on'
+      layerTollBooth.setTimeStatus true
+      layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+#      if map.hasLayer casesLayer
+#        map.removeLayer casesLayer
+#        turnCasesLayerOn = true
+#      if map.hasLayer heatLayer
+#        map.removeLayer heatLayer
+    else
+      layerTollBooth.setTimeStatus false
+      $("#sliderContainer").toggle()
+      layerTollBooth.handleActiveState $('.timeButton button'), 'off'
+      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
+      layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+#      if turnCasesLayerOn == true
+#        map.addLayer casesLayer
+#        turnCasesLayerOn = false          
     
   setUpTypeAheadData = (geojson) -> 
     typeAheadAdminNames = {}
@@ -186,7 +189,6 @@ class MapView extends Backbone.View
       count++
       feature = casesGeoJSON.features[fCount]
       fDate = feature.properties.date.substring(0,10)
-      console.log fDate + ' >= ' + dateRange[0] + ' and ' + fDate + ' <= ' + dateRange[1]
       if fDate >= dateRange[0] and fDate <= dateRange[1]
         timeFeatures.push feature
         coords = [
@@ -197,20 +199,21 @@ class MapView extends Backbone.View
         heatMapCoordsTime.push coords
     
     timeCasesGeoJSON.features = timeFeatures
-
-    if materialHeatMapControl.toggleState
+    if layerTollBooth.heatLayerOn
 #        console.log 'heatmapcontrolOn'
-        if !map.hasLayer timeHeatMapLayer
+        if !map.hasLayer heatTimeLayer
 #          console.log 'FirstHeatmapLayerCoords: ' + heatMapCoordsTime
-          timeHeatMapLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map)
+          heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map)
+          heatTimeLayer.redraw()
         else
 #          console.log 'UpdateHeatmapLayerCoords: ' + heatMapCoordsTime
-          timeHeatMapLayer.setLatLngs(heatMapCoordsTime)
-          timeHeatMapLayer.redraw()
+          heatTimeLayer.setLatLngs(heatMapCoordsTime)
+          heatTimeLayer.redraw()
     else    
-        if !map.hasLayer timeLayer
+        if !map.hasLayer casesTimeLayer
               #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
-              timeLayer = L.geoJson(timeCasesGeoJSON, 
+              clustersTimeLayer = L.markerClusterGroup()
+              casesTimeLayer = L.geoJson(timeCasesGeoJSON, 
               onEachFeature: (feature, layer) =>
     #            coords = [
     #              feature.geometry.coordinates[1]
@@ -219,6 +222,7 @@ class MapView extends Backbone.View
     #            ]
     #            heatMapCoordsTime.push coords
                 layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+                clustersTimeLayer.addLayer layer
                 return
               pointToLayer: (feature, latlng) =>
                 # household markers with secondary cases
@@ -229,8 +233,8 @@ class MapView extends Backbone.View
                     L.circleMarker latlng, casesMarkerOptions
               ).addTo(map)
         else
-          timeLayer.clearLayers()
-          timeLayer.addData(timeFeatures) 
+          casesTimeLayer.clearLayers()
+          casesTimeLayer.addData(timeFeatures) 
     #if heatmap is on:
     
         
@@ -260,6 +264,7 @@ class MapView extends Backbone.View
   
     
   render: =>
+    console.log 'render fired'
     options = Coconut.router.reportViewOptions
     casesGeoJSON = 
       'type': 'FeatureCollection'
@@ -273,6 +278,7 @@ class MapView extends Backbone.View
       startDate: startDate
       endDate: endDate
       success: (results) ->
+        console.log 'success'
 #        console.log "results: " + JSON.stringify results
         casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
           if malariaCase.Household?["HouseholdLocation-latitude"]
@@ -297,7 +303,7 @@ class MapView extends Backbone.View
 #        LayerTollBooth = ->
 #          @CasesLoaded = false
 #          return
-        layerTollBooth = new LayerTollBooth
+        layerTollBooth = new LayerTollBooth(map, casesLayer)
         console.log 'layerTollBooth: '+layerTollBooth.CasesLoaded
         if casesGeoJSON.features.length > 0
             console.log('set true: ')
@@ -366,9 +372,7 @@ class MapView extends Backbone.View
                         <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
                         <label for='ungujaToggle'>or</label>
                         <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
-                        <button id='exportMap' class='mdl-button mdl-js-button mdl-button--fab'>
-                          <i class='material-icons'>photo_camera</i>
-                        </button>
+                        
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
                             <select style='padding-right:20px'>
@@ -412,7 +416,7 @@ class MapView extends Backbone.View
       Streets: streets
       Outdoors: outdoors
       Satellite: satellite
-    
+    layerTollBooth = new LayerTollBooth
     map = L.map('map',
       center: [
         -5.67, 39.489
@@ -436,7 +440,6 @@ class MapView extends Backbone.View
         return
       casesLayer.bringToFront
       return
-#    layerTollBooth = new LayerTollBooth()
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
     .then (data) ->
@@ -495,7 +498,6 @@ class MapView extends Backbone.View
     materialTimeControl = new (timeControl)(
       position: 'topleft'
       materialOptions: materialOptions).addTo(map)
-#    console.log 'materialClusterControlToggleState: '+materialClusterControl.toggleState
     materialFullscreen = new (L.materialControl.Fullscreen)(
       position: 'topright'
       pseudoFullscreen: false
@@ -504,10 +506,13 @@ class MapView extends Backbone.View
 
     materialLayersControl = new (myLayersControl)(layers, overlays,
       position: 'topright'
-      pseudoFullscreen: false
       materialOptions: materialOptions).addTo(map)
-
-
+    
+    materialImageControl = new (imageControl)(
+      position: 'bottomleft'
+      materialOptions: materialOptions).addTo(map)
+    layerTollBooth.enableDisableButtons 'disable'
+    L.control.scale(position: 'bottomright').addTo map
 #    customLayers = L.control.layers(layers, overlays).addTo map
 #
 #    legend = L.control(position: 'topright')
@@ -558,6 +563,7 @@ class MapView extends Backbone.View
 #          div  
     
     brushed = ->
+      console.log('brushed')
       actives = svg.filter((p) ->
         !timeScale.brush.empty()
       )
@@ -639,7 +645,7 @@ class MapView extends Backbone.View
         if data.features.length == 0
 #            disable heatmap button else enable it
             heatMapCoords = []
-        clusters = L.markerClusterGroup()
+        clustersLayer = L.markerClusterGroup()
         casesLayer = L.geoJson(data, 
           onEachFeature: (feature, layer) =>
             coords = [
@@ -650,7 +656,7 @@ class MapView extends Backbone.View
             
             heatMapCoords.push coords
             layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
-            clusters.addLayer layer
+            clustersLayer.addLayer layer
             return
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
@@ -660,6 +666,7 @@ class MapView extends Backbone.View
             else
                 L.circleMarker latlng, casesMarkerOptions
           ).addTo(map)
+
 #        if heatMapCoords.length == 0
 #          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
 #          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
