@@ -5,9 +5,8 @@ Backbone.$  = $
 
 global.jQuery = require 'jquery'
 require 'tablesorter'
-
+moment = require 'moment'
 Reports = require '../models/Reports'
-FacilityHierarchy = require '../models/FacilityHierarchy'
 
 class CaseFollowupView extends Backbone.View
   events:
