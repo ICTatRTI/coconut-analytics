@@ -22,6 +22,8 @@ GeoHierarchyView = require './views/GeoHierarchyView'
 LoginView = require './views/LoginView'
 User = require './models/User'
 Dialog = require './views/Dialog'
+global.HTMLHelpers = require './HTMLHelpers'
+
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
 # new reportViews[type]() or new reportView["Analysis"]()

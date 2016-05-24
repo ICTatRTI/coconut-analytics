@@ -27,7 +27,6 @@ class WeeklyReportsView extends Backbone.View
     @aggregationPeriod = options.aggregationPeriod or "Month"
     @aggregationArea = options.aggregationArea or "Zone"
     $('#analysis-spinner').show()
-    console.log("Rendering Weekly Facility")
     @$el.html "
       <div id='dateSelector'></div>
       <h4>Weekly Facility Reports aggregated by
@@ -64,7 +63,6 @@ class WeeklyReportsView extends Backbone.View
       error: (error) ->
         console.error error
       success: (results) =>
-        $("#analysis-spinner").hide()
         @$el.append "
             <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='weeklyReports'>
               <thead>
@@ -142,5 +140,7 @@ class WeeklyReportsView extends Backbone.View
               "csv",
               "print"
             ]
- 
+            
+        $("#analysis-spinner").hide()
+        
 module.exports = WeeklyReportsView

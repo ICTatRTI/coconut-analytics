@@ -91,21 +91,21 @@ class AnalysisView extends Backbone.View
               "
                 <tr>
                   <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.allCases)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteHouseholdVisit)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.casesWithCompleteHouseholdVisit.length/values.allCases.length)}</td>
-                  <td class='missingUSSD details mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.missingUssdNotification)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.missingCaseNotification)}</td>
-                  <td class='details mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.casesWithCompleteFacilityVisit)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.allCases)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.casesWithCompleteHouseholdVisit)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.formattedPercent(values.casesWithCompleteHouseholdVisit.length/values.allCases.length)}</td>
+                  <td class='missingUSSD details mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.missingUssdNotification)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.missingCaseNotification)}</td>
+                  <td class='details mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.casesWithCompleteFacilityVisit)}</td>
                   #{
                     withoutcompletefacilityvisitbutwithcasenotification = _.difference(values.casesWithoutCompleteFacilityVisit,values.missingCaseNotification)
                     ""
                   }
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(withoutcompletefacilityvisitbutwithcasenotification)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(withoutcompletefacilityvisitbutwithcasenotification.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(withoutcompletefacilityvisitbutwithcasenotification)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.formattedPercent(withoutcompletefacilityvisitbutwithcasenotification.length/values.allCases.length)}</td>
 
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.noFacilityFollowupWithin24Hours)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.noFacilityFollowupWithin24Hours.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.noFacilityFollowupWithin24Hours)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.formattedPercent(values.noFacilityFollowupWithin24Hours.length/values.allCases.length)}</td>
 
 
                   #{
@@ -113,12 +113,12 @@ class AnalysisView extends Backbone.View
                     ""
                   }
 
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(withoutcompletehouseholdvisitbutwithcompletefacility)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(withoutcompletehouseholdvisitbutwithcompletefacility.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(withoutcompletehouseholdvisitbutwithcompletefacility)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.formattedPercent(withoutcompletehouseholdvisitbutwithcompletefacility.length/values.allCases.length)}</td>
 
 
-                  <td class='mdl-data-table__cell--non-numeric'>#{@createDisaggregatableCaseGroup(values.noHouseholdFollowupWithin48Hours)}</td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{@formattedPercent(values.noHouseholdFollowupWithin48Hours.length/values.allCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.createDisaggregatableCaseGroup(values.noHouseholdFollowupWithin48Hours)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{HTMLHelpers.formattedPercent(values.noHouseholdFollowupWithin48Hours.length/values.allCases.length)}</td>
 
                 </tr>
               "
@@ -189,16 +189,16 @@ class AnalysisView extends Backbone.View
             _.map(data.passiveCases, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableCaseGroup(values.indexCases)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.indexCaseHouseholdMembers.length,values.indexCaseHouseholdMembers)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.positiveCasesAtIndexHousehold.length,values.positiveCasesAtIndexHousehold)}</td>
-                  <td>#{@formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCaseHouseholdMembers.length)}</td>
-                  <td>#{@formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCases.length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableCaseGroup(values.indexCases)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.indexCaseHouseholdMembers.length,values.indexCaseHouseholdMembers)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtIndexHousehold.length,values.positiveCasesAtIndexHousehold)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCaseHouseholdMembers.length)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCases.length)}</td>
 
-                  <td>#{@createDisaggregatableDocGroup(values.neighborHouseholds.length,values.neighborHouseholds)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.neighborHouseholdMembers.length,values.neighborHouseholdMembers)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.positiveCasesAtNeighborHouseholds.length,values.positiveCasesAtNeighborHouseholds)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholds.length,values.neighborHouseholds)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholdMembers.length,values.neighborHouseholdMembers)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtNeighborHouseholds.length,values.positiveCasesAtNeighborHouseholds)}</td>
 
                 </tr>
               "
@@ -219,18 +219,18 @@ class AnalysisView extends Backbone.View
             _.map(data.ages, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableDocGroup(data.totalPositiveCases[location].length,data.totalPositiveCases[location])}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.underFive.length,values.underFive)}</td>
-                  <td>#{@formattedPercent(values.underFive.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.fiveToFifteen.length,values.fiveToFifteen)}</td>
-                  <td>#{@formattedPercent(values.fiveToFifteen.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.fifteenToTwentyFive.length,values.fifteenToTwentyFive)}</td>
-                  <td>#{@formattedPercent(values.fifteenToTwentyFive.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.overTwentyFive.length,values.overTwentyFive)}</td>
-                  <td>#{@formattedPercent(values.overTwentyFive.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.unknown.length,values.overTwentyFive)}</td>
-                  <td>#{@formattedPercent(values.unknown.length / data.totalPositiveCases[location].length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(data.totalPositiveCases[location].length,data.totalPositiveCases[location])}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.underFive.length,values.underFive)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.underFive.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.fiveToFifteen.length,values.fiveToFifteen)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.fiveToFifteen.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.fifteenToTwentyFive.length,values.fifteenToTwentyFive)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.fifteenToTwentyFive.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.overTwentyFive.length,values.overTwentyFive)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.overTwentyFive.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.unknown.length,values.overTwentyFive)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.unknown.length / data.totalPositiveCases[location].length)}</td>
 
                 </tr>
               "
@@ -252,15 +252,15 @@ class AnalysisView extends Backbone.View
             _.map(data.gender, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableDocGroup(data.totalPositiveCases[location].length,data.totalPositiveCases[location])}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.male.length,values.male)}</td>
-                  <td>#{@formattedPercent(values.male.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.female.length,values.female)}</td>
-                  <td>#{@formattedPercent(values.female.length / data.totalPositiveCases[location].length)}</td>
-                  <td style='display:none' class='gender-unknown'>#{@createDisaggregatableDocGroup(values.unknown.length,values.unknown)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(data.totalPositiveCases[location].length,data.totalPositiveCases[location])}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.male.length,values.male)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.male.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.female.length,values.female)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.female.length / data.totalPositiveCases[location].length)}</td>
+                  <td style='display:none' class='gender-unknown'>#{HTMLHelpers.createDisaggregatableDocGroup(values.unknown.length,values.unknown)}</td>
 
-                  <td style='display:none' class='gender-unknown'>#{@formattedPercent(values.unknown.length / data.totalPositiveCases[location].length)}</td>
+                  <td style='display:none' class='gender-unknown'>#{HTMLHelpers.formattedPercent(values.unknown.length / data.totalPositiveCases[location].length)}</td>
                 </tr>
               "
             ).join("")
@@ -290,12 +290,12 @@ class AnalysisView extends Backbone.View
             _.map(data.netsAndIRS, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableDocGroup(data.totalPositiveCases[location].length,data.totalPositiveCases[location])}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.sleptUnderNet.length,values.sleptUnderNet)}</td>
-                  <td>#{@formattedPercent(values.sleptUnderNet.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroup(values.recentIRS.length,values.recentIRS)}</td>
-                  <td>#{@formattedPercent(values.recentIRS.length / data.totalPositiveCases[location].length)}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(data.totalPositiveCases[location].length,data.totalPositiveCases[location])}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.sleptUnderNet.length,values.sleptUnderNet)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.sleptUnderNet.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.recentIRS.length,values.recentIRS)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(values.recentIRS.length / data.totalPositiveCases[location].length)}</td>
                 </tr>
               "
             ).join("")
@@ -329,8 +329,8 @@ class AnalysisView extends Backbone.View
             _.map data.travel, (values,location) =>
               "
                 <tr>
-                  <td>#{location}</td>
-                  <td>#{@createDisaggregatableDocGroupWithLength(data.totalPositiveCases[location])}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroupWithLength(data.totalPositiveCases[location])}</td>
                   #{
                     _.map """
                       Yes outside Zanzibar
@@ -338,8 +338,8 @@ class AnalysisView extends Backbone.View
                       Yes within and outside Zanzibar
                     """.split(/\n/), (travelReportedString) =>
                       "
-                        <td>#{@createDisaggregatableDocGroupWithLength(data.travel[location][travelReportedString])}</td>
-                        <td>#{@formattedPercent(data.travel[location][travelReportedString].length / data.totalPositiveCases[location].length)}</td>
+                        <td>#{HTMLHelpers.createDisaggregatableDocGroupWithLength(data.travel[location][travelReportedString])}</td>
+                        <td>#{HTMLHelpers.formattedPercent(data.travel[location][travelReportedString].length / data.totalPositiveCases[location].length)}</td>
                       "
                     .join('')
                   }
@@ -347,10 +347,10 @@ class AnalysisView extends Backbone.View
                     anyTravelOutsideZanzibar = _.union(data.travel[location]["Yes outside Zanzibar"], data.travel[location]["Yes within and outside Zanzibar"])
                     ""
                   }
-                  <td>#{@createDisaggregatableDocGroupWithLength(anyTravelOutsideZanzibar)}</td>
-                  <td>#{@formattedPercent(anyTravelOutsideZanzibar.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{@createDisaggregatableDocGroupWithLength(data.travel[location]["Any travel"])}</td>
-                  <td>#{@formattedPercent(data.travel[location]["Any travel"].length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroupWithLength(anyTravelOutsideZanzibar)}</td>
+                  <td>#{HTMLHelpers.formattedPercent(anyTravelOutsideZanzibar.length / data.totalPositiveCases[location].length)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroupWithLength(data.travel[location]["Any travel"])}</td>
+                  <td>#{HTMLHelpers.formattedPercent(data.travel[location]["Any travel"].length / data.totalPositiveCases[location].length)}</td>
 
                 </tr>
               "
@@ -399,60 +399,13 @@ class AnalysisView extends Backbone.View
       unless malariaCase[resultType].complete?
         unless malariaCase[resultType].complete
           buttonText = buttonText.replace(".png","Incomplete.png") unless resultType is "USSD Notification"
-      @createCaseLink
+      HTMLHelpers.createCaseLink
         caseID: malariaCase.caseID
         docId: malariaCase[resultType]._id
         buttonClass: buttonClass
         buttonText: buttonText
     else ""
-
-  createCaseLink: (options) ->
-    options.buttonText ?= options.caseID
-    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='#{options.buttonClass}'>#{options.buttonText}</button></a>"
-
-  # Can handle either full case object or just array of caseIDs
-  createCasesLinks: (cases) ->
-    _.map(cases, (malariaCase) =>
-      @createCaseLink  caseID: (malariaCase.caseID or malariaCase)
-    ).join("")
-
-  createDisaggregatableCaseGroup: (cases, text) ->
-    text = cases.length unless text?
-    "
-      <button class='sort-value same-cell-disaggregatable'>#{text}</button>
-      <div class='cases' style='padding:10px;display:none'>
-        <br/>
-        #{@createCasesLinks cases}
-      </div>
-    "
-
-  createDisaggregatableCaseGroupWithLength: (cases) ->
-    text = if cases then cases.length else "-"
-    @createDisaggregatableCaseGroup cases, text
-
-  createDocLinks: (docs) ->
-    _.map(docs, (doc) =>
-      @createCaseLink
-        caseID: doc.MalariaCaseID
-        docId: doc._id
-    ).join("")
-
-  createDisaggregatableDocGroup: (text,docs) ->
-    "
-      <button class='sort-value same-cell-disaggregatable'>#{text}</button>
-      <div class='cases' style='display:none'>
-        #{@createDocLinks docs}
-      </div>
-    "
-
-  createDisaggregatableDocGroupWithLength: (docs) =>
-    @createDisaggregatableDocGroup docs.length, docs
-
-
-  formattedPercent: (number) ->
-    percent = (number * 100).toFixed(0)
-    if isNaN(percent) then "--" else "#{percent}%"
-
+      
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
       <div id='#{id}' class='analysis-report dropdown-section'>

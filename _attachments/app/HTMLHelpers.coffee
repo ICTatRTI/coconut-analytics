@@ -19,7 +19,6 @@ class HTMLHelpers
     "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
       </button></a>"
 
-
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->
     _.map(cases, (malariaCase) =>
@@ -58,4 +57,8 @@ class HTMLHelpers
   @createDisaggregatableDocGroupWithLength = (docs) =>
     @createDisaggregatableDocGroup docs.length, docs
 
+  @formattedPercent: (number) ->
+    percent = (number * 100).toFixed(0)
+    if isNaN(percent) then "--" else "#{percent}%"
+    
 module.exports = HTMLHelpers

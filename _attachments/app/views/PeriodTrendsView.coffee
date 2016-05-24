@@ -85,18 +85,18 @@ class PeriodTrendsView extends Backbone.View
       if data.disaggregated?
         data.disaggregated.length
       else if data.percent?
-        Reports.formattedPercent(data.percent)
+        HTMLHelpers.formattedPercent(data.percent)
       else if data.text?
         data.text
 
     renderDataElement = (data) =>
       if data.disaggregated?
-        output = Reports.createDisaggregatableCaseGroup(data.disaggregated)
+        output = HTMLHelpers.createDisaggregatableCaseGroup(data.disaggregated)
         if data.appendPercent?
-          output += " (#{Reports.formattedPercent(data.appendPercent)})"
+          output += " (#{HTMLHelpers.formattedPercent(data.appendPercent)})"
         output
       else if data.percent?
-        Reports.formattedPercent(data.percent)
+        HTMLHelpers.formattedPercent(data.percent)
       else if data.text?
         data.text
 

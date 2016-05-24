@@ -25,31 +25,6 @@ class CompareWeeklyView extends Backbone.View
   toggleCSVMode: () =>
     if @csvMode then @csvMode = false else @csvMode = true
     @renderFacilityTimeliness()
-
-  createCaseLink: (options) ->
-    options.buttonText ?= options.caseID
-    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='#{options.buttonClass}'>#{options.buttonText}</button></a>"
-
-
-  # Can handle either full case object or just array of caseIDs
-  createCasesLinks: (cases) ->
-    _.map(cases, (malariaCase) =>
-      @createCaseLink  caseID: (malariaCase.caseID or malariaCase)
-    ).join("")
-
-  createDisaggregatableCaseGroup: (cases, text) ->
-    text = cases.length unless text?
-    "
-      <button class='sort-value same-cell-disaggregatable'>#{text}</button>
-      <div class='cases' style='padding:10px;display:none'>
-        <br/>
-        #{@createCasesLinks cases}
-      </div>
-    "
-    
-  createDisaggregatableCaseGroupWithLength: (cases) ->
-    text = if cases then cases.length else "-"
-    @createDisaggregatableCaseGroup cases, text
     
   renderFacilityTimeliness: =>
     $('table#facilityTimeliness tbody').html "
@@ -177,7 +152,7 @@ class CompareWeeklyView extends Backbone.View
                                 if @csvMode
                                   data[property]?.length or "-"
                                 else
-                                  if data[property] then @createDisaggregatableCaseGroupWithLength data[property] else '-'
+                                  if data[property] then HTMLHelpers.createDisaggregatableCaseGroupWithLength data[property] else '-'
                               }
                             </td>
                           "

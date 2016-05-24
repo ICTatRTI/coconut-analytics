@@ -9,8 +9,6 @@ require 'tablesorter'
 Reports = require '../models/Reports'
 FacilityHierarchy = require '../models/FacilityHierarchy'
 
-global.HTMLHelpers = require '../HTMLHelpers'
-
 class CaseFollowupView extends Backbone.View
   events:
     "click .rpt-suboptions": "showDropDown"
