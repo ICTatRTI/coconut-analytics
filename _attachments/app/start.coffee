@@ -57,10 +57,15 @@ _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
 
 GeoHierarchyClass = require './models/GeoHierarchy'
 global.GeoHierarchy = new GeoHierarchyClass
-  error: (error) -> 
+  error: (error) ->
     console.error error
   success: =>
-    Backbone.history.start()
+    global.FacilityHierarchy = require './models/FacilityHierarchy'
+    global.FacilityHierarchy.load
+      error: (error) ->
+        console.error error
+      success: =>
+        Backbone.history.start()
 
 global.Issues = require './models/Issues'
 
