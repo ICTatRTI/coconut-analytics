@@ -72,6 +72,7 @@ class FacilityHierarchy extends Backbone.Model
     return null
 
   FacilityHierarchy.facilities = (district) ->
+    console.log(FacilityHierarchy)
     _.pluck FacilityHierarchy.hierarchy[district], "facility"
 
   FacilityHierarchy.facilitiesForDistrict = (district) ->
@@ -84,8 +85,6 @@ class FacilityHierarchy extends Backbone.Model
         FacilityHierarchy.facilities(district)
       .flatten()
       .value()
-
-    FacilityHierarchy.facilities(district)
 
   FacilityHierarchy.numbers = (district,facility) ->
     foundFacility =  _(FacilityHierarchy.hierarchy[district]).find (result) ->
