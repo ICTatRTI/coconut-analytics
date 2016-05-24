@@ -91,16 +91,19 @@ class MapView extends Backbone.View
     if heatMapCoords.length>0
         console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
         if !layerTollBooth.heatLayerOn
+            console.log('heatMaPToggle heatLayerOff')
             layerTollBooth.setHeatLayerStatus true
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'on'
+            heatLayer = L.heatLayer(heatMapCoords, radius: 10).addTo(map) 
             heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map) 
             layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, )
         else
             console.log('heatMapToggle heatLayerOn')
             layerTollBooth.setHeatLayerStatus false
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
-            casesTimeLayer.clearLayers()
-            casesTimeLayer.addData(timeFeatures) 
+            if map.hasLayer casesTimeLayer
+                casesTimeLayer.clearLayers()
+                casesTimeLayer.addData(timeFeatures) 
             layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
   clusterToggle: =>
     if !layerTollBooth.clustersOn
@@ -209,6 +212,7 @@ class MapView extends Backbone.View
     else    
         if !map.hasLayer casesTimeLayer
               #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
+              clustersTimeLayer = L.markerClusterGroup()
               casesTimeLayer = L.geoJson(timeCasesGeoJSON, 
               onEachFeature: (feature, layer) =>
     #            coords = [
@@ -218,6 +222,7 @@ class MapView extends Backbone.View
     #            ]
     #            heatMapCoordsTime.push coords
                 layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+                clustersTimeLayer.addLayer layer
                 return
               pointToLayer: (feature, latlng) =>
                 # household markers with secondary cases

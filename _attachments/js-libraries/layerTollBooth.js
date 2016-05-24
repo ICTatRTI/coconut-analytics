@@ -90,27 +90,22 @@ function LayerTollBooth() {
     this.handleTime = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer){
         console.log('handleTime this.heatLayerOn: '+ this.heatLayerOn)
         if (this.timeOn){
-            console.log('heatLayerOn')
             if (map.hasLayer(casesLayer)){
-                console.log('heatLayerOn remove casesLayer');
                 map.removeLayer(casesLayer);
             }
             if (map.hasLayer(heatLayer)){
-                console.log('heatLayerOn remove heatLayer');
                 map.removeLayer(heatLayer);
             }
         }
         else{
             console.log('heatLayerOff')
             if(map.hasLayer(casesTimeLayer)){
-                console.log('heatLayerOn remove casesTimeLayer');
                 map.removeLayer(casesTimeLayer);
                 if (this.casesLoaded){
                     map.addLayer(casesLayer)
                 }
             }
             if(map.hasLayer(heatTimeLayer)){
-                console.log('heatLayerOn remove heatTimeLayer');
                 map.removeLayer(heatTimeLayer);
                 if (this.heatLayerOn){
                     map.addLayer(heatLayer)
