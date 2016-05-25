@@ -94,8 +94,8 @@ class MapView extends Backbone.View
             console.log('heatMaPToggle heatLayerOff')
             layerTollBooth.setHeatLayerStatus true
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'on'
-            heatLayer = L.heatLayer(heatMapCoords, radius: 10).addTo(map) 
-            heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map) 
+            heatLayer = L.heatLayer(heatMapCoords, radius: 10) 
+            heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10) 
             layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, )
         else
             console.log('heatMapToggle heatLayerOn')
@@ -205,10 +205,14 @@ class MapView extends Backbone.View
 #          console.log 'FirstHeatmapLayerCoords: ' + heatMapCoordsTime
           heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10).addTo(map)
           heatTimeLayer.redraw()
+          casesTimeLayer.clearLayers()
+          casesTimeLayer.addData(timeFeatures) 
         else
 #          console.log 'UpdateHeatmapLayerCoords: ' + heatMapCoordsTime
           heatTimeLayer.setLatLngs(heatMapCoordsTime)
           heatTimeLayer.redraw()
+          casesTimeLayer.clearLayers()
+          casesTimeLayer.addData(timeFeatures) 
     else    
         if !map.hasLayer casesTimeLayer
               #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
