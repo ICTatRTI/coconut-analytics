@@ -412,13 +412,13 @@ class Reports
       timesFromFacilityToCompleteHousehold: []
       timesFromSMSToCompleteHousehold: []
     }
-
+    
     # Get the the caseids for all of the results in the data range with the user id
     Coconut.database.query "zanzibar-server/resultsByDateWithUserAndCaseId",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
-    .catch (error) -> console.error
+    .catch (error) -> console.error error
     .then (results) ->
       _(results.rows).each (result) ->
         caseId = result.value[1]
@@ -440,7 +440,7 @@ class Reports
       _(dataByUser).each (userData,user) ->
         # Get the time differences within each case
         caseIds = _(userData.cases).map (foo, caseId) -> caseId
-
+        
         Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
           keys: caseIds
           include_docs: true
@@ -515,7 +515,7 @@ class Reports
   @aggregateWeeklyReports = (options) ->
     startDate = moment(options.startDate)
     startYear = startDate.format("GGGG") # ISO week year
-    startWeek =startDate.format("WW")
+    startWeek = startDate.format("WW")
     endDate = moment(options.endDate).endOf("day")
     endYear = endDate.format("GGGG")
     endWeek = endDate.format("WW")

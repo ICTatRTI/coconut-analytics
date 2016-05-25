@@ -23,22 +23,26 @@ class UsersReportView extends Backbone.View
     $target.find("i").text(iconStatus)
 	
   render: =>
+    @$el.html "
+       <div id='dateSelector'></div>
+       <h4>How fast are followups occuring?</h4> 
+    "
     $('#analysis-spinner').show()
     Users = new UserCollection()
     Users.fetch
       error: (error) -> console.error error
       success: () ->
-
+        @startDate = Coconut.router.reportViewOptions.startDate
+        @endDate = Coconut.router.reportViewOptions.endDate
         Reports.userAnalysisForUsers
           # Pass list of usernames
           usernames:  Users.map (user) -> user.username()
           startDate: @startDate
           endDate: @endDate
+          error: (error) -> console.error error
           success: (userAnalysis) =>
-            @$el.html "
-              <div id='dateSelector'></div>
+            $('#content').append "
               <div id='users'> 
-                <h4>How fast are followups occuring?</h4> 
                 <div class='userReports dropDownBtn'>
                    <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
                     All Users</h4>
@@ -62,10 +66,10 @@ class UsersReportView extends Backbone.View
                     By User</h4>
                 </div>
                 <div id='usersReport_wrapper' class='dataTables_wrapper no-footer user-report dropdown-section hide'>
-                    <table class='tablesorter' style='' id='usersReport'>
+                    <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' style='' id='usersReport'>
                       <thead>
-                        <th>Name</th>
-                        <th>District</th>
+                        <th class='mdl-data-table__cell--non-numeric'>Name</th>
+                        <th class='mdl-data-table__cell--non-numeric'>District</th>
                         <th>Cases</th>
                         <th>Cases without complete <b>facility</b> record 24 hours after facility notification</th>
                         <th>Cases without complete <b>facility</b> record</th>
@@ -82,8 +86,8 @@ class UsersReportView extends Backbone.View
                             if userAnalysis.dataByUser[user.username()]?
                               "
                               <tr id='#{user.username()}'>
-                                <td>#{user.nameOrUsername()}</td>
-                                <td>#{user.districtInEnglish() or "-"}</td>
+                                <td class='mdl-data-table__cell--non-numeric'>#{user.nameOrUsername()}</td>
+                                <td class='mdl-data-table__cell--non-numeric'>#{user.districtInEnglish() or "-"}</td>
                               </tr>
                               "
                             else ""
@@ -97,7 +101,7 @@ class UsersReportView extends Backbone.View
               if key is "caseIds"
                 ""
               else
-                $("tr##{key}").append "<td>#{if _(value).isString() then value else _(value).size()}</td>"
+                $("tr##{key}").append "<td class= 'a-r'>#{if _(value).isString() then value else _(value).size()}</td>"
 
             _(userAnalysis.dataByUser).each (userData,user) ->
 
@@ -179,7 +183,6 @@ class UsersReportView extends Backbone.View
                     "
                 }
               "
-
             $("#usersReport").dataTable
               aoColumnDefs: [
                 "sType": "humanduration"
@@ -190,5 +193,7 @@ class UsersReportView extends Backbone.View
               dom: 'T<"clear">lfrtip'
               tableTools:
                 sSwfPath: "js-libraries/copy_csv_xls_pdf.swf"
-      
-  module.exports = UsersReportView
+
+            $('#analysis-spinner').hide()
+
+module.exports = UsersReportView

@@ -12,9 +12,15 @@ class User extends Backbone.Model
         
   username: ->
     @get("_id").replace(/^user\./,"")
-
+    
   district: ->
     @get("district")
+
+  districtInEnglish: ->
+    GeoHierarchy.englishDistrictName @get("district")
+
+  passwordIsValid: (password) ->
+    @get("password") is password
 
   isAdmin: ->
     _(@get("roles")).include "admin"

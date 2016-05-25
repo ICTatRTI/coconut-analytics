@@ -698,6 +698,10 @@ div.chart {
 	vertical-align: middle;
 }
 
+.a-r {
+	text-align: right;
+}
+
 .menu-subtitle {
 	font-size: 0.8em;
 }

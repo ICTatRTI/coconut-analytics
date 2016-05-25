@@ -156,20 +156,20 @@ class GeoHierarchy
             Coconut.debug "GeoHierarchy saved"
             @load
 
-  @getZoneForDistrict: (district) ->
+  getZoneForDistrict: (district) ->
     districtHierarchy = @find(district,"DISTRICT")
     if districtHierarchy.length is 1
       region = @find(district,"DISTRICT")[0].REGION
       return @getZoneForRegion region
     return null
 
-  @getZoneForRegion: (region) ->
+  getZoneForRegion: (region) ->
     if region.match /PEMBA/
       return "PEMBA"
     else
       return "UNGUJA"
 
-  @districtsForZone = (zone) =>
+  districtsForZone: (zone) =>
     _.chain(@allRegions())
       .map (region) =>
         if @getZoneForRegion(region) is zone
