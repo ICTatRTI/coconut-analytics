@@ -39,7 +39,8 @@ class UsersReportView extends Backbone.View
           usernames:  Users.map (user) -> user.username()
           startDate: @startDate
           endDate: @endDate
-          error: (error) -> console.error error
+          error: (error) ->
+            console.error error
           success: (userAnalysis) =>
             $('#content').append "
               <div id='users'> 
