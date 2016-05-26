@@ -3,7 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 UserCollection = require '../models/UserCollection'
 
@@ -183,7 +183,7 @@ class UsersReportView extends Backbone.View
                       </td>
                     "
                 }
-              "
+                "
             $("#usersReport").dataTable
               aoColumnDefs: [
                 "sType": "humanduration"

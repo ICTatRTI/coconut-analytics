@@ -3,7 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 
 class EditFacilityHierarchyView extends Backbone.View
   el: '#content'

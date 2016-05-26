@@ -5,7 +5,7 @@ Backbone.$  = $
 PouchDB = require 'pouchdb'
 moment = require 'moment'
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 
 class RainfallReportView extends Backbone.View
@@ -54,17 +54,17 @@ class RainfallReportView extends Backbone.View
           </tbody>
         </table>
       "
-
-    $("#rainfallReports").dataTable
-      aaSorting: [[1,"desc"],[2,"desc"]]
-      iDisplayLength: 5
-      dom: 'T<"clear">lfrtip'
-      tableTools:
-        sSwfPath: "js-libraries/copy_csv_xls.swf"
-        aButtons: [
-          "copy",
-          "csv",
-          "print"
-        ]
+      if (results.rows.length > 0)
+        $("#rainfallReports").dataTable
+          aaSorting: [[1,"desc"],[2,"desc"]]
+          iDisplayLength: 5
+          dom: 'T<"clear">lfrtip'
+          tableTools:
+            sSwfPath: "js-libraries/copy_csv_xls.swf"
+            aButtons: [
+              "copy",
+              "csv",
+              "print"
+            ]
 
 module.exports = RainfallReportView

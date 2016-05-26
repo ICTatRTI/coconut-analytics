@@ -4,7 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Question = require '../models/Question'
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 
 class CaseView extends Backbone.View
   el: '#content'

@@ -14,7 +14,7 @@ require 'material-design-lite'
 
 moment = require 'moment'
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 User = require '../models/User'
 UserCollection = require '../models/UserCollection'
 

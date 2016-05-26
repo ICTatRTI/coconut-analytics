@@ -6,7 +6,7 @@ PouchDB = require 'pouchdb'
 moment = require 'moment'
 require 'moment-range'
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 
 class PeriodTrendsView extends Backbone.View

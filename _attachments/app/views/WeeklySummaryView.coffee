@@ -3,7 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 
 class WeeklySummaryView extends Backbone.View

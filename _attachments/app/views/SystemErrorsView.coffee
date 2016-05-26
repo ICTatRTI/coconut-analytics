@@ -3,7 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 
 class SystemErrorsView extends Backbone.View
@@ -49,7 +49,6 @@ class SystemErrorsView extends Backbone.View
               </tbody>
             </table>
           "
-        @afterFinished()
 
     options = Coconut.router.reportViewOptions
 

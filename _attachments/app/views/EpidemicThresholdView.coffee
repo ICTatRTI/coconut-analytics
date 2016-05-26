@@ -7,7 +7,7 @@ PouchDB = require 'pouchdb'
 require 'moment-range'
 capitalize = require "underscore.string/capitalize"
 
-DataTables = require 'datatables'
+DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 
 class EpidemicThresholdView extends Backbone.View
@@ -79,7 +79,6 @@ class EpidemicThresholdView extends Backbone.View
       include_docs: true
     .catch (error) -> console.error error
     .then (result) =>
-      console.debug result
       thresholdsByDistrictAndWeek = {}
       _(result.rows).each (row) =>
         # If the threshold is starts or ends during the relevant week, then include it, otherwise ignore it
@@ -89,8 +88,6 @@ class EpidemicThresholdView extends Backbone.View
           thresholdsByDistrictAndWeek[district] = {} unless thresholdsByDistrictAndWeek[district]
           thresholdsByDistrictAndWeek[district][week] = [] unless thresholdsByDistrictAndWeek[district][week]
           thresholdsByDistrictAndWeek[district][week].push row.doc
-          
-      console.debug thresholdsByDistrictAndWeek
 
       @$el.append "
 
