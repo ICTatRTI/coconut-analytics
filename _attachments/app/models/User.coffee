@@ -43,14 +43,14 @@ User.isAuthenticated = (options) ->
     # id is not recognized when put in constructor for some reason
     Coconut.currentUser.id = id
     Coconut.currentUser.fetch
-      error: ->
-        console.error error
+      error: (error) ->
+        options.error(error)
       success: ->
         options.success(Coconut.currentUser)
   else
-    # Not logged in
-    options.error() if options.error?
-  return
+    # No cookie. Not logged in
+    options.error("User not logged in")
+
   
 User.login = (options) ->
   user = new User

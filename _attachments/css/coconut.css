@@ -15,12 +15,28 @@ body {
    padding: 0 15px 0 10px;
 }
 
+#login-backgrd {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #cccccc;
+  background-image: url("../images/bglogo.png");
+  z-index: 1000;
+  display: none;
+}
 
 
 #cslogo_sm {
+	width: 70px;
+	height: 56px;
+	margin-right: 10px;
+}
+
+#cslogo_xsm {
 	width: 50px;
-	height: 50px;
-	padding-right: 5px;
+	height: 40px;
+	margin-right: 10px;
 }
 
 .sub-header-color{
@@ -690,6 +706,10 @@ div.chart {
 	margin-bottom: 20px;
 }
 
+.m-b-10 {
+	margin-bottom: 10px;
+}
+
 .p-5 {
 	padding: 5px;
 }
@@ -830,6 +850,12 @@ div#form-title, div#dialog-title {
 	font-size: 1.3em;
 	margin-bottom: 10px;
 	letter-spacing: 3px;
+}
+
+dialog#loginDialog div#dialog-title {
+  font-size: 1.8em;
+  line-height: 200%;
+  letter-spacing: 3px;
 }
 
 #analysis-spinner {

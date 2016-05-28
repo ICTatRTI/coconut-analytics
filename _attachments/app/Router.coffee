@@ -88,7 +88,10 @@ class Router extends Backbone.Router
   login: ->
     Coconut.loginView = new LoginView() if !Coconut.loginView
     Coconut.loginView.render()
-
+    @listenTo(Coconut.loginView, "success", ->
+      Coconut.router.navigate("#dashboard", {trigger: true})
+    )
+    
   logout: ->
     User.logout()
     $("span#username").html ""
@@ -149,15 +152,20 @@ class Router extends Backbone.Router
 
   dashboard: (startDate,endDate) =>
     @userLoggedIn
-      success:  =>
-        Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
-        [startDate,endDate] = @setStartEndDateIfMissing()
-        @.navigate "#dashboard/#{startDate}/#{endDate}"
-        Coconut.dashboardView.startDate = startDate
-        Coconut.dashboardView.endDate = endDate
-        Coconut.dashboardView.render()
+      success:  => 
+        @showDashboard(startDate,endDate)
+      error: =>
+        Coconut.router.navigate("#login", {trigger: true})
+  
 
-
+  showDashboard: (startDate,endDate) =>
+    Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
+    [startDate,endDate] = @setStartEndDateIfMissing()
+    @.navigate "#dashboard/#{startDate}/#{endDate}"
+    Coconut.dashboardView.startDate = startDate
+    Coconut.dashboardView.endDate = endDate
+    Coconut.dashboardView.render()
+    
   dataExport: ->
     @userLoggedIn
       success:  =>
@@ -240,11 +248,10 @@ class Router extends Backbone.Router
   userLoggedIn: (callback) =>
     User.isAuthenticated
       success: (user) =>
+        if Coconut.currentUser.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
         callback.success(user)
-      error: ->
-        Coconut.loginView = new LoginView()
-        Coconut.loginView.callback = callback
-        Coconut.loginView.render()
+      error: (error) ->
+        callback.error(error)
 
   adminLoggedIn: (callback) ->
     @userLoggedIn
@@ -261,6 +268,7 @@ class Router extends Backbone.Router
           Dialog.confirm("You do not have admin privileges", "Warning",["Ok"])
       error: ->
         $("#content").html "<h2>Must be an admin user</h2>"
+        callback.error()
 
   setStartEndDateIfMissing: (startDate,endDate) =>
     startDate = Coconut.router.reportViewOptions.startDate || moment().subtract("7","days").format(Coconut.config.dateFormat)

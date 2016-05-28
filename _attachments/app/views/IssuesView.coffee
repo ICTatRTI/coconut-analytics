@@ -5,7 +5,6 @@ Backbone.$  = $
 
 global.jQuery = require 'jquery'
 require 'tablesorter'
-Dialog = require './Dialog'
 
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
