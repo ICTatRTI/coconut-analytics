@@ -4,7 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 
 Form2js = require 'form2js'
-
+Dialog = require './Dialog'
 User = require '../models/User'
 dialogPolyfill = require 'dialog-polyfill'
 
@@ -104,6 +104,7 @@ class LoginView extends Backbone.View
         $('#userName').val(loginData.userName)
         $('#passWord').val(loginData.passWord)
         view.displayErrorMsg('Invalid username/password.')
+        Dialog.markTextfieldDirty()
         console.log("Wrong credentials")
         
   module.exports = LoginView
