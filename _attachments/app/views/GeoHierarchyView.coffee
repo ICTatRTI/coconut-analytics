@@ -51,17 +51,18 @@ class GeoHierarchyView extends Backbone.View
     Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])  
     console.log("Delete initiated")
     return false
-	
+
+#TODO Need code to delete doc	
   deleteGeo: (e) =>
     e.preventDefault
     console.log("Record Deleted")
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 	
   formCancel: (e) =>
     e.preventDefault
     console.log("Cancel pressed")
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 
   render: ->

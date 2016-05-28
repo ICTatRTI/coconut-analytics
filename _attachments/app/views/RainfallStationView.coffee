@@ -44,7 +44,7 @@ class RainfallStationView extends Backbone.View
   formCancel: (e) =>
     e.preventDefault
     console.log("Cancel pressed")
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 
   formSave: (e) =>
@@ -64,7 +64,8 @@ class RainfallStationView extends Backbone.View
     Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
     console.log("Delete initiated")
     return false
-	
+
+#TODO Need code to delete doc	
   deleteStation: (e) =>
     e.preventDefault
     console.log("Record Deleted")
@@ -98,8 +99,8 @@ class RainfallStationView extends Backbone.View
     $('#analysis-spinner').show()
     @$el.html "
       <style> table.dataTable thead th { padding: 0 0 8px}</style>
-      <h4>Rainfall Stations <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-station-btn'>
-              <i class='material-icons'>add</i>
+      <h4>Rainfall Stations <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-station-btn'>
+              <i class='material-icons'>add_circle</i>
             </button>
       </h4>
       <dialog id='dialog'>

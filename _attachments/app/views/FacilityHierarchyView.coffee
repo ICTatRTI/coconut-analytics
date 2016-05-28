@@ -5,10 +5,9 @@ Backbone.$  = $
 PouchDB = require 'pouchdb'
 moment = require 'moment'
 global.jQuery = require 'jquery'
-
 Dialog = require './Dialog'
 require 'tablesorter'
-
+FacilityHierarchy = require '../models/FacilityHierarchy'
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
@@ -26,6 +25,7 @@ class FacilityHierarchyView extends Backbone.View
   
   createFacility: (e) =>
     e.preventDefault
+    @mode = "create"
     dialogTitle = "Add New Facility"
     Dialog.create(@dialogEdit, dialogTitle)
     $('form#facility input').val('')
@@ -33,10 +33,12 @@ class FacilityHierarchyView extends Backbone.View
 
   editFacility: (e) =>
     e.preventDefault
+    @mode = "edit"
     dialogTitle = "Edit Facility"
     Dialog.create(@dialogEdit, dialogTitle)
     id = $(e.target).closest("a").attr "data-facility-id"
     rec = $("[id='#{id}']").find('td')
+    console.log(rec[0].innerText)
     $("input#Region").val(rec[0].innerText)
     $("input#District").val(rec[1].innerText)
     $("input[id='Facility Name']").val(rec[2].innerText)
@@ -55,9 +57,18 @@ class FacilityHierarchyView extends Backbone.View
   formSave: (e) =>
     console.log("Saving Data")
     dialog.close()
-    @updateDatabaseDoc(@dataTable.data())
-    Coconut.database.put @databaseDoc
-      _rev: doc._rev #if edit mode
+    
+    @data = new FacilityHierarchy()
+    @data.Region = $("input#Region").val()
+    @data.District = $("input#District").val()
+    @data.FacilityName = $("input[id='Facility Name']").val()
+    @data.FacilityAlias = $("input#Aliases").val()
+    @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
+    @data.Type = $("input#Type").val()
+    console.log(@data)
+    debugger
+    Coconut.database.put @data
+      _rev: @data._rev if @mode == "edit"
     .catch (error) -> console.error error
     .then (result) ->
       @render()
@@ -80,7 +91,7 @@ class FacilityHierarchyView extends Backbone.View
   formCancel: (e) =>
     e.preventDefault
     console.log("Cancel pressed")
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 
   render: ->
@@ -118,8 +129,8 @@ class FacilityHierarchyView extends Backbone.View
         input.text { margin-bottom:12px; width:95%; padding: .4em; }
         table.dataTable thead th { padding: 0 0 8px}
       </style>
-      <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-facility-btn'>
-              <i class='material-icons'>add</i>
+      <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-facility-btn'>
+              <i class='material-icons'>add_circle</i>
             </button>
       </h4>
       <dialog id='dialog'>
@@ -200,5 +211,4 @@ class FacilityHierarchyView extends Backbone.View
           mobile_numbers: if phone_numbers is "" then [] else phone_numbers.split(/ +|, */)
           aliases: if aliases is "" then [] else aliases.split(/, */)
           type: type or "public"
-
 module.exports = FacilityHierarchyView
