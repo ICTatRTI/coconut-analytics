@@ -670,7 +670,6 @@ class MapView extends Backbone.View
             else
                 L.circleMarker latlng, casesMarkerOptions
           ).addTo(map)
-
 #        if heatMapCoords.length == 0
 #          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
 #          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
@@ -679,6 +678,21 @@ class MapView extends Backbone.View
 #          $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
 #          $('.clusterButton button').toggleClass 'mdl-button--disabled', false
 #          $('.timeButton button').toggleClass 'mdl-button--disabled', false
+        
+        casesTimeLayer = L.geoJson(data, 
+          onEachFeature: (feature, layer) =>
+            
+            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+            #clustersLayer.addLayer layer
+            return
+          pointToLayer: (feature, latlng) =>
+            # household markers with secondary cases
+            #clusering as well
+            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+                L.circleMarker latlng, caseMarkerOptions
+            else
+                L.circleMarker latlng, casesMarkerOptions
+          )
         if data.features.length > 0
 #          console.log('multiCase')
           materialLayersControl.addOverlay casesLayer, 'Cases'
