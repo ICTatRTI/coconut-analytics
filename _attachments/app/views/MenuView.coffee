@@ -44,7 +44,7 @@ class MenuView extends Backbone.View
       <header class='coconut-drawer-header'>
         <div class='clear m-t-30'>
           <div class='f-left m-l-20'><img src='images/cocoLogo.png' id='cslogo_sm'></div>
-          <div class='mdl-layout-title' id='drawer-title'>Coconut<br />Surveillance</div>
+          <div class='mdl-layout-title' id='drawer-title'>Coconut <br />Surveillance</div>
         </div>
       </header>		  
       <nav class='coconut_navigation mdl-navigation'>
@@ -117,7 +117,7 @@ class MenuView extends Backbone.View
         </a>		
         <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>  
           <i class='mdl-color-text--blue-grey-400 material-icons'>settings</i>
-            Settings
+            User Settings
         </span>
         <div class='m-l-20 dropdown' id='drawer-settings'>
           #{
@@ -139,6 +139,7 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-admin'>
         #{
           adminLinks = {
+            system_settings: "System Settings"
             facilities: "Facilities"
             rainfall_station: "Rainfall Station"
             geo_hierarchy: "Regions, Districts & Shehias"

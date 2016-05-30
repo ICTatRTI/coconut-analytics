@@ -19,6 +19,7 @@ MapView = require './views/MapView'
 FacilityHierarchyView = require './views/FacilityHierarchyView'
 RainfallStationView = require './views/RainfallStationView'
 GeoHierarchyView = require './views/GeoHierarchyView'
+SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
 User = require './models/User'
 Dialog = require './views/Dialog'
@@ -62,6 +63,7 @@ class Router extends Backbone.Router
     "": "dashboard"
     "login": "login"
     "logout": "logout"
+    "admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/facilities": "FacilityHierarchy"
     "admin/rainfall_station": "rainfallStation"
@@ -99,6 +101,12 @@ class Router extends Backbone.Router
 
   loginFailed: ->
     Coconut.router.navigate("#login", {trigger: true})
+  
+  notAdmin: ->
+    if !(Coconut.currentUser)
+      @loginFailed()
+    else
+      Dialog.confirm("You do not have admin privileges", "Warning",["Ok"]) if(Coconut.currentUser)
     
   reports: (options) =>
     @userLoggedIn
@@ -213,7 +221,7 @@ class Router extends Backbone.Router
         @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
         @facilityHierarchyView.render()
       error: =>
-        @loginFailed()
+        @notAdmin()
         
 
   rainfallStation: =>
@@ -222,7 +230,7 @@ class Router extends Backbone.Router
         @rainfallStationView = new RainfallStationView unless @rainfallStationView
         @rainfallStationView.render()
       error: =>
-        @loginFailed()
+        @notAdmin()
 
   geoHierarchy: =>
     @adminLoggedIn
@@ -230,7 +238,7 @@ class Router extends Backbone.Router
         @geoHierarchyView = new GeoHierarchyView unless @geoHierarchyView
         @geoHierarchyView.render()
       error: =>
-        @loginFailed()
+        @notAdmin()
 
   shehiasHighRisk: =>
     @adminLoggedIn
@@ -238,7 +246,7 @@ class Router extends Backbone.Router
         @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
         @shehiasHighRiskView.render()
       error: =>
-        @loginFailed()
+        @notAdmin()
 
   users: () =>
     @adminLoggedIn
@@ -246,8 +254,15 @@ class Router extends Backbone.Router
         @usersView = new UsersView() unless @usersView
         @usersView.render()
       error: =>
-        Dialog.confirm("You do not have admin privileges", "Warning",["Ok"]) if(Coconut.currentUser)
-        @loginFailed()
+        @notAdmin()
+
+  systemSettings: () =>
+    @adminLoggedIn
+      success: ->
+        @systemSettingsView = new SystemSettingsView unless @systemSettingsView
+        @systemSettingsView.render()
+      error: =>
+        @notAdmin()
 
   newIssue: (issueID) ->
     @userLoggedIn
