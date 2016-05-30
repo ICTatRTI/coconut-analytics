@@ -90,114 +90,117 @@ class CaseFollowupView extends Backbone.View
     @getCases
       success: (cases) =>
         $('#analysis-spinner').hide()
-        _.each cases, (malariaCase) =>
+        if(cases.length > 0)
+          _.each cases, (malariaCase) =>
 
-          $("table.summary tbody").append "
-            <tr id='case-#{malariaCase.caseID}'>
-              <td class='CaseID mdl-data-table__cell--non-numeric'>
-                <a href='#show/case/#{malariaCase.caseID}'>
-                  <button class='btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
-                </a>
-              </td>
-              <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
-                #{malariaCase.indexCaseDiagnosisDate()}
-              </td>
-              <td class='HealthFacilityDistrict mdl-data-table__cell--non-numeric'>
-                #{
-                  if malariaCase["USSD Notification"]?
-                    FacilityHierarchy.getDistrict(malariaCase["USSD Notification"].hf)
-                  else
-                    ""
-                }
-              </td>
-              <td class='mdl-data-table__cell--non-numeric HealthFacilityDistrict #{if malariaCase.highRiskShehia() then "high-risk-shehia" else ""}'>
-                #{
-                  malariaCase.shehia()
-                }
-              </td>
-              <td class='USSDNotification mdl-data-table__cell--non-numeric'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "open_in_browser")}
-              </td>
-              <td class='CaseNotification mdl-data-table__cell--non-numeric'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","tap_and_play")}
-              </td>
-              <td class='Facility mdl-data-table__cell--non-numeric'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "error_outline","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
-              </td>
-              <td class='Household mdl-data-table__cell--non-numeric'>
-                #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "home","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
-              </td>
-              <td class='HouseholdMembers mdl-data-table__cell--non-numeric'>
-                #{
-                  _.map(malariaCase["Household Members"], (householdMember) =>
-                    malariaPositive = householdMember.MalariaTestResult? and (householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed")
-                    noTravelPositive = householdMember.OvernightTravelinpastmonth isnt "Yes outside Zanzibar" and malariaPositive
-                    buttonText = "account_circle"
-                    unless householdMember.complete?
-                      unless householdMember.complete
-                         buttonClass = "mdl-button--accent"
-#                        buttonText = buttonText.replace(".png","Incomplete.png")
-                    HTMLHelpers.createCaseLink
-                      caseID: malariaCase.caseID
-                      docId: householdMember._id
-                      buttonClass: if malariaPositive and noTravelPositive
-                       "no-travel-malaria-positive"
-                      else if malariaPositive
-                       "malaria-positive"
-                      else ""
-                      buttonText: buttonText
-                  ).join("")
-                }
-              </td>
-            </tr>
-          "
-
-        _.each tableColumns, (text) ->
-          columnId = text.replace(/\s/,"")
-          $("#th-#{columnId}-count").html $("td.#{columnId} button").length
-
-        $("#Cases-Reported-at-Facility").html $("td.CaseID button").length
-        $("#Additional-People-Tested").html $("td.HouseholdMembers button").length
-        $("#Additional-People-Tested-Positive").html $("td.HouseholdMembers button.malaria-positive").length
-
-        if $("table.summary tr").length > 1
-          $("table.summary").tablesorter
-            widgets: ['zebra']
-            sortList: [[1,1]]
-
-        districtsWithFollowup = {}
-        _.each $("table.summary tr"), (row) ->
-            row = $(row)
-            if row.find("td.USSDNotification button").length > 0
-              if row.find("td.CaseNotification button").length is 0
-                if moment().diff(row.find("td.IndexCaseDiagnosisDate").html(),"days") > 2
-                  districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()] = 0 unless districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()]?
-                  districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()] += 1
-        $("#alerts").append "
-        <style>
-          #alerts,table.alerts{
-            font-size: 80% 
-          }
-
-        </style>
-        The following districts have USSD Notifications that have not been followed up after two days. Recommendation call the DMSO:
-          <table class='alerts'>
-            <thead>
-              <tr>
-                <th>District</th><th>Number of cases</th>
+            $("table.summary tbody").append "
+              <tr id='case-#{malariaCase.caseID}'>
+                <td class='CaseID mdl-data-table__cell--non-numeric'>
+                  <a href='#show/case/#{malariaCase.caseID}'>
+                    <button class='btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
+                  </a>
+                </td>
+                <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
+                  #{malariaCase.indexCaseDiagnosisDate()}
+                </td>
+                <td class='HealthFacilityDistrict mdl-data-table__cell--non-numeric'>
+                  #{
+                    if malariaCase["USSD Notification"]?
+                      FacilityHierarchy.getDistrict(malariaCase["USSD Notification"].hf)
+                    else
+                      ""
+                  }
+                </td>
+                <td class='mdl-data-table__cell--non-numeric HealthFacilityDistrict #{if malariaCase.highRiskShehia() then "high-risk-shehia" else ""}'>
+                  #{
+                    malariaCase.shehia()
+                  }
+                </td>
+                <td class='USSDNotification mdl-data-table__cell--non-numeric'>
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "open_in_browser")}
+                </td>
+                <td class='CaseNotification mdl-data-table__cell--non-numeric'>
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","tap_and_play")}
+                </td>
+                <td class='Facility mdl-data-table__cell--non-numeric'>
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "error_outline","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
+                </td>
+                <td class='Household mdl-data-table__cell--non-numeric'>
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "home","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
+                </td>
+                <td class='HouseholdMembers mdl-data-table__cell--non-numeric'>
+                  #{
+                    _.map(malariaCase["Household Members"], (householdMember) =>
+                      malariaPositive = householdMember.MalariaTestResult? and (householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed")
+                      noTravelPositive = householdMember.OvernightTravelinpastmonth isnt "Yes outside Zanzibar" and malariaPositive
+                      buttonText = "account_circle"
+                      unless householdMember.complete?
+                        unless householdMember.complete
+                           buttonClass = "mdl-button--accent"
+  #                        buttonText = buttonText.replace(".png","Incomplete.png")
+                      HTMLHelpers.createCaseLink
+                        caseID: malariaCase.caseID
+                        docId: householdMember._id
+                        buttonClass: if malariaPositive and noTravelPositive
+                         "no-travel-malaria-positive"
+                        else if malariaPositive
+                         "malaria-positive"
+                        else ""
+                        buttonText: buttonText
+                    ).join("")
+                  }
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              #{
-                _.map(districtsWithFollowup, (numberOfCases,district) -> "
-                  <tr>
-                    <td>#{district}</td>
-                    <td>#{numberOfCases}</td>
-                  </tr>
-                ").join("")
-              }
-            </tbody>
-          </table>
-        "
+            "
 
+          _.each tableColumns, (text) ->
+            columnId = text.replace(/\s/,"")
+            $("#th-#{columnId}-count").html $("td.#{columnId} button").length
+
+          $("#Cases-Reported-at-Facility").html $("td.CaseID button").length
+          $("#Additional-People-Tested").html $("td.HouseholdMembers button").length
+          $("#Additional-People-Tested-Positive").html $("td.HouseholdMembers button.malaria-positive").length
+
+          if $("table.summary tr").length > 1
+            $("table.summary").tablesorter
+              widgets: ['zebra']
+              sortList: [[1,1]]
+
+          districtsWithFollowup = {}
+          _.each $("table.summary tr"), (row) ->
+              row = $(row)
+              if row.find("td.USSDNotification button").length > 0
+                if row.find("td.CaseNotification button").length is 0
+                  if moment().diff(row.find("td.IndexCaseDiagnosisDate").html(),"days") > 2
+                    districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()] = 0 unless districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()]?
+                    districtsWithFollowup[row.find("td.HealthFacilityDistrict").html()] += 1
+          $("#alerts").append "
+          <style>
+            #alerts,table.alerts{
+              font-size: 80% 
+            }
+
+          </style>
+          The following districts have USSD Notifications that have not been followed up after two days. Recommendation call the DMSO:
+            <table class='alerts'>
+              <thead>
+                <tr>
+                  <th>District</th><th>Number of cases</th>
+                </tr>
+              </thead>
+              <tbody>
+                #{
+                  _.map(districtsWithFollowup, (numberOfCases,district) -> "
+                    <tr>
+                      <td>#{district}</td>
+                      <td>#{numberOfCases}</td>
+                    </tr>
+                  ").join("")
+                }
+              </tbody>
+            </table>
+          "
+        else
+          @$el.append "<div><center>No result found...</center></div><hr />"
+          
 module.exports = CaseFollowupView
