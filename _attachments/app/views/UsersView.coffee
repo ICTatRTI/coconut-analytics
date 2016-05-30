@@ -142,8 +142,8 @@ class UsersView extends Backbone.View
           </form>
         "
         @$el.html "
-            <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
-              <i class='material-icons'>add</i>
+            <h4>Users <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-user-btn'>
+              <i class='material-icons'>add_circle</i>
             </button></h4>
             <dialog id='dialog'>
               <div id='dialogContent'> </div>

@@ -15,7 +15,7 @@ DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 Issues = require '../models/Issues'
 UserCollection = require '../models/UserCollection'
-
+Dialog = require './Dialog'
 
 class IssuesView extends Backbone.View
   dialogEdit = ""
@@ -115,9 +115,9 @@ class IssuesView extends Backbone.View
       </style>
       <div id='dateSelector'></div>
       <div style='padding: 10px 0'>
-        <h4>Issues <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-issue-btn'>
-            <i class='material-icons'>add</i>
-        </button></a></h4>
+        <h4>Issues <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-issue-btn'>
+              <i class='material-icons'>add_circle</i>
+            </button></h4>
       </div>
       <dialog id='dialog'>
         <div id='dialogContent'> </div>
