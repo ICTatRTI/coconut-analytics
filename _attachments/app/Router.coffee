@@ -97,6 +97,9 @@ class Router extends Backbone.Router
     $("span#username").html ""
     @login()
 
+  loginFailed: ->
+    Coconut.router.navigate("#login", {trigger: true})
+    
   reports: (options) =>
     @userLoggedIn
       success:  =>
@@ -117,7 +120,8 @@ class Router extends Backbone.Router
         @views[type].render()
         @reportType = 'reports'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
-
+      error: =>
+        @loginFailed()
 
   # Needs to refactor later to keep it DRY
   activities: (options) =>
@@ -139,7 +143,9 @@ class Router extends Backbone.Router
         @views[type].render()
         @reportType = 'activities'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
-
+      error: =>
+        @loginFailed()
+        
   showCase: (caseID, docID) ->
     @userLoggedIn
       success: ->
@@ -155,7 +161,7 @@ class Router extends Backbone.Router
       success:  => 
         @showDashboard(startDate,endDate)
       error: =>
-        Coconut.router.navigate("#login", {trigger: true})
+        @loginFailed()
   
 
   showDashboard: (startDate,endDate) =>
@@ -176,6 +182,8 @@ class Router extends Backbone.Router
         @dataExportView.render()
         @reportType = 'export'
         @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
+      error: =>
+        @loginFailed()
 
   maps: (options) ->
     @userLoggedIn
@@ -196,12 +204,16 @@ class Router extends Backbone.Router
         @mapView.render()
         @reportType = 'maps'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @mapView, @reportType)
+      error: =>
+        @loginFailed()
 
   FacilityHierarchy: =>
     @adminLoggedIn
       success: ->
         @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
         @facilityHierarchyView.render()
+      error: =>
+        @loginFailed()
         
 
   rainfallStation: =>
@@ -209,24 +221,33 @@ class Router extends Backbone.Router
       success: ->
         @rainfallStationView = new RainfallStationView unless @rainfallStationView
         @rainfallStationView.render()
+      error: =>
+        @loginFailed()
 
   geoHierarchy: =>
     @adminLoggedIn
       success: ->
         @geoHierarchyView = new GeoHierarchyView unless @geoHierarchyView
         @geoHierarchyView.render()
+      error: =>
+        @loginFailed()
 
   shehiasHighRisk: =>
     @adminLoggedIn
       success: ->
         @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
         @shehiasHighRiskView.render()
+      error: =>
+        @loginFailed()
 
   users: () =>
     @adminLoggedIn
       success: ->
         @usersView = new UsersView() unless @usersView
         @usersView.render()
+      error: =>
+        Dialog.confirm("You do not have admin privileges", "Warning",["Ok"]) if(Coconut.currentUser)
+        @loginFailed()
 
   newIssue: (issueID) ->
     @userLoggedIn
@@ -251,7 +272,7 @@ class Router extends Backbone.Router
         if Coconut.currentUser.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
         callback.success(user)
       error: (error) ->
-        callback.error(error)
+        callback.error()
 
   adminLoggedIn: (callback) ->
     @userLoggedIn
@@ -267,7 +288,6 @@ class Router extends Backbone.Router
           "
           Dialog.confirm("You do not have admin privileges", "Warning",["Ok"])
       error: ->
-        $("#content").html "<h2>Must be an admin user</h2>"
         callback.error()
 
   setStartEndDateIfMissing: (startDate,endDate) =>

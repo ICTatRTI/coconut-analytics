@@ -21,7 +21,7 @@ body {
   width: 100%;
   height: 100%;
   background-color: #cccccc;
-  background-image: url("../images/bgLogo.png");
+  background-image: url("../images/bglogo_lg.png");
   z-index: 1000;
   display: none;
 }
