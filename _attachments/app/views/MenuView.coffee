@@ -61,7 +61,6 @@ class MenuView extends Backbone.View
             Compareweekly: "Compare Weekly Facility Reports with Case Followups"
             Epidemicthreshold: "Epidemic Thresholds"
             Systemerrors: "Errors Detected by System"
-            Incidentsgraph: "Incidents Graph - cases by week"
             Periodtrends: "Period Trends compared to previous 3 weeks"
             Rainfallreport: "Rainfall Submission"
             Usersreport: "Users Report - how fast are followups occuring"
@@ -96,6 +95,7 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-graphs'>
           #{
            graphLinks = {
+             IncidentsGraph: "Incidents Graph - cases by week"
              graph_attendance: "Attendance"
              graph_positivity: "Positivity"
              graph_testrate: "Test Rate"
@@ -103,7 +103,7 @@ class MenuView extends Backbone.View
              positivity_by_year: "Positivity cases by year"
            }
            _(graphLinks).map (linkText, linkUrl) ->
-             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
+             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
            .join ""
           }		   
         </div>
@@ -139,12 +139,12 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-admin'>
         #{
           adminLinks = {
-            system_settings: "System Settings"
             facilities: "Facilities"
             rainfall_station: "Rainfall Station"
             geo_hierarchy: "Regions, Districts & Shehias"
             "edit_data/shehias_received_irs": "Shehias received IRS"
             "edit_data/shehias_high_risk": "Shehias high risk"
+            system_settings: "System Settings"
             users: "Users"
           }
           _(adminLinks).map (linkText, linkUrl) ->

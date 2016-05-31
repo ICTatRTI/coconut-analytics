@@ -49,6 +49,10 @@ reportViews = {
 activityViews = {
   "Issues": require './views/IssuesView'
 }
+
+graphsViews = {
+  "IncidentsGraph": require './views/IncidentsGraphView'
+}
   
 class Router extends Backbone.Router
   # caches views
@@ -73,6 +77,7 @@ class Router extends Backbone.Router
     "export": "dataExport"
     "maps": "maps"
     "maps/*options": "maps"
+    "graphs/*options": "graphs"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
     "show/case/:caseID": "showCase"
@@ -153,6 +158,29 @@ class Router extends Backbone.Router
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
       error: =>
         @loginFailed()
+        
+  graphs: (options) =>
+    @userLoggedIn
+      success:  =>
+        options = _(options?.split(/\//)).map (option) -> unescape(option)
+
+        _.each options, (option,index) =>
+          @reportViewOptions[option] = options[index+1] unless index % 2
+
+        defaultOptions = @setDefaultOptions()
+
+        _(defaultOptions).each (defaultValue, option) =>
+          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+        console.log(@reportViewOptions)
+        type = @reportViewOptions["type"]
+        @views[type] = new graphsViews[type]() unless @views[type]
+        @views[type].setElement "#content"
+        @views[type].render()
+        @reportType = 'graphs'
+        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
+      error: =>
+        @loginFailed()
+        
         
   showCase: (caseID, docID) ->
     @userLoggedIn

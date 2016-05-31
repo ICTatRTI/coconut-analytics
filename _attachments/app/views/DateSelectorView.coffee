@@ -39,7 +39,7 @@ class DateSelectorView extends Backbone.View
     # Select by date should update the startWeek/endWeek (tricky because they don't line up)
     if moment(startDate, 'YYYY-MM-DD', true).isValid() and moment(endDate, 'YYYY-MM-DD', true).isValid()
       if !(moment(endDate).isSameOrAfter(moment(startDate)))
-        $('#errMsg').html("End Date must be equal or after Start Date")
+        $('#errMsg').html("End Date cannot be after Start Date")
       else
         $("div#filters-section").slideToggle()
         # Update the URL and rerender page
