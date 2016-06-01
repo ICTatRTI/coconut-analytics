@@ -64,6 +64,9 @@ class DateSelectorView extends Backbone.View
 
   render: =>
     @$el.html "
+      <style>
+
+      </style>
       <div id='date-range'>
         <span id='filters-drop' class='drop-pointer'>
           <button class='mdl-button mdl-js-button mdl-button--icon' id='dateFilter'> 
@@ -73,95 +76,97 @@ class DateSelectorView extends Backbone.View
         <span id='date-period'>#{@startDate} to #{@endDate}</span>
         <div><small><i>Click calendar icon to change date</i></small></div>
         <div id='filters-section'>
-          <hr />
-          <table style='width: 400px; margin-left: 30px'>
-            <tbody>
-               <tr id='select-date-week'>
-                 <td colspan='2'>Select By</td>
-                 <td><select name='SelectBy' id='select-by'> 
-                    <option value='Week' #{if Coconut.router.dateSelectorOptions.dateMode is 'Week' then 'Selected'}>Week</option>
-                    <option value='Date' #{if Coconut.router.dateSelectorOptions.dateMode is 'Date' then 'Selected'}>Date</option></select>
-                 </td>
-                <td clospan='4'> &nbsp; </td>
-               </tr>
-               <tr class='select-by-date hide'>
-                   <td colspan='2'>
-                     <label style='display:inline' for='StartDate'>Start Date</label>
-                   </td>
-                   <td>
-                      <div><input id='startDate' class='datepicker' value='#{@startDate}'></input></div>
-                   </td>
-                   <td colspan='4'> </td>
-               </tr>
-               <tr class='select-by-date hide'>	   
-                   <td colspan='2'>
-                     <label style='display:inline' for='EndDate'>End Date</label>
-                   </td>
-                   <td>
-                      <div><input id='endDate' class='datepicker' value='#{@endDate}'></input></div>
-                   </td>
-                   <td colspan='4'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
-               </tr>	   
-               <tr class='select-by-week'>
-                 <td colspan='2'>
-                   <label style='display:inline' for='StartYear'>Start Year</label>
-                 </td>
-                 <td>
-                   <select name='StartYear'>
-                     #{
-                       for i in [moment().year()..2012]
-                          "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startYear then 'Selected'}>#{i}</option>"
-                     }
-                   </select>
-                 </td>
-                 <td> </td>
-                 <td colspan='2'>
-                   <label style='display:inline' for='StartWeek'>Start Week</label>
-                 </td>
-                 <td>
-                   <select name='StartWeek'> <option></option>
-                     #{
-                         for i in [1..53]
-                           "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startWeek then 'Selected'}>Week #{i}</option>"
-                     } 
-                   </select>
-                 </td>
-               </tr>
-               <tr class='select-by-week'>
-                   <td colspan='2'>
-                     <label style='display:inline' for='EndYear'>End Year</label>
-                   </td>
-                   <td>
-                     <select name='EndYear'> 
-                        #{
-                            for i in [moment().year()..2012]
-                              "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endYear then 'Selected'}>#{i}</option>"
-                        }
-                      </select>
-                   </td>
-                   <td> </td>
-                   <td colspan='2'>
-                      <label style='display:inline' for='EndWeek'>End Week</label>
-                   </td>
-                   <td>
-                      <select name='EndWeek'><option></option>
-                        #{
-                            for i in [1..53] 
-                              "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endWeek then 'Selected'}>Week #{i}</option>" 
-                        }
-                      </select>
-                   </td>
-                   <td><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td> 
-               </tr>
-               <tr>
-                   <td colspan='5'><div id='errMsg'></div></td>
-               </tr>	
-             </tbody>
-           </table>
-           
-           <hr />
-         </div>
-       </div>
+        <hr />
+        <div class='mdl-grid'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
+              <table style='width: 450px; margin-left: 30px'>
+                <tbody>
+                   <tr id='select-date-week'>
+                     <td><label style='display:inline' for='SelectBy'>Select By</label></td>
+                     <td><select name='SelectBy' id='select-by'> 
+                        <option value='Week' #{if Coconut.router.dateSelectorOptions.dateMode is 'Week' then 'Selected'}>Week</option>
+                        <option value='Date' #{if Coconut.router.dateSelectorOptions.dateMode is 'Date' then 'Selected'}>Date</option></select>
+                     </td>
+                    <td colspan='3'> &nbsp; </td>
+                   </tr>
+                   <tr class='select-by-date hide'>
+                       <td>
+                         <label style='display:inline' for='StartDate'>Start Date</label>
+                       </td>
+                       <td>
+                          <div><input id='startDate' class='datepicker' value='#{@startDate}'></input></div>
+                       </td>
+                       <td rowspan='2'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
+                   </tr>
+                   <tr class='select-by-date hide'>	   
+                       <td>
+                         <label style='display:inline' for='EndDate'>End Date</label>
+                       </td>
+                       <td>
+                          <div><input id='endDate' class='datepicker' value='#{@endDate}'></input></div>
+                       </td>
+                       <td colspan='4'></td>
+                   </tr>	   
+                   <tr class='select-by-week'>
+                     <td>
+                       <label style='display:inline' for='StartYear'>Start Year</label>
+                     </td>
+                     <td>
+                       <select name='StartYear'>
+                         #{
+                           for i in [moment().year()..2012]
+                              "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startYear then 'Selected'}>#{i}</option>"
+                         }
+                       </select>
+                     </td>
+                     <td> </td>
+                     <td>
+                       <label style='display:inline' for='StartWeek'>Start Week</label>
+                     </td>
+                     <td>
+                       <select name='StartWeek'> <option></option>
+                         #{
+                             for i in [1..53]
+                               "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startWeek then 'Selected'}>Week #{i}</option>"
+                         } 
+                       </select>
+                     </td>
+                     <td rowspan='2'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
+                   </tr>
+                   <tr class='select-by-week'>
+                       <td>
+                         <label style='display:inline' for='EndYear'>End Year</label>
+                       </td>
+                       <td>
+                         <select name='EndYear'> 
+                            #{
+                                for i in [moment().year()..2012]
+                                  "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endYear then 'Selected'}>#{i}</option>"
+                            }
+                          </select>
+                       </td>
+                       <td> </td>
+                       <td>
+                          <label style='display:inline' for='EndWeek'>End Week</label>
+                       </td>
+                       <td>
+                          <select name='EndWeek'><option></option>
+                            #{
+                                for i in [1..53] 
+                                  "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endWeek then 'Selected'}>Week #{i}</option>" 
+                            }
+                          </select>
+                       </td>
+                   </tr>
+                   <tr>
+                       <td colspan='6'><div id='errMsg'></div></td>
+                   </tr>
+                 </tbody>
+               </table>
+            </div>
+        </div>
+        <hr />
+      </div>
     "
     @selectBy()
 

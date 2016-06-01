@@ -263,7 +263,13 @@ button.not-followed-up-after-48-hours-false {
 }
 
 .select-by-date, .select-by-week {
-	padding-top: 20px;
+	margin-top: 20px;
+}
+
+input.datepicker {
+  font-size: 0.8em;
+/*  margin-top: 3px; */
+  line-height: 10px;
 }
 
 #errMsg {
@@ -955,6 +961,6 @@ form#system_settings {
   width: 100%;
 }
 
-.mdl-select.setting_inputs {
+.mdl-select.setting_inputs, .mdl-textfield.setting_inputs {
   width: 100%;
 }
