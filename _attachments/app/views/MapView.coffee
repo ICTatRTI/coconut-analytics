@@ -367,10 +367,9 @@ class MapView extends Backbone.View
            background: url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
         }
         </style>
+        <div id='dateSelector'></div>
         <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--1-col'></div>
-            <div class='mdl-cell mdl-cell--10-col'>
-                <div id='dateSelector'></div>
+            <div class='mdl-cell mdl-cell--12-col'>
                     <div style='display: inline-block'>
                         <label for='pembaToggle'>Switch to: </label>
                         <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
