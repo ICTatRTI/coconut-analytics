@@ -12,6 +12,7 @@ class WeeklyReportsView extends Backbone.View
 
   events:
     "change select.aggregation": "updateAggregation"
+    "click button.same-cell-disaggregatable": "showHiddenCases"
 
   updateAggregation: (e) =>
     Coconut.router.reportViewOptions['aggregationPeriod'] = $("#aggregationPeriod").val()
@@ -19,6 +20,9 @@ class WeeklyReportsView extends Backbone.View
     @render()
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.render()
+  
+  showHiddenCases: (e) =>
+    $(e.target).parent().find('div.cases').toggle()
     
   render: =>
     options = Coconut.router.reportViewOptions

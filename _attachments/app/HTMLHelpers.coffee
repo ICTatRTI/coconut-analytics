@@ -15,8 +15,8 @@ class HTMLHelpers
     else ""
 
   @createCaseLink = (options) ->
-#    options.buttonText ?= options.caseID
-    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
+    options.buttonText ?= options.caseID
+    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn '><i class='material-icons'></i>#{options.buttonText}
       </button></a>"
 
   # Can handle either full case object or just array of caseIDs
@@ -30,7 +30,6 @@ class HTMLHelpers
     "
       <button class='sort-value same-cell-disaggregatable'>#{text}</button>
       <div class='cases' style='padding:10px;display:none'>
-        <br/>
         #{@createCasesLinks cases}
       </div>
     "

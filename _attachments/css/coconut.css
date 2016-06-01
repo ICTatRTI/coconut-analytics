@@ -964,3 +964,7 @@ form#system_settings {
 .mdl-select.setting_inputs, .mdl-textfield.setting_inputs {
   width: 100%;
 }
+
+button.caseBtn {
+  font-size: 0.65em;
+}
