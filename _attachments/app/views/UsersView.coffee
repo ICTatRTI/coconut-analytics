@@ -187,6 +187,17 @@ class UsersView extends Backbone.View
               </table>
             </div>
         "
-        $("table.summary").tablesorter({sortList: [[0,0]]})
+       # $("table.summary").tablesorter({sortList: [[0,0]]})
+        @dataTable = $("table.summary").dataTable
+          aaSorting: [[0,"asc"]]
+          iDisplayLength: 10
+          dom: 'T<"clear">lfrtip'
+          tableTools:
+            sSwfPath: "js-libraries/copy_csv_xls.swf"
+            aButtons: [
+              "copy",
+              "csv",
+              "print"
+            ]
 
 module.exports = UsersView
