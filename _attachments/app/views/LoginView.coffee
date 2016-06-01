@@ -15,11 +15,17 @@ class LoginView extends Backbone.View
   events:
     "click button#btnLogin": "login"
     "keypress #passWord": "submitIfEnter"
+    "click a#forgot_passwd": "ResetPassword"
 
   render: =>
     $("#login-backgrd").show()
     @$el.html "
       <style>
+        #forgotten {
+           padding-top: 20px;
+           float: left;
+        }
+        
         #dialog + .backdrop {
           position: fixed;
           top: 0;
@@ -57,6 +63,7 @@ class LoginView extends Backbone.View
              <label class='mdl-textfield__label' for='passWord'>Password*</label>
            </div>
            <div class='coconut-mdl-card__title'></div>
+           <div id='forgotten'><a href='#' id='forgot_passwd'>Forgot my password</a></div>
           <div id='dialogActions'>
              <button class='mdl-button mdl-js-button mdl-button--primary' id='btnLogin' type='submit' ><i class='material-icons'>lock_open</i> Login</button>
           </div> 
@@ -106,5 +113,10 @@ class LoginView extends Backbone.View
         view.displayErrorMsg('Invalid username/password.')
         Dialog.markTextfieldDirty()
         console.log("Wrong credentials")
-        
+
+  ResetPassword: () ->
+    #TODO: Sends email with password reset link.
+    @displayErrorMsg('Reset Password email has been sent...')
+    return false
+
   module.exports = LoginView
