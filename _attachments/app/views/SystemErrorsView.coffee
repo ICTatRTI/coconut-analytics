@@ -12,28 +12,30 @@ class SystemErrorsView extends Backbone.View
   render: =>
     @$el.html "
         <div id='dateSelector'></div>
-        <h4>The following system errors have occurred in the last 2 days:</h4>
+        <table id='sysErrors' style='border:1px solid black' class='system-errors mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+          <thead>
+            <tr>
+              <th class='mdl-data-table__cell--non-numeric'>Time of most recent error</th>
+              <th class='mdl-data-table__cell--non-numeric'>Message</th>
+              <th>Number of errors of this type in last 24 hours</th>
+              <th class='mdl-data-table__cell--non-numeric'>Source</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
     "
     $('#analysis-spinner').show()
     Reports.systemErrors
       success: (errorsByType) =>
         $("#analysis-spinner").hide()
         if _(errorsByType).isEmpty()
-          @$el.append "No system errors."
+          $('table#sysErrors tbody').html "<tr><td colspan='4'><center>No system errors found...</td></tr>"
         else
           alerts = true
 
-          @$el.append "
-            <table style='border:1px solid black' class='system-errors mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-              <thead>
-                <tr>
-                  <th class='mdl-data-table__cell--non-numeric'>Time of most recent error</th>
-                  <th class='mdl-data-table__cell--non-numeric'>Message</th>
-                  <th>Number of errors of this type in last 24 hours</th>
-                  <th class='mdl-data-table__cell--non-numeric'>Source</th>
-                </tr>
-              </thead>
-              <tbody>
+          $('table#sysErrors tbody').html "
+            <h4>The following system errors have occurred in the last 2 days:</h4>
+            
                 #{
                   _.map(errorsByType, (errorData, errorMessage) ->
                     "
@@ -46,8 +48,6 @@ class SystemErrorsView extends Backbone.View
                     "
                   ).join("")
                 }
-              </tbody>
-            </table>
           "
 
     options = Coconut.router.reportViewOptions
