@@ -23,6 +23,7 @@ SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
 User = require './models/User'
 Dialog = require './views/Dialog'
+MessagingView = require './views/MessagingView'
 global.HTMLHelpers = require './HTMLHelpers'
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -47,11 +48,12 @@ reportViews = {
 }
 
 activityViews = {
-  "Issues": require './views/IssuesView'
+  Issues: require './views/IssuesView'
+  Messaging: require './views/MessagingView'
 }
 
 graphsViews = {
-  "IncidentsGraph": require './views/IncidentsGraphView'
+  IncidentsGraph: require './views/IncidentsGraphView'
 }
   
 class Router extends Backbone.Router
