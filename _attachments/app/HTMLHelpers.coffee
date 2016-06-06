@@ -12,17 +12,23 @@ class HTMLHelpers
         docId: malariaCase[resultType]._id
         buttonClass: buttonClass
         buttonText: buttonText
+        iconOnly: true
     else ""
 
   @createCaseLink = (options) ->
     options.buttonText ?= options.caseID
-    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn '><i class='material-icons'></i>#{options.buttonText}
-      </button></a>"
+    buttonText = if(options.iconOnly) then "" else options.buttonText
+     
+    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn '>
+      <i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
+      #{buttonText}</button></a>"
 
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->
     _.map(cases, (malariaCase) =>
-      @createCaseLink  caseID: (malariaCase.caseID or malariaCase)
+      @createCaseLink  
+        caseID: (malariaCase.caseID or malariaCase)
+        iconOnly: false
     ).join("")
 
   @createDisaggregatableCaseGroup = (cases, text) ->

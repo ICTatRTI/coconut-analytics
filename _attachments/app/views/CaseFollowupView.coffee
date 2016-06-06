@@ -141,6 +141,7 @@ class CaseFollowupView extends Backbone.View
                       HTMLHelpers.createCaseLink
                         caseID: malariaCase.caseID
                         docId: householdMember._id
+                        iconOnly: true
                         buttonClass: if malariaPositive and noTravelPositive
                          "no-travel-malaria-positive"
                         else if malariaPositive
