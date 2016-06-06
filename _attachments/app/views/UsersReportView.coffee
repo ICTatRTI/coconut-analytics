@@ -112,7 +112,7 @@ class UsersReportView extends Backbone.View
                   #{
                      cases = _(userData.cases).keys()
                      _(cases).map (caseId) ->
-                       "<button type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
+                       "<button type='button' class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
                      .join(" ")
                   }
                   </div>
@@ -124,7 +124,7 @@ class UsersReportView extends Backbone.View
                   #{
                     cases = _(userData.casesWithoutCompleteFacilityAfter24Hours).keys()
                     _(cases).map (caseId) ->
-                      "<button type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
+                      "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
                     .join(" ")
                   }
                   </div>
@@ -137,7 +137,7 @@ class UsersReportView extends Backbone.View
                   #{
                     cases = _(userData.casesWithoutCompleteFacility).keys()
                     _(cases).map (caseId) ->
-                      "<button type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
+                      "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
                     .join(" ")
                   }
                   </div>
@@ -149,7 +149,7 @@ class UsersReportView extends Backbone.View
                   #{
                     cases = _(userData.casesWithoutCompleteHouseholdAfter48Hours).keys()
                     _(cases).map (caseId) ->
-                      "<button type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
+                      "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
                     .join(" ")
                   }
                   </div>
@@ -161,7 +161,7 @@ class UsersReportView extends Backbone.View
                   #{
                     cases = _(userData.casesWithoutCompleteHousehold).keys()
                     _(cases).map (caseId) ->
-                      "<button type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
+                      "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' type='button'><a href='#show/case/#{caseId}'>#{caseId}</a></button>"
                     .join(" ")
                   }
                   </div>
