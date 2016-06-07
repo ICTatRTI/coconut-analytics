@@ -123,13 +123,14 @@ class UsersView extends Backbone.View
              </div>
              #{
               _.map( @fields, (field) =>
-                "
-                   <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                     <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
-                     <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
-                   </div>
-                "
-                ).join("")
+                if field != 'password'
+                  "
+                     <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
+                       <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
+                       <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
+                     </div>
+                  "
+                  ).join("")
               }
               <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
