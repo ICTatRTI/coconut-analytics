@@ -194,7 +194,7 @@ class MapView extends Backbone.View
         coords = [
           feature.geometry.coordinates[1]
           feature.geometry.coordinates[0]
-          15000/casesGeoJSON.features.length#adjust with slider
+          15000/casesGeoJSON.features.length   #adjust with slider
         ]
         heatMapCoordsTime.push coords
     
@@ -269,6 +269,7 @@ class MapView extends Backbone.View
     
   render: =>
     console.log 'render fired'
+    $('#analysis-spinner').show()
     options = Coconut.router.reportViewOptions
     casesGeoJSON = 
       'type': 'FeatureCollection'
@@ -319,7 +320,7 @@ class MapView extends Backbone.View
             layerTollBooth.enableDisableButtons 'disable' 
         console.log("LayerTollBooth.CasesLoaded: "+layerTollBooth.casesLoaded)
         updateMap casesGeoJSON
-    
+
     @$el.html "
         <style>
         .legend {
@@ -393,8 +394,7 @@ class MapView extends Backbone.View
                 </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
-<div class='mdl-grid'>
-                
+        <div class='mdl-grid'>                
             <div class='mdl-cell mdl-cell--12-col' style='height:600px'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
@@ -406,8 +406,7 @@ class MapView extends Backbone.View
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>  
-        <div id='results' class='result'>
-      
+        <div id='results' class='result'>   
     "
     #working
     @snapshot = document.getElementById('snapshot') 
@@ -443,6 +442,7 @@ class MapView extends Backbone.View
         return
       casesLayer.bringToFront
       return
+
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
     .then (data) ->
@@ -477,7 +477,6 @@ class MapView extends Backbone.View
     )
  #   typeAheadNames = setUpTypeAheadData(villagesData)
     
-   
     overlays =
       Districts: districtsLayer
       Shahias: shahiasLayer
@@ -516,6 +515,7 @@ class MapView extends Backbone.View
       materialOptions: materialOptions).addTo(map)
     layerTollBooth.enableDisableButtons 'disable'
     L.control.scale(position: 'bottomright').addTo map
+
 #    customLayers = L.control.layers(layers, overlays).addTo map
 #
 #    legend = L.control(position: 'topright')
@@ -564,7 +564,7 @@ class MapView extends Backbone.View
 #            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
 #            i++
 #          div  
-    
+
     brushed = ->
       console.log('brushed')
       actives = svg.filter((p) ->
@@ -617,7 +617,6 @@ class MapView extends Backbone.View
 #      console.log this
       @parentNode.appendChild @cloneNode(true)
     ).attr 'class', 'halo'
-
 
 #    Brush extents
     slider = svg.append('g').attr('class', 'brush').each((d) ->
@@ -695,6 +694,8 @@ class MapView extends Backbone.View
         if data.features.length > 0
 #          console.log('multiCase')
           materialLayersControl.addOverlay casesLayer, 'Cases'
+
+        $('#analysis-spinner').hide()
         
     return
    
