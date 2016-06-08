@@ -44,7 +44,7 @@ class MenuView extends Backbone.View
       <header class='coconut-drawer-header'>
         <div class='clear m-t-30'>
           <div class='f-left m-l-20'><img src='images/cocoLogo.png' id='cslogo_sm'></div>
-          <div class='mdl-layout-title' id='drawer-title'>Coconut <br />Surveillance</div>
+          <div class='mdl-layout-title' id='drawer-title'>#{Coconut.config.appName}</div>
         </div>
       </header>		  
       <nav class='coconut_navigation mdl-navigation'>

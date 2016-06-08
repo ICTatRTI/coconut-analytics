@@ -348,6 +348,7 @@ i.material-icons{
 
 #drawer-title{
 	font-size: 20px;
+  margin-top: 5px;
 }
 
 .mdl-navigation__link.drawer__subtitle, .mdl-navigation__link.drawer__link {
@@ -862,11 +863,11 @@ div#form-title, div#dialog-title {
 	margin-bottom: 10px;
 	letter-spacing: 3px;
 }
-
+  
 dialog#loginDialog div#dialog-title {
-  font-size: 1.8em;
+  font-size: 1.3em;
   line-height: 200%;
-  letter-spacing: 3px;
+  letter-spacing: 1px;
 }
 
 #analysis-spinner {
