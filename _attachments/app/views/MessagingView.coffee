@@ -58,7 +58,6 @@ class MessagingView extends Backbone.View
     fields =  "_id,district,name,inactive".split(",")
     messageFields =  "date,to,text".split(",")
     @$el.html "
-      <h4>Send Message</h4>
       <h5>Select Recipients</h5>
       <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id= 'recipients'>
         <thead>
