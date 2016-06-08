@@ -79,14 +79,14 @@ class MessagingView extends Backbone.View
             <label style='display:block' for='message'>Message</label>
             <textarea style='width:100%' id='message' name='message'></textarea>
             <div id='messageBox'></div>
-            <input type='submit' value='Send'></input>
+            <button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' type='submit' value='Send'>Send</button>
             <span id='charCount'></span>
           </div>
         </form>
       </div>
       <div class='m-t-30'>
         <h4>Messages Sent</h4>
-        <table class='sent-messages tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+        <table class='sent-messages mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead>
             <th class='mdl-data-table__cell--non-numeric'>Date</th>
             <th class='mdl-data-table__cell--non-numeric'>To</th>

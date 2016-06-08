@@ -116,7 +116,21 @@ class LoginView extends Backbone.View
 
   ResetPassword: () ->
     #TODO: Sends email with password reset link.
-    @displayErrorMsg('Reset Password email has been sent...')
+    view = @
+    username = $("#userName").val()
+    if username is ""
+      view.displayErrorMsg('Please enter your username...')
+    else
+      id = "user.#{username}"
+      Coconut.database.get id,
+         include_docs: true
+      .then (user) =>
+        view.displayErrorMsg('Reset Password email has been sent...')
+        $('a#forgot_passwd').hide()
+      .catch (error) => 
+        view.displayErrorMsg('Invalid username...')
+        console.error error
+        
     return false
 
   module.exports = LoginView
