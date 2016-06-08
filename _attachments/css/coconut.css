@@ -547,6 +547,11 @@ td.CaseID a:hover{
 	    border: 1px solid #ccc;
 	    background-color: #f3f3f3;
 }
+
+button#resetPwd, button#toLogin {
+  display: none;
+}
+
 .coconut-mdl-card {
     padding: 10px;
 	min-height: 250px;

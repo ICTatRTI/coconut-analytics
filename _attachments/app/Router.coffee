@@ -21,6 +21,7 @@ RainfallStationView = require './views/RainfallStationView'
 GeoHierarchyView = require './views/GeoHierarchyView'
 SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
+ChangePasswordView = require './views/ChangePasswordView'
 User = require './models/User'
 Dialog = require './views/Dialog'
 MessagingView = require './views/MessagingView'
@@ -69,6 +70,8 @@ class Router extends Backbone.Router
     "": "dashboard"
     "login": "login"
     "logout": "logout"
+    "reset_password/:token": "reset_password"
+    "reset_password": "reset_password"
     "admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/facilities": "FacilityHierarchy"
@@ -108,7 +111,24 @@ class Router extends Backbone.Router
 
   loginFailed: ->
     Coconut.router.navigate("#login", {trigger: true})
-  
+
+  reset_password: (token) ->
+    $("#login-backgrd").show()
+    if token
+      #check if token exist.
+      # User.checkToken
+      #if found()
+        Coconut.ChangePasswordView = new ChangePasswordView() if !Coconut.ChangePasswordView
+        Coconut.ChangePasswordView.render()
+        @listenTo(Coconut.ChangePasswordView, "success", ->
+          Coconut.router.navigate("#login", {trigger: true})
+        )
+    else  
+       @createDialog()
+       Dialog.confirm("Invalid Token or Token expired.", "Error",["Ok"])
+       dialog.addEventListener 'close', ->
+         Coconut.router.navigate("#login", {trigger: true})
+       
   notAdmin: ->
     if !(Coconut.currentUser)
       @loginFailed()
@@ -357,5 +377,12 @@ class Router extends Backbone.Router
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
-	  
+
+  createDialog: () ->
+    $("#content").html "
+       <dialog id='dialog' style='z-index: 1001'>
+         <div id='dialogContent'> </div>
+       </dialog>
+    "
+    	  
 module.exports = Router
