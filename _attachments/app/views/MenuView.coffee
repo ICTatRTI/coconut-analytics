@@ -58,14 +58,14 @@ class MenuView extends Backbone.View
           reportLinks = {
             Analysis: "Analysis"
             Casefollowup: "Case Followup Status"
-            Compareweekly: "Compare Weekly Facility Reports with Case Followups"
+            Compareweekly: "Compare Weekly Facility Reports With Case Followups"
             Epidemicthreshold: "Epidemic Thresholds"
-            Systemerrors: "Errors Detected by System"
-            Periodtrends: "Period Trends compared to previous 3 weeks"
+            Systemerrors: "Errors Detected By System"
+            Periodtrends: "Period Trends Compared To Previous 3 Weeks"
             Rainfallreport: "Rainfall Submission"
-            Usersreport: "Users Report - how fast are followups occuring"
+            Usersreport: "Users Report - How Fast Are Followups Occuring"
             Weeklyreports: "Weekly Facility Reports"
-            Weeklysummary: "Weekly Trends compared to previous 3 weeks"
+            Weeklysummary: "Weekly Trends Compared To Previous 3 Weeks"
           }
           _(reportLinks).map (linkText, linkUrl) ->
             "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
@@ -81,7 +81,7 @@ class MenuView extends Backbone.View
              activityLinks = {
                Issues: "Issues"
                Todos: "To Do"
-               Messaging: "Send SMS to users"
+               Messaging: "Send SMS To Users"
              }
              _(activityLinks).map (linkText, linkUrl) ->
                "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/type/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
@@ -95,12 +95,12 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-graphs'>
           #{
            graphLinks = {
-             IncidentsGraph: "Incidents Graph - cases by week"
+             IncidentsGraph: "Incidents Graph - Cases By Week"
              graph_attendance: "Attendance"
              graph_positivity: "Positivity"
              graph_testrate: "Test Rate"
-             positivity_with_rainfall: "Positivity with Rainfall"
-             positivity_by_year: "Positivity cases by year"
+             positivity_with_rainfall: "Positivity With Rainfall"
+             positivity_by_year: "Positivity Cases By Year"
            }
            _(graphLinks).map (linkText, linkUrl) ->
              "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
@@ -142,8 +142,8 @@ class MenuView extends Backbone.View
             facilities: "Facilities"
             rainfall_station: "Rainfall Station"
             geo_hierarchy: "Regions, Districts & Shehias"
-            "edit_data/shehias_received_irs": "Shehias received IRS"
-            "edit_data/shehias_high_risk": "Shehias high risk"
+            "edit_data/shehias_received_irs": "Shehias Received IRS"
+            "edit_data/shehias_high_risk": "Shehias High Risk"
             system_settings: "System Settings"
             users: "Users"
           }
