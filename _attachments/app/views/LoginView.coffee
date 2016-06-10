@@ -22,33 +22,6 @@ class LoginView extends Backbone.View
   render: =>
     $("#login-backgrd").show()
     @$el.html "
-      <style>
-        #forgotten {
-           padding-top: 20px;
-           float: left;
-        }
-        
-        #dialog + .backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        #dialog::backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.4);
-        }
-        #loginDialog {
-          top: 20%;
-        }
-      </style>
       <dialog id='loginDialog'>
         <form id='loginForm' method='dialog'>
            <div class='m-b-20'>
@@ -87,6 +60,7 @@ class LoginView extends Backbone.View
     
   displayErrorMsg: (msg, icon) ->
     errMsg = @$el.find('.coconut-mdl-card__title')[0]
+    $(errMsg).show()
     $(errMsg).html "<i class='material-icons'>#{icon}</i> #{msg}"
 
   submitIfEnter: (event) ->
@@ -122,6 +96,7 @@ class LoginView extends Backbone.View
     $('div#passwordInput').hide()
     $('a#forgot_passwd').hide()
     $('button#btnLogin').hide()
+    $('.coconut-mdl-card__title').hide()
     $('button#resetPwd').show()
     return false
 

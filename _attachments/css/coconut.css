@@ -963,6 +963,33 @@ dialog {
 	float: right;
 }
 
+#dialog + .backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#dialog::backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#loginDialog {
+  top: 20%;
+}
+
+#forgotten {
+   padding-top: 20px;
+   float: left;
+}
+
 form#system_settings {
   width: 100%;
 }
