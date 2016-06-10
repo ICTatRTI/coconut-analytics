@@ -27,6 +27,8 @@ class UsersView extends Backbone.View
       "click #formSave": "formSave"
       "click #formCancel": "formCancel"
       "click button#buttonYes": "deleteUser"
+      "click a.user-pw-reset": "showResetView"
+      "click button#btnSubmit": "resetPassword"
 
     createUser: (e) =>
       e.preventDefault
@@ -82,6 +84,20 @@ class UsersView extends Backbone.View
       Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
       return false
 
+    showResetView: (e) ->
+      e.preventDefault
+      dialogTitle = "Reset Password"
+      Dialog.create(@dialogPass, dialogTitle)
+      id = $(e.target).closest("a").attr "data-user-id"
+      username = id.substring(5)
+      $('#resetname').html(username)
+      return false
+      
+    resetPassword: (e) =>
+      e.preventDefault
+      #TODO Codes to update the password or doc
+      Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
+      
 ## TODO Need the codes to delete user record
     deleteUser: (e) =>
       e.preventDefault
@@ -142,6 +158,20 @@ class UsersView extends Backbone.View
               </div> 
           </form>
         "
+        @dialogPass = "
+          <div id='dialog-title'> </div>
+          <div class='m-b-10'>User: <span id='resetname'></span></div>
+          <form id='resetForm' method='dialog'>
+             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
+                 <input class='mdl-textfield__input' type='password' id='newPass' name='newPass' autofocus>
+                 <label class='mdl-textfield__label' for='newPass'>New Password*</label>
+             </div>
+             <div class='coconut-mdl-card__title'></div>
+            <div id='dialogActions'>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='material-icons'>loop</i> Submit</button>
+            </div> 
+          </form>
+        "
         @$el.html "
             <h4>Users <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-user-btn'>
               <i class='material-icons'>add_circle</i>
@@ -176,9 +206,11 @@ class UsersView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
                         <td>
                            <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-edit' data-user-id='#{user._id}'><i class='material-icons icon-24'>mode_edit</i></a></button>
+                           <a href='#' class='user-pw-reset' data-user-id='#{user._id}' title='Reset password'><i class='material-icons icon-24'>vpn_key</i></a></button>
+                           <button class='edit mdl-button mdl-js-button mdl-button--icon'>
+                           <a href='#' class='user-edit' data-user-id='#{user._id}' title='Edit user'><i class='material-icons icon-24'>mode_edit</i></a></button>
                            <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-delete' data-user-id='#{user._id}'><i class='material-icons icon-24'>delete</i></a></button>
+                           <a href='#' class='user-delete' data-user-id='#{user._id}' title='Delete user'><i class='material-icons icon-24'>delete</i></a></button>
                         </td>
                      </tr> 
                      "
