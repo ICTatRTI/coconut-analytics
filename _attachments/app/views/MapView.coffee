@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 Backbone = require "backbone"
 Backbone.$  = $
-
+d3 = require 'd3'
 
 require 'mapbox.js'
 require 'leaflet'
