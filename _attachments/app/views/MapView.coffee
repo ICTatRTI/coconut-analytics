@@ -451,45 +451,7 @@ class MapView extends Backbone.View
     map.zoom = 9
     map.scrollWheelZoom.disable()
     
-    Coconut.database.get 'DistrictsWGS84'
-    .catch (error) -> console.error error
-    .then (data) ->
-      districtsData = data
-      console.log('districtsData: '+districtsData)
-      districtsLayer = L.geoJson(districtsData,
-        style: admin1PolyOptions
-        onEachFeature: (feature, layer) ->
-          console.log 'districts feature.properties' + feature.properties.District_N
-          layer.bindPopup 'District: ' + feature.properties.District_N
-          return
-      ).addTo map
-      materialLayersControl.addOverlay(districtsLayer, 'Districts')
-    
-    Coconut.database.get 'ShahiasWGS84'
-    .catch (error) -> console.error error
-    .then (data) ->
-      shahiasData = data
-      shahiasLayer = L.geoJson(shahiasData,
-        style: admin2PolyOptions
-        onEachFeature: (feature, layer) ->
-          console.log 'shaHia feature.properties' + feature.properties.Shehia
-          layer.bindPopup 'Shehia: ' + feature.properties.Shehia
-          return
-      )
-      materialLayersControl.addOverlay(shahiasLayer, 'Shahias')
-    
-    Coconut.database.get 'VillagesWGS84'
-    .catch (error) -> console.error error
-    .then ( data) ->
-      villagesData = data
-      villagesLayer = L.geoJson(villagesData,
-        style: admin3PolyOptions
-        onEachFeature: (feature, layer) ->
-          console.log 'villages feature.properties' + feature.properties.Vil_Mttaa_N
-          layer.bindPopup layer.bindPopup 'Village: ' + feature.properties.Vil_Mttaa_N
-          return
-      )
-      materialLayersControl.addOverlay(villagesLayer, 'Villages')
+
  #   typeAheadNames = setUpTypeAheadData(villagesData)
     
     
@@ -535,6 +497,44 @@ class MapView extends Backbone.View
       materialOptions: materialOptions).addTo(map)
     layerTollBooth.enableDisableButtons 'disable'
     L.control.scale(position: 'bottomright').addTo map
+    
+    Coconut.database.get 'DistrictsWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+      districtsData = data
+      console.log('districtsData: '+districtsData)
+      districtsLayer = L.geoJson(districtsData,
+        style: admin1PolyOptions
+        onEachFeature: (feature, layer) ->
+          layer.bindPopup 'District: ' + feature.properties.District_N
+          return
+      ).addTo map
+      materialLayersControl.addOverlay(districtsLayer, 'Districts')
+    
+    Coconut.database.get 'ShahiasWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+      shahiasData = data
+      shahiasLayer = L.geoJson(shahiasData,
+        style: admin2PolyOptions
+        onEachFeature: (feature, layer) ->
+          layer.bindPopup 'Shehia: ' + feature.properties.Shehia
+          return
+      )
+      materialLayersControl.addOverlay(shahiasLayer, 'Shahias')
+    
+    Coconut.database.get 'VillagesWGS84'
+    .catch (error) -> console.error error
+    .then ( data) ->
+      villagesData = data
+      villagesLayer = L.geoJson(villagesData,
+        style: admin3PolyOptions
+        onEachFeature: (feature, layer) ->
+          console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
+          layer.bindPopup layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N
+          return
+      )
+      materialLayersControl.addOverlay(villagesLayer, 'Villages')
 
 #    customLayers = L.control.layers(layers, overlays).addTo map
 #
