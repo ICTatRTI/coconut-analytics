@@ -58,6 +58,7 @@ class MapView extends Backbone.View
   heatTimeLayer = undefined
   startDate = undefined
   endDate = undefined
+  overlays = {}
   materialHeatMapControl = undefined
   materialClusterControl = undefined
   materialTimeControl = undefined
@@ -326,7 +327,6 @@ class MapView extends Backbone.View
 #          @CasesLoaded = false
 #          return
         layerTollBooth = new LayerTollBooth(map, casesLayer)
-        console.log 'layerTollBooth: '+layerTollBooth.CasesLoaded
         if casesGeoJSON.features.length > 0
             console.log('set true: ')
             layerTollBooth.setCasesStatus true
@@ -335,7 +335,6 @@ class MapView extends Backbone.View
             console.log('set false')
             layerTollBooth.setCasesStatus false
             layerTollBooth.enableDisableButtons 'disable' 
-        console.log("LayerTollBooth.CasesLoaded: "+layerTollBooth.casesLoaded)
         updateMap casesGeoJSON
 
     @$el.html "
@@ -452,52 +451,56 @@ class MapView extends Backbone.View
     map.zoom = 9
     map.scrollWheelZoom.disable()
     
-    map.on 'overlayadd', (a) ->
-      console.log('bringToFront')
-      map.eachLayer (layer) ->
-        console.log(layer.name)
-        return
-      casesLayer.bringToFront
-      return
-
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
     .then (data) ->
-       districtsData = data
-    districtsLayer = L.geoJson(districtsData,
-      style: admin1PolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup 'District: ' + feature.properties.District_N
-        return
-    ).addTo map
+      districtsData = data
+      console.log('districtsData: '+districtsData)
+      districtsLayer = L.geoJson(districtsData,
+        style: admin1PolyOptions
+        onEachFeature: (feature, layer) ->
+          console.log 'districts feature.properties' + feature.properties.District_N
+          layer.bindPopup 'District: ' + feature.properties.District_N
+          return
+      ).addTo map
+      materialLayersControl.addOverlay(districtsLayer, 'Districts')
+    
     Coconut.database.get 'ShahiasWGS84'
     .catch (error) -> console.error error
     .then (data) ->
       shahiasData = data
-    shahiasLayer = L.geoJson(shahiasData,
-      style: admin2PolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup 'Shehia: ' + feature.properties.Shehia
-        return
-    )
-
+      shahiasLayer = L.geoJson(shahiasData,
+        style: admin2PolyOptions
+        onEachFeature: (feature, layer) ->
+          console.log 'shaHia feature.properties' + feature.properties.Shehia
+          layer.bindPopup 'Shehia: ' + feature.properties.Shehia
+          return
+      )
+      materialLayersControl.addOverlay(shahiasLayer, 'Shahias')
+    
     Coconut.database.get 'VillagesWGS84'
     .catch (error) -> console.error error
     .then ( data) ->
       villagesData = data
-    villagesLayer = L.geoJson(villagesData,
-      style: admin3PolyOptions
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup layer.bindPopup 'Village: ' + feature.properties.Vil_Mttaa_N
-        
-        return
-    )
+      villagesLayer = L.geoJson(villagesData,
+        style: admin3PolyOptions
+        onEachFeature: (feature, layer) ->
+          console.log 'villages feature.properties' + feature.properties.Vil_Mttaa_N
+          layer.bindPopup layer.bindPopup 'Village: ' + feature.properties.Vil_Mttaa_N
+          return
+      )
+      materialLayersControl.addOverlay(villagesLayer, 'Villages')
  #   typeAheadNames = setUpTypeAheadData(villagesData)
     
-    overlays =
-      Districts: districtsLayer
-      Shahias: shahiasLayer
-      Villages: villagesLayer
+    
+    
+#    map.on 'overlayadd', (a) ->
+#      console.log('bringToFront')
+#      map.eachLayer (layer) ->
+##        console.log(JSON.stringify(layer))
+#        return
+##      casesLayer.bringToFront
+#      return
     materialOptions = 
       fab: true
       miniFab: true
