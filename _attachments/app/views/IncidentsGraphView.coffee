@@ -45,7 +45,7 @@ class IncidentsGraphView extends Backbone.View
       startkey: startDate.year()
       include_docs: false
     .catch (error) ->
-      options?.error()
+      console.error error
     .then (result) =>
       casesPerAggregationPeriod = {}
       _.each result.rows, (row) ->
@@ -61,7 +61,6 @@ class IncidentsGraphView extends Backbone.View
       if dataForGraph.length == 0
          $('div#chart_container').html('<h6>No Records found for date range</h6>')
       else
-        console.log(dataForGraph)
         graph = new Rickshaw.Graph
           element: document.querySelector("#chart")
           width: 580
