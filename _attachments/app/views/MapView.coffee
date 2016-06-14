@@ -31,12 +31,26 @@ class MapView extends Backbone.View
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8 
-  adminPolyOptions =
-    fillColor: '#4292C6'
-    color: '#ffffff'
-    weight: 0.2
+#  admin0PolyOptions =
+#    color: 'red'
+#    weight: 4
+#    opacity: 1
+#    fillOpacity: 0
+  admin1PolyOptions =
+    color: 'red'
+    weight: 3
     opacity: 1
-    fillOpacity: 0.8
+    fillOpacity: 0
+  admin2PolyOptions =
+    color: 'blue'
+    weight: 1.5
+    opacity: 1
+    fillOpacity: 0
+  admin3PolyOptions =
+    color: 'green'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0
   heatMapCoords = [] 
   heatMapCoordsTime = []
   heatMapOn = false
@@ -50,7 +64,7 @@ class MapView extends Backbone.View
   materialLayersControl = undefined
   casesLayer = undefined
   casesGeoJSON = undefined
-  turnCasesLayerOn = false;
+  turnCasesLayerOn = false
   timeCasesGeoJSON = undefined
   districtsData = undefined
   shahiasData = undefined
@@ -61,7 +75,12 @@ class MapView extends Backbone.View
   timeScale = undefined
   outFormat = d3.time.format("%Y-%m-%d")
   legend = undefined
-  
+  svg = undefined
+  svgXAxis = undefined
+  svgMargin = undefined
+  svgHeight = undefined
+  svgWidth = undefined
+  winWidth = undefined
   el: '#content'
 
   events:
@@ -264,8 +283,6 @@ class MapView extends Backbone.View
       #@snapshot.innerHTML = ''
       return
     return
-
-  
     
   render: =>
     console.log 'render fired'
@@ -401,7 +418,7 @@ class MapView extends Backbone.View
         </div>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--1-col'></div>
-            <div class='mdl-cell mdl-cell--10-col'>
+            <div class='mdl-cell mdl-cell--10-col' id='sliderCell'>
                 <div id = 'sliderContainer'></div>
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -448,21 +465,20 @@ class MapView extends Backbone.View
     .then (data) ->
        districtsData = data
     districtsLayer = L.geoJson(districtsData,
-      style: adminPolyOptions
-       # onEachFeature: (feature, layer) ->
-        #   layer.bindPopup 'test'
-        #   return
+      style: admin1PolyOptions
+      onEachFeature: (feature, layer) ->
+        layer.bindPopup 'District: ' + feature.properties.District_N
+        return
     ).addTo map
-
     Coconut.database.get 'ShahiasWGS84'
     .catch (error) -> console.error error
     .then (data) ->
       shahiasData = data
     shahiasLayer = L.geoJson(shahiasData,
-      style: adminPolyOptions
+      style: admin2PolyOptions
       onEachFeature: (feature, layer) ->
-         layer.bindPopup 'test'
-         return
+        layer.bindPopup 'Shehia: ' + feature.properties.Shehia
+        return
     )
 
     Coconut.database.get 'VillagesWGS84'
@@ -470,9 +486,10 @@ class MapView extends Backbone.View
     .then ( data) ->
       villagesData = data
     villagesLayer = L.geoJson(villagesData,
-      style: adminPolyOptions
+      style: admin3PolyOptions
       onEachFeature: (feature, layer) ->
-        layer.bindPopup 'test'
+        layer.bindPopup layer.bindPopup 'Village: ' + feature.properties.Vil_Mttaa_N
+        
         return
     )
  #   typeAheadNames = setUpTypeAheadData(villagesData)
@@ -573,59 +590,83 @@ class MapView extends Backbone.View
       extents = actives.map((p) ->
         timeScale.brush.extent()
       )
-      endDate = timeScale.brush.extent()[1]
-      endFormat = outFormat(endDate)
-      startDate = timeScale.brush.extent()[0]
-      startFormat = outFormat(startDate)
+      brushEndDate = timeScale.brush.extent()[1]
+      endFormat = outFormat(brushEndDate)
+      brushStartDate = timeScale.brush.extent()[0]
+      startFormat = outFormat(brushStartDate)
       dateRange = [startFormat, endFormat]
       dayMoFormat = d3.time.format("%b %d")
-      textE.text(dayMoFormat(endDate))
-      textW.text(dayMoFormat(startDate))
+      textE.text(dayMoFormat(brushEndDate))
+      textW.text(dayMoFormat(brushStartDate))
       if d3.event.sourceEvent
         updateFeaturesByDate(dateRange)
       return
-    formatDate = d3.time.format('%b %d')
-    # parameters
-    margin = 
-      top: 50
-      right: 50
-      bottom: 50
-      left: 50
-    width = 1000 - (margin.left) - (margin.right)
-    height = 137 - (margin.bottom) - (margin.top)
-    # scale function
-    timeScale = d3.time.scale().domain([
-      new Date(startDate)
-      new Date(endDate)
-    ]).range([
-      0
-      width
-    ]).clamp(true)
+    
     # initial value
     
-    startValue = timeScale(new Date(startDate))
-    startingValue = new Date(startDate)
-    endValue = timeScale(new Date(endDate))
-    endingValue = new Date(endDate)
-    svg = d3.select('#sliderContainer').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-    svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
-      formatDate d
-    ).tickSize(0).tickPadding(12).tickValues([
-      timeScale.domain()[0]
-      timeScale.domain()[1]
-    ])).select('.domain').select(->
-#      console.log this
-      @parentNode.appendChild @cloneNode(true)
-    ).attr 'class', 'halo'
-
-#    Brush extents
-    slider = svg.append('g').attr('class', 'brush').each((d) ->
-      d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).extent([
-        startingValue
-        endingValue
-      ]).on('brush', brushed)
+    resize = ->
+      console.log 'resize'
+      render()
+#      svgWidth = parseInt(d3.select('#sliderContainer').style('svgWidth'), 10);
+#      svgWidth = svgWidth - svgMargin.left - svgMargin.right;
+#      d3.select('.xaxis').attr('svgWidth', svgWidth + svgMargin.left + svgMargin.right)    
       return
-    ).selectAll('rect').attr('y', 10).attr('height', 16)
+
+    d3.select(window).on 'resize', resize
+    
+    render = ->
+        console.log 'render'
+        updateDimensions($('#sliderCell').width());
+        
+    
+    updateDimensions = (winWidth) ->
+        console.log 'winWidth: ' + winWidth
+        svgMargin = 
+          top: 50
+          right: 50
+          bottom: 50
+          left: 50
+        svgWidth = winWidth - (svgMargin.left) - (svgMargin.right)
+        svgHeight = 137 - (svgMargin.bottom) - (svgMargin.top)
+        formatDate = d3.time.format('%b %d')
+        timeScale = d3.time.scale().domain([
+          new Date(startDate)
+          new Date(endDate)
+        ]).range([
+          0
+          svgWidth
+        ]).clamp(true)
+        startValue = timeScale(new Date(startDate))
+        startingValue = new Date(startDate)
+        endValue = timeScale(new Date(endDate))
+        endingValue = new Date(endDate)
+        console.log('svgWidth & svgHeight: ' + svgWidth + ' & ' + svgHeight)
+        d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
+        d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
+        d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
+          formatDate d
+        ).tickSize(0).tickPadding(12).tickValues([
+          timeScale.domain()[0]
+          timeScale.domain()[1]
+        ]))
+        d3.select('.brush').each((d) ->
+          d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).extent([
+            startingValue
+            endingValue
+          ]).on('brush', brushed)
+          return
+        ).selectAll('rect').attr('y', 10).attr('height', 16)
+        d3.select('.texte').text(formatDate(endingValue))
+        d3.select('.textw').text(formatDate(startingValue))
+        outFormat = d3.time.format("%Y-%m-%d")
+        dateRange = [outFormat(startingValue), outFormat(endingValue)]
+    svg = d3.select('#sliderContainer').append('svg').attr('class', 'theSVG').append('g').attr('class','svgG')
+    svg.append('g').attr('class', 'xaxis').select('.domain').select(->
+        @parentNode.appendChild @cloneNode(true)
+    ).attr 'class', 'halo'
+#    Brush extents
+    slider = svg.append('g').attr('class', 'brush')
+    render()
     
     _brush = d3.select '.brush'
     resizes = d3.selectAll '.resize'
@@ -633,14 +674,14 @@ class MapView extends Backbone.View
     resizeE.id = 'resizee'
     resizeW = resizes[0][1]
     resizeW.id = 'resizew'
-    textE = d3.select('#resizee').append('text').text(formatDate(endingValue))
+    textE = d3.select('#resizee').append('text').attr 'class', 'texte'
     textE.id = 'texte'
-    textW = d3.select('#resizew').append('text').text(formatDate(startingValue))
+    textW = d3.select('#resizew').append('text').attr 'class', 'textw'
     textW.id = 'textw'
+    rectE = d3.select('#resizee rect').attr('class', 'recte').style('visibility','visible').attr('width', 3)
+    rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
     rects = _brush.selectAll('rect')
     rects3 = rects[0][3]
-    outFormat = d3.time.format("%Y-%m-%d")
-    dateRange = [outFormat(startingValue), outFormat(endingValue)]
     
     updateMap = (data) =>
 #        console.log "data: "+JSON.stringify data

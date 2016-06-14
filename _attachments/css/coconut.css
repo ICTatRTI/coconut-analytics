@@ -945,6 +945,30 @@ a {
   font-size: 14px;
 }
 
+#resizee text, #resizew text{
+    stroke:#98cdcd;
+}
+#resizee rect{
+    stroke: #98cdcd;
+    fill: #98cdcd;
+    visibility: visible;
+}
+#resizew rect{
+    stroke: #98cdcd;
+    fill: #98cdcd;
+    visibility: visible;
+}
+.extent{
+    stroke:#98cdcd;
+}
+
+.xaxis{
+    stroke:#ffeee6;
+}
+.domain{
+    stroke-width: 2;
+}
+
 dialog {
   top: 20%;
   width: 400px;
