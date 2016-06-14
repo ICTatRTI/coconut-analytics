@@ -531,7 +531,7 @@ class MapView extends Backbone.View
         style: admin3PolyOptions
         onEachFeature: (feature, layer) ->
           console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
-          layer.bindPopup layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N
+          layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N
           return
       )
       materialLayersControl.addOverlay(villagesLayer, 'Villages')
