@@ -969,7 +969,26 @@ a {
 .domain{
     stroke-width: 2;
 }
-
+.demo-card-square.mdl-card.mdl-shadow--2dp{
+    width: auto;
+    height: auto;
+}
+.leaflet-control-layers-base{
+    padding: 5px;
+    margin: 0 auto
+}
+.leaflet-control-layers-base label{
+    padding: 2px;
+    margin: 0 auto
+}
+.leaflet-control-layers-overlays{
+    padding: 8px;
+}
+.leaflet-control-layers-overlays label{
+    padding: 2px;
+    margin: 0 auto;
+    display: block;
+}
 dialog {
   top: 20%;
   width: 400px;

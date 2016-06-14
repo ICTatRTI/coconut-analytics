@@ -61,7 +61,7 @@ var layersControl = L.Control.Layers.extend({
 
     this._baseLayersList = L.DomUtil.create('div', className + '-base', form);
     this._separator = L.DomUtil.create('div', className + '-separator', form);
-    this._overlaysList = L.DomUtil.create('div', className + '-overlays', form);
+    var overlaysList = this._overlaysList = L.DomUtil.create('div', className + '-overlays', form);
 
     var separatorItem = L.DomUtil.create('li', 'mdl-menu__divider', this._separator);
     separatorItem.innerHTML = '<hr />';
