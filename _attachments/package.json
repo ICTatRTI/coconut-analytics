@@ -36,6 +36,7 @@
     "pikaday": "^1.4.0",
     "pouchdb": "*",
     "react": "^0.14.8",
+    "rickshaw": "^1.5.1",
     "tablesorter": "^2.25.4",
     "uglifyjs": "^2.4.10",
     "underscore": "^1.8.3",

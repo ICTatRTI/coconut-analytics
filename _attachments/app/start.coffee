@@ -28,6 +28,7 @@ global.Coconut =
   config:
     dateFormat: "YYYY-MM-DD"
     design_doc_name: "zanzibar"
+    appName: "Coconut Surveillance"
   currentlogin: Cookies.get('current_user') || null
   reportDates: 
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")

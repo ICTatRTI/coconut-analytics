@@ -17,33 +17,6 @@ class ChangePasswordView extends Backbone.View
   render: =>
     $("#login-backgrd").show()
     @$el.html "
-      <style>
-        #forgotten {
-           padding-top: 20px;
-           float: left;
-        }
-        
-        #dialog + .backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        #dialog::backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.4);
-        }
-        #loginDialog {
-          top: 20%;
-        }
-      </style>
       <dialog id='loginDialog'>
         <form id='loginForm' method='dialog'>
            <div class='m-b-20'>
