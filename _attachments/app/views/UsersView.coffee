@@ -95,8 +95,12 @@ class UsersView extends Backbone.View
       
     resetPassword: (e) =>
       e.preventDefault
+      if $("#newPass").val() is ""
+        $('.coconut-mdl-card__title').html("<i class='material-icons'>error_outline</i> Please enter new password...").show()
+      else
       #TODO Codes to update the password or doc
-      Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
+        Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
+      return false
       
 ## TODO Need the codes to delete user record
     deleteUser: (e) =>
@@ -169,6 +173,7 @@ class UsersView extends Backbone.View
              <div class='coconut-mdl-card__title'></div>
             <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='material-icons'>loop</i> Submit</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnCancel' type='submit' ><i class='material-icons'>cancel</i> Cancel</button>
             </div> 
           </form>
         "
