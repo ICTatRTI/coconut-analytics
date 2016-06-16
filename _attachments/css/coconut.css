@@ -990,11 +990,6 @@ a {
     display: block;
 }
 
-/*
-.leaflet-control-myLayer-mdl,#leaflet-myLayerControl-mdl {
-    float: right
-}
-*/
 dialog {
   top: 20%;
   width: 400px;
