@@ -12,7 +12,7 @@ var layersControl = L.Control.Layers.extend({
     var className = 'leaflet-control-layers-mdl',
         container = this._container = L.DomUtil.create('div', className + ' leaflet-bar-mdl'),
         buttonId = 'leaflet-control-layers-toggle-mdl';
-  
+    container.addClass('layerControlButton');
     // adjust timeout time for material menu
     MaterialMenu.prototype.Constant_ = {
       // Total duration of the menu animation.
