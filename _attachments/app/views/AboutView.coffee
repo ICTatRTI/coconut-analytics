@@ -26,7 +26,7 @@ class AboutView extends Backbone.View
           <div class='f-left'><img src='images/cocoLogo.png' id='cslogo_xsm'></div>
           <div id='dialog-title'>#{Coconut.config.appName}</div>
         </div>
-        <div id='version'>Version 2.0</div>
+        <div id='version'>Version 2.0 alpha</div>
         <div id='license'>
           <p><i class='material-icons'>copyright</i> Copyright 2012 RTI International. </p>
           <p>RTI International is a registered trademark and a trade name of Research Triangle Institute.</p>
@@ -49,14 +49,11 @@ class AboutView extends Backbone.View
       </dialog>
     "
     dialogPolyfill.registerDialog(aboutDialog)
-    componentHandler.upgradeAllRegistered()
     
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        aboutDialog.showModal()
     else
        aboutDialog.show()
-       
-    componentHandler.upgradeDom()
 
 module.exports = AboutView
