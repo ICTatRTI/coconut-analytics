@@ -545,6 +545,8 @@ td.CaseID a:hover{
 
 .caseTable { width: 99%}
 
+.width60pct { width: 60%;}
+
 #closeDialog {
   margin-top: -50px; 
   margin-right: -20px
