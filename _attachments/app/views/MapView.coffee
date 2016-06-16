@@ -677,9 +677,9 @@ class MapView extends Backbone.View
     resizeE.id = 'resizee'
     resizeW = resizes[0][1]
     resizeW.id = 'resizew'
-    textE = d3.select('#resizee').append('text').attr 'class', 'texte'
+    textE = d3.select('#resizee').append('text').attr('class', 'texte')
     textE.id = 'texte'
-    textW = d3.select('#resizew').append('text').attr 'class', 'textw'
+    textW = d3.select('#resizew').append('text').attr('class', 'textw').attr('transform', 'translate(-48,0)')
     textW.id = 'textw'
     rectE = d3.select('#resizee rect').attr('class', 'recte').style('visibility','visible').attr('width', 3)
     rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
