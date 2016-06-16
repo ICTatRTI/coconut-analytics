@@ -731,6 +731,10 @@ div.chart {
 	margin-top: 5px;
 }
 
+.m-b-40 {
+	margin-bottom: 40px;
+}
+
 .m-b-20 {
 	margin-bottom: 20px;
 }
@@ -885,6 +889,10 @@ dialog#loginDialog div#dialog-title {
   font-size: 1.3em;
   line-height: 200%;
   letter-spacing: 1px;
+}
+
+dialog#aboutDialog {
+  width: 500px;
 }
 
 #analysis-spinner {
