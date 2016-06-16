@@ -10,6 +10,8 @@ materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
+Case = require '../models/Case'
+HTMLHelpers = require '../HTMLHelpers'
 
 class MapView extends Backbone.View
   map = undefined
@@ -96,7 +98,27 @@ class MapView extends Backbone.View
     "blur #map": "mapBlur"
 #    "overlayadd #map": "mapOnLayerAdd"
     "click #snapImage": "snapImage"
-    
+    "click button.caseBtn": "showCaseDialog"
+    "click button#closeDialog": "closeDialog"
+  
+  showCaseDialog: (e) ->
+    caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
+    Coconut.case = new Case
+      caseID: caseID
+    Coconut.case.fetch
+      success: ->
+        Case.createCaseView
+          case: Coconut.case
+          success: ->
+            $('#caseDialog').html(Coconut.caseview)
+            if (Env.is_chrome)
+               caseDialog.showModal()
+            else
+               caseDialog.show()
+
+  closeDialog: () ->
+    caseDialog.close()
+      
   pembaClick: (event)=>
         $('#pembaToggle').toggleClass 'mdl-button--raised', true
         $('#ungujaToggle').toggleClass 'mdl-button--raised', false
@@ -383,7 +405,9 @@ class MapView extends Backbone.View
            color: #fff;
            background: url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
         }
+        button.caseBtn {font-size: 1.0em}
         </style>
+        <dialog id='caseDialog'></dialog>
         <div id='dateSelector'></div>
         <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--12-col'>
@@ -530,7 +554,7 @@ class MapView extends Backbone.View
       villagesLayer = L.geoJson(villagesData,
         style: admin3PolyOptions
         onEachFeature: (feature, layer) ->
-          console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
+          #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
           layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N
           return
       )
@@ -701,7 +725,11 @@ class MapView extends Backbone.View
             ]
             
             heatMapCoords.push coords
-            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+            caselink = "
+              <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
+              #{feature.properties.MalariaCaseID}</button>
+            "
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
             clustersLayer.addLayer layer
             return
           pointToLayer: (feature, latlng) =>

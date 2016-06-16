@@ -6,6 +6,7 @@ Backbone.$  = $
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 HTMLHelpers = require '../HTMLHelpers'
+Case = require '../models/Case'
 
 class WeeklyReportsView extends Backbone.View
   el: "#content"
@@ -13,6 +14,8 @@ class WeeklyReportsView extends Backbone.View
   events:
     "change select.aggregation": "updateAggregation"
     "click button.same-cell-disaggregatable": "showHiddenCases"
+    "click button.caseBtn": "showCaseDialog"
+    "click button#closeDialog": "closeDialog"
 
   updateAggregation: (e) =>
     Coconut.router.reportViewOptions['aggregationPeriod'] = $("#aggregationPeriod").val()
@@ -23,7 +26,25 @@ class WeeklyReportsView extends Backbone.View
   
   showHiddenCases: (e) =>
     $(e.target).parent().find('div.cases').toggle()
-    
+
+  showCaseDialog: (e) ->
+    caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
+    Coconut.case = new Case
+      caseID: caseID
+    Coconut.case.fetch
+      success: ->
+        Case.createCaseView
+          case: Coconut.case
+          success: ->
+            $('#caseDialog').html(Coconut.caseview)
+            if (Env.is_chrome)
+               caseDialog.showModal()
+            else
+               caseDialog.show()
+
+  closeDialog: () ->
+    caseDialog.close()
+        
   render: =>
     options = Coconut.router.reportViewOptions
     @startDate = options.startDate
@@ -32,6 +53,7 @@ class WeeklyReportsView extends Backbone.View
     @aggregationArea = options.aggregationArea or "Zone"
     $('#analysis-spinner').show()
     @$el.html "
+      <dialog id='caseDialog'></dialog>
       <div id='dateSelector'></div>
       <h4>Weekly Facility Reports aggregated by
         <select style='height:50px;font-size:90%' id='aggregationPeriod' class='aggregation'>

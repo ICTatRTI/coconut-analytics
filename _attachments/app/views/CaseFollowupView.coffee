@@ -7,10 +7,14 @@ global.jQuery = require 'jquery'
 require 'tablesorter'
 moment = require 'moment'
 Reports = require '../models/Reports'
+Case = require '../models/Case'
 
 class CaseFollowupView extends Backbone.View
   events:
     "click .rpt-suboptions": "showDropDown"
+    "click button.caseBtn": "showCaseDialog"
+    "click button.caseBtnLg": "showCaseDialog"
+    "click button#closeDialog": "closeDialog"
 
   showDropDown: (e) =>
     id = '#'+ e.currentTarget.id + '-section'
@@ -25,6 +29,24 @@ class CaseFollowupView extends Backbone.View
         options.success(result)
       mostSpecificLocation: Reports.mostSpecificLocationSelected()
 
+  showCaseDialog: (e) ->
+    caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
+    Coconut.case = new Case
+      caseID: caseID
+    Coconut.case.fetch
+      success: ->
+        Case.createCaseView
+          case: Coconut.case
+          success: ->
+            $('#caseDialog').html(Coconut.caseview)
+            if (Env.is_chrome)
+               caseDialog.showModal()
+            else
+               caseDialog.show()
+
+  closeDialog: () ->
+    caseDialog.close()
+    
   render: =>
     @reportOptions = Coconut.router.reportViewOptions
     district = @reportOptions.district || "ALL"
@@ -35,6 +57,7 @@ class CaseFollowupView extends Backbone.View
     $('#analysis-spinner').show()
 
     @$el.html "
+      <dialog id='caseDialog'></dialog>
       <div id='dateSelector'></div>
       <div id='summary-dropdown'>
         <div id='unhide-icons'>
@@ -96,9 +119,7 @@ class CaseFollowupView extends Backbone.View
             $("table.summary tbody").append "
               <tr id='case-#{malariaCase.caseID}'>
                 <td class='CaseID mdl-data-table__cell--non-numeric'>
-                  <a href='#show/case/#{malariaCase.caseID}'>
-                    <button class='btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
-                  </a>
+                    <button id= '#{malariaCase.caseID}' class='caseBtnLg btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
                 </td>
                 <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
                   #{malariaCase.indexCaseDiagnosisDate()}
