@@ -95,8 +95,12 @@ class UsersView extends Backbone.View
       
     resetPassword: (e) =>
       e.preventDefault
+      if $("#newPass").val() is ""
+        $('.coconut-mdl-card__title').html("<i class='material-icons'>error_outline</i> Please enter new password...").show()
+      else
       #TODO Codes to update the password or doc
-      Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
+        Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
+      return false
       
 ## TODO Need the codes to delete user record
     deleteUser: (e) =>
@@ -163,12 +167,13 @@ class UsersView extends Backbone.View
           <div class='m-b-10'>User: <span id='resetname'></span></div>
           <form id='resetForm' method='dialog'>
              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                 <input class='mdl-textfield__input' type='password' id='newPass' name='newPass' autofocus>
+                 <input class='mdl-textfield__input' type='text' id='newPass' name='newPass' autofocus>
                  <label class='mdl-textfield__label' for='newPass'>New Password*</label>
              </div>
              <div class='coconut-mdl-card__title'></div>
             <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='material-icons'>loop</i> Submit</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnCancel' type='submit' ><i class='material-icons'>cancel</i> Cancel</button>
             </div> 
           </form>
         "

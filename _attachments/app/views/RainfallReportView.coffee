@@ -57,7 +57,7 @@ class RainfallReportView extends Backbone.View
       if (results.rows.length > 0)
         $("#rainfallReports").dataTable
           aaSorting: [[1,"desc"],[2,"desc"]]
-          iDisplayLength: 5
+          iDisplayLength: 10
           dom: 'T<"clear">lfrtip'
           tableTools:
             sSwfPath: "js-libraries/copy_csv_xls.swf"

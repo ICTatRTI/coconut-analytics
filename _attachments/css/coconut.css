@@ -946,6 +946,55 @@ a {
   font-size: 14px;
 }
 
+#resizee text, #resizew text{
+    stroke:#98cdcd;
+}
+#resizee rect{
+    stroke: #98cdcd;
+    fill: #98cdcd;
+    visibility: visible;
+}
+#resizew rect{
+    stroke: #98cdcd;
+    fill: #98cdcd;
+    visibility: visible;
+}
+.extent{
+    stroke:#98cdcd;
+}
+
+.xaxis{
+    stroke:#ffeee6;
+}
+.domain{
+    stroke-width: 2;
+}
+.demo-card-square.mdl-card.mdl-shadow--2dp{
+    width: auto;
+    height: auto;
+}
+.leaflet-control-layers-base{
+    padding: 5px;
+    margin: 0 auto
+}
+.leaflet-control-layers-base label{
+    padding: 2px;
+    margin: 0 auto
+}
+.leaflet-control-layers-overlays{
+    padding: 8px;
+}
+.leaflet-control-layers-overlays label{
+    padding: 2px;
+    margin: 0 auto;
+    display: block;
+}
+
+/*
+.leaflet-control-myLayer-mdl,#leaflet-myLayerControl-mdl {
+    float: right
+}
+*/
 dialog {
   top: 20%;
   width: 400px;

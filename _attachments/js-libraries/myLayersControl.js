@@ -65,14 +65,16 @@ var myLayersControl =  L.Control.extend({
 //  },
   _initLayout: function () {
 		var className = 'leaflet-control-layers',
-		    container = this._container = L.DomUtil.create('div', 'layersButton leaflet-control-zoom-mdl leaflet-bar-mdl');
+		    container = this._container = L.DomUtil.create('div', 'layersButton leaflet-control-myLayer-mdl leaflet-bar-mdl');
 //        var options = this.options;
 //      console.log('options: '+JSON.stringify(options))
-      this._zoomHomeButton = this._createMaterialButton('leaflet-zoom-in-mdl ', '<i class="material-icons">layers</i>', "layers control", container); 
-    
+      container.style.float = 'right'
+      this._zoomHomeButton = this._createMaterialButton('leaflet-myLayerControl-mdl ', '<i class="material-icons">layers</i>', "layers control", container); 
+      this._zoomHomeButton.style.float = 'right' 
 		//Makes this work on IE10 Touch devices by stopping it from firing a mouseout event when the touch is released
 		container.setAttribute('aria-haspopup', true);
-
+        
+    
 		if (!L.Browser.touch) {
 			L.DomEvent
 				.disableClickPropagation(container)

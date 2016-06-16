@@ -27,7 +27,7 @@ class HTMLHelpers
   @createCasesLinks = (cases) ->
     _.map(cases, (malariaCase) =>
       @createCaseLink  
-        caseID: (malariaCase.caseID or malariaCase)
+        caseID: (malariaCase.caseID or malariaCase.MalariaCaseID)
         iconOnly: false
     ).join("")
 
