@@ -8,6 +8,7 @@ require 'moment-range'
 
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
+Case = require '../models/Case'
 
 class PeriodTrendsView extends Backbone.View
   el: "#content"
@@ -17,7 +18,9 @@ class PeriodTrendsView extends Backbone.View
     "click #switch-trend": "toggleTrendData"
     "click .toggleDisaggregation": "toggleDisaggregation"
     "click .same-cell-disaggregatable": "toggleDisaggregationSameCell"
-
+    "click button.caseBtn": "showCaseDialog"
+    "click button#closeDialog": "closeDialog"
+    
   toggleTrendData: (e) ->
     if $(".mdl-switch__input").is(":checked")
       $(".data").show()
@@ -31,6 +34,24 @@ class PeriodTrendsView extends Backbone.View
   toggleDisaggregationSameCell: (event) ->
     $(event.target).siblings(".cases").toggle()
 
+  showCaseDialog: (e) ->
+    caseID = $(e.target).parent().attr('id')
+    Coconut.case = new Case
+      caseID: caseID
+    Coconut.case.fetch
+      success: ->
+        Case.createCaseView
+          case: Coconut.case
+          success: ->
+            $('#caseDialog').html(Coconut.caseview)
+            if (Env.is_chrome)
+               caseDialog.showModal()
+            else
+               caseDialog.show()
+
+  closeDialog: () ->
+    caseDialog.close()
+
   render: =>
     @reportOptions = Coconut.router.reportViewOptions
     district = @reportOptions.district || "ALL"
@@ -41,6 +62,7 @@ class PeriodTrendsView extends Backbone.View
     $('#analysis-spinner').show()
 
     @$el.html "
+        <dialog id='caseDialog'></dialog>
         <div id='dateSelector'></div>
         <div id='messages'></div>
     "

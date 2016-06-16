@@ -19,9 +19,9 @@ class HTMLHelpers
     options.buttonText ?= options.caseID
     buttonText = if(options.iconOnly) then "" else options.buttonText
      
-    "<a href='#show/case/#{options.caseID}#{if options.docId? then "/" + options.docId else ""}'><button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn '>
+    "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' id='#{options.caseID}'>
       <i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
-      #{buttonText}</button></a>"
+      #{buttonText}</button>"
 
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->

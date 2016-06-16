@@ -7,6 +7,7 @@ global.jQuery = require 'jquery'
 require 'tablesorter'
 
 Reports = require '../models/Reports'
+Case = require '../models/Case'
 
 class AnalysisView extends Backbone.View
 
@@ -15,6 +16,8 @@ class AnalysisView extends Backbone.View
     "click button.same-cell-disaggregatable": "toggleDisaggregation"
     "click #switch-details": "toggleDetails"
     "click #switch-unknown": "toggleGenderUnknown"
+    "click button.caseBtn": "showCaseDialog"
+    "click button#closeDialog": "closeDialog"
 
   toggleDisaggregation: (event) ->
     $(event.target).parents("td").children(".cases").toggle()
@@ -34,6 +37,24 @@ class AnalysisView extends Backbone.View
        iconStatus = "play_arrow"
     $target.find("i").text(iconStatus)
 
+  showCaseDialog: (e) ->
+    caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
+    Coconut.case = new Case
+      caseID: caseID
+    Coconut.case.fetch
+      success: ->
+        Case.createCaseView
+          case: Coconut.case
+          success: ->
+            $('#caseDialog').html(Coconut.caseview)
+            if (Env.is_chrome)
+               caseDialog.showModal()
+            else
+               caseDialog.show()
+
+  closeDialog: () ->
+    caseDialog.close()
+    
   render: =>
     $('#analysis-spinner').show()
     @$el.html "
@@ -41,6 +62,7 @@ class AnalysisView extends Backbone.View
         td button.same-cell-disaggregatable{ float:right;}
         .mdl-data-table th { padding: 0 6px}
       </style>
+      <dialog id='caseDialog'></dialog>
       <div id='dateSelector'></div>
       <div id='analysis'>
       <hr/>

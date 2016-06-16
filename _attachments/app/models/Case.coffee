@@ -3,6 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
+Question = require './Question'
 
 class Case
   constructor: (options) ->
@@ -617,5 +618,90 @@ Case.updateSpreadsheetForCases = (options) ->
         Coconut.database.get docId
         .catch (error) -> saveRowDoc()
         .then (result) -> saveRowDoc(result)
+        
+Case.createCaseView = (options) ->
+  @case = options.case
 
+  tables = [
+    "USSD Notification"
+    "Case Notification"
+    "Facility"
+    "Household"
+    "Household Members"
+  ]
+  
+  @mappings = {
+    createdAt: "Created At"
+    lastModifiedAt: "Last Modified At"
+    question: "Question"
+    user: "User"
+    complete: "Complete"
+    savedBy: "Saved By"
+  }
+  
+  Coconut.caseview = "
+    <h5>Case ID: #{@case.MalariaCaseID()}</h5><button id='closeDialog' class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored f-right'><i class='material-icons'>cancel</i></button>
+    <h6>Last Modified: #{@case.LastModifiedAt()}</h6>
+    <h6>Questions: #{@case.Questions()}</h6>
+  "
+        
+  # USSD Notification doesn't have a mapping
+  finished = _.after 4, =>
+    Coconut.caseview += _.map(tables, (tableType) =>
+      if @case[tableType]?
+        if tableType is "Household Members"
+          _.map(@case[tableType], (householdMember) =>
+            @createObjectTable(tableType,householdMember, @mappings)
+          ).join("")
+        else
+          @createObjectTable(tableType,@case[tableType], @mappings)
+    ).join("")
+    options?.success()
+     
+    # _.each $('table tr'), (row, index) ->
+    #   $(row).addClass("odd") if index%2 is 1
+    #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
+  
+  _(tables).each (question) =>
+    question = new Question(id: question)
+    question.fetch
+      success: =>
+        _.extend(@mappings, question.safeLabelsToLabelsMappings())
+        finished()
+        
+        
+Case.createObjectTable = (name,object,mappings) ->
+  
+  "
+    <h4 id=#{object._id}>#{name} 
+      <!-- <small><a href='#edit/result/#{object._id}'>Edit</a></small> --> 
+    </h4>
+    <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp caseTable'>
+      <thead>
+        <tr>
+          <th class='mdl-data-table__cell--non-numeric'>Field</th>
+          <th class='mdl-data-table__cell--non-numeric'>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        #{
+          _.map(object, (value, field) =>
+            return if "#{field}".match(/_id|_rev|collection/)
+            "
+              <tr>
+                <td class='mdl-data-table__cell--non-numeric'>
+                  #{
+                    mappings[field] or field
+                  }
+                </td>
+                <td class='mdl-data-table__cell--non-numeric'>#{value}</td>
+              </tr>
+            "
+          ).join("")
+        
+        }
+      </tbody>
+    </table>
+  "
+    
 module.exports = Case

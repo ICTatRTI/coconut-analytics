@@ -535,6 +535,21 @@ td.CaseID a:hover{
   margin-top: 0;
 }
 
+/* Cases views */
+
+#caseDialog {
+  width: 90%; 
+  top: 15%; 
+  padding-top: 0
+}
+
+.caseTable { width: 99%}
+
+#closeDialog {
+  margin-top: -50px; 
+  margin-right: -20px
+}
+
 /* login form */
 #login_wrapper {
 	    position:fixed;
