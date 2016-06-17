@@ -76,6 +76,7 @@ class MapView extends Backbone.View
   textW = undefined
   casesTimeLayer = undefined
   timeScale = undefined
+  formatDate = d3.time.format('%b %d')
   outFormat = d3.time.format("%Y-%m-%d")
   legend = undefined
   svg = undefined
@@ -174,7 +175,7 @@ class MapView extends Backbone.View
 #      updateFeaturesByDate(dateRange)
     updateFeaturesByDate(dateRange)
     if !layerTollBooth.timeOn
-      $("#sliderContainer").toggle()
+      $("#sliderControls").toggle()
       layerTollBooth.handleActiveState $('.timeButton button'), 'on'
       layerTollBooth.setTimeStatus true
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
@@ -185,7 +186,7 @@ class MapView extends Backbone.View
 #        map.removeLayer heatLayer
     else
       layerTollBooth.setTimeStatus false
-      $("#sliderContainer").toggle()
+      $("#sliderControls").toggle()
       layerTollBooth.handleActiveState $('.timeButton button'), 'off'
       console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
@@ -224,6 +225,7 @@ class MapView extends Backbone.View
     return typeAheadAdminNames 
         
   updateFeaturesByDate = (dateRange) ->
+#    console.log 'dateRange: ' + dateRange
     timeFeatures = []
     count = 0
     heatMapCoordsTime = []
@@ -394,11 +396,25 @@ class MapView extends Backbone.View
           height: 10px;
           margin-top: 8px;
         }
+        #sliderControls{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none; 
+        }
+        #playDiv{
+            padding-top: 25px;
+            float: left;
+            padding-left: 25px;
+        }
         #sliderContainer{
             background-color: #393939;
+            height: 90px;
             font-size: 14px;
             font-family: 'Raleway', sans-serif;
-            display: none;
+        }
+        .theSVG{
+            padding-left: 7px;
         }
         .demo-card-square.mdl-card {
            width: 320px;
@@ -443,11 +459,15 @@ class MapView extends Backbone.View
             </div>
         </div>
         <div class='mdl-grid' style='height:20%'>
-            <div class='mdl-cell mdl-cell--1-col'></div>
-            <div class='mdl-cell mdl-cell--10-col' id='sliderCell' style='height:20%'>
-                <div id = 'sliderContainer'></div>
+            <div class='mdl-cell mdl-cell--12-col' id='sliderCell' style='height:20%'>
+                <div id='sliderControls'>
+                    <div id='playDiv'>
+                        <button name='play' id='play'>Play</button>
+                    </div>
+                    <div id = 'sliderContainer'>
+                    </div>
+                </div>
             </div>
-            <div class='mdl-cell mdl-cell--1-col'></div>
         </div>  
         <div id='results' class='result'>   
     "
@@ -613,13 +633,14 @@ class MapView extends Backbone.View
 #          div  
 
     brushed = ->
-      console.log('brushed')
+#      console.log('brushed')
       actives = svg.filter((p) ->
         !timeScale.brush.empty()
       )
       extents = actives.map((p) ->
         timeScale.brush.extent()
       )
+#      console.log 'extents: ' + extents
       brushEndDate = timeScale.brush.extent()[1]
       endFormat = outFormat(brushEndDate)
       brushStartDate = timeScale.brush.extent()[0]
@@ -652,13 +673,13 @@ class MapView extends Backbone.View
     updateDimensions = (winWidth) ->
         console.log 'winWidth: ' + winWidth
         svgMargin = 
-          top: 50
+          top: 20
           right: 50
-          bottom: 50
+          bottom: 20
           left: 50
-        svgWidth = winWidth - (svgMargin.left) - (svgMargin.right)
-        svgHeight = 137 - (svgMargin.bottom) - (svgMargin.top)
-        formatDate = d3.time.format('%b %d')
+        svgWidth = winWidth - (svgMargin.left) - (svgMargin.right) - 100
+        svgHeight = 80 - (svgMargin.bottom) - (svgMargin.top)
+        
         timeScale = d3.time.scale().domain([
           new Date(startDate)
           new Date(endDate)
@@ -690,6 +711,66 @@ class MapView extends Backbone.View
         d3.select('.textw').text(formatDate(startingValue))
         outFormat = d3.time.format("%Y-%m-%d")
         dateRange = [outFormat(startingValue), outFormat(endingValue)]
+    
+    running = false
+    timer = undefined
+    $('#play').on 'click', ->
+      duration = 300
+      maxstep = 201
+      minstep = 200
+      console.log('running: ' + running)
+      if running == true
+        $('#play').html 'Play'
+        running = false
+        clearInterval timer
+      else if running == false
+        $('#play').html 'Pause'
+#        sliderValue = $('.theSVG').val()
+        playEndTime = timeScale.brush.extent()[1]
+#      console.log 'playEndTime1: ' + playEndTime
+#      console.log 'playEndTime1: ' + playEndTime
+        playStartTime = timeScale.brush.extent()[0]
+        console.log('playEndTime: '+playEndTime)
+        console.log('playStartTime: '+playStartTime)
+#        console.log('sliderValue: '+sliderValue)
+        timer = setInterval((->
+#          if sliderValue < maxstep
+#            sliderValue++
+#            $('.theSVG').val sliderValue
+#            $('#range').html sliderValue
+#          $('.theSVG').val sliderValue
+          update()
+          return
+        ), duration)
+        running = true
+      return
+
+    update = ->
+      playEndTime = timeScale.brush.extent()[1]
+#      console.log 'playEndTime1: ' + playEndTime
+      playEndTime.setDate playEndTime.getDate() + 1
+#      console.log 'playEndTime1: ' + playEndTime
+      playStartTime = timeScale.brush.extent()[0]
+      playStartTime.setDate playStartTime.getDate() + 1
+#      handle.attr 'transform', 'translate(' + timeScale(playStartTime) + ',0)' 
+      d3.select('resizew').attr 'transform', 'translate(' + timeScale(playStartTime) + ',0)'
+#      handle.select('text').text formatDate(playStartTime)
+      d3.select('textw').text formatDate(playStartTime)
+      
+#      console.log 'playStartTime: ' + formatDate(playStartTime)
+      
+      d3.select('.brush').transition().call(timeScale.brush.extent [
+        playStartTime
+        playEndTime
+      ]).call timeScale.brush.event
+      
+      playDateRange = [
+        outFormat(playStartTime)
+        outFormat(playEndTime)
+      ]
+      updateFeaturesByDate playDateRange
+      return
+    
     svg = d3.select('#sliderContainer').append('svg').attr('class', 'theSVG').append('g').attr('class','svgG')
     svg.append('g').attr('class', 'xaxis').select('.domain').select(->
         @parentNode.appendChild @cloneNode(true)
