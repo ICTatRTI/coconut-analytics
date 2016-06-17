@@ -621,7 +621,7 @@ Case.updateSpreadsheetForCases = (options) ->
         
 Case.createCaseView = (options) ->
   @case = options.case
-
+  
   tables = [
     "USSD Notification"
     "Case Notification"
@@ -679,7 +679,7 @@ Case.createObjectTable = (name,object,mappings) ->
     <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp caseTable'>
       <thead>
         <tr>
-          <th class='mdl-data-table__cell--non-numeric width60pct'>Field</th>
+          <th class='mdl-data-table__cell--non-numeric width50pct'>Field</th>
           <th class='mdl-data-table__cell--non-numeric'>Value</th>
         </tr>
       </thead>
