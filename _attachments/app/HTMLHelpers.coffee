@@ -19,7 +19,7 @@ class HTMLHelpers
     options.buttonText ?= options.caseID
     buttonText = if(options.iconOnly) then "" else options.buttonText
      
-    "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' id='#{options.caseID}'>
+    "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' id='#{options.caseID}' data-anchor='#{if options.docId? then options.docId else ""}'>
       <i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
       #{buttonText}</button>"
 

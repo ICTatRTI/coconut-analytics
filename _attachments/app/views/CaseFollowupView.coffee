@@ -31,6 +31,7 @@ class CaseFollowupView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
+    scrollTargetID = $(e.target).parent().attr('data-anchor')
     Coconut.case = new Case
       caseID: caseID
     Coconut.case.fetch
@@ -38,12 +39,14 @@ class CaseFollowupView extends Backbone.View
         Case.createCaseView
           case: Coconut.case
           success: ->
-            $('#caseDialog').html(Coconut.caseview)
+            $('#caseDialog').html(Coconut.caseview)            
             if (Env.is_chrome)
                caseDialog.showModal()
             else
                caseDialog.show()
-
+               
+            $('html, body').animate({ scrollTop: $("h4##{scrollTargetID}").position().top }, 'slow') if scrollTargetID?
+  
   closeDialog: () ->
     caseDialog.close()
     
