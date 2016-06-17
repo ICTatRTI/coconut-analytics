@@ -1014,6 +1014,9 @@ a {
     margin: 0 auto;
     display: block;
 }
+html, body, .mdl-layout__content, #content{
+    height: 100%;
+}
 
 dialog {
   top: 20%;

@@ -299,6 +299,9 @@ class MapView extends Backbone.View
 #    progressBar.showPleaseWait()
     console.log('snapImage')
     leafletImage map, (err, canvas) =>
+#      TODO - add and subtract analysis spinner when file starts and finsihes downloading
+#      $('#analysis-spinner').show()
+#      http://stackoverflow.com/questions/1106377/detect-when-browser-receives-file-download
       a = document.createElement('a')
       a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
       a.download = 'coconutMap.jpg'
@@ -434,14 +437,14 @@ class MapView extends Backbone.View
                 </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
-        <div class='mdl-grid'>                
-            <div class='mdl-cell mdl-cell--12-col' style='height:600px'>
+        <div class='mdl-grid' style='height:80%'>                
+            <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
         </div>
-        <div class='mdl-grid'>
+        <div class='mdl-grid' style='height:20%'>
             <div class='mdl-cell mdl-cell--1-col'></div>
-            <div class='mdl-cell mdl-cell--10-col' id='sliderCell'>
+            <div class='mdl-cell mdl-cell--10-col' id='sliderCell' style='height:20%'>
                 <div id = 'sliderContainer'></div>
             </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
@@ -517,7 +520,7 @@ class MapView extends Backbone.View
       materialOptions: materialOptions).addTo(map)
     
     materialImageControl = new (imageControl)(
-      position: 'bottomleft'
+      position: 'topright'
       materialOptions: materialOptions).addTo(map)
     layerTollBooth.enableDisableButtons 'disable'
     L.control.scale(position: 'bottomright').addTo map
@@ -752,7 +755,8 @@ class MapView extends Backbone.View
         casesTimeLayer = L.geoJson(data, 
           onEachFeature: (feature, layer) =>
             
-            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date,
+                closeButton: true
             #clustersLayer.addLayer layer
             return
           pointToLayer: (feature, latlng) =>
