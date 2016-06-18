@@ -12,6 +12,7 @@ Reports = require '../models/Reports'
 leafletImage = require 'leaflet-image'
 Case = require '../models/Case'
 HTMLHelpers = require '../HTMLHelpers'
+Dialog = require './Dialog'
 
 class MapView extends Backbone.View
   map = undefined
@@ -300,18 +301,24 @@ class MapView extends Backbone.View
   snapImage: =>
 #    progressBar.showPleaseWait()
     console.log('snapImage')
+    $('#analysis-spinner').show()
     leafletImage map, (err, canvas) =>
 #      TODO - add and subtract analysis spinner when file starts and finsihes downloading
-#      $('#analysis-spinner').show()
 #      http://stackoverflow.com/questions/1106377/detect-when-browser-receives-file-download
-      a = document.createElement('a')
-      a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
-      a.download = 'coconutMap.jpg'
-      a.click()
-      #@snapshot.innerHTML = ''
-      return
-    return
-    
+      if (err)
+        console.log(err)
+      else
+        console.log("Callback successful")
+        a = document.createElement('a')
+        a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
+        console.log('Canvas is',a)
+        a.download = 'coconutMap.jpg'
+        a.click()
+        #@snapshot.innerHTML = ''
+        $('#analysis-spinner').hide()
+        Dialog.createDialogWrap()
+        Dialog.confirm("Map download successfully completed...", "Success",["Ok"])
+        
   render: =>
     console.log 'render fired'
     $('#analysis-spinner').show()
