@@ -303,8 +303,6 @@ class MapView extends Backbone.View
     console.log('snapImage')
     $('#analysis-spinner').show()
     leafletImage map, (err, canvas) =>
-#      TODO - add and subtract analysis spinner when file starts and finsihes downloading
-#      http://stackoverflow.com/questions/1106377/detect-when-browser-receives-file-download
       if (err)
         console.log(err)
       else
