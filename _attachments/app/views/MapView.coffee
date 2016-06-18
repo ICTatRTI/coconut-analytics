@@ -311,7 +311,6 @@ class MapView extends Backbone.View
         console.log("Callback successful")
         a = document.createElement('a')
         a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
-        console.log('Canvas is',a)
         a.download = 'coconutMap.jpg'
         a.click()
         #@snapshot.innerHTML = ''
