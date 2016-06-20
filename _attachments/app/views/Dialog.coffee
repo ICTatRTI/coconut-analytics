@@ -36,4 +36,10 @@ class Dialog
     if !dialog.open
       if (Env.is_chrome) then dialog.showModal() else dialog.show()
 
+  @createDialogWrap: () ->
+    $("#log").html "
+       <dialog id='dialog' style='z-index: 1001'>
+         <div id='dialogContent'> </div>
+       </dialog>
+    "
 module.exports = Dialog

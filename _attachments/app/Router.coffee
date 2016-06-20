@@ -124,7 +124,7 @@ class Router extends Backbone.Router
           Coconut.router.navigate("#login", {trigger: true})
         )
     else  
-       @createDialog()
+       Dialog.createDialogWrap()
        Dialog.confirm("Invalid Token or Token expired.", "Error",["Ok"])
        dialog.addEventListener 'close', ->
          Coconut.router.navigate("#login", {trigger: true})
@@ -377,12 +377,5 @@ class Router extends Backbone.Router
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
-
-  createDialog: () ->
-    $("#content").html "
-       <dialog id='dialog' style='z-index: 1001'>
-         <div id='dialogContent'> </div>
-       </dialog>
-    "
     	  
 module.exports = Router
