@@ -466,7 +466,9 @@ class MapView extends Backbone.View
             <div class='mdl-cell mdl-cell--12-col' id='sliderCell' style='height:20%'>
                 <div id='sliderControls'>
                     <div id='playDiv'>
-                        <button name='play' id='play'>Play</button>
+                        <button name='play' id='play' class='mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--mini-fab mdl-color--cyan'>
+                            <i class='material-icons'>play_arrow</i>
+                        </button>
                     </div>
                     <div id = 'sliderContainer'>
                     </div>
@@ -724,11 +726,13 @@ class MapView extends Backbone.View
       minstep = 200
       console.log('running: ' + running)
       if running == true
-        $('#play').html 'Play'
+        $('#play').html "<i class='material-icons'>play_arrow</i>"
+        $('#play').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" )
         running = false
         clearInterval timer
       else if running == false
-        $('#play').html 'Pause'
+        $('#play').html "<i class='material-icons'>pause</i>"
+        $('#play').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" )
 #        sliderValue = $('.theSVG').val()
         playEndTime = timeScale.brush.extent()[1]
 #      console.log 'playEndTime1: ' + playEndTime
