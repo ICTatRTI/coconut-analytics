@@ -58,7 +58,7 @@ class AlertsView extends Backbone.View
 
           $('#system_errors').append "
             The following system errors have occurred in the last 2 days:
-            <table style='border:1px solid black' class='system-errors'>
+            <table style='border:1px solid black' class='tablesorter'>
               <thead>
                 <tr>
                   <th>Time of most recent error</th>
