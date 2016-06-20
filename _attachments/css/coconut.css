@@ -1009,6 +1009,9 @@ a {
 .leaflet-control-layers-overlays{
     padding: 8px;
 }
+.leaflet-control-layers-queriedLayers{
+    padding: 8px;
+}
 .leaflet-control-layers-overlays label{
     padding: 2px;
     margin: 0 auto;

@@ -62,6 +62,7 @@ class MapView extends Backbone.View
   startDate = undefined
   endDate = undefined
   overlays = {}
+  queriedLayers = {}
   materialHeatMapControl = undefined
   materialClusterControl = undefined
   materialTimeControl = undefined
@@ -224,7 +225,109 @@ class MapView extends Backbone.View
 #    console.log 'typeaheadnames Shehias: ' + JSON.stringify typeAheadAdminNames.shehias
 #    console.log 'typeaheadnames Villages: ' + JSON.stringify typeAheadAdminNames.villages
     return typeAheadAdminNames 
+   
+  reportResults = (results) ->
+        console.log 'success'
+#        console.log "results: " + JSON.stringify results
+        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
+          if malariaCase.Household?["HouseholdLocation-latitude"]
+            { 
+              type: 'Feature'
+              properties:
+                MalariaCaseID: malariaCase.caseID
+                hasAdditionalPositiveCasesAtIndexHousehold: malariaCase.hasAdditionalPositiveCasesAtIndexHousehold()
+                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
+                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
+                date: malariaCase.Household?.lastModifiedAt
+              geometry:
+                type: 'Point'
+                coordinates: [
+                  malariaCase.Household?["HouseholdLocation-longitude"]
+                  malariaCase.Household?["HouseholdLocation-latitude"]
+                ]
+            }
+        .compact().value()
+#        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
+        console.log 'casesGeoJSON.features: ' + casesGeoJSON.features.length
+#        LayerTollBooth = ->
+#          @CasesLoaded = false
+#          return
+        layerTollBooth = new LayerTollBooth(map, casesLayer)
+        if casesGeoJSON.features.length > 0
+            console.log('set true: ')
+            layerTollBooth.setCasesStatus true
+            layerTollBooth.enableDisableButtons 'enable'
+        else
+            console.log('set false')
+            layerTollBooth.setCasesStatus false
+            layerTollBooth.enableDisableButtons 'disable' 
+        updateMap casesGeoJSON
+        return
+  
+  updateMap = (data) =>
+#        console.log "data: "+JSON.stringify data
+        console.log('updateMap MapZoom: '+map.getZoom())
+        if data.features.length == 0
+#            disable heatmap button else enable it
+            heatMapCoords = []
+        clustersLayer = L.markerClusterGroup()
+        casesLayer = L.geoJson(data, 
+          onEachFeature: (feature, layer) =>
+            coords = [
+              feature.geometry.coordinates[1]
+              feature.geometry.coordinates[0]
+              5000/data.features.length#adjust with slider
+            ]
+            
+            heatMapCoords.push coords
+            caselink = "
+              <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
+              #{feature.properties.MalariaCaseID}</button>
+            "
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date 
+            clustersLayer.addLayer layer
+            return
+          pointToLayer: (feature, latlng) =>
+            # household markers with secondary cases
+            #clusering as well
+            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+                L.circleMarker latlng, caseMarkerOptions
+            else
+                L.circleMarker latlng, casesMarkerOptions
+          )
+        casesLayer.addTo(map)
+#        if heatMapCoords.length == 0
+#          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
+#          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
+#          $('.timeButton button').toggleClass 'mdl-button--disabled', true
+#        else
+#          $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
+#          $('.clusterButton button').toggleClass 'mdl-button--disabled', false
+#          $('.timeButton button').toggleClass 'mdl-button--disabled', false
         
+        casesTimeLayer = L.geoJson(data, 
+          onEachFeature: (feature, layer) =>
+            
+            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date,
+                closeButton: true
+            #clustersLayer.addLayer layer
+            return
+          pointToLayer: (feature, latlng) =>
+            # household markers with secondary cases
+            #clusering as well
+            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+                L.circleMarker latlng, caseMarkerOptions
+            else
+                L.circleMarker latlng, casesMarkerOptions
+          )
+        if data.features.length > 0
+#          console.log('multiCase')
+          materialLayersControl.addQueriedLayer casesLayer, 'Cases'
+
+        $('#analysis-spinner').hide()
+        
+        return    
+    
   updateFeaturesByDate = (dateRange) ->
 #    console.log 'dateRange: ' + dateRange
     timeFeatures = []
@@ -315,6 +418,8 @@ class MapView extends Backbone.View
         $('#analysis-spinner').hide()
         Dialog.createDialogWrap()
         Dialog.confirm("Map download successfully completed...", "Success",["Ok"])
+
+  
         
   render: =>
     console.log 'render fired'
@@ -328,45 +433,46 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
+    console.log('reportsGetCases about to fire')
     Reports.getCases
       startDate: startDate
       endDate: endDate
-      success: (results) ->
-        console.log 'success'
-#        console.log "results: " + JSON.stringify results
-        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
-          if malariaCase.Household?["HouseholdLocation-latitude"]
-            { 
-              type: 'Feature'
-              properties:
-                MalariaCaseID: malariaCase.caseID
-                hasAdditionalPositiveCasesAtIndexHousehold: malariaCase.hasAdditionalPositiveCasesAtIndexHousehold()
-                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
-                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
-                date: malariaCase.Household?.lastModifiedAt
-              geometry:
-                type: 'Point'
-                coordinates: [
-                  malariaCase.Household?["HouseholdLocation-longitude"]
-                  malariaCase.Household?["HouseholdLocation-latitude"]
-                ]
-            }
-        .compact().value()
-#        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
-        console.log 'casesGeoJSON.features: ' + casesGeoJSON.features.length
-#        LayerTollBooth = ->
-#          @CasesLoaded = false
-#          return
-        layerTollBooth = new LayerTollBooth(map, casesLayer)
-        if casesGeoJSON.features.length > 0
-            console.log('set true: ')
-            layerTollBooth.setCasesStatus true
-            layerTollBooth.enableDisableButtons 'enable'
-        else
-            console.log('set false')
-            layerTollBooth.setCasesStatus false
-            layerTollBooth.enableDisableButtons 'disable' 
-        updateMap casesGeoJSON
+      success: reportResults
+#        console.log 'success'
+##        console.log "results: " + JSON.stringify results
+#        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
+#          if malariaCase.Household?["HouseholdLocation-latitude"]
+#            { 
+#              type: 'Feature'
+#              properties:
+#                MalariaCaseID: malariaCase.caseID
+#                hasAdditionalPositiveCasesAtIndexHousehold: malariaCase.hasAdditionalPositiveCasesAtIndexHousehold()
+#                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
+#                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
+#                date: malariaCase.Household?.lastModifiedAt
+#              geometry:
+#                type: 'Point'
+#                coordinates: [
+#                  malariaCase.Household?["HouseholdLocation-longitude"]
+#                  malariaCase.Household?["HouseholdLocation-latitude"]
+#                ]
+#            }
+#        .compact().value()
+##        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
+#        console.log 'casesGeoJSON.features: ' + casesGeoJSON.features.length
+##        LayerTollBooth = ->
+##          @CasesLoaded = false
+##          return
+#        layerTollBooth = new LayerTollBooth(map, casesLayer)
+#        if casesGeoJSON.features.length > 0
+#            console.log('set true: ')
+#            layerTollBooth.setCasesStatus true
+#            layerTollBooth.enableDisableButtons 'enable'
+#        else
+#            console.log('set false')
+#            layerTollBooth.setCasesStatus false
+#            layerTollBooth.enableDisableButtons 'disable' 
+#        updateMap casesGeoJSON
 
     @$el.html "
         <style>
@@ -541,7 +647,7 @@ class MapView extends Backbone.View
       materialOptions: materialOptions).addTo(map)
 #    var materialLayerControl = new L.materialControl.Layers(layers, overlays, {position: 'bottomright', materialOptions: materialOptions}).addTo(map);
 
-    materialLayersControl = new (myLayersControl)(layers, overlays,
+    materialLayersControl = new (myLayersControl)(layers, overlays, queriedLayers, 
       position: 'topright'
       materialOptions: materialOptions).addTo(map)
     
@@ -663,7 +769,7 @@ class MapView extends Backbone.View
     
     resize = ->
       console.log 'resize'
-      render()
+      resizeRender()
 #      svgWidth = parseInt(d3.select('#sliderContainer').style('svgWidth'), 10);
 #      svgWidth = svgWidth - svgMargin.left - svgMargin.right;
 #      d3.select('.xaxis').attr('svgWidth', svgWidth + svgMargin.left + svgMargin.right)    
@@ -671,8 +777,8 @@ class MapView extends Backbone.View
 
     d3.select(window).on 'resize', resize
     
-    render = ->
-        console.log 'render'
+    resizeRender = ->
+        console.log 'resizeRender'
         updateDimensions($('#sliderCell').width());
         
     
@@ -740,6 +846,7 @@ class MapView extends Backbone.View
         playStartTime = timeScale.brush.extent()[0]
         console.log('playEndTime: '+playEndTime)
         console.log('playStartTime: '+playStartTime)
+#        TODO if endTime < queried extent then proceed. Otherwise stop. 
 #        console.log('sliderValue: '+sliderValue)
         timer = setInterval((->
 #          if sliderValue < maxstep
@@ -785,7 +892,7 @@ class MapView extends Backbone.View
     ).attr 'class', 'halo'
 #    Brush extents
     slider = svg.append('g').attr('class', 'brush')
-    render()
+    resizeRender()
     
     _brush = d3.select '.brush'
     resizes = d3.selectAll '.resize'
@@ -801,68 +908,6 @@ class MapView extends Backbone.View
     rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
     rects = _brush.selectAll('rect')
     rects3 = rects[0][3]
-    
-    updateMap = (data) =>
-#        console.log "data: "+JSON.stringify data
-        if data.features.length == 0
-#            disable heatmap button else enable it
-            heatMapCoords = []
-        clustersLayer = L.markerClusterGroup()
-        casesLayer = L.geoJson(data, 
-          onEachFeature: (feature, layer) =>
-            coords = [
-              feature.geometry.coordinates[1]
-              feature.geometry.coordinates[0]
-              5000/data.features.length#adjust with slider
-            ]
-            
-            heatMapCoords.push coords
-            caselink = "
-              <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
-              #{feature.properties.MalariaCaseID}</button>
-            "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date 
-            clustersLayer.addLayer layer
-            return
-          pointToLayer: (feature, latlng) =>
-            # household markers with secondary cases
-            #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, caseMarkerOptions
-            else
-                L.circleMarker latlng, casesMarkerOptions
-          ).addTo(map)
-#        if heatMapCoords.length == 0
-#          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
-#          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
-#          $('.timeButton button').toggleClass 'mdl-button--disabled', true
-#        else
-#          $('.heatMapButton button').toggleClass 'mdl-button--disabled', false
-#          $('.clusterButton button').toggleClass 'mdl-button--disabled', false
-#          $('.timeButton button').toggleClass 'mdl-button--disabled', false
-        
-        casesTimeLayer = L.geoJson(data, 
-          onEachFeature: (feature, layer) =>
-            
-            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date,
-                closeButton: true
-            #clustersLayer.addLayer layer
-            return
-          pointToLayer: (feature, latlng) =>
-            # household markers with secondary cases
-            #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, caseMarkerOptions
-            else
-                L.circleMarker latlng, casesMarkerOptions
-          )
-        if data.features.length > 0
-#          console.log('multiCase')
-          materialLayersControl.addOverlay casesLayer, 'Cases'
-
-        $('#analysis-spinner').hide()
-        
-    return
    
 module.exports = MapView
     
