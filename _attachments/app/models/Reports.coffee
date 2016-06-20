@@ -12,30 +12,32 @@ class Reports
       startkey: moment(options.endDate).endOf("day").format(Coconut.config.get "date_format")
       endkey: options.startDate
       descending: true
-      success: (result) ->
-        locations = []
-        for currentLocation,currentLocationIndex in result.rows
-          currentLocation = currentLocation.value
-          locations[currentLocation] =
-            100:[]
-            1000:[]
-            5000:[]
-            10000:[]
+    .catch (error) ->
+      options?.error()
+    .then (result) =>
+      locations = []
+      for currentLocation,currentLocationIndex in result.rows
+        currentLocation = currentLocation.value
+        locations[currentLocation] =
+          100:[]
+          1000:[]
+          5000:[]
+          10000:[]
 
-          for loc, locIndex in result.rows
-            continue if locIndex is currentLocationIndex
-            loc = loc.value
-            distanceInMeters = (new LatLon(currentLocation[0],currentLocation[1])).distanceTo(new LatLon(loc[0],loc[1])) * 1000
-            if distanceInMeters<100
-              locations[currentLocation][100].push loc
-            else if distanceInMeters<1000
-              locations[currentLocation][1000].push loc
-            else if distanceInMeters<5000
-              locations[currentLocation][5000].push loc
-            else if distanceInMeters<10000
-              locations[currentLocation][10000].push loc
+        for loc, locIndex in result.rows
+          continue if locIndex is currentLocationIndex
+          loc = loc.value
+          distanceInMeters = (new LatLon(currentLocation[0],currentLocation[1])).distanceTo(new LatLon(loc[0],loc[1])) * 1000
+          if distanceInMeters<100
+            locations[currentLocation][100].push loc
+          else if distanceInMeters<1000
+            locations[currentLocation][1000].push loc
+          else if distanceInMeters<5000
+            locations[currentLocation][5000].push loc
+          else if distanceInMeters<10000
+            locations[currentLocation][10000].push loc
 
-        options.success(locations)
+      options.success(locations)
 
   positiveCaseClusters: (options) ->
     @positiveCaseLocations
