@@ -101,6 +101,10 @@ var myLayersControl =  L.Control.extend({
         L.DomEvent.on(this._zoomHomeButton, 'click', function() {
 //            console.log('domeventCLick')
 //            console.log('container.childnodes: ' + container.childNodes)
+            L.DomUtil.addClass(form, 'mdl-menu--bottom-right');
+            L.DomUtil.addClass(form, 'layerControlForm');
+            
+
             var c = container.childNodes;
 //            for (var i = 0; i < c.length; i++) {
 //                console.log('nodeName: ' + c[i].nodeName);
