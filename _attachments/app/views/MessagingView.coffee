@@ -59,12 +59,13 @@ class MessagingView extends Backbone.View
     messageFields =  "date,to,text".split(",")
     @$el.html "
       <h5>Select Recipients</h5>
-      <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id= 'recipients'>
+      <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id= 'recipients'>
         <thead>
           <th class='mdl-data-table__cell--non-numeric'><input id='check-all' type='checkbox'></input></th>
           <th class='mdl-data-table__cell--non-numeric'>Phone Number</th>
           <th class='mdl-data-table__cell--non-numeric'>District</th> 
           <th class='mdl-data-table__cell--non-numeric'>Name</th>
+          <th class='mdl-data-table__cell--non-numeric'>Roles</th>            
           <th class='mdl-data-table__cell--non-numeric'>Inactive</th>
         </thead>
         <tbody>
@@ -84,8 +85,8 @@ class MessagingView extends Backbone.View
         </form>
       </div>
       <div class='m-t-30'>
-        <h4>Messages Sent</h4>
-        <table class='sent-messages mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+        <h5>Messages Sent</h5>
+        <table class='sent-messages tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead>
             <th class='mdl-data-table__cell--non-numeric'>Date</th>
             <th class='mdl-data-table__cell--non-numeric'>To</th>
@@ -96,7 +97,7 @@ class MessagingView extends Backbone.View
         </table>
       </div>
     "
-    
+        
     @userCollection.fetch
       success: =>
         @userCollection.sortBy (user) ->
@@ -109,6 +110,7 @@ class MessagingView extends Backbone.View
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('_id').replace(/user\./,'')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('district')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('name')}</td>
+              <td class='mdl-data-table__cell--non-numeric'>#{user.get('roles')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.get('inactive'))}</td>
             </tr>
             "
@@ -118,6 +120,7 @@ class MessagingView extends Backbone.View
             <td class='mdl-data-table__cell--non-numeric'>0787263670</td>
             <td class='mdl-data-table__cell--non-numeric'></td>
             <td class='mdl-data-table__cell--non-numeric'>Ritha</td>
+            <td class='mdl-data-table__cell--non-numeric'> </td>
             <td class='mdl-data-table__cell--non-numeric'>RTI</td>
           </tr>
           <tr>
@@ -125,11 +128,24 @@ class MessagingView extends Backbone.View
             <td class='mdl-data-table__cell--non-numeric'>31415926</td>
             <td class='mdl-data-table__cell--non-numeric'></td>
             <td class='mdl-data-table__cell--non-numeric'>Test</td>
+            <td class='mdl-data-table__cell--non-numeric'>test</td>
             <td class='mdl-data-table__cell--non-numeric'>Doesn't actually work</td>
           </tr>
         "
-        $("a").button()
 
+        @dataTable = $("#recipients").dataTable
+          aaSorting: [[0,"asc"]]
+          iDisplayLength: 10
+          dom: 'T<"clear">lfrtip'
+          tableTools:
+            sSwfPath: "js-libraries/copy_csv_xls.swf"
+            aButtons: [
+              "copy",
+              "csv",
+              "print"
+            ]
+        $("a").button()
+        
     @messageCollection.fetch
       success: => 
         @messageCollection.forEach (item) ->
@@ -141,4 +157,5 @@ class MessagingView extends Backbone.View
             </tr>
         "
         
+
 module.exports = MessagingView
