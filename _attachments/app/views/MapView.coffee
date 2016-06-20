@@ -40,17 +40,17 @@ class MapView extends Backbone.View
 #    opacity: 1
 #    fillOpacity: 0
   admin1PolyOptions =
-    color: 'red'
-    weight: 3
+    color: '#03A9F4'
+    weight: 2.5
     opacity: 1
     fillOpacity: 0
   admin2PolyOptions =
-    color: 'blue'
+    color: '#8BC34A'
     weight: 1.5
     opacity: 1
     fillOpacity: 0
   admin3PolyOptions =
-    color: 'green'
+    color: '#FF4081'
     weight: 0.5
     opacity: 1
     fillOpacity: 0
