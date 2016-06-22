@@ -92,6 +92,7 @@ class MapView extends Backbone.View
   events:
     "click button#pembaToggle": "pembaClick"
     "click button#ungujaToggle": "ungujaClick"
+    "click button#testButton": "testButtonClick"
     "click .heatMapButton, #heatMapToggle": "heatMapToggle"
     "click .timeButton": "timeToggle"
     "click .clusterButton": "clusterToggle"
@@ -99,7 +100,6 @@ class MapView extends Backbone.View
     "click .imageButton": "snapImage"
     "focus #map": "mapFocus"
     "blur #map": "mapBlur"
-#    "overlayadd #map": "mapOnLayerAdd"
     "click #snapImage": "snapImage"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
@@ -132,6 +132,10 @@ class MapView extends Backbone.View
         $('#ungujaToggle').toggleClass 'mdl-button--raised', true
         map.setView([-6.1, 39.348], 10, {animate:true})
   
+  testButtonClick: (event)=>
+        url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+        console.log url
+        
   heatMapToggle: =>
     if heatMapCoords.length>0
         console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
@@ -266,7 +270,7 @@ class MapView extends Backbone.View
   
   updateMap = (data) =>
 #        console.log "data: "+JSON.stringify data
-        console.log('updateMap MapZoom: '+map.getZoom())
+#        console.log('updateMap MapZoom: '+map.getZoom())
         if data.features.length == 0
 #            disable heatmap button else enable it
             heatMapCoords = []
@@ -327,6 +331,17 @@ class MapView extends Backbone.View
         $('#analysis-spinner').hide()
         
         return    
+  
+  getURLValue = (url, value) ->
+    console.log('getUTLValue: ' + value + ' ; ' + url )
+    urlAry = url.split('/')
+    console.log 'urlAry.length: ' + urlAry.length
+    valueIndex = urlAry.indexOf(value)
+    console.log 'valueIndex: ' + valueIndex
+    if valueIndex > -1
+        return urlAry[valueIndex + 1]
+    else
+        return undefined
     
   updateFeaturesByDate = (dateRange) ->
 #    console.log 'dateRange: ' + dateRange
@@ -397,9 +412,6 @@ class MapView extends Backbone.View
   mapBlur: =>
     if map.scrollWheelZoom.enabled() == true
       map.scrollWheelZoom.disable()
-  
-  mapOnLayerAdd: =>
-    console.log 'mapOnLayerAdd'
     
   snapImage: =>
 #    progressBar.showPleaseWait()
@@ -545,7 +557,7 @@ class MapView extends Backbone.View
                         <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
                         <label for='ungujaToggle'>or</label>
                         <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
-                        
+                        <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>test</button>
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
                             <select style='padding-right:20px'>
@@ -589,6 +601,18 @@ class MapView extends Backbone.View
     streets = L.mapbox.tileLayer('mapbox.streets')
     outdoors = L.mapbox.tileLayer('mapbox.outdoors')
     satellite = L.mapbox.tileLayer('mapbox.satellite')
+    
+    
+    
+    url = window.location.href
+    
+    zoom = getURLValue url, 'mapZoom'
+    console.log 'zoom: ' + zoom
+    lat = -5.567
+    lng = 39.489
+    if zoom == undefined
+        zoom = 9
+    
     layers = 
       Streets: streets
       Outdoors: outdoors
@@ -596,21 +620,26 @@ class MapView extends Backbone.View
     layerTollBooth = new LayerTollBooth
     map = L.map('map',
       center: [
-        -5.67, 39.489
+        lat, lng
       ]
-      zoom: 9
+      zoom: zoom
       layers: [
         streets
       ]
       zoomControl: false
       attributionControl: false
       )
-    map.lat = -5.67
-    map.lng = 39.489
-    map.zoom = 9
+#    map.lat = -5.67
+#    map.lng = 39.489
+#    map.zoom = 9
     map.scrollWheelZoom.disable()
     
-
+    map.on 'moveend', (e) ->
+      Coconut.router.reportViewOptions['mapZoom'] = map.getZoom()
+      Coconut.router.reportViewOptions['mapLatLng'] = map.getCenter().lat.toFixed(3) + ',' + map.getCenter().lng.toFixed(3)
+      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+      Coconut.router.navigate(url,{trigger: false})
+      return
  #   typeAheadNames = setUpTypeAheadData(villagesData)
     
     
