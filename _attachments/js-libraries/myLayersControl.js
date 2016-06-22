@@ -32,22 +32,31 @@ var myLayersControl =  L.Control.extend({
 		    .off('layerremove', this._onLayerChange, this);
   },
   addBaseLayer: function (layer, name) {
+    console.log('baseLayer');
 	this._addLayer(layer, name);
 	this._update();
 	return this;
   },
 
   addOverlay: function (layer, name) {
+    console.log('addOverlay');
 	this._addLayer(layer, name, true);
 	this._update();
 	return this;
   },
-  initialize: function (baseLayers, overlays, options) {
+  addQueriedLayer: function (layer, name) {
+	console.log('addQueriedLayer');
+	this._addLayer(layer, name, true, true);
+	this._update();
+	return this;
+  },
+  initialize: function (baseLayers, overlays, queriedLayers, options) {
     L.setOptions(this, options);
 //    console.log('initialize options: ' + JSON.stringify(options))
     this._lastZIndex = 1;
     this._layers = baseLayers;
     this._overlays = overlays;
+    this._queriedLayers = queriedLayers;
     for (var i in baseLayers) {
 //	    console.log('baselayer._addLayer')
         this._addLayer(baseLayers[i], i);
@@ -57,7 +66,10 @@ var myLayersControl =  L.Control.extend({
 //	    console.log('overlays._addLayer')
 	    this._addLayer(overlays[i], i, true);
 	}    
-    
+    for (i in queriedLayers) {
+//	    console.log('overlays._addLayer')
+	    this._addLayer(queriedLayers[i], i, true, true);
+	}
 //    console.log ('initialize overlays: ' + overlays)
   },
 //  _addItem: function (obj){
@@ -149,19 +161,22 @@ var myLayersControl =  L.Control.extend({
 
 		this._baseLayersList = L.DomUtil.create('div', className + '-base', form);
 		this._separator = L.DomUtil.create('div', className + '-separator', form);
+		this._queriedLayersList = L.DomUtil.create('div', className + '-queriedLayers', form);
+		this._separator = L.DomUtil.create('div', className + '-separator', form);
 		this._overlaysList = L.DomUtil.create('div', className + '-overlays', form);
 
 		
 	}, 
         
-    _addLayer: function (layer, name, overlay) {
+    _addLayer: function (layer, name, overlay, queried) {
 //	console.log('addLayer name: '+name)
     var id = L.stamp(layer);
 
 	this._layers[id] = {
 		layer: layer,
 		name: name,
-		overlay: overlay
+		overlay: overlay,
+        queried: queried
 	};
     
 //    console.log('this._layers[id]: '+this._layers[id].layer+ ' ' + this._layers[id].name + ' ' + this._layers[id].overlay)
@@ -189,9 +204,11 @@ var myLayersControl =  L.Control.extend({
 //
 		this._baseLayersList.innerHTML = '';
 		this._overlaysList.innerHTML = '';
+		this._queriedLayersList.innerHTML = '';
 
 		var baseLayersPresent = false,
 		    overlaysPresent = false,
+		    queriedLayersPresent = false,
 		    i, obj;
 
 		for (i in this._layers) {
@@ -205,6 +222,7 @@ var myLayersControl =  L.Control.extend({
             if(obj.name){ this._addItem(obj)};
 			overlaysPresent = overlaysPresent || obj.overlay;
 			baseLayersPresent = baseLayersPresent || !obj.overlay;
+			queriedLayersPresent = queriedLayersPresent || obj.queried;
 		}
 
 		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
@@ -239,6 +257,9 @@ var myLayersControl =  L.Control.extend({
 			input.type = 'checkbox';
 			input.className = 'leaflet-control-layers-selector';
 			input.defaultChecked = checked;
+            if(obj.queried){
+                
+            }
 		} else {
 			input = this._createRadioElement('leaflet-base-layers', checked);
 		}
@@ -253,9 +274,28 @@ var myLayersControl =  L.Control.extend({
 
 		label.appendChild(input);
 		label.appendChild(name);
-
-		var container = obj.overlay ? this._overlaysList : this._baseLayersList;
+        console.log('myLayerControl obj.overlay: ' + obj.overlay)
+        console.log('myLayerControl obj.queried: ' + obj.queried)
+        var container;
+        if(obj.overlay){
+            if(obj.queried){
+                console.log('container = _queriesLayersList')
+                container = this._queriedLayersList;
+            }
+            else{
+                console.log('container = _overlaysLayersList')
+                container = this._overlaysList;
+            }
+        }
+        else{
+            console.log('container = _baseLayersList')
+            container = this._baseLayersList;
+        }
+//		var container = obj.overlay ? this._overlaysList : this._baseLayersList;
 		container.appendChild(label);
+        
+        //queriedLayersList
+        console.log('container.innerHTML: ' + container.innerHTML)
 
 		return label;
 	},
