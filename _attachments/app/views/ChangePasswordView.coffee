@@ -6,15 +6,17 @@ Backbone.$  = $
 Dialog = require './Dialog'
 User = require '../models/User'
 dialogPolyfill = require 'dialog-polyfill'
+bcrypt = require('bcryptjs')
+SALTROUNDS = 10
 
 class ChangePasswordView extends Backbone.View
-
+  
   el: '#login-backgrd'
 
   events:
     "click button#btnSubmit": "ResetPassword"
 
-  render: =>
+  render: (username)=>
     $("#login-backgrd").show()
     @$el.html "
       <dialog id='loginDialog'>
@@ -24,6 +26,7 @@ class ChangePasswordView extends Backbone.View
              <div id='dialog-title'>Coconut Plus</div>
            </div>
            <h5>Reset Password</h5>
+           <input id='username' type='hidden' value='#{username}' name='username'>
            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
                <input class='mdl-textfield__input' type='password' id='newPass' name='newPass' autofocus>
                <label class='mdl-textfield__label' for='newPass'>New Password*</label>
@@ -61,6 +64,7 @@ class ChangePasswordView extends Backbone.View
     view = @
     newPass = $("#newPass").val()
     confirmPass = $("#confirmPass").val()
+    username = $("input#username").val()
     if newPass is "" or confirmPass is ""
       view.displayErrorMsg('Both passwords are required.')
       return false
@@ -71,16 +75,19 @@ class ChangePasswordView extends Backbone.View
       else
         # TODO: codes to reset password in User model?
         id = "user.#{username}"
+        hash = bcrypt.hashSync newPass, SALTROUNDS
         Coconut.database.get id,
            include_docs: true
-        .then (user) =>
-          view.displayErrorMsg('Password has been reset.')
-          $('button#btnSubmit').hide()
-          $('button#toLogin').show()
-          view.trigger "success"
         .catch (error) => 
           view.displayErrorMsg('Error encountered resetting password...')
           console.error error
+        .then (user) =>
+          user.hash = hash
+          Coconut.database.put user
+          .catch (error) -> console.error error
+          .then =>
+            loginDialog.close()
+            view.trigger "success"
         
     return false
 

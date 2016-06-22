@@ -110,7 +110,7 @@ class MessagingView extends Backbone.View
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('_id').replace(/user\./,'')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('district')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('name')}</td>
-              <td class='mdl-data-table__cell--non-numeric'>#{user.get('roles')}</td>
+              <td class='mdl-data-table__cell--non-numeric'>#{if user.get('roles')? then user.get('roles') else ''} </td>
               <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.get('inactive'))}</td>
             </tr>
             "
