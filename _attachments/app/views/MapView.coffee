@@ -332,7 +332,8 @@ class MapView extends Backbone.View
         
         return    
   
-  getURLValue = (url, value) ->
+  getURLValue = (value) ->
+    url = window.location.href    
     console.log('getUTLValue: ' + value + ' ; ' + url )
     urlAry = url.split('/')
     console.log 'urlAry.length: ' + urlAry.length
@@ -603,15 +604,13 @@ class MapView extends Backbone.View
     satellite = L.mapbox.tileLayer('mapbox.satellite')
     
     
-    
-    url = window.location.href
-    
-    zoom = getURLValue url, 'mapZoom'
-    console.log 'zoom: ' + zoom
-    lat = -5.567
-    lng = 39.489
-    if zoom == undefined
-        zoom = 9
+    #Check map for url settings. 
+    zoom = getURLValue 'mapZoom'
+    if zoom == undefined then zoom = 9
+    lat = getURLValue 'mapLat'
+    if lat == undefined then lat = -5.567
+    lng =  getURLValue 'mapLng'
+    if lng == undefined then lng = 39.489
     
     layers = 
       Streets: streets
@@ -636,7 +635,8 @@ class MapView extends Backbone.View
     
     map.on 'moveend', (e) ->
       Coconut.router.reportViewOptions['mapZoom'] = map.getZoom()
-      Coconut.router.reportViewOptions['mapLatLng'] = map.getCenter().lat.toFixed(3) + ',' + map.getCenter().lng.toFixed(3)
+      Coconut.router.reportViewOptions['mapLat'] = map.getCenter().lat.toFixed(3) 
+      Coconut.router.reportViewOptions['mapLng'] = map.getCenter().lng.toFixed(3)
       url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
       Coconut.router.navigate(url,{trigger: false})
       return
