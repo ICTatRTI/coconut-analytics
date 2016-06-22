@@ -218,7 +218,7 @@ class IssuesView extends Backbone.View
               <tr>
                 <td class='mdl-data-table__cell--non-numeric'>#{issue.Description}</td>
                 <td class='mdl-data-table__cell--non-numeric'>#{date}</td>
-                <td><center>#{issue['Assigned To'] or '-'}</center></td>
+                <td><center>#{if issue['Assigned To']? then issue['Assigned To'].replace(/user\./,'') else '-'}</center></td>
                 <td><center>#{issue['Date Resolved'] or '-'}</center></td>
                 <td>
                   <button class='edit mdl-button mdl-js-button mdl-button--icon'>
