@@ -17,6 +17,8 @@ moment = require 'moment'
 DataTables = require( 'datatables.net' )()
 User = require '../models/User'
 UserCollection = require '../models/UserCollection'
+bcrypt = require 'bcryptjs'
+SALTROUNDS = 10
 
 class UsersView extends Backbone.View
     el:'#content'
@@ -71,7 +73,8 @@ class UsersView extends Backbone.View
       @user.name = $('#name').val()
       @user.roles = $('#roles').val()
       @user.comments = $('#comments').val()
-
+      @user.hash = bcrypt.hashSync(@user.password, SALTROUNDS) if @user.password != ""
+      
       Coconut.database.put @user
       .catch (error) -> console.error error
       .then =>
@@ -95,11 +98,23 @@ class UsersView extends Backbone.View
       
     resetPassword: (e) =>
       e.preventDefault
-      if $("#newPass").val() is ""
+      id = "user.#{$("#resetname").html()}"
+      newPass = $("#newPass").val()
+      if newPass is ""
         $('.coconut-mdl-card__title').html("<i class='material-icons'>error_outline</i> Please enter new password...").show()
       else
-      #TODO Codes to update the password or doc
-        Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
+        hash = bcrypt.hashSync newPass, SALTROUNDS
+        Coconut.database.get id,
+           include_docs: true
+        .catch (error) => 
+          view.displayErrorMsg('Error encountered resetting password...')
+          console.error error
+        .then (user) =>
+          user.hash = hash
+          Coconut.database.put user
+          .catch (error) -> console.error error
+          .then ->
+            Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
       return false
       
 ## TODO Need the codes to delete user record

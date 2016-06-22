@@ -115,13 +115,19 @@ class Router extends Backbone.Router
   reset_password: (token) ->
     $("#login-backgrd").show()
     if token
+      #TODO: Need to search for document with the specified token.
       #check if token exist.
       # User.checkToken
       #if found()
+        #username should come from the doc with the specified token. Temporarily set to 'test'
+        username = 'test'
         Coconut.ChangePasswordView = new ChangePasswordView() if !Coconut.ChangePasswordView
-        Coconut.ChangePasswordView.render()
+        Coconut.ChangePasswordView.render(username)
         @listenTo(Coconut.ChangePasswordView, "success", ->
-          Coconut.router.navigate("#login", {trigger: true})
+          Dialog.createDialogWrap()
+          Dialog.confirm("Password reset successful...", "Success",["Ok"])
+          dialog.addEventListener 'close', ->
+            Coconut.router.navigate("#login", {trigger: true})
         )
     else  
        Dialog.createDialogWrap()
