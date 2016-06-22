@@ -133,16 +133,20 @@ class MapView extends Backbone.View
         map.setView([-6.1, 39.348], 10, {animate:true})
   
   testButtonClick: (event)=>
-        url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
-        console.log url
+        console.log('testClick')
+        $('.heatMapButton').trigger "click"
         
   heatMapToggle: =>
+    console.log 'heatMapToggle'
     if heatMapCoords.length>0
         console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
         if !layerTollBooth.heatLayerOn
             console.log('heatMaPToggle heatLayerOff')
             layerTollBooth.setHeatLayerStatus true
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'on'
+            Coconut.router.reportViewOptions['heatMap'] = 'on'
+            url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+            Coconut.router.navigate(url,{trigger: false})
             heatLayer = L.heatLayer(heatMapCoords, radius: 10) 
             heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10) 
             layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, )
@@ -150,6 +154,9 @@ class MapView extends Backbone.View
             console.log('heatMapToggle heatLayerOn')
             layerTollBooth.setHeatLayerStatus false
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
+            Coconut.router.reportViewOptions['heatMap'] = 'off'
+            url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+            Coconut.router.navigate(url,{trigger: false})
             if map.hasLayer casesTimeLayer
                 casesTimeLayer.clearLayers()
                 casesTimeLayer.addData(timeFeatures) 
@@ -158,11 +165,17 @@ class MapView extends Backbone.View
     if !layerTollBooth.clustersOn
       layerTollBooth.setClustersStatus true
       layerTollBooth.handleActiveState $('.clusterButton button'), 'on'
+      Coconut.router.reportViewOptions['clusterMap'] = 'on'
+      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+      Coconut.router.navigate(url,{trigger: false})
       layerTollBooth.handleClusters(map, clustersLayer, clustersTimeLayer, casesLayer, casesTimeLayer)
       clustersLayer.addTo map
     else
       layerTollBooth.setClustersStatus false
       layerTollBooth.handleActiveState $('.clusterButton button'), 'off'
+      Coconut.router.reportViewOptions['clusterMap'] = 'off'
+      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+      Coconut.router.navigate(url,{trigger: false})
       layerTollBooth.handleClusters(map, clustersLayer, clustersTimeLayer, casesLayer, casesTimeLayer)
       map.removeLayer clustersLayer
 #  layersToggle: =>
@@ -185,6 +198,10 @@ class MapView extends Backbone.View
       layerTollBooth.handleActiveState $('.timeButton button'), 'on'
       layerTollBooth.setTimeStatus true
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+      Coconut.router.reportViewOptions['timeMap'] = 'on'
+      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+      Coconut.router.navigate(url,{trigger: false})
+                
 #      if map.hasLayer casesLayer
 #        map.removeLayer casesLayer
 #        turnCasesLayerOn = true
@@ -196,6 +213,9 @@ class MapView extends Backbone.View
       layerTollBooth.handleActiveState $('.timeButton button'), 'off'
       console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+      Coconut.router.reportViewOptions['timeMap'] = 'off'
+      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+      Coconut.router.navigate(url,{trigger: false})
 #      if turnCasesLayerOn == true
 #        map.addLayer casesLayer
 #        turnCasesLayerOn = false          
@@ -300,6 +320,13 @@ class MapView extends Backbone.View
                 L.circleMarker latlng, casesMarkerOptions
           )
         casesLayer.addTo(map)
+        heatMap = getURLValue 'heatMap'
+        if heatMap == 'on' then $('.heatMapButton').trigger "click"
+        clusterMap = getURLValue 'clusterMap'
+        if clusterMap == 'on' then $('.clusterButton').trigger "click"
+#        timeMap = getURLValue 'timeMap'
+#        if timeMap == 'on' then $('.timeButton').trigger "click"
+        
 #        if heatMapCoords.length == 0
 #          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
 #          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
@@ -558,7 +585,9 @@ class MapView extends Backbone.View
                         <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
                         <label for='ungujaToggle'>or</label>
                         <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
-                        <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>test</button>
+                        
+                        <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>
+                        
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
                             <select style='padding-right:20px'>
@@ -664,6 +693,11 @@ class MapView extends Backbone.View
       position: 'topleft'
       materialOptions: materialOptions).addTo(map)
 #    $('.heatMapButton button').attr('disabled')
+#    heatMapControl = $('.heatMapButton')
+#    heatMapControl.onclick.apply(heatMapControl);
+    
+    
+
     materialClusterControl = new (clusterControl)(
       position: 'topleft'
       materialOptions: materialOptions).addTo(map)
