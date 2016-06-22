@@ -320,12 +320,6 @@ class MapView extends Backbone.View
                 L.circleMarker latlng, casesMarkerOptions
           )
         casesLayer.addTo(map)
-        heatMap = getURLValue 'heatMap'
-        if heatMap == 'on' then $('.heatMapButton').trigger "click"
-        clusterMap = getURLValue 'clusterMap'
-        if clusterMap == 'on' then $('.clusterButton').trigger "click"
-#        timeMap = getURLValue 'timeMap'
-#        if timeMap == 'on' then $('.timeButton').trigger "click"
         
 #        if heatMapCoords.length == 0
 #          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
@@ -354,7 +348,14 @@ class MapView extends Backbone.View
         if data.features.length > 0
 #          console.log('multiCase')
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
-
+        
+        heatMap = getURLValue 'heatMap'
+        if heatMap == 'on' then $('.heatMapButton').trigger "click"
+        clusterMap = getURLValue 'clusterMap'
+        if clusterMap == 'on' then $('.clusterButton').trigger "click"
+        timeMap = getURLValue 'timeMap'
+        if timeMap == 'on' then $('.timeButton').trigger "click"
+        
         $('#analysis-spinner').hide()
         
         return    
