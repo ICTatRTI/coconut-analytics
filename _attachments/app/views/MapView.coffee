@@ -4,6 +4,11 @@ Backbone = require "backbone"
 Backbone.$  = $
 d3 = require 'd3'
 
+window.addEventListener 'caseStyleChange', ((e) ->
+  console.log 'caseStyleChange'
+  return
+), false
+
 require 'mapbox.js'
 require 'leaflet'
 materialControl = require 'leaflet-material-controls'

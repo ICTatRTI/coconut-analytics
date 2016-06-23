@@ -281,6 +281,8 @@ var myLayersControl =  L.Control.extend({
             select.options[select.options.length] = new Option('# of LLIN < Sleeping Places', 'llinCases');
             L.DomEvent.on(select, 'change', function () {
                 console.log(select.options[select.selectedIndex].value);
+                var event = new CustomEvent('caseStyleChange', { 'caseType': select.options[select.selectedIndex].value });
+                window.dispatchEvent(event);
             });
             label.appendChild(select);
         }
