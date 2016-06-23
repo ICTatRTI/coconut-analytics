@@ -6,7 +6,6 @@ PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 Cookies = require 'js-cookie'
 bcrypt = require('bcryptjs')
-SALTROUNDS = 10
 
 class User extends Backbone.Model
   sync: BackbonePouch.sync

@@ -7,7 +7,7 @@ Dialog = require './Dialog'
 User = require '../models/User'
 dialogPolyfill = require 'dialog-polyfill'
 bcrypt = require('bcryptjs')
-SALTROUNDS = 10
+CONST = require "../Constants"
 
 class ChangePasswordView extends Backbone.View
   
@@ -75,7 +75,7 @@ class ChangePasswordView extends Backbone.View
       else
         # TODO: codes to reset password in User model?
         id = "user.#{username}"
-        hash = bcrypt.hashSync newPass, SALTROUNDS
+        hash = bcrypt.hashSync newPass, CONST.SaltRounds
         Coconut.database.get id,
            include_docs: true
         .catch (error) => 

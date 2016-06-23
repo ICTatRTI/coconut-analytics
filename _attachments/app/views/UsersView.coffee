@@ -18,7 +18,7 @@ DataTables = require( 'datatables.net' )()
 User = require '../models/User'
 UserCollection = require '../models/UserCollection'
 bcrypt = require 'bcryptjs'
-SALTROUNDS = 10
+CONST = require "../Constants"
 
 class UsersView extends Backbone.View
     el:'#content'
@@ -73,7 +73,7 @@ class UsersView extends Backbone.View
       @user.name = $('#name').val()
       @user.roles = $('#roles').val()
       @user.comments = $('#comments').val()
-      @user.hash = bcrypt.hashSync(@user.password, SALTROUNDS) if @user.password != ""
+      @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
       
       Coconut.database.put @user
       .catch (error) -> console.error error
@@ -103,7 +103,7 @@ class UsersView extends Backbone.View
       if newPass is ""
         $('.coconut-mdl-card__title').html("<i class='material-icons'>error_outline</i> Please enter new password...").show()
       else
-        hash = bcrypt.hashSync newPass, SALTROUNDS
+        hash = bcrypt.hashSync newPass, CONST.SaltRounds
         Coconut.database.get id,
            include_docs: true
         .catch (error) => 
