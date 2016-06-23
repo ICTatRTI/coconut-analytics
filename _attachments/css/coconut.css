@@ -1083,3 +1083,22 @@ form#system_settings {
 button.caseBtn {
   font-size: 0.65em;
 }
+
+/* Graphs */
+#chart_container {
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-top: 50px;
+}
+
+#chart {
+  position: relative;
+  left: 40px;
+}
+
+#y_axis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+}
