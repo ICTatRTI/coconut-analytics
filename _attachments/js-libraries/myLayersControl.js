@@ -250,6 +250,7 @@ var myLayersControl =  L.Control.extend({
 //        console.log('addItem obj.layer: '+obj.layer)
         var label = document.createElement('label'),
 		    input,
+            select,
 		    checked = this._map.hasLayer(obj.layer);
 //        console.log('obj.overlay: '+obj.overlay);
 		if (obj.overlay) {
@@ -257,10 +258,7 @@ var myLayersControl =  L.Control.extend({
 			input.type = 'checkbox';
 			input.className = 'leaflet-control-layers-selector';
 			input.defaultChecked = checked;
-            if(obj.queried){
-                
-            }
-		} else {
+        } else {
 			input = this._createRadioElement('leaflet-base-layers', checked);
 		}
 
@@ -271,9 +269,23 @@ var myLayersControl =  L.Control.extend({
 
 		var name = document.createElement('span');
 		name.innerHTML = ' ' + obj.name;
-
+        
 		label.appendChild(input);
 		label.appendChild(name);
+        if(obj.queried){
+            select = document.createElement('select');
+            select.id = 'mapStyleSelect';
+            select.className = 'mdl-select__input';
+            select.options[select.options.length] = new Option('One and More Cases', 'numberCases');
+            select.options[select.options.length] = new Option('Travel History', 'travelCases');
+            select.options[select.options.length] = new Option('# of LLIN < Sleeping Places', 'llinCases');
+            L.DomEvent.on(select, 'change', function () {
+                console.log(select.options[select.selectedIndex].value);
+                var event = new CustomEvent('caseStyleChange', { 'caseType': select.options[select.selectedIndex].value });
+                window.dispatchEvent(event);
+            });
+            label.appendChild(select);
+        }
         console.log('myLayerControl obj.overlay: ' + obj.overlay)
         console.log('myLayerControl obj.queried: ' + obj.queried)
         var container;
@@ -359,5 +371,10 @@ var myLayersControl =  L.Control.extend({
   },
   set toggleState(val){
     this._toggleState = val;
-  }
+  },
+  
 });
+
+function selectChange(){
+      console.log('selectOnchange!')
+}
