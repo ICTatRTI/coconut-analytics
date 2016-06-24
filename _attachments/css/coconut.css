@@ -735,6 +735,10 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 	text-align: right;
 }
 
+.center {
+  text-align: center;
+}
+
 .menu-subtitle {
 	font-size: 0.8em;
 }
@@ -1068,7 +1072,7 @@ button.caseBtn {
 .chart_container {
   position: relative;
   font-family: Arial, Helvetica, sans-serif;
-  padding: 10px;
+  padding: 10px 50px 10px 10px;
   /* border: 1px solid; */
 }
 

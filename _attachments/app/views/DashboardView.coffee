@@ -50,11 +50,11 @@ class DashboardView extends Backbone.View
           </div>
         </div>
         <div class='mdl-grid'>
-          <div class='mdl-cell mdl-cell--5-col mdl-cell--6-col-tablet'>
+          <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet'>
           </div>
-          <div class='mdl-cell mdl-cell--7-col mdl-cell--9-col-tablet'>
-            <div class='m-l-30'><h5>Incidents Graph</h5></div>
-            <div id='container_1' class='chart_container'>
+          <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
+            <div class='center'><h5>Incidence Graph</h5></div>
+            <div id='container_1' class='chart_container f-right'>
               <div id='y_axis_1' class='y_axis'></div>
               <div id='chart_1' class='chart'></div>
             </div>
