@@ -55,6 +55,7 @@ activityViews = {
 
 graphsViews = {
   IncidentsGraph: require './views/IncidentsGraphView'
+  YearlyTrends: require './views/YearlyTrendsView'
 }
   
 class Router extends Backbone.Router

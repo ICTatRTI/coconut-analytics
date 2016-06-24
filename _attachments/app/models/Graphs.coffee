@@ -5,14 +5,26 @@ Rickshaw = require 'rickshaw'
 class Graphs
 
 Graphs.IncidentsGraph = (options, callback) ->
+  options.couch_view = "positiveCases"
+  Graphs.createGraph options, (err, response) ->
+    if (err) then console.log(err) else callback(null, "Success")
+
+Graphs.YearlyTrends = (options, callback) ->
+  #TODO: update to appropriate couchdb view name for yearly trends
+  options.couch_view = "positiveCases"
+  Graphs.createGraph options, (err, response) ->
+    if (err) then console.log(err) else callback(null, "Success")
+       
+Graphs.createGraph = (options, callback) ->
     y_axis = options.y_axis
     div_chart = options.chart
     container = options.container
     chart_width = options.chart_width || 580
     chart_height = options.chart_height || 350
+    couch_view = options.couch_view
     
     startDate = moment(options.startDate, 'YYYY-MM-DD')
-    Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCases",
+    Coconut.database.query "#{Coconut.config.design_doc_name}/#{couch_view}",
       startkey: startDate.year()
       include_docs: false
     .catch (error) ->
@@ -52,5 +64,5 @@ Graphs.IncidentsGraph = (options, callback) ->
 
         graph.render()
         callback(null, "Success")
-  
+      
 module.exports = Graphs
