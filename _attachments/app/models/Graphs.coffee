@@ -23,7 +23,8 @@ Graphs.createGraph = (options, callback) ->
     chart_height = options.chart_height || 350
     couch_view = options.couch_view
     
-    startDate = moment(options.startDate, 'YYYY-MM-DD')
+    #startDate = moment(options.startDate, 'YYYY-MM-DD')
+    startDate = moment.utc("2012-07-01")
     Coconut.database.query "#{Coconut.config.design_doc_name}/#{couch_view}",
       startkey: startDate.year()
       include_docs: false
