@@ -81,6 +81,7 @@ class Router extends Backbone.Router
     "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
     "export": "dataExport"
+    "export/*options": "dataExport"
     "maps": "maps"
     "maps/*options": "maps"
     "graphs/*options": "graphs"
