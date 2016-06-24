@@ -48,16 +48,78 @@ llinGTCaseStyle =
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8
-    
+
+Style = (feature) ->
+  {
+    radius: getRadius(feature.properties[activeMeasure]),
+    fillColor: 'blue'
+    color: '#000'
+    weight: 1
+    opacity: 1
+    fillOpacity: 0.8
+  }
+getRadius = (d) ->
+  #TODO: Create the marker classes here for each
+  radius = ''
+  radius = 4
+  if radius > 0
+    radius
+  else
+    6
+
+getColor = (d) ->
+  #TODO: Create the marker classes here for each
+  color = ''
+  colors = HUCMeta[activeMeasure].style.colors
+  breaks = HUCMeta[activeMeasure].style.breaks
+  $.each breaks, (index, value) ->
+    if value <= d and d != null
+      color = colors[index]
+      return
+    return
+  if color.length > 0
+    color
+  else
+    '#666666'    
 window.addEventListener 'caseStyleChange', ((e) ->
   styleType = e.detail.caseType
+  console.log 'styleType: ' + styleType
   casesLayer.eachLayer (layer) ->
     if styleType == 'travelCases'
-        console.log JSON.stringify layer.feature.properties    
-#      if layer.feature.properties.NAME == 'feature 1'
-#        layer.setStyle fillColor: 'blue'
-        layer.setStyle fillColor: 'blue'    
-      return  
+      if layer.feature.properties.RecentTravel == 'No'
+        layer.setStyle
+          fillColor: '#303F9F'
+          color: '#000'
+        layer.setRadius 4
+      else
+        layer.setStyle
+          fillColor: '#CDDC39'
+          color: '#D32F2F'
+        layer.setRadius 6
+    else if styleType == 'numberCases'
+      if layer.feature.properties.numberOfCasesInHousehold == 0
+        console.log 'layer.feature.properties.numberOfCasesInHousehold: ' + JSON.stringify(layer.feature.properties.numberOfCasesInHousehold)
+        layer.setStyle
+          fillColor: '#FFA000'
+          color: '#000'
+        layer.setRadius 4
+      else
+        layer.setStyle
+          fillColor: '#D32F2F'
+          color: '#000'
+        layer.setRadius 6
+    else if styleType == 'llinCases'
+      if layer.feature.properties.NumberofLLIN < layer.feature.properties.SleepingSpaces
+        console.log 'layer.feature.properties.numberOfCasesInHousehold: ' + JSON.stringify(layer.feature.properties.numberOfCasesInHousehold)
+        layer.setStyle
+          fillColor: '#FF4081'
+          color: '#000'
+        layer.setRadius 4
+      else
+        layer.setStyle
+          fillColor: '#512DA8'
+          color: '#FFA000'
+        layer.setRadius 6
   return
 ), false
 
@@ -354,7 +416,7 @@ class MapView extends Backbone.View
               <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
               #{feature.properties.MalariaCaseID}</button>
             "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date 
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces   
             clustersLayer.addLayer layer
             return
           pointToLayer: (feature, latlng) =>
@@ -633,7 +695,7 @@ class MapView extends Backbone.View
                         <label for='ungujaToggle'>or</label>
                         <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
                         
-                        <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>
+                        <!--<button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>-->
                         
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
