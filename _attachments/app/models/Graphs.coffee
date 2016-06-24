@@ -8,6 +8,8 @@ Graphs.IncidentsGraph = (options, callback) ->
     y_axis = options.y_axis
     div_chart = options.chart
     container = options.container
+    chart_width = options.chart_width || 580
+    chart_height = options.chart_height || 350
     
     startDate = moment(options.startDate, 'YYYY-MM-DD')
     Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCases",
@@ -32,8 +34,8 @@ Graphs.IncidentsGraph = (options, callback) ->
       else
         graph = new Rickshaw.Graph
           element: document.querySelector("##{div_chart}")
-          width: 580
-          height: 350
+          width: chart_width
+          height: chart_height
           series: [
               color: 'steelblue'
               data: dataForGraph

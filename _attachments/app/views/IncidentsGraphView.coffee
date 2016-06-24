@@ -12,18 +12,18 @@ class IncidentsGraphView extends Backbone.View
   el: "#content"
 
   render: =>
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <div id='dateSelector'></div>
-       <div id='chart_container'>
-         <div id='y_axis'></div>
-         <div id='chart'></div>
+       <div id='chart_container_1' class='chart_container'>
+         <div id='y_axis_1' class='y_axis'></div>
+         <div id='chart_1' class='chart'></div>
        </div>
     "
     $('#analysis-spinner').show()
-    options.container = 'chart_container'
-    options.y_axis = 'y_axis'
-    options.chart = 'chart'
+    options.container = 'chart_container_1'
+    options.y_axis = 'y_axis_1'
+    options.chart = 'chart_1'
     Graphs.IncidentsGraph options, (err, response) ->
       if (err) then console.log(err)
       $('#analysis-spinner').hide()
