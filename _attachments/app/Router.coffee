@@ -234,7 +234,10 @@ class Router extends Backbone.Router
     @.navigate "#dashboard/#{startDate}/#{endDate}"
     Coconut.dashboardView.startDate = startDate
     Coconut.dashboardView.endDate = endDate
+    @reportType = 'dashboard'
     Coconut.dashboardView.render()
+    @showDateFilter(Coconut.dashboardView.startDate, Coconut.dashboardView.endDate, Coconut.dashboardView, @reportType)
+    
     
   dataExport: ->
     @userLoggedIn
