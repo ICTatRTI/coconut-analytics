@@ -88,5 +88,8 @@ User.logout = (options) ->
 
 User.inactiveStatus = (inactive) ->
     if (inactive) then "Yes" else "No"
-	
+
+User.token = () ->
+  return Math.random().toString(36).substr(2).toUpperCase()
+  
 module.exports = User

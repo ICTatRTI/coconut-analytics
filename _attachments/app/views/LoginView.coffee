@@ -109,15 +109,19 @@ class LoginView extends Backbone.View
       id = "user.#{username}"
       Coconut.database.get id,
          include_docs: true
-      .then (user) =>
-        #TODO: Sends email with password reset link and token. Token needs to be generated.
-        view.displayErrorMsg('Reset Password email has been sent...','beenhere')
-        $('a#forgot_passwd').hide()
-        $('button#resetPwd').hide()
-        $('button#toLogin').show()
       .catch (error) => 
         view.displayErrorMsg('Invalid username...','error_outline')
         console.error error
+      .then (user) =>
+        user.token = User.token()
+        Coconut.database.put user
+        .catch (error) -> console.error error
+        .then =>
+          #TODO: Sends email with password reset link and token.
+          view.displayErrorMsg('Reset Password email has been sent...','beenhere')
+          $('a#forgot_passwd').hide()
+          $('button#resetPwd').hide()
+          $('button#toLogin').show()
     return false
     
   ToLogin: () =>
