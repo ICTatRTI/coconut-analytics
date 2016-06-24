@@ -10,6 +10,8 @@ class ExportDataView extends Backbone.View
     "click button#export": "exportData"
 
   exportData: =>
+    @startDate = Coconut.dateSelectorView.startDate
+    @endDate = Coconut.dateSelectorView.endDate
     $('#downloadMsg').show()
     $('#analysis-spinner').show()
     url = "http://spreadsheet.zmcp.org/spreadsheet_cleaned/#{@startDate}/#{@endDate}"  
