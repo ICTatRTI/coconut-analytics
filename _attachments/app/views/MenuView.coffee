@@ -95,7 +95,8 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-graphs'>
           #{
            graphLinks = {
-             IncidentsGraph: "Incidents Graph - Cases By Week"
+             IncidentsGraph: "Incidence Graph - Cases By Week"
+             YearlyTrends: "Yearly Trends by Week"
              graph_attendance: "Attendance"
              graph_positivity: "Positivity"
              graph_testrate: "Test Rate"

@@ -20,7 +20,6 @@ class DateSelectorView extends Backbone.View
     e.preventDefault
     startDate = $('#startDate').val()
     endDate = $('#endDate').val()
-
     Coconut.router.dateSelectorOptions['dateMode'] = dateMode = $('#select-by :selected').text()
     if dateMode is "Week"
       Coconut.router.dateSelectorOptions['startYear'] = startYear = $('[name=StartYear]').val()
@@ -47,8 +46,10 @@ class DateSelectorView extends Backbone.View
         Coconut.router.dateSelectorOptions['endDate'] = endDate
         Coconut.router.reportViewOptions['startDate'] = startDate
         Coconut.router.reportViewOptions['endDate'] = endDate
-
-        url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+        if Coconut.dateSelectorView.reportType == 'dashboard'
+          url = "#{Coconut.dateSelectorView.reportType}/#{Coconut.router.dateSelectorOptions['startDate']}/#{Coconut.router.dateSelectorOptions['endDate']}"
+        else  
+          url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
         Coconut.router.navigate(url,{trigger: true})
     else
       $('#errMsg').html("Invalid Date Format detected")

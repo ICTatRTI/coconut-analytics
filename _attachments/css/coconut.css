@@ -677,26 +677,6 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
     margin-top: -50px;
 }
 
-div.chart {
-	border: 1px solid;
-	padding: 10px;
-	background: #fff;
-	height: 290px;
-	vertical-align: bottom;
-	display: table-cell;
-}
-
-.chart:hover {
-		cursor: pointer;
-}
-
-.chart img{
-	vertical-align: bottom;
-}
-
-
-
-
 /* margins setting */
 
 .f-left {
@@ -753,6 +733,10 @@ div.chart {
 
 .a-r {
 	text-align: right;
+}
+
+.center {
+  text-align: center;
 }
 
 .menu-subtitle {
@@ -1082,4 +1066,41 @@ form#system_settings {
 
 button.caseBtn {
   font-size: 0.65em;
+}
+
+/* Graphs */
+.chart_container {
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 10px 50px 10px 10px;
+  /* border: 1px solid; */
+}
+
+.y_axis {
+  position: absolute;
+  top: 20px;
+  bottom: 0;
+  width: 40px;
+}
+
+.chart {
+  position: relative;
+  left: 40px;
+	padding: 10px 0 20px 5px;
+	background: #fff;
+	height: 290px;
+	vertical-align: bottom;
+	display: table-cell;
+}
+
+.chart:hover {
+		cursor: pointer;
+}
+
+/* Temporarily disable graphs menu items */
+#Todos, #graph_attendence, #graph_positivity, #graph_testrate, #positivity_with_rainfall, #positivity_by_year, 
+#setting_theme, #setting_general, #setting_language, #setting_misc {
+  color: rgba(0,0,0,.26) !important;
+  cursor: default;
+  background-color: transparent;
 }
