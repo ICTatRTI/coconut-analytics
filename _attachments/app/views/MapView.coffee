@@ -4,8 +4,60 @@ Backbone = require "backbone"
 Backbone.$  = $
 d3 = require 'd3'
 
+
+casesLayer = undefined
+singleCaseStyle = 
+    radius: 4
+    fillColor: '#FFA000'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8
+multiCaseStyle = 
+    radius: 6
+    fillColor: '#D32F2F'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8 
+travelCaseStyle = 
+    radius: 6
+    fillColor: '#CDDC39'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8 
+noTravelCaseStyle = 
+    radius: 4
+    fillColor: '#303F9F'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8 
+llinLTCaseStyle = 
+    radius: 6
+    fillColor: '#FF4081'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8
+llinGTCaseStyle = 
+    radius: 4
+    fillColor: '#512DA8'
+    color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8
+    
 window.addEventListener 'caseStyleChange', ((e) ->
-  console.log 'caseStyleChange'
+  styleType = e.detail.caseType
+  casesLayer.eachLayer (layer) ->
+    if styleType == 'travelCases'
+        console.log JSON.stringify layer.feature.properties    
+#      if layer.feature.properties.NAME == 'feature 1'
+#        layer.setStyle fillColor: 'blue'
+        layer.setStyle fillColor: 'blue'    
+      return  
   return
 ), false
 
@@ -25,20 +77,7 @@ class MapView extends Backbone.View
   clustersLayer = undefined
   clustersTimeLayer = undefined
   timeFeatures = []
-  caseMarkerOptions = 
-    radius: 4
-    fillColor: '#ff7800'
-    color: '#000'
-    weight: 0.5
-    opacity: 1
-    fillOpacity: 0.8
-  casesMarkerOptions = 
-    radius: 6
-    fillColor: 'red'
-    color: '#000'
-    weight: 0.5
-    opacity: 1
-    fillOpacity: 0.8 
+
 #  admin0PolyOptions =
 #    color: 'red'
 #    weight: 4
@@ -72,7 +111,6 @@ class MapView extends Backbone.View
   materialClusterControl = undefined
   materialTimeControl = undefined
   materialLayersControl = undefined
-  casesLayer = undefined
   casesGeoJSON = undefined
   turnCasesLayerOn = false
   timeCasesGeoJSON = undefined
@@ -256,17 +294,20 @@ class MapView extends Backbone.View
     return typeAheadAdminNames 
    
   reportResults = (results) ->
-        console.log 'success'
-#        console.log "results: " + JSON.stringify results
         casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
+#            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
           if malariaCase.Household?["HouseholdLocation-latitude"]
+#            console.log 'Household' + JSON.stringify malariaCase.Household.NumberofSleepingPlacesbedsmattresses
+#            console.log 'Household' + JSON.stringify malariaCase.Facility.TravelledOvernightinpastmonth
             { 
               type: 'Feature'
               properties:
                 MalariaCaseID: malariaCase.caseID
                 hasAdditionalPositiveCasesAtIndexHousehold: malariaCase.hasAdditionalPositiveCasesAtIndexHousehold()
                 numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
-                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
+                NumberofLLIN: malariaCase.Household.NumberofLLIN
+                SleepingSpaces: malariaCase.Household.NumberofSleepingPlacesbedsmattresses
+                RecentTravel: malariaCase.Facility.TravelledOvernightinpastmonth
                 date: malariaCase.Household?.lastModifiedAt
               geometry:
                 type: 'Point'
@@ -320,9 +361,9 @@ class MapView extends Backbone.View
             # household markers with secondary cases
             #clusering as well
             if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, caseMarkerOptions
+                L.circleMarker latlng, singleCaseStyle
             else
-                L.circleMarker latlng, casesMarkerOptions
+                L.circleMarker latlng, multiCaseStyle
           )
         casesLayer.addTo(map)
         
@@ -346,9 +387,9 @@ class MapView extends Backbone.View
             # household markers with secondary cases
             #clusering as well
             if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, caseMarkerOptions
+                L.circleMarker latlng, singleCaseStyle
             else
-                L.circleMarker latlng, casesMarkerOptions
+                L.circleMarker latlng, multiCaseStyle
           )
         if data.features.length > 0
 #          console.log('multiCase')
@@ -429,9 +470,9 @@ class MapView extends Backbone.View
                 # household markers with secondary cases
                 #clusering as well
                 if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                    L.circleMarker latlng, caseMarkerOptions
+                    L.circleMarker latlng, singleCaseStyle
                 else
-                    L.circleMarker latlng, casesMarkerOptions
+                    L.circleMarker latlng, multiCaseStyle
               ).addTo(map)
         else
           casesTimeLayer.clearLayers()
