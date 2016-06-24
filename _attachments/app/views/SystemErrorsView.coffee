@@ -26,7 +26,7 @@ class SystemErrorsView extends Backbone.View
         </table>
     "
     $('#analysis-spinner').show()
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     Reports.systemErrors
       startDate: options.startDate
       endDate: options.endDate
@@ -51,6 +51,6 @@ class SystemErrorsView extends Backbone.View
                 }
           "
 
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
 
 module.exports = SystemErrorsView

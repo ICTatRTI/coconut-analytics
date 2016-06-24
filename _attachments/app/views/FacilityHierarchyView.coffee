@@ -95,7 +95,7 @@ class FacilityHierarchyView extends Backbone.View
     return false
 
   render: ->
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     @fields = "Region,District,Facility Name,Aliases,Phone Numbers,Type".split(/,/)
     @document_id = "Facility Hierarchy"
 

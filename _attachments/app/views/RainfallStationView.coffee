@@ -73,7 +73,7 @@ class RainfallStationView extends Backbone.View
     return false
 			
   render: ->
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     @fields = "Region,District,Name,Phone Numbers".split(/,/)
     @document_id = "Rainfall Stations"
     @dialogEdit = "

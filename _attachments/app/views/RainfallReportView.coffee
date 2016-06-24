@@ -12,7 +12,7 @@ class RainfallReportView extends Backbone.View
   el: "#content"
 
   render: =>
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     $('#analysis-spinner').show()
     @$el.html "
       <div id='dateSelector'></div>

@@ -10,7 +10,7 @@ class WeeklySummaryView extends Backbone.View
   el: "#content"
 
   render: =>
-      @reportOptions = Coconut.router.reportViewOptions
+      @reportOptions = $.extend({},Coconut.router.reportViewOptions)
       $('#analysis-spinner').show()
       @$el.html "
         <div id='dateSelector'></div>

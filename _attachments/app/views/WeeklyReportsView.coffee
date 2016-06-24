@@ -46,7 +46,7 @@ class WeeklyReportsView extends Backbone.View
     caseDialog.close()
         
   render: =>
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     @startDate = options.startDate
     @endDate = options.endDate
     @aggregationPeriod = options.aggregationPeriod or "Month"

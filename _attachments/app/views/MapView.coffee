@@ -573,7 +573,7 @@ class MapView extends Backbone.View
   render: =>
     console.log 'render fired'
     $('#analysis-spinner').show()
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     casesGeoJSON = 
       'type': 'FeatureCollection'
       'features': []

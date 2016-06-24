@@ -53,7 +53,7 @@ class PeriodTrendsView extends Backbone.View
     caseDialog.close()
 
   render: =>
-    @reportOptions = Coconut.router.reportViewOptions
+    @reportOptions = $.extend({},Coconut.router.reportViewOptions)
     district = @reportOptions.district || "ALL"
 
     @reportOptions.startDate = @reportOptions.startDate || moment(new Date).subtract(7,'days').format("YYYY-MM-DD")

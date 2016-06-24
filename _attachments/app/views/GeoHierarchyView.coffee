@@ -66,7 +66,7 @@ class GeoHierarchyView extends Backbone.View
     return false
 
   render: ->
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     @fields = "Region,District,Shehia".split(/,/)
     @document_id = "Geo Hierarchy"
     @dialogEdit = "

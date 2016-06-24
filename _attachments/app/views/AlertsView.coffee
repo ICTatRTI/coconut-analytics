@@ -45,7 +45,7 @@ class AlertsView extends Backbone.View
       </div>
 	"
     @alerts = false
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
 
     #@renderAlertStructure  'system_errors, not_followed_up, unknown_districts'.split(/, */)
 

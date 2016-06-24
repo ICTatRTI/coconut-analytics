@@ -14,6 +14,6 @@ class PilotNotificationView extends Backbone.View
     @$el.html "
         <div id='dateSelector'></div>
     "
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
 
 module.exports = PilotNotificationView

@@ -74,8 +74,8 @@ class AnalysisView extends Backbone.View
       </div>
     "
 	
-    options = Coconut.router.reportViewOptions
-
+    options = $.extend({},Coconut.router.reportViewOptions)
+    
     Reports.casesAggregatedForAnalysis
       aggregationLevel:     options.aggregationLevel
       startDate:            options.startDate

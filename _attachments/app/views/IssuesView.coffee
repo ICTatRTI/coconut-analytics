@@ -105,7 +105,7 @@ class IssuesView extends Backbone.View
 #      .fadeOut(2000) 
 
   render: =>
-    options = Coconut.router.reportViewOptions
+    options = $.extend({},Coconut.router.reportViewOptions)
     $('#analysis-spinner').show()
     @$el.html "
       <style>

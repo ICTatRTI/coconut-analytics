@@ -228,7 +228,7 @@ class CompareWeeklyView extends Backbone.View
       $(".DTTT_container").hide()
 	  
   render: =>
-    @options = Coconut.router.reportViewOptions
+    @options = $.extend({},Coconut.router.reportViewOptions)
     @aggregationPeriod = @options.aggregationPeriod or "Month"
     @aggregationArea = @options.aggregationArea or "Zone"
     @facilityType = @options.facilityType or "All"
