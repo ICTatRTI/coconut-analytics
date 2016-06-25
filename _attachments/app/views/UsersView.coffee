@@ -32,17 +32,23 @@ class UsersView extends Backbone.View
       "click a.user-pw-reset": "showResetView"
       "click button#btnSubmit": "resetPassword"
 
+    setMode: (mode) ->
+      $('input#mode').val(mode)
+      $('#div_password').hide() if mode == 'edit'
+      
     createUser: (e) =>
       e.preventDefault
       dialogTitle = "Add New User"
       Dialog.create(@dialogEdit, dialogTitle)
       $('form#user input').val('')
+      @setMode('add')
       return false
 
     editUser: (e) =>
       e.preventDefault
       dialogTitle = "Edit User"
       Dialog.create(@dialogEdit, dialogTitle)
+      @setMode('edit')
       id = $(e.target).closest("a").attr "data-user-id"
       
       Coconut.database.get id,
@@ -61,24 +67,36 @@ class UsersView extends Backbone.View
        return false
 	   
     formSave: =>
-      if not @user
-        @user = {
-          _id: "user." + $("#_id").val()
-        }
+      errorMsg = ""
+      errorMsg += 'Username, ' if $('#_id').val() == ''
+      errorMsg += 'Password, ' if $('input#mode').val() == 'add' and $('#passwd').val() == ''
+      errorMsg += 'District, ' if $('#district').val() == ''
+      errorMsg += 'Name, ' if $('#name').val() == ''
       
-      @user.inactive = $("#inactive").is(":checked")
-      @user.isApplicationDoc = true
-      @user.district = $("#district").val().toUpperCase()
-      @user.password = $('#passwd').val()
-      @user.name = $('#name').val()
-      @user.roles = $('#roles').val()
-      @user.comments = $('#comments').val()
-      @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
+      if errorMsg != ''
+        errorMsg = 'Required field(s): ' + errorMsg.slice(0, -2)
+        $('#errMsg').html(errorMsg)
+        return false
+      else
+        if not @user
+          @user = {
+            _id: "user." + $("#_id").val()
+          }
       
-      Coconut.database.put @user
-      .catch (error) -> console.error error
-      .then =>
-        @render()
+        @user.inactive = $("#inactive").is(":checked")
+        @user.isApplicationDoc = true
+        @user.district = $("#district").val().toUpperCase()
+        @user.password = $('#passwd').val()
+        @user.name = $('#name').val()
+        @user.roles = $('#roles').val()
+        @user.comments = $('#comments').val()
+        @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
+      
+        Coconut.database.put @user
+        .catch (error) -> console.error error
+        .then =>
+          @render()
+    
       return false
 	
     deleteDialog: (e) =>
@@ -129,15 +147,6 @@ class UsersView extends Backbone.View
       console.log("Cancel pressed")
       dialog.close()
       return false
-    # On saving 
-    # Coconut.database.get "user.id"
-    # (result) ->       
-    # result._rev # what you ned
-    # 
-    # Create a user from the input fields: createdUser
-    # Then add a _rev field from the above get: createdUser._rev = result.document._rev
-    # Then you can save the document by doing
-    # Coconut.database.put createdUser
 
     render: =>
       Coconut.database.query "zanzibar-server/users",
@@ -156,16 +165,17 @@ class UsersView extends Backbone.View
                   <li>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</li>
                 </ul>
              </div>
+             <div id='errMsg'></div>
+             <input type='hidden' id='mode' value='' />
              #{
               _.map( @fields, (field) =>
-                if field != 'password'
-                  "
-                     <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                       <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
-                       <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
-                     </div>
-                  "
-                  ).join("")
+                "
+                   <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_#{field}'>
+                     <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
+                     <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
+                   </div>
+                "
+                ).join("")
               }
               <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
@@ -221,8 +231,8 @@ class UsersView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.roles}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.comments}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.roles || ''}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.comments || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
                         <td>
                            <button class='edit mdl-button mdl-js-button mdl-button--icon'>
