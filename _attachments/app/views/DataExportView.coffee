@@ -2,6 +2,7 @@ _ = require 'underscore'
 $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
+Dialog = require './Dialog'
 
 class ExportDataView extends Backbone.View
   el: "#content"
@@ -21,8 +22,10 @@ class ExportDataView extends Backbone.View
         console.log("Error Downloading file...")
       else
         console.log(response)
-        $('#downloadMsg').html('File download completed...')
+        $('#downloadMsg').html('')
         $('#analysis-spinner').hide()
+        Dialog.createDialogWrap()
+        Dialog.confirm("File download successfully completed...", "Success",["Ok"])
  
   startDownload = (url, callback) ->
     window.location.href = url
