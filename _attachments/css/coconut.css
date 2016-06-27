@@ -172,14 +172,14 @@ i.no-travel-malaria-positive {
 }
 
 i.travel-history-false {
-	background-color: #fcd059;
+	/* background-color: #fcd059; */
 	color: black;
     width: 28px;
     height: 25px;
 	padding: 0px;
 }
 i.incomplete {
-    background-color: #fcd059;
+   /* background-color: #fcd059; */
 	color: rgb(255,64,129);
 }
 

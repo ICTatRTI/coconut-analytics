@@ -86,7 +86,7 @@ class CaseFollowupView extends Backbone.View
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>account_circle</i></button> - Positive malaria result found at household<br />
              <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  c_orange'>account_circle</i></button> - Positive malaria result found at household with no travel history (probable local transmission). <br />
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>home</i></button> - Index case had travel history.<br />
-             <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  household'>home</i></button> - Index case had no travel history (probable local transmission).<br />
+             <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  travel-history-false'>home</i></button> - Index case had no travel history (probable local transmission).<br />
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>home</i></button> - Household incomplete.<br />
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>error_outline</i></button> - Case not followed up to facility after 24 hours. <br />
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>tap_and_play</i></button> - Case notification incomplete.<br />
