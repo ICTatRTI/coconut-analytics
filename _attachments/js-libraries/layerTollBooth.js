@@ -12,7 +12,6 @@ function LayerTollBooth() {
     this.setClustersStatus = function (val){this.clustersOn = val;}
     this.setTimeStatus = function (val){this.timeOn = val;}
     this.toggleCasesLayer = function(heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, map){
-        console.log('casesLayer: ' + casesLayer)
         if (!this.timeOn){
             if (this.heatLayerOn || this.clustersOn){
                 console.log('casesLayerOff')
@@ -24,7 +23,6 @@ function LayerTollBooth() {
             }
         }
         else{
-            console.log('timeOn')
             if (this.heatLayerOn || this.clustersOn){
                 console.log('casesLayerOff')
                 map.removeLayer(timeCasesLayer)
@@ -38,14 +36,12 @@ function LayerTollBooth() {
     this.handleHeatMap = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer){
         if (!this.timeOn){
             if (this.heatLayerOn){
-                console.log('casesLayerOff')
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
                 }
                 map.addLayer(heatLayer)
             }
             else{
-                console.log('casesLayerOn')
                 if (!this.clustersOn){
                     map.addLayer(casesLayer)
                 }
@@ -54,14 +50,12 @@ function LayerTollBooth() {
         }
         else{
             if (this.heatLayerOn){
-                console.log('casesLayerOff')
                 if (map.hasLayer(casesTimeLayer)){
                     map.removeLayer(casesTimeLayer)
                 }
                 map.addLayer(heatTimeLayer)
             }
             else{
-                console.log('casesLayerOn')
                 if (!this.clustersOn){
                     map.addLayer(casesTimeLayer)
                 }
@@ -72,14 +66,12 @@ function LayerTollBooth() {
     this.handleClusters = function(map, clustersLayer, clustersTimeLayer, casesLayer, casesTimeLayer){
         if (!this.timeOn){
             if (this.clustersOn){
-                console.log('casesLayerOff')
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
                 }
                 map.addLayer(clustersLayer)
             }
             else{
-                console.log('casesLayerOn')
                 if (!this.heatLayerOn){
                     map.addLayer(casesLayer)
                 }
@@ -88,7 +80,6 @@ function LayerTollBooth() {
         }
     }
     this.handleTime = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer){
-        console.log('handleTime this.heatLayerOn: '+ this.heatLayerOn)
         if (this.timeOn){
             if (map.hasLayer(casesLayer)){
                 map.removeLayer(casesLayer);
@@ -98,7 +89,6 @@ function LayerTollBooth() {
             }
         }
         else{
-            console.log('heatLayerOff')
             if(map.hasLayer(casesTimeLayer)){
                 map.removeLayer(casesTimeLayer);
                 if (this.casesLoaded){

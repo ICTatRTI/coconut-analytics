@@ -83,7 +83,6 @@ getColor = (d) ->
     '#666666'    
 window.addEventListener 'caseStyleChange', ((e) ->
   styleType = e.detail.caseType
-  console.log 'styleType: ' + styleType
   casesLayer.eachLayer (layer) ->
     if styleType == 'travelCases'
       if layer.feature.properties.RecentTravel == 'No'
@@ -98,7 +97,6 @@ window.addEventListener 'caseStyleChange', ((e) ->
         layer.setRadius 6
     else if styleType == 'numberCases'
       if layer.feature.properties.numberOfCasesInHousehold == 0
-        console.log 'layer.feature.properties.numberOfCasesInHousehold: ' + JSON.stringify(layer.feature.properties.numberOfCasesInHousehold)
         layer.setStyle
           fillColor: '#FFA000'
           color: '#000'
@@ -110,7 +108,6 @@ window.addEventListener 'caseStyleChange', ((e) ->
         layer.setRadius 6
     else if styleType == 'llinCases'
       if layer.feature.properties.NumberofLLIN < layer.feature.properties.SleepingSpaces
-        console.log 'layer.feature.properties.numberOfCasesInHousehold: ' + JSON.stringify(layer.feature.properties.numberOfCasesInHousehold)
         layer.setStyle
           fillColor: '#FF4081'
           color: '#000'
@@ -244,9 +241,8 @@ class MapView extends Backbone.View
   heatMapToggle: =>
     console.log 'heatMapToggle'
     if heatMapCoords.length>0
-        console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
+#        console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
         if !layerTollBooth.heatLayerOn
-            console.log('heatMaPToggle heatLayerOff')
             layerTollBooth.setHeatLayerStatus true
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'on'
             Coconut.router.reportViewOptions['heatMap'] = 'on'
@@ -256,7 +252,6 @@ class MapView extends Backbone.View
             heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10) 
             layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, )
         else
-            console.log('heatMapToggle heatLayerOn')
             layerTollBooth.setHeatLayerStatus false
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
             Coconut.router.reportViewOptions['heatMap'] = 'off'
@@ -316,7 +311,7 @@ class MapView extends Backbone.View
       layerTollBooth.setTimeStatus false
       $("#sliderControls").toggle()
       layerTollBooth.handleActiveState $('.timeButton button'), 'off'
-      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
+#      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
       Coconut.router.reportViewOptions['timeMap'] = 'off'
       url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
@@ -380,17 +375,14 @@ class MapView extends Backbone.View
             }
         .compact().value()
 #        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
-        console.log 'casesGeoJSON.features: ' + casesGeoJSON.features.length
 #        LayerTollBooth = ->
 #          @CasesLoaded = false
 #          return
         layerTollBooth = new LayerTollBooth(map, casesLayer)
         if casesGeoJSON.features.length > 0
-            console.log('set true: ')
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
         else
-            console.log('set false')
             layerTollBooth.setCasesStatus false
             layerTollBooth.enableDisableButtons 'disable' 
         updateMap casesGeoJSON
@@ -470,11 +462,9 @@ class MapView extends Backbone.View
   
   getURLValue = (value) ->
     url = window.location.href    
-    console.log('getUTLValue: ' + value + ' ; ' + url )
+#    console.log('getUTLValue: ' + value + ' ; ' + url )
     urlAry = url.split('/')
-    console.log 'urlAry.length: ' + urlAry.length
     valueIndex = urlAry.indexOf(value)
-    console.log 'valueIndex: ' + valueIndex
     if valueIndex > -1
         return urlAry[valueIndex + 1]
     else
@@ -552,13 +542,11 @@ class MapView extends Backbone.View
     
   snapImage: =>
 #    progressBar.showPleaseWait()
-    console.log('snapImage')
     $('#analysis-spinner').show()
     leafletImage map, (err, canvas) =>
       if (err)
         console.log(err)
       else
-        console.log("Callback successful")
         a = document.createElement('a')
         a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
         a.download = 'coconutMap.jpg'
@@ -571,7 +559,6 @@ class MapView extends Backbone.View
   
         
   render: =>
-    console.log 'render fired'
     $('#analysis-spinner').show()
     options = $.extend({},Coconut.router.reportViewOptions)
     casesGeoJSON = 
@@ -766,9 +753,9 @@ class MapView extends Backbone.View
       zoomControl: false
       attributionControl: false
       )
-#    map.lat = -5.67
-#    map.lng = 39.489
-#    map.zoom = 9
+    map.lat = -5.67
+    map.lng = 39.489
+    map.zoom = 9
     map.scrollWheelZoom.disable()
     
     map.on 'moveend', (e) ->
@@ -833,7 +820,7 @@ class MapView extends Backbone.View
     .catch (error) -> console.error error
     .then (data) ->
       districtsData = data
-      console.log('districtsData: '+districtsData)
+      #console.log('districtsData: '+districtsData)
       districtsLayer = L.geoJson(districtsData,
         style: admin1PolyOptions
         onEachFeature: (feature, layer) ->
@@ -940,7 +927,6 @@ class MapView extends Backbone.View
     # initial value
     
     resize = ->
-      console.log 'resize'
       resizeRender()
 #      svgWidth = parseInt(d3.select('#sliderContainer').style('svgWidth'), 10);
 #      svgWidth = svgWidth - svgMargin.left - svgMargin.right;
@@ -950,12 +936,10 @@ class MapView extends Backbone.View
     d3.select(window).on 'resize', resize
     
     resizeRender = ->
-        console.log 'resizeRender'
         updateDimensions($('#sliderCell').width());
         
     
     updateDimensions = (winWidth) ->
-        console.log 'winWidth: ' + winWidth
         svgMargin = 
           top: 20
           right: 50
@@ -975,7 +959,6 @@ class MapView extends Backbone.View
         startingValue = new Date(startDate)
         endValue = timeScale(new Date(endDate))
         endingValue = new Date(endDate)
-        console.log('svgWidth & svgHeight: ' + svgWidth + ' & ' + svgHeight)
         d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
         d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
         d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
@@ -1002,7 +985,6 @@ class MapView extends Backbone.View
       duration = 300
       maxstep = 201
       minstep = 200
-      console.log('running: ' + running)
       if running == true
         $('#play').html "<i class='material-icons'>play_arrow</i>"
         $('#play').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" )
@@ -1016,8 +998,8 @@ class MapView extends Backbone.View
 #      console.log 'playEndTime1: ' + playEndTime
 #      console.log 'playEndTime1: ' + playEndTime
         playStartTime = timeScale.brush.extent()[0]
-        console.log('playEndTime: '+playEndTime)
-        console.log('playStartTime: '+playStartTime)
+#        console.log('playEndTime: '+playEndTime)
+#        console.log('playStartTime: '+playStartTime)
 #        TODO if endTime < queried extent then proceed. Otherwise stop. 
 #        console.log('sliderValue: '+sliderValue)
         timer = setInterval((->
