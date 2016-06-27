@@ -41,6 +41,7 @@ class UsersView extends Backbone.View
       dialogTitle = "Add New User"
       Dialog.create(@dialogEdit, dialogTitle)
       $('form#user input').val('')
+      $('form#user input#_id').prop('readonly', false)
       @setMode('add')
       return false
 
