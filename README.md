@@ -1,3 +1,5 @@
+[![Stories in Ready](https://badge.waffle.io/ICTatRTI/coconut-analytics.svg?label=ready&title=Ready)](http://waffle.io/ICTatRTI/coconut-analytics)
+
 Reports for Coconut
 
 *How to use*
