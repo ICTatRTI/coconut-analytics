@@ -5,10 +5,17 @@ Backbone.$  = $
 
 DataTables = require( 'datatables.net' )()
 Graphs = require '../models/Graphs'
+require('jquery-ui/draggable')
 
 class DashboardView extends Backbone.View
   el: "#content"
 
+  events:
+    "click #container_1": "graph1"
+  
+  graph1: (e) ->
+    Coconut.router.navigate("#graphs/type/IncidentsGraph", {trigger: true})
+    
   render: =>
     $('#analysis-spinner').show()
     @$el.html "
@@ -52,39 +59,48 @@ class DashboardView extends Backbone.View
         <div class='page-content'>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div class='chart-title'>Incidence Graph</div>
-              <div id='container_1' class='chart_container f-left'>
-                <div id='y_axis_1' class='y_axis'></div>
-                <div id='chart_1' class='chart'></div>
+              <div id='chart_box_1' class='ui-widget-content draggable'>
+                <div class='chart-title'>Incidence Graph - cases by week</div>
+                <div id='container_1' class='chart_container f-left'>
+                  <div id='y_axis_1' class='y_axis'></div>
+                  <div id='chart_1' class='chart'></div>
+                </div>
               </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div class='chart-title'>Line Graph</div>
-              <div id='container_2' class='chart_container f-left'>
-                <div id='y_axis_2' class='y_axis'></div>
-                <div id='chart_2' class='chart'></div>
+              <div id='chart_box_2' class='ui-widget-content draggable'>
+                <div class='chart-title'>Line Graph</div>
+                <div id='container_2' class='chart_container f-left'>
+                  <div id='y_axis_2' class='y_axis'></div>
+                  <div id='chart_2' class='chart'></div>
+                </div>
               </div>
             </div>
           </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div class='chart-title'>Bar Graph</div>
-              <div id='container_3' class='chart_container f-left'>
-                <div id='y_axis_3' class='y_axis'></div>
-                <div id='chart_3' class='chart'></div>
+              <div id='chart_box_3' class='ui-widget-content draggable'>
+                <div class='chart-title'>Bar Graph</div>
+                <div id='container_3' class='chart_container f-left'>
+                  <div id='y_axis_3' class='y_axis'></div>
+                  <div id='chart_3' class='chart'></div>
+                </div>
               </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div class='chart-title'>ScatterPlot Graph</div>
-              <div id='container_4' class='chart_container f-left'>
-                <div id='y_axis_4' class='y_axis'></div>
-                <div id='chart_4' class='chart'></div>
+              <div id='chart_box_4' class='ui-widget-content draggable'>
+                <div class='chart-title'>ScatterPlot Graph</div>
+                <div id='container_4' class='chart_container f-left'>
+                  <div id='y_axis_4' class='y_axis'></div>
+                  <div id='chart_4' class='chart'></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
     "
-    #Coconut.router.showDateFilter(@startDate,@endDate)
+    #$("#chart_box_1, #chart_box_2, #chart_box_3, #chart_box_4").draggable()
+    
     options = $.extend({},Coconut.router.reportViewOptions)
     options.chart_width = 430
     options.chart_height = 260

@@ -16,7 +16,7 @@ class IncidentsGraphView extends Backbone.View
     @$el.html "
        <div id='dateSelector'></div>
        <div class='mdl-cell mdl-cell--8-col mdl-cell--4-col-tablet'>
-         <div class='chart-title'>Incidence Graph</div>
+         <div class='chart-title'>Incidence Graph - Cases by Week</div>
          <div id='chart_container_1' class='chart_container'>
            <div id='y_axis_1' class='y_axis'></div>
            <div id='chart_1' class='chart'></div>
