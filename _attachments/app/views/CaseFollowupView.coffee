@@ -111,7 +111,7 @@ class CaseFollowupView extends Backbone.View
       tableColumns = tableColumns.concat _(result.rows).pluck("id")
       
       _.each tableColumns, (text) -> 
-        $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{if text == "USSD Notification" then "Notification" else text} (<span id='th-#{text.replace(/\s+/g,"")}-count'></span>)</th>"
+        $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{if text == "USSD Notification" then "Notification" else text} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
 
     @getCases
       success: (cases) =>
@@ -179,8 +179,9 @@ class CaseFollowupView extends Backbone.View
             "
 
           _.each tableColumns, (text) ->
-            columnId = text.replace(/\s+/g,"")
-            $("#th-#{columnId}-count").html $("td.#{columnId} button").length
+            if (["Diagnosis Date","Health Facility District","Shehia"].indexOf(text) < 0)
+              columnId = text.replace(/\s+/g,"")
+              $("#th-#{columnId}-count").html('('+ $("td.#{columnId} button").length + ')')
 
           $("#Cases-Reported-at-Facility").html $("td.CaseID button").length
           $("#Additional-People-Tested").html $("td.HouseholdMembers button").length
