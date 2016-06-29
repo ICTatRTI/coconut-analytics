@@ -29,6 +29,16 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>June 27, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Bug fixed where Username input in form cannot accept typing</li>
+            <li>In Data Export, show 'Success' modal upon successful file download</li>
+            <li>Remove yellow background color in icons in CaseFollowUp report</li>
+            <li>MapView: Fixed broken Home button</li>
+            <li>Add sample graphs on Dashboard</li>
+          </ul>
+        </div>
         <h5>June 24, 2016</h5>
         <div class='changes'>
           <ul>
@@ -83,7 +93,7 @@ class ChangeLogView extends Backbone.View
             <li>Fix to catch-then in one db query in Reports model</li>
             <li>Add fix to Errors detected by System</li>
             <li>MapView: Material color palette for admin layers</li>
-            <li>Camera button maintains position when layer control panel is visible </li>
+            <li>MapView: Camera button maintains position when layer control panel is visible </li>
             <li>Enhancement to MessagingView</li>
             <li>MapView: Play button styling: Blue minifab with on/off coloration consistent with other map tool buttons</li>
             <li>MapView: Layer control styling: move cases layer above other overlay layers</li>

@@ -1,20 +1,41 @@
 _ = require 'underscore'
 moment = require 'moment'
 Rickshaw = require 'rickshaw'
+d3 = require 'd3'
 
 class Graphs
 
 Graphs.IncidentsGraph = (options, callback) ->
   options.couch_view = "positiveCases"
+  options.renderer = 'area'
+  options.name = 'Incident'
   Graphs.createGraph options, (err, response) ->
     if (err) then console.log(err) else callback(null, "Success")
 
 Graphs.YearlyTrends = (options, callback) ->
   #TODO: update to appropriate couchdb view name for yearly trends
   options.couch_view = "positiveCases"
+  options.renderer = 'lineplot'
+  options.name = 'test'
   Graphs.createGraph options, (err, response) ->
     if (err) then console.log(err) else callback(null, "Success")
-       
+    
+Graphs.BarChart = (options, callback) ->
+  #TODO: update to appropriate couchdb view name for yearly trends
+  options.couch_view = "positiveCases"
+  options.renderer = 'bar'
+  options.name = 'test'
+  Graphs.createGraph options, (err, response) ->
+    if (err) then console.log(err) else callback(null, "Success")
+    
+Graphs.ScatterPlot = (options, callback) ->
+  #TODO: update to appropriate couchdb view name for yearly trends
+  options.couch_view = "positiveCases"
+  options.renderer = 'scatterplot'
+  options.name = 'test'
+  Graphs.createGraph options, (err, response) ->
+    if (err) then console.log(err) else callback(null, "Success")
+         
 Graphs.createGraph = (options, callback) ->
     y_axis = options.y_axis
     div_chart = options.chart
@@ -22,6 +43,8 @@ Graphs.createGraph = (options, callback) ->
     chart_width = options.chart_width || 580
     chart_height = options.chart_height || 350
     couch_view = options.couch_view
+    graph_renderer = options.renderer
+    series_name = options.name
     
     #startDate = moment(options.startDate, 'YYYY-MM-DD')
     startDate = moment.utc("2012-07-01")
@@ -49,11 +72,15 @@ Graphs.createGraph = (options, callback) ->
           element: document.querySelector("##{div_chart}")
           width: chart_width
           height: chart_height
+          renderer: graph_renderer
           series: [
+              name: series_name
               color: 'steelblue'
               data: dataForGraph
           ]
-      
+        hoverDetail = new Rickshaw.Graph.HoverDetail
+          graph: graph
+          
         x_axis = new Rickshaw.Graph.Axis.Time
           graph: graph
 
