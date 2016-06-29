@@ -17,6 +17,7 @@ global.pouchdb = new PouchDB("http://localhost:5984/zanzibar")
 # These are local .coffee files
 Router = require './Router'
 User = require './models/User'
+Config = require './models/Config'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 
@@ -25,48 +26,47 @@ HeaderView = require './views/HeaderView'
 global.Coconut =
   database: pouchdb
   router: new Router()
-  config:
-    dateFormat: "YYYY-MM-DD"
-    design_doc_name: "zanzibar"
-    appName: "Coconut Surveillance"
   currentlogin: Cookies.get('current_user') || null
   reportDates: 
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
-
+  
 global.Env = {
   is_chrome: /chrome/i.test(navigator.userAgent)
 }
 
-Coconut.headerView = new HeaderView 
-Coconut.headerView.render()
-Coconut.menuView = new MenuView 
-Coconut.menuView.render()
-
+Backbone.Model.prototype.idAttribute = '_id'
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
   db: Coconut.database
   fetch: 'query'
 
-Backbone.Model.prototype.idAttribute = '_id'
+Config.getConfig
+  error: ->
+    console.log("Error Retrieving Config")
+  success: ->    
+    Coconut.headerView = new HeaderView
+    Coconut.headerView.render()
+    Coconut.menuView = new MenuView
+    Coconut.menuView.render()
 
-_(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
-  Coconut.database.get docId
-  .catch (error) -> console.error error
-  .then (result) ->
-    Coconut[docId] = result
+    _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
+      Coconut.database.get docId
+      .catch (error) -> console.error error
+      .then (result) ->
+        Coconut[docId] = result
 
-GeoHierarchyClass = require './models/GeoHierarchy'
-global.GeoHierarchy = new GeoHierarchyClass
-  error: (error) ->
-    console.error error
-  success: =>
-    global.FacilityHierarchy = require './models/FacilityHierarchy'
-    global.FacilityHierarchy.load
+    GeoHierarchyClass = require './models/GeoHierarchy'
+    global.GeoHierarchy = new GeoHierarchyClass
       error: (error) ->
         console.error error
       success: =>
-        Backbone.history.start()
+        global.FacilityHierarchy = require './models/FacilityHierarchy'
+        global.FacilityHierarchy.load
+          error: (error) ->
+            console.error error
+          success: =>
+            Backbone.history.start()
 
-global.Issues = require './models/Issues'
+    global.Issues = require './models/Issues'
 
