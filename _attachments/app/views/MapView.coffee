@@ -433,8 +433,11 @@ class MapView extends Backbone.View
         casesTimeLayer = L.geoJson(data, 
           onEachFeature: (feature, layer) =>
             
-            layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date,
-                closeButton: true
+            caselink = "
+              <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
+              #{feature.properties.MalariaCaseID}</button>
+            "
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces   
             #clustersLayer.addLayer layer
             return
           pointToLayer: (feature, latlng) =>
