@@ -49,7 +49,9 @@ class IssuesView extends Backbone.View
     issueID = $(e.target).closest("a").attr "data-issue-id"
     Coconut.database.get issueID,
        include_docs: true
-    .catch (error) -> console.error error
+    .catch (error) -> 
+      console.error error
+      Dialog.confirm(error, 'Error Encountered',['Ok'])
     .then (issue) =>
        @issue = _.clone(issue)
        $("[name=description]").val(@issue.Description)
@@ -93,8 +95,9 @@ class IssuesView extends Backbone.View
     @issue["Date Resolved"] = $("[name=dateResolved]").val()
     Coconut.database.put @issue
     .catch (error) ->
-      console.log("Error saving")
-      $("#message").html("Error saving issue: #{JSON.stringify error}").show().fadeOut(10000)
+      console.error error
+      Dialog.confirm(error, 'Error Encountered',['Ok'])
+      #$("#message").html("Error saving issue: #{JSON.stringify error}").show().fadeOut(10000)
       return false
     .then () =>
       console.log("Saving successful")

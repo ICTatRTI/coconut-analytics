@@ -86,7 +86,7 @@ class UsersView extends Backbone.View
           @user = {
             _id: "user." + $("#_id").val()
           }
-      
+
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
         @user.district = $("#district").val().toUpperCase()
@@ -95,13 +95,15 @@ class UsersView extends Backbone.View
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
-      
+
         Coconut.database.put @user
-        .catch (error) -> console.error error
         .then =>
           @render()
-    
-      return false
+        .catch (error) -> 
+           console.error error
+           Dialog.confirm( error, 'Error Encountered',['Ok'])
+        
+        return false
 	
     deleteDialog: (e) =>
       e.preventDefault
@@ -148,7 +150,6 @@ class UsersView extends Backbone.View
 	
     formCancel: (e) =>
       e.preventDefault
-      console.log("Cancel pressed")
       dialog.close()
       return false
 

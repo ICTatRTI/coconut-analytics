@@ -25,5 +25,6 @@ Config.saveConfig = (config) ->
     Dialog.confirm("Configuration has been saved", 'System Settings',['Ok'])
   .catch (error) -> 
     console.error error
+    Dialog.errorMessage( error)
 
 module.exports = Config

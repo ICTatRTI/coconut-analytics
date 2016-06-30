@@ -42,4 +42,8 @@ class Dialog
          <div id='dialogContent'> </div>
        </dialog>
     "
+  @errorMessage: (err) ->
+    @createDialogWrap()
+    @confirm(err, 'Error Encountered',['Ok'])
+    
 module.exports = Dialog

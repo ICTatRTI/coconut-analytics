@@ -19,6 +19,7 @@ class SystemSettingsView extends Backbone.View
     config.fetch
       error: ->
         console.error error
+        Dialog.errorMessage(error)
         options.error()
       success: ->
         console.log(config)
