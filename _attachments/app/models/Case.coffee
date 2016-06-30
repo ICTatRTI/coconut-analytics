@@ -639,10 +639,13 @@ Case.createCaseView = (options) ->
     savedBy: "Saved By"
   }
   
+  #hack to rename Question name in Case view report
+  caseQuestions = @case.Questions().replace("Case Notification", "Case Notification Received").replace("USSD Notification","Case Notification Sent")
+
   Coconut.caseview = "
     <h5>Case ID: #{@case.MalariaCaseID()}</h5><button id='closeDialog' class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored f-right'><i class='material-icons'>cancel</i></button>
     <h6>Last Modified: #{@case.LastModifiedAt()}</h6>
-    <h6>Questions: #{@case.Questions()}</h6>
+    <h6>Questions: #{caseQuestions}</h6>
   "
         
   # USSD Notification doesn't have a mapping
@@ -671,6 +674,9 @@ Case.createCaseView = (options) ->
         
         
 Case.createObjectTable = (name,object,mappings) ->
+  #Hack to replace title to differ from Questions title
+  name = "Case Notification Received" if name == 'Case Notification'
+  name = "Case Notification Sent" if name == 'USSD Notification'
   
   "
     <h4 id=#{object._id}>#{name} 

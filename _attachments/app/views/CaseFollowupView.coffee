@@ -109,10 +109,15 @@ class CaseFollowupView extends Backbone.View
     .catch (error) -> console.error error
     .then (result) ->
       tableColumns = tableColumns.concat _(result.rows).pluck("id")
-      
-      _.each tableColumns, (text) -> 
-        $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{if text == "USSD Notification" then "Notification" else text} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
-
+      _.each tableColumns, (text) ->
+        #Hack to replace title to differ from Questions title
+        if ['USSD Notification','Case Notification'].indexOf(text) >= 0
+          colTitle = if(text == 'USSD Notification') then "Case Notification Sent" else "Case Notification Received" 
+        else
+          colTitle = text
+         
+        $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{colTitle} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
+ 
     @getCases
       success: (cases) =>
         $('#analysis-spinner').hide()
