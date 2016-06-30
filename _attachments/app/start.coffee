@@ -35,21 +35,23 @@ global.Env = {
   is_chrome: /chrome/i.test(navigator.userAgent)
 }
 
-Backbone.Model.prototype.idAttribute = '_id'
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
   db: Coconut.database
   fetch: 'query'
 
+Backbone.Model.prototype.idAttribute = '_id'
+
+# Render headerView here instead of below with MenuView, otherwise the hamburger menu will be missing in smaller screen
+Coconut.headerView = new HeaderView
+Coconut.headerView.render()
+    
 Config.getConfig
   error: ->
     console.log("Error Retrieving Config")
-  success: ->    
-    Coconut.headerView = new HeaderView
-    Coconut.headerView.render()
+  success: -> 
     Coconut.menuView = new MenuView
-    Coconut.menuView.render()
-
+    Coconut.menuView.render()   
     _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
       Coconut.database.get docId
       .catch (error) -> console.error error
@@ -67,6 +69,6 @@ Config.getConfig
             console.error error
           success: =>
             Backbone.history.start()
-
+    
     global.Issues = require './models/Issues'
 

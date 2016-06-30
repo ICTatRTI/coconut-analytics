@@ -29,6 +29,21 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>June 29, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>Added Config model</li>
+           <li>System Settings module update</li>
+          </ul>
+        </div>
+        <h5>June 28, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Add HoverDetail to Graphs and other minor changes</li>
+            <li> Remove zero counts from column titles in Case Follow Up report</li>
+            <li>Remove 'USSD' from CaseFollowUp report column title</li>
+          </ul>
+        </div>  
         <h5>June 27, 2016</h5>
         <div class='changes'>
           <ul>

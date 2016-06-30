@@ -1,5 +1,6 @@
 PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
+Dialog = require '../views/Dialog'
 
 class Config extends Backbone.Model
   sync: BackbonePouch.sync
@@ -15,12 +16,14 @@ Config.getConfig = (options) ->
     success: ->
       Coconut.config = config.attributes
       options.success()
-
+  
 Config.saveConfig = (config) ->
-    Coconut.database.put config
-    .catch (error) -> 
-      console.error error
-    .then =>
-      console.log("Configuration saved successful")
+  Coconut.database.put config
+  .then =>
+    console.log("Configuration saved successful")
+    Dialog.createDialogWrap()
+    Dialog.confirm("Configuration has been saved", 'System Settings',['Ok'])
+  .catch (error) -> 
+    console.error error
 
 module.exports = Config

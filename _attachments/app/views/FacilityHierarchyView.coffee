@@ -65,8 +65,6 @@ class FacilityHierarchyView extends Backbone.View
     @data.FacilityAlias = $("input#Aliases").val()
     @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
     @data.Type = $("input#Type").val()
-    console.log(@data)
-    debugger
     Coconut.database.put @data
       _rev: @data._rev if @mode == "edit"
     .catch (error) -> console.error error
