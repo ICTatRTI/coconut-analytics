@@ -34,14 +34,17 @@ class UsersView extends Backbone.View
 
     setMode: (mode) ->
       $('input#mode').val(mode)
-      $('#div_password').hide() if mode == 'edit'
-      
+      if mode == 'edit'
+        $('#div_password').hide() 
+        $('form#user input#_id').prop('readonly', true)
+      else 
+        $('form#user input#_id').prop('readonly', false)
+        
     createUser: (e) =>
       e.preventDefault
       dialogTitle = "Add New User"
       Dialog.create(@dialogEdit, dialogTitle)
       $('form#user input').val('')
-      $('form#user input#_id').prop('readonly', false)
       @setMode('add')
       return false
 
