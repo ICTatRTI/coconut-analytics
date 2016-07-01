@@ -34,6 +34,8 @@ class ChangeLogView extends Backbone.View
           <ul>
            <li>Add role types to System Settings</li>
            <li>Change User roles input to checkbox selection instead of text input</li>
+           <li>MapView: time slider looping at end of time scale</li>
+           <li>Bug fixes in System Settings saving process</li>
           </ul>
         </div>
         <h5>June 30, 2016</h5>

@@ -22,13 +22,11 @@ class SystemSettingsView extends Backbone.View
         Dialog.errorMessage(error)
         options.error()
       success: ->
-        console.log(config)
-        config.attributes.appName = $('#appName').val()
-        config.attributes.appIcon = $('#appIcon').val()
-        config.attributes.country = $('#country').val()
-        config.attributes.timezone = $('#timeZone').val()
-        config.attributes.dateFormat = $('#dateFormat').val()
-        Config.saveConfig(config.attributes)   
+        fields = ['appName','appIcon','country','timezone','dateFormat','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
+        _(fields).map (field) =>
+          config.attributes["#{field}"] = $("##{field}").val()
+        Config.saveConfig(config.attributes)
+
     return false
     
   render: =>
@@ -62,7 +60,7 @@ class SystemSettingsView extends Backbone.View
             <label class='mdl-select__label' for=country'>Country</label>
           </div><br />
           <div class='mdl-select mdl-js-select mdl-select--floating-label setting_inputs'>
-            <select class='mdl-select__input' id='timeZone' name='timeZone'>
+            <select class='mdl-select__input' id='timezone' name='timezone'>
               <option value=''></option>
               #{
                 timezones.map (tzone) =>
@@ -91,8 +89,8 @@ class SystemSettingsView extends Backbone.View
         <h4>Database Settings</h4>
         <div class='indent m-l-20'>
           <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-            <input class='mdl-textfield__input' type='text' id='design_doc_name' value='#{Coconut.config.cloud_database_name}'>
-            <label class='mdl-textfield__label' for='design_doc_name'>Cloud Database Name</label>
+            <input class='mdl-textfield__input' type='text' id='cloud_database_name' value='#{Coconut.config.cloud_database_name}'>
+            <label class='mdl-textfield__label' for='cloud_database_name'>Cloud Database Name</label>
           </div> 
           <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
             <input class='mdl-textfield__input' type='text' id='cloud' value='#{Coconut.config.cloud}'>

@@ -22,7 +22,7 @@ Config.saveConfig = (config) ->
   .then =>
     console.log("Configuration saved successful")
     Dialog.createDialogWrap()
-    Dialog.confirm("Configuration has been saved", 'System Settings',['Ok'])
+    Dialog.confirm("Configuration has been saved. You need to reload your screen in order for settings to take effect.", 'System Settings',['Ok'])
   .catch (error) -> 
     console.error error
     Dialog.errorMessage( error)
