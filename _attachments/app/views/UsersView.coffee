@@ -25,10 +25,10 @@ class UsersView extends Backbone.View
     events:
       "click #new-user-btn": "createUser"
       "click a.user-edit": "editUser"
-      "click a.user-delete": "deleteDialog"
+      "click a.user-delete": "deleteUser"
       "click #formSave": "formSave"
       "click #formCancel": "formCancel"
-      "click button#buttonYes": "deleteUser"
+      #"click button#buttonYes": "deleteUser"
       "click a.user-pw-reset": "showResetView"
       "click button#btnSubmit": "resetPassword"
 
@@ -45,6 +45,7 @@ class UsersView extends Backbone.View
       dialogTitle = "Add New User"
       Dialog.create(@dialogEdit, dialogTitle)
       $('form#user input').val('')
+      @user = null
       @setMode('add')
       return false
 
@@ -86,7 +87,8 @@ class UsersView extends Backbone.View
           @user = {
             _id: "user." + $("#_id").val()
           }
-
+          
+        @user.collection = "user"
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
         @user.district = $("#district").val().toUpperCase()
@@ -95,7 +97,7 @@ class UsersView extends Backbone.View
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
-
+        
         Coconut.database.put @user
         .then =>
           @render()
@@ -141,11 +143,24 @@ class UsersView extends Backbone.View
             Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
       return false
       
-## TODO Need the codes to delete user record
+
     deleteUser: (e) =>
+      view = @
       e.preventDefault
-      console.log("User Deleted")
-      dialog.close()
+      id = $(e.target).closest("a").attr "data-user-id"
+      dialogTitle = "Are you sure?"
+      Dialog.confirm("This will permanently remove the record id #{id}.", dialogTitle,['No', 'Yes'])
+      dialog.addEventListener 'close', (event) ->
+        if (dialog.returnValue == 'Yes')
+          Coconut.database.get(id).then (doc) ->
+            return Coconut.database.remove(doc)
+          .then (result) =>
+            Dialog.confirm( 'User Successfully Deleted..', 'Delete User',['Ok'])
+            view.render()
+          .catch (error) ->
+            console.error error
+            Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
+            
       return false
 	
     formCancel: (e) =>
