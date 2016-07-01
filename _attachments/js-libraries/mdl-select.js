@@ -1,3 +1,5 @@
+// Source: http://codepen.io/etcpe9/pen/PqyOye/
+
 function MaterialSelect(element) {
   'use strict';
 

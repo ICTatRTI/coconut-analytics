@@ -63,9 +63,11 @@ class UsersView extends Backbone.View
          @user = _.clone(user)
          user._id = user._id.substring(5)
          Form2js.js2form($('form#user').get(0), user)
-         if (user.roles)
-           for role in user.roles
-             $("[name=role][value=#{role}]").prop("checked", true)
+         if(@user.roles)
+           #older doc store this as string and not array
+           @user.roles = @user.roles.split(',') if !($.isArray(@user.roles))
+           for role in @user.roles
+             document.querySelector("##{role}_label").MaterialCheckbox.check() if(role)
          if(user.inactive)
            document.querySelector('#switch-1').MaterialSwitch.on()
          Dialog.markTextfieldDirty()
@@ -97,7 +99,13 @@ class UsersView extends Backbone.View
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
+        roles_selected = document.getElementsByName("role")
         
+        roles = []
+        _.map roles_selected, (role) ->
+          roles.push(role.id) if role.checked
+
+        @user.roles = roles
         Coconut.database.put @user
         .then =>
           @render()
@@ -175,7 +183,7 @@ class UsersView extends Backbone.View
       .then (result) =>
         users = _(result.rows).pluck("doc")
 
-        @fields =  "_id,password,district,name,roles,comments".split(",")
+        @fields =  "_id,password,district,name".split(",")
         @dialogEdit = "
           <form id='user' method='dialog'>
              <div id='dialog-title'> </div>
@@ -197,10 +205,28 @@ class UsersView extends Backbone.View
                 "
                 ).join("")
               }
+              <div style='color: rgb(33,150,243)'>Roles:</div>
+              <div class='m-l-10 m-b-20'>
+                #{
+                   _.map(Coconut.config.role_types, (role) =>
+                     "
+                      <label class='mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect' for='#{role}' id='#{role}_label'>
+                        <input type='checkbox' name='role' id='#{role}' class='mdl-checkbox__input' value='#{role}'>
+                        <span class='mdl-checkbox__label'>#{humanize(role)}</span>
+                      </label>
+                     "
+                     ).join("")
+                }
+                
+              </div>
               <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
                    <span class='mdl-switch__label'>Inactive</span>
               </label>
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_comments'>
+                <input class='mdl-textfield__input' type='text' id='comments' name='comments'></input>
+                <label class='mdl-textfield__label' for='comments'>Comments</label>
+              </div>
               <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
                <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
