@@ -518,7 +518,11 @@ class MapView extends Backbone.View
     #              5000/timeCasesGeoJSON.features.length#adjust with slider
     #            ]
     #            heatMapCoordsTime.push coords
-                layer.bindPopup "caseID: " + feature.properties.MalariaCaseID + "<br />\n Household Cases: " + feature.properties.numberOfCasesInHousehold + "<br />\n Date: "+feature.properties.date 
+                caselink = "
+                  <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
+                  #{feature.properties.MalariaCaseID}</button>
+                "
+                layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces   
                 clustersTimeLayer.addLayer layer
                 return
               pointToLayer: (feature, latlng) =>
