@@ -29,11 +29,21 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>June 30, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>Fixed bug of adding new user record not saving</li>
+           <li>Add error popup in the event of error encountered in addition to console.log</li>
+           <li>Disable editing of username in UserView</li>
+           <li>Replacing 'USSD Notification' to 'Case Notification Sent' and 'Case Notification' to 'Case Notification Received'</li>
+          </ul>
+        </div>
         <h5>June 29, 2016</h5>
         <div class='changes'>
           <ul>
            <li>Added Config model</li>
-           <li>System Settings module update</li>
+           <li>System Settings module update, saving record</li>
+           <li>MapView: Create cases link in timeCasesLayer popup</li>
           </ul>
         </div>
         <h5>June 28, 2016</h5>
