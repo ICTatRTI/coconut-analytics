@@ -73,13 +73,13 @@ class UsersReportView extends Backbone.View
                 <div id='allUsers' class='user-report dropdown-section'>
                   <table style='font-size:150%' class='tablesorter' style=' id='usersReportTotals'>
                     <tbody>
-                      <tr style='font-weight:bold' id='medianTimeFromSMSToCompleteHousehold'><td>Median time from SMS sent to Complete Household</td></tr>
+                      <tr style='font-weight:bold' id='medianTimeFromSMSToCompleteHousehold'><td>Median time from Case Notification Sent to Complete Household</td></tr>
                       <tr class='odd' id='cases'><td>Cases</td></tr>
                       <tr id='casesWithoutCompleteFacilityAfter24Hours'><td>Cases without completed <b>facility</b> record 24 hours after facility notification</td></tr>
                       <tr class='odd' id='casesWithoutCompleteHouseholdAfter48Hours'><td>Cases without complete <b>household</b> record 48 hours after facility notification</td></tr>
                       <tr id='casesWithCompleteHousehold'><td>Cases with complete household record</td></tr>
-                      <tr class='odd' id='medianTimeFromSMSToCaseNotification'><td>Median time from SMS sent to Case Notification on tablet</td></tr>
-                      <tr id='medianTimeFromCaseNotificationToCompleteFacility'><td>Median time from Case Notification to Complete Facility</td></tr>
+                      <tr class='odd' id='medianTimeFromSMSToCaseNotification'><td>Median time from Case Notification Sent to Case Notification Received on tablet</td></tr>
+                      <tr id='medianTimeFromCaseNotificationToCompleteFacility'><td>Median time from Case Notification Received to Complete Facility</td></tr>
                       <tr class='odd' id='medianTimeFromFacilityToCompleteHousehold'><td>Median time from Complete Facility to Complete Household</td></tr>
                     </tbody>
                   </table>
@@ -98,10 +98,10 @@ class UsersReportView extends Backbone.View
                         <th>Cases without complete <b>facility</b> record</th>
                         <th>Cases without complete <b>household</b> record 48 hours after facility notification</th>
                         <th>Cases without complete <b>household</b> record</th>
-                        <th>Median time from SMS sent to Case Notification on tablet (IQR)</th>
-                        <th>Median time from Case Notification to Complete Facility (IQR)</th>
+                        <th>Median time from Case Notification Sent to Case Notification Received on tablet (IQR)</th>
+                        <th>Median time from Case Notification Received to Complete Facility (IQR)</th>
                         <th>Median time from Complete Facility to Complete Household (IQR)</th>
-                        <th>Median time from SMS sent to Complete Household (IQR)</th>
+                        <th>Median time from Case Notification Sent to Complete Household (IQR)</th>
                       </thead>
                       <tbody>
                         #{
