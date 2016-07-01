@@ -1001,17 +1001,44 @@ class MapView extends Backbone.View
 #      console.log 'playEndTime1: ' + playEndTime
 #      console.log 'playEndTime1: ' + playEndTime
         playStartTime = timeScale.brush.extent()[0]
-#        console.log('playEndTime: '+playEndTime)
-#        console.log('playStartTime: '+playStartTime)
+        console.log('playEndTime: '+playEndTime)
+        console.log('playStartTime: '+playStartTime)
 #        TODO if endTime < queried extent then proceed. Otherwise stop. 
 #        console.log('sliderValue: '+sliderValue)
+        
+        #TODO: build in cases for brush endpoints 
+        #TODO: if brushEndpoint is greather than or equal to scale endpoint
+        #TODO:      restart time interval
+        #TODO:   else
+        #TODO:          
         timer = setInterval((->
-#          if sliderValue < maxstep
-#            sliderValue++
-#            $('.theSVG').val sliderValue
-#            $('#range').html sliderValue
-#          $('.theSVG').val sliderValue
-          update()
+          if timeScale.brush.extent()[1] < timeScale.domain()[1]
+              console.log("brushLessThan")
+              update()
+          else
+              oneDay = 24*60*60*1000
+              diffDays = Math.round(Math.abs((timeScale.brush.extent()[1] - timeScale.brush.extent()[0])/(oneDay)));
+              console.log("diffDays: " + diffDays)
+#              diff = timeScale.brush.extent()[1] - timeScale.brush.extent()[0]
+#              diff = new Date(diff + new Date(timeScale.domain()[0]))
+#              console.log("diff: " + diff)
+              lowerExtent = new Date(timeScale.domain()[0])
+              upperExtent = new Date(timeScale.domain()[0])
+              upperExtent.setDate(upperExtent.getDate() + diffDays)
+              console.log("lowerExtent: " + lowerExtent)
+              console.log("upperExtent: " + upperExtent)
+              d3.select('resizew').attr 'transform', 'translate(' + timeScale.domain()[0] + ',0)'
+        #      handle.select('text').text formatDate(playStartTime)
+              d3.select('textw').text formatDate(timeScale.domain()[0])
+              d3.select('resizee').attr 'transform', 'translate(' + upperExtent + ',0)'
+        #      handle.select('text').text formatDate(playStartTime)
+              d3.select('texte').text formatDate(upperExtent)
+              d3.select('.brush').transition().call(timeScale.brush.extent [
+                lowerExtent
+                upperExtent
+              ]).call timeScale.brush.event
+#              update()
+              
           return
         ), duration)
         running = true

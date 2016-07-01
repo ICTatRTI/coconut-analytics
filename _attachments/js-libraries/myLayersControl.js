@@ -281,7 +281,7 @@ var myLayersControl =  L.Control.extend({
 			input.type = 'checkbox';
 			input.className = 'leaflet-control-layers-selector';
 			input.defaultChecked = checked;
-        } else {
+        } else if(!obj.overlay) {
 			input = this._createRadioElement('leaflet-base-layers', checked);
 		}
 
@@ -295,6 +295,8 @@ var myLayersControl =  L.Control.extend({
         
 		label.appendChild(input);
 		label.appendChild(name);
+        
+//        if(obj.queried && !$( "#mapStyleSelect" )[ 0 ]){
         if(obj.queried){
             select = document.createElement('select');
             select.id = 'mapStyleSelect';
