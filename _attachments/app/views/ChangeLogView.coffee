@@ -29,6 +29,13 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 1, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>Add role types to System Settings</li>
+           <li>Change User roles input to checkbox selection instead of text input</li>
+          </ul>
+        </div>
         <h5>June 30, 2016</h5>
         <div class='changes'>
           <ul>
