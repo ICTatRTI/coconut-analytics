@@ -106,6 +106,10 @@ class SystemSettingsView extends Backbone.View
             <input class='mdl-textfield__input' type='text' id='design_doc_name' value='#{Coconut.config.design_doc_name}'>
             <label class='mdl-textfield__label' for='design_doc_name'>Design Doc Name</label>
           </div>
+          <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
+            <input class='mdl-textfield__input' type='text' id='role_types' value='#{Coconut.config.role_types}'>
+            <label class='mdl-textfield__label' for='role_types'>Role Types</label>
+          </div>
         </div>
         <hr />
         <div id='dialogActions'>
