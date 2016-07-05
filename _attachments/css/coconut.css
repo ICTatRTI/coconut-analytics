@@ -1127,3 +1127,11 @@ button.caseBtn {
   cursor: default;
   background-color: transparent;
 }
+
+.rickshaw_graph .detail {
+  top: 10px;
+}
+
+.rickshaw_graph .detail .dot {
+  margin-left: 1px;
+}
