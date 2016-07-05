@@ -96,12 +96,16 @@ class MenuView extends Backbone.View
           #{
            graphLinks = {
              IncidentsGraph: "Incidence Graph - Cases By Week"
+             PositiveCasesGraph: "Number of Positive Malaria Cases"
              YearlyTrends: "Yearly Trends by Week"
              graph_attendance: "Attendance"
              graph_positivity: "Positivity"
              graph_testrate: "Test Rate"
              positivity_with_rainfall: "Positivity With Rainfall"
              positivity_by_year: "Positivity Cases By Year"
+             TimeToComplete: "Time to Complete"
+             TimeToNotify: "Time to Notify"
+             
            }
            _(graphLinks).map (linkText, linkUrl) ->
              "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
