@@ -46,7 +46,6 @@ Graphs.YearlyTrends = (options, callback) ->
     if (err) then console.log(err) else callback(null, "Success")
         
 Graphs.BarChart = (options, callback) ->
-  #TODO: update to appropriate couchdb view name for yearly trends
   options.couch_view = "positiveCases"
   options.renderer = 'bar'
   options.names = ['test']
@@ -59,10 +58,9 @@ Graphs.BarChart = (options, callback) ->
         if (err) then console.log(err) else callback(null, "Success")
     
 Graphs.ScatterPlotChart = (options, callback) ->
-  #TODO: update to appropriate couchdb view name for yearly trends
-  options.couch_view = "positiveCasesGT5"
+  options.couch_view = "positiveCases"
   options.renderer = 'scatterplot'
-  options.name = 'test'
+  options.names = ['test']
   Graphs.retrieveData options, (err, result) ->
     if (err)
       console.log(err)
@@ -106,24 +104,6 @@ Graphs.createGraph = (options, callback) ->
     couch_view = options.couch_view
     graph_renderer = options.renderer
     legend = options.legend || 'legend'
-    
-    #startDate = moment(options.startDate, 'YYYY-MM-DD')
-    # startDate = moment.utc("2012-07-01")
- #    Coconut.database.query "#{Coconut.config.design_doc_name}/#{couch_view}",
- #      startkey: startDate.year()
- #      include_docs: false
- #    .then (result) =>
- #      casesPerAggregationPeriod = {}
- #      _.each result.rows, (row) ->
- #        date = moment(row.key.substr(0,10), 'DD-MM-YYYY')
- #        if row.key.substr(0,2) is "20" and date.isValid() and date.isBetween(startDate, new moment())
- #          aggregationKey = date.clone().endOf("isoweek").unix()
- #          casesPerAggregationPeriod[aggregationKey] = 0 unless casesPerAggregationPeriod[aggregationKey]
- #          casesPerAggregationPeriod[aggregationKey] += 1
- #
- #      dataForGraph = _.map casesPerAggregationPeriod, (numberOfCases, date) ->
- #        x: parseInt(date)
- #        y: numberOfCases
 
     if options.dataForGraph.length == 0
        $("div##{container}").html('<h6>No Records found for date range</h6>')
@@ -157,9 +137,10 @@ Graphs.createGraph = (options, callback) ->
         tickFormat: Rickshaw.Fixtures.Number.formatKMBT
         element: document.getElementById("#{y_axis}")
 
-      legend = new Rickshaw.Graph.Legend
-              element: document.querySelector("##{legend}"),
-              graph: graph
+      if options.dataForGraph.length > 1
+        legend = new Rickshaw.Graph.Legend
+          element: document.querySelector("##{legend}"),
+          graph: graph
       
       graph.render()
       callback(null, "Success")

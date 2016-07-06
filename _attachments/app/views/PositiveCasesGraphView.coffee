@@ -14,15 +14,17 @@ class PositiveCasesGraphView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
+       <style>
+         .chart_container { height: 400px;}
+       </style>
        <div id='dateSelector'></div>
        <div class='mdl-grid'>
          <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
            <div class='chart-title'>Number of Positive Malaria Cases</div>
-           <div id='legend' class='legend'></div>
-           <div id='chart_container_1' class='chart_container'>
+           <div id='chart_container_1' class='chart_container f-left'>
              <div id='y_axis_1' class='y_axis'></div>
              <div id='chart_1' class='chart'></div>
-             
+             <div id='legend' class='legend'></div>
            </div>
          </div>
        </div>

@@ -1099,6 +1099,7 @@ button.caseBtn {
 	height: 290px;
 	vertical-align: bottom;
 	display: table-cell;
+  float: left;
 }
 
 .legend {

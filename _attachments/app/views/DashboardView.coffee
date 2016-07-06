@@ -66,20 +66,20 @@ class DashboardView extends Backbone.View
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
               <div id='chart_box_1' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>Incidence Graph - cases by week</div>
-                <div id='legend' class='legend'></div>
                 <div id='container_1' class='chart_container f-left'>
                   <div id='y_axis_1' class='y_axis'></div>
                   <div id='chart_1' class='chart'></div>
+                  <div id='legend' class='legend'></div>
                 </div>
               </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
               <div id='chart_box_2' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>Number of Positive Cases</div>
-                <div id='legend2' class='legend'></div>
                 <div id='container_2' class='chart_container f-left'>
                   <div id='y_axis_2' class='y_axis'></div>
                   <div id='chart_2' class='chart'></div>
+                  <div id='legend2' class='legend'></div>
                 </div>
               </div>
             </div>
@@ -88,20 +88,20 @@ class DashboardView extends Backbone.View
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
               <div id='chart_box_3' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>Bar Graph</div>
-                <div id='legend3' class='legend'></div>
                 <div id='container_3' class='chart_container f-left'>
                   <div id='y_axis_3' class='y_axis'></div>
                   <div id='chart_3' class='chart'></div>
+                  <div id='legend3' class='legend'></div>
                 </div>
               </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
               <div id='chart_box_4' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>ScatterPlot Graph</div>
-                <div id='legend4' class='legend'></div>
                 <div id='container_4' class='chart_container f-left'>
                   <div id='y_axis_4' class='y_axis'></div>
                   <div id='chart_4' class='chart'></div>
+                  <div id='legend4' class='legend'></div>
                 </div>
               </div>
             </div>
