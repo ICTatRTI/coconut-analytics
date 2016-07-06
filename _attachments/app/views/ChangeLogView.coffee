@@ -29,6 +29,14 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 6, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>Reload browser upon System Settings update and add Color Schemes for graphs</li>
+           <li>Corrected x-axis label position in large graphs</li>
+           <li>Fix positioning and display of graphs legend</li>
+          </ul>
+        </div>
         <h5>July 5, 2016</h5>
         <div class='changes'>
           <ul>

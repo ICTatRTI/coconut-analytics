@@ -13,26 +13,37 @@ class SystemSettingsView extends Backbone.View
   events:
     "click button#updateBtn": "updateConfig"
     
-  updateConfig: (e) =>
-    config = new Config
-      _id: "coconut.config"
-    config.fetch
-      error: ->
-        console.error error
-        Dialog.errorMessage(error)
-        options.error()
-      success: ->
-        fields = ['appName','appIcon','country','timezone','dateFormat','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
-        _(fields).map (field) =>
-          config.attributes["#{field}"] = $("##{field}").val()
-        Config.saveConfig(config.attributes)
+  updateConfig: (e) =>  
+    Coconut.database.get("coconut.config")
+    .then (doc) ->
+      fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
+      _(fields).map (field) =>
+        doc["#{field}"] = $("##{field}").val()
+      return Coconut.database.put(doc)
+        .then () ->
+          Dialog.createDialogWrap()
+          Dialog.confirm("Configuration has been saved. You need to reload your screen in order for settings to take effect.", 'System Settings',['Ok']) 
+          dialog.addEventListener 'close', ->
+            location.reload(true)
+        .catch (error) ->
+          console.error error
+          Dialog.errorMessage(error)
+    .catch (error) ->
+      console.error error
+      Dialog.errorMessage(error)
 
+    .then ()->
+      Config.getConfig
+        error: ->
+          console.log("Error Retrieving Config")
+  
     return false
     
   render: =>
     countries = ['Zanzibar','Zimbabwe','Unites States']
     timezones = ['East Africa','America/NY']
     dateFormats = ['DD-MM-YYYY', 'MM-DD-YYYY', 'YYYY-MM-DD']
+    colorSchemes = ['spectrum14', 'colorwheel', 'cool', 'spectrum2000', 'spectrum2001', 'classic9','munin']
 
     @$el.html "
       <h4>Global System Settings</h4>
@@ -84,6 +95,19 @@ class SystemSettingsView extends Backbone.View
               }
             </select>
             <label class='mdl-select__label' for='dateFormat'>Date Format</label>
+          </div><br />
+          <div class='mdl-select mdl-js-select mdl-select--floating-label setting_inputs'>
+            <select class='mdl-select__input' id='graphColorScheme' name='graphColorScheme'>
+              <option value=''></option>
+              #{
+                colorSchemes.map (cscheme) =>
+                  "<option value='#{cscheme}' #{if Coconut.config.graphColorScheme is cscheme then "selected='true'" else ""}>
+                    #{cscheme}
+                   </option>"
+                .join ""
+              }
+            </select>
+            <label class='mdl-select__label' for='graphColorScheme'>Graph Color Scheme</label>
           </div>
         </div>
         <h4>Database Settings</h4>
