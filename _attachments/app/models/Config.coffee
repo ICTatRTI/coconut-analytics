@@ -15,6 +15,7 @@ Config.getConfig = (options) ->
       options.error()
     success: ->
       Coconut.config = config.attributes
+      Coconut.config.role_types = Coconut.config.role_types.split(",")
       options.success()
     
 module.exports = Config
