@@ -29,11 +29,22 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 5, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>Updated graphs display on Dashboard</li>
+           <li>Add Positive Malaria Cases graph</li>
+           <li>Aligning hover dots on graphs</li>
+           <li>Refactored Graph class</li>
+          </ul>
+        </div>
         <h5>July 1, 2016</h5>
         <div class='changes'>
           <ul>
            <li>Add role types to System Settings</li>
            <li>Change User roles input to checkbox selection instead of text input</li>
+           <li>MapView: time slider looping at end of time scale</li>
+           <li>Bug fixes in System Settings saving process</li>
           </ul>
         </div>
         <h5>June 30, 2016</h5>

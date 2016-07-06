@@ -55,6 +55,7 @@ activityViews = {
 
 graphsViews = {
   IncidentsGraph: require './views/IncidentsGraphView'
+  PositiveCasesGraph: require './views/PositiveCasesGraphView'
   YearlyTrends: require './views/YearlyTrendsView'
 }
   

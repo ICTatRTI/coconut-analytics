@@ -1086,7 +1086,7 @@ button.caseBtn {
 
 .y_axis {
   position: absolute;
-  top: 10px;
+  top: 20px;
   bottom: 0;
   width: 40px;
 }
@@ -1099,6 +1099,18 @@ button.caseBtn {
 	height: 290px;
 	vertical-align: bottom;
 	display: table-cell;
+  float: left;
+}
+
+.legend {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 0 0 10px;
+  float: right;
+}
+
+.chartbox {
+  height: 320px;
 }
 
 .chart:hover {
@@ -1126,4 +1138,12 @@ button.caseBtn {
   color: rgba(0,0,0,.26) !important;
   cursor: default;
   background-color: transparent;
+}
+
+.rickshaw_graph .detail {
+  top: 10px;
+}
+
+.rickshaw_graph .detail .dot {
+  margin-left: 1px;
 }

@@ -8,7 +8,7 @@ Reports = require '../models/Reports'
 moment = require 'moment'
 Graphs = require '../models/Graphs'
 
-class IncidentsGraphView extends Backbone.View
+class PositiveCasesGraphView extends Backbone.View
   el: "#content"
 
   render: =>
@@ -18,22 +18,25 @@ class IncidentsGraphView extends Backbone.View
          .chart_container { height: 400px;}
        </style>
        <div id='dateSelector'></div>
-       <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
-         <div class='chart-title'>Incidence Graph - Cases by Week</div>
-         <div id='chart_container_1' class='chart_container f-left'>
-           <div id='y_axis_1' class='y_axis'></div>
-           <div id='chart_1' class='chart'></div>
-           <div id='legend' class='legend'></div>
+       <div class='mdl-grid'>
+         <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
+           <div class='chart-title'>Number of Positive Malaria Cases</div>
+           <div id='chart_container_1' class='chart_container f-left'>
+             <div id='y_axis_1' class='y_axis'></div>
+             <div id='chart_1' class='chart'></div>
+             <div id='legend' class='legend'></div>
+           </div>
          </div>
        </div>
     "
+
     $('#analysis-spinner').show()
     options.container = 'chart_container_1'
     options.y_axis = 'y_axis_1'
     options.chart = 'chart_1'
     options.chart_width = 0.8 * $('.chart_container').width()
-    Graphs.IncidentsGraph options, (err, response) ->
+    Graphs.PositiveCasesGraph options, (err, response) ->
       if (err) then console.log(err)
       $('#analysis-spinner').hide()
        
-module.exports = IncidentsGraphView
+module.exports = PositiveCasesGraphView
