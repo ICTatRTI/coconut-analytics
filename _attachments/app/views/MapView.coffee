@@ -954,18 +954,30 @@ class MapView extends Backbone.View
           left: 50
         svgWidth = winWidth - (svgMargin.left) - (svgMargin.right) - 100
         svgHeight = 80 - (svgMargin.bottom) - (svgMargin.top)
-        
+        console.log("startDate: " + startDate)
+        console.log("startDate: " + startDate)
+        console.log("new Date(startDate): " + new Date(startDate))
+        console.log("endDate: " + endDate)
+        inputStartDate = new Date(startDate)
+        inputStartDate.setDate inputStartDate.getDate() + 1
+        inputEndDate = new Date(endDate)
+        inputEndDate.setDate inputEndDate.getDate() + 1
+        console.log("inputStartDate: " + inputStartDate)
+        console.log("inputEndDate: " + inputEndDate)
         timeScale = d3.time.scale().domain([
-          new Date(startDate)
-          new Date(endDate)
+          inputStartDate
+          inputEndDate
         ]).range([
           0
           svgWidth
         ]).clamp(true)
-        startValue = timeScale(new Date(startDate))
-        startingValue = new Date(startDate)
-        endValue = timeScale(new Date(endDate))
-        endingValue = new Date(endDate)
+        console.log("timeScale.domain: " + timeScale.domain())
+        startValue = timeScale(inputStartDate)
+        startingValue = inputStartDate
+        endValue = timeScale(inputEndDate)
+        endingValue = inputEndDate
+        console.log("endingValue: " + endingValue)
+        console.log("StartingValue: " + startingValue)
         d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
         d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
         d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
