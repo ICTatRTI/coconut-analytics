@@ -20,6 +20,7 @@ class SystemSettingsView extends Backbone.View
       fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
+      doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
       return Coconut.database.put(doc)
         .then () ->
           Dialog.createDialogWrap()
@@ -45,8 +46,6 @@ class SystemSettingsView extends Backbone.View
   render: =>
     countries = _.pluck(CONST.Countries, 'name')
     timezones = _.pluck(CONST.Timezones,'DisplayName')
-    #countries = ['Zanzibar','Zimbabwe','Unites States']
-    #timezones = ['East Africa','America/NY']
     dateFormats = CONST.dateFormats
     colorSchemes = CONST.graphColorSchemes
 
@@ -113,7 +112,12 @@ class SystemSettingsView extends Backbone.View
               }
             </select>
             <label class='mdl-select__label' for='graphColorScheme'>Graph Color Scheme</label>
-          </div>
+          </div><br />
+          <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='facilitiesEdit' id='switch-1'>
+            <input type='checkbox' id='facilitiesEdit' class='mdl-switch__input' #{if Coconut.config.facilitiesEdit then 'checked'}>
+            <span class='mdl-switch__label facilities_editable'>Facilities Editable</span>
+          </label>
+          
         </div>
         <h4>Database Settings</h4>
         <div class='indent m-l-20'>
@@ -146,6 +150,7 @@ class SystemSettingsView extends Backbone.View
       
     "
     Dialog.markTextfieldDirty()
-    
+    # This is for MDL switch
+    componentHandler.upgradeAllRegistered()
     
 module.exports = SystemSettingsView

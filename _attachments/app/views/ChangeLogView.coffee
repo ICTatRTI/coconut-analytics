@@ -33,6 +33,8 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
            <li>Add full option list of Countries and Timezones in the System Settings</li>
+           <li>#159 - User form Roles select input issue</li>
+           <li>#12 - Add Settings for turning off Add and turning off Edit of Facilities</li>
            <li>Reload browser upon System Settings update and add Color Schemes for graphs</li>
            <li>Corrected x-axis label position in large graphs</li>
            <li>Fix positioning and display of graphs legend</li>

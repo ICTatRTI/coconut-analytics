@@ -335,6 +335,11 @@ input.datepicker {
 	color: #fff;
 }
 
+.mdl-switch__label.facilities_editable {
+  color: rgba(33, 150, 243, 1);
+  font-size: 12px;
+}
+
 /* Top right menu */
 li.mdl-menu__item a {
    text-decoration: none;	
