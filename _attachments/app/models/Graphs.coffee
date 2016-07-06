@@ -18,10 +18,10 @@ Graphs.IncidentsGraph = (options, callback) ->
         if (err) then console.log(err) else callback(null, "Success")
     
 Graphs.PositiveCasesGraph = (options, callback) ->
-  options.couch_view = "positiveCasesLT5"
   options.renderer = 'lineplot'
   options.names = ["Age < 5","Age > 5"]
   options.dataForGraph = []
+  options.couch_view = "positiveCasesLT5"
   Graphs.retrieveData options, (err, response) ->
     if (err)
       console.log(err)
@@ -41,15 +41,7 @@ Graphs.YearlyTrends = (options, callback) ->
   #TODO: update to appropriate couchdb view name for yearly trends
   options.couch_view = "positiveCases"
   options.renderer = 'lineplot'
-  options.name = 'test'
-  Graphs.createGraph options, (err, response) ->
-    if (err) then console.log(err) else callback(null, "Success")
-
-Graphs.AreaChart = (options, callback) ->
-  #TODO: update to appropriate couchdb view name for yearly trends
-  options.couch_view = "positiveCases"
-  options.renderer = 'area'
-  options.name = 'test'
+  options.names = ['test']
   Graphs.createGraph options, (err, response) ->
     if (err) then console.log(err) else callback(null, "Success")
         
@@ -57,17 +49,27 @@ Graphs.BarChart = (options, callback) ->
   #TODO: update to appropriate couchdb view name for yearly trends
   options.couch_view = "positiveCases"
   options.renderer = 'bar'
-  options.name = 'test'
-  Graphs.createGraph options, (err, response) ->
-    if (err) then console.log(err) else callback(null, "Success")
+  options.names = ['test']
+  Graphs.retrieveData options, (err, result) ->
+    if (err)
+      console.log(err)
+    else
+      options.dataForGraph = [result]
+      Graphs.createGraph options, (err, response) ->
+        if (err) then console.log(err) else callback(null, "Success")
     
-Graphs.ScatterPlot = (options, callback) ->
+Graphs.ScatterPlotChart = (options, callback) ->
   #TODO: update to appropriate couchdb view name for yearly trends
-  options.couch_view = "positiveCases"
+  options.couch_view = "positiveCasesGT5"
   options.renderer = 'scatterplot'
   options.name = 'test'
-  Graphs.createGraph options, (err, response) ->
-    if (err) then console.log(err) else callback(null, "Success")
+  Graphs.retrieveData options, (err, result) ->
+    if (err)
+      console.log(err)
+    else
+      options.dataForGraph = [result]
+      Graphs.createGraph options, (err, response) ->
+        if (err) then console.log(err) else callback(null, "Success")
 
 Graphs.retrieveData = (options,callback) ->
   #startDate = moment(options.startDate, 'YYYY-MM-DD')
@@ -103,6 +105,7 @@ Graphs.createGraph = (options, callback) ->
     chart_height = options.chart_height || 350
     couch_view = options.couch_view
     graph_renderer = options.renderer
+    legend = options.legend || 'legend'
     
     #startDate = moment(options.startDate, 'YYYY-MM-DD')
     # startDate = moment.utc("2012-07-01")
@@ -155,7 +158,7 @@ Graphs.createGraph = (options, callback) ->
         element: document.getElementById("#{y_axis}")
 
       legend = new Rickshaw.Graph.Legend
-              element: document.querySelector('#legend'),
+              element: document.querySelector("##{legend}"),
               graph: graph
       
       graph.render()

@@ -1101,11 +1101,15 @@ button.caseBtn {
 	display: table-cell;
 }
 
-#legend {
+.legend {
   display: inline-block;
   vertical-align: top;
   margin: 0 0 0 10px;
   float: right;
+}
+
+.chartbox {
+  height: 320px;
 }
 
 .chart:hover {

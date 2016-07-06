@@ -12,13 +12,18 @@ class DashboardView extends Backbone.View
 
   events:
     "click #container_1": "graph1"
+    "click #container_2": "graph2"
   
   graph1: (e) ->
     Coconut.router.navigate("#graphs/type/IncidentsGraph", {trigger: true})
-    
+
+  graph2: (e) ->
+    Coconut.router.navigate("#graphs/type/PositiveCasesGraph", {trigger: true})
+      
   render: =>
     $('#analysis-spinner').show()
     @$el.html "
+        <style>.page-content {margin: 0} </style>
         <div id='dateSelector'></div>
         <div id='dashboard-summary'>
           <div class='sub-header-color relative clear'>
@@ -59,8 +64,9 @@ class DashboardView extends Backbone.View
         <div class='page-content'>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_1' class='ui-widget-content draggable'>
+              <div id='chart_box_1' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>Incidence Graph - cases by week</div>
+                <div id='legend' class='legend'></div>
                 <div id='container_1' class='chart_container f-left'>
                   <div id='y_axis_1' class='y_axis'></div>
                   <div id='chart_1' class='chart'></div>
@@ -68,8 +74,9 @@ class DashboardView extends Backbone.View
               </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_2' class='ui-widget-content draggable'>
-                <div class='chart-title'>Line Graph</div>
+              <div id='chart_box_2' class='ui-widget-content draggable chartbox'>
+                <div class='chart-title'>Number of Positive Cases</div>
+                <div id='legend2' class='legend'></div>
                 <div id='container_2' class='chart_container f-left'>
                   <div id='y_axis_2' class='y_axis'></div>
                   <div id='chart_2' class='chart'></div>
@@ -79,8 +86,9 @@ class DashboardView extends Backbone.View
           </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_3' class='ui-widget-content draggable'>
+              <div id='chart_box_3' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>Bar Graph</div>
+                <div id='legend3' class='legend'></div>
                 <div id='container_3' class='chart_container f-left'>
                   <div id='y_axis_3' class='y_axis'></div>
                   <div id='chart_3' class='chart'></div>
@@ -88,8 +96,9 @@ class DashboardView extends Backbone.View
               </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_4' class='ui-widget-content draggable'>
+              <div id='chart_box_4' class='ui-widget-content draggable chartbox'>
                 <div class='chart-title'>ScatterPlot Graph</div>
+                <div id='legend4' class='legend'></div>
                 <div id='container_4' class='chart_container f-left'>
                   <div id='y_axis_4' class='y_axis'></div>
                   <div id='chart_4' class='chart'></div>
@@ -102,32 +111,43 @@ class DashboardView extends Backbone.View
     #$("#chart_box_1, #chart_box_2, #chart_box_3, #chart_box_4").draggable()
     
     options = $.extend({},Coconut.router.reportViewOptions)
+
     options.chart_width = 430
     options.chart_height = 260
+
+    # Incident Graph
     options.container = 'container_1'
     options.y_axis = 'y_axis_1'
     options.chart = 'chart_1'
-    
+    options.legend = "legend"
     Graphs.IncidentsGraph options, (err, response) ->
-      if (err) then console.log(err)
-    
-    options.container = 'container_2'
-    options.y_axis = 'y_axis_2'
-    options.chart = 'chart_2'
-    Graphs.YearlyTrends options, (err2, response2) ->
-      if (err2) then console.log(err2)
-    
-    options.container = 'container_3'
-    options.y_axis = 'y_axis_3'
-    options.chart = 'chart_3'
-    Graphs.BarChart options, (err3, response3) ->
-      if (err3) then console.log(err3)
-      
-    options.container = 'container_4'
-    options.y_axis = 'y_axis_4'
-    options.chart = 'chart_4'
-    Graphs.ScatterPlot options, (err4, response4) ->
-      if (err4) then console.log(err4)
-      $('#analysis-spinner').hide()
+      if (err)
+        console.log(err)
+      else
+        # #PositiveCases
+        options.container = 'container_2'
+        options.y_axis = 'y_axis_2'
+        options.chart = 'chart_2'
+        options.legend = "legend2"
+        Graphs.PositiveCasesGraph options, (err2, response2) ->
+          if (err2)
+            console.log(err2)
+          else
+            # Example Graph
+            options.container = 'container_3'
+            options.y_axis = 'y_axis_3'
+            options.chart = 'chart_3'
+            options.legend = "legend3"
+            Graphs.BarChart options, (err3, response3) ->
+              if (err3) 
+                console.log(err3)
+              else
+                options.container = 'container_4'
+                options.y_axis = 'y_axis_4'
+                options.chart = 'chart_4'
+                options.legend = "legend4"
+                Graphs.ScatterPlotChart options, (err4, response4) ->
+                  if (err4) then console.log(err4)
+                  $('#analysis-spinner').hide()
       
 module.exports = DashboardView
