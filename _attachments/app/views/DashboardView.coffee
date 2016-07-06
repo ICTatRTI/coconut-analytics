@@ -112,7 +112,7 @@ class DashboardView extends Backbone.View
     
     options = $.extend({},Coconut.router.reportViewOptions)
 
-    options.chart_width = 430
+    options.chart_width = 500
     options.chart_height = 260
 
     # Incident Graph

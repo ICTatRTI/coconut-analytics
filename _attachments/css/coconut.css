@@ -1091,7 +1091,7 @@ button.caseBtn {
   width: 40px;
 }
 
-.chart {
+.chart, .chart_lg {
   position: relative;
   left: 40px;
 	padding: 10px 0 20px 5px;
@@ -1100,6 +1100,10 @@ button.caseBtn {
 	vertical-align: bottom;
 	display: table-cell;
   float: left;
+}
+
+.chart_lg {
+  height: 385px;
 }
 
 .legend {
