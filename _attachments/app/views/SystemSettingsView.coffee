@@ -6,6 +6,7 @@ Backbone.$  = $
 Reports = require '../models/Reports'
 Dialog = require './Dialog'
 Config = require '../models/Config'
+CONST = require '../Constants'
 
 class SystemSettingsView extends Backbone.View
   el: "#content"
@@ -36,14 +37,18 @@ class SystemSettingsView extends Backbone.View
       Config.getConfig
         error: ->
           console.log("Error Retrieving Config")
+        success: ->
+          console.log("Retrieve Config Successful")
   
     return false
     
   render: =>
-    countries = ['Zanzibar','Zimbabwe','Unites States']
-    timezones = ['East Africa','America/NY']
-    dateFormats = ['DD-MM-YYYY', 'MM-DD-YYYY', 'YYYY-MM-DD']
-    colorSchemes = ['spectrum14', 'colorwheel', 'cool', 'spectrum2000', 'spectrum2001', 'classic9','munin']
+    countries = _.pluck(CONST.Countries, 'name')
+    timezones = _.pluck(CONST.Timezones,'DisplayName')
+    #countries = ['Zanzibar','Zimbabwe','Unites States']
+    #timezones = ['East Africa','America/NY']
+    dateFormats = CONST.dateFormats
+    colorSchemes = CONST.graphColorSchemes
 
     @$el.html "
       <h4>Global System Settings</h4>

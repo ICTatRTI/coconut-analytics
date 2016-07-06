@@ -32,9 +32,12 @@ class ChangeLogView extends Backbone.View
         <h5>July 6, 2016</h5>
         <div class='changes'>
           <ul>
+           <li>Add full option list of Countries and Timezones in the System Settings</li>
            <li>Reload browser upon System Settings update and add Color Schemes for graphs</li>
            <li>Corrected x-axis label position in large graphs</li>
            <li>Fix positioning and display of graphs legend</li>
+           <li>#156: MapView: The time slider's scale endpoints were one day behind. Added a day to the starting and ending point of the scale. </li>
+           
           </ul>
         </div>
         <h5>July 5, 2016</h5>
