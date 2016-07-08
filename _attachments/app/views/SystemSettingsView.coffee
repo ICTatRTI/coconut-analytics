@@ -21,10 +21,11 @@ class SystemSettingsView extends Backbone.View
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
       doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
+      console.log(doc._rev)
       return Coconut.database.put(doc)
         .then () ->
           Dialog.createDialogWrap()
-          Dialog.confirm("Configuration has been saved. You need to reload your screen in order for settings to take effect.", 'System Settings',['Ok']) 
+          Dialog.confirm("Configuration has been saved.", 'System Settings',['Ok']) 
           dialog.addEventListener 'close', ->
             location.reload(true)
         .catch (error) ->
@@ -34,13 +35,6 @@ class SystemSettingsView extends Backbone.View
       console.error error
       Dialog.errorMessage(error)
 
-    .then ()->
-      Config.getConfig
-        error: ->
-          console.log("Error Retrieving Config")
-        success: ->
-          console.log("Retrieve Config Successful")
-  
     return false
     
   render: =>

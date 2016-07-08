@@ -35,6 +35,7 @@ class ChangeLogView extends Backbone.View
            <li>Add missing IssueView that was called from the Epidemic Thresholds report</li>
            <li>MapView: #163 time slider play bug resolved </li>
            <li>Quick Fix for a bug in Config model</li>
+           <li>Other bug fixes as detailed in issue tickets</li>
           </ul>
         </div>  
         <h5>July 6, 2016</h5>
