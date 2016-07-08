@@ -320,6 +320,8 @@ class MapView extends Backbone.View
         $('#play').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" )
         running = false
         clearInterval timer
+      materialLayersControl.removeLayer casesTimeLayer
+      materialLayersControl.addTimeLayer casesLayer, 'Cases'    
 #      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
       Coconut.router.reportViewOptions['timeMap'] = 'off'
