@@ -12,6 +12,7 @@ HeaderView = require './views/HeaderView'
 UsersView = require './views/UsersView'
 DateSelectorView = require './views/DateSelectorView'
 IssuesView = require './views/IssuesView'
+IssueView = require './views/IssueView'
 Case = require './models/Case'
 CaseView = require './views/CaseView'
 DataExportView = require './views/DataExportView'
@@ -338,10 +339,15 @@ class Router extends Backbone.Router
       success: ->
         Coconut.issueView ?= new IssueView()
         Coconut.database.get issueID
-        .catch (error) -> console.error error
+        .catch (error) -> 
+          console.error error
         .then (result) ->
-          Coconut.issueView.issue = result
-          Coconut.issueView.render()
+          if(result)
+            Coconut.issueView.issue = result
+            Coconut.issueView.render()
+          else
+            Dialog.createDialogWrap()
+            Dialog.confirm("Issue not found: <br />#{issueID}", "Database Error",["Ok"])
 
   userLoggedIn: (callback) =>
     User.isAuthenticated

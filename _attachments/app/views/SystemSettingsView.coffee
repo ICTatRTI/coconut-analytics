@@ -6,6 +6,7 @@ Backbone.$  = $
 Reports = require '../models/Reports'
 Dialog = require './Dialog'
 Config = require '../models/Config'
+CONST = require '../Constants'
 
 class SystemSettingsView extends Backbone.View
   el: "#content"
@@ -13,26 +14,40 @@ class SystemSettingsView extends Backbone.View
   events:
     "click button#updateBtn": "updateConfig"
     
-  updateConfig: (e) =>
-    config = new Config
-      _id: "coconut.config"
-    config.fetch
-      error: ->
-        console.error error
-        Dialog.errorMessage(error)
-        options.error()
-      success: ->
-        fields = ['appName','appIcon','country','timezone','dateFormat','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
-        _(fields).map (field) =>
-          config.attributes["#{field}"] = $("##{field}").val()
-        Config.saveConfig(config.attributes)
+  updateConfig: (e) =>  
+    Coconut.database.get("coconut.config")
+    .then (doc) ->
+      fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
+      _(fields).map (field) =>
+        doc["#{field}"] = $("##{field}").val()
+      doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
+      return Coconut.database.put(doc)
+        .then () ->
+          Dialog.createDialogWrap()
+          Dialog.confirm("Configuration has been saved. You need to reload your screen in order for settings to take effect.", 'System Settings',['Ok']) 
+          dialog.addEventListener 'close', ->
+            location.reload(true)
+        .catch (error) ->
+          console.error error
+          Dialog.errorMessage(error)
+    .catch (error) ->
+      console.error error
+      Dialog.errorMessage(error)
 
+    .then ()->
+      Config.getConfig
+        error: ->
+          console.log("Error Retrieving Config")
+        success: ->
+          console.log("Retrieve Config Successful")
+  
     return false
     
   render: =>
-    countries = ['Zanzibar','Zimbabwe','Unites States']
-    timezones = ['East Africa','America/NY']
-    dateFormats = ['DD-MM-YYYY', 'MM-DD-YYYY', 'YYYY-MM-DD']
+    countries = _.pluck(CONST.Countries, 'name')
+    timezones = _.pluck(CONST.Timezones,'DisplayName')
+    dateFormats = CONST.dateFormats
+    colorSchemes = CONST.graphColorSchemes
 
     @$el.html "
       <h4>Global System Settings</h4>
@@ -84,7 +99,25 @@ class SystemSettingsView extends Backbone.View
               }
             </select>
             <label class='mdl-select__label' for='dateFormat'>Date Format</label>
-          </div>
+          </div><br />
+          <div class='mdl-select mdl-js-select mdl-select--floating-label setting_inputs'>
+            <select class='mdl-select__input' id='graphColorScheme' name='graphColorScheme'>
+              <option value=''></option>
+              #{
+                colorSchemes.map (cscheme) =>
+                  "<option value='#{cscheme}' #{if Coconut.config.graphColorScheme is cscheme then "selected='true'" else ""}>
+                    #{cscheme}
+                   </option>"
+                .join ""
+              }
+            </select>
+            <label class='mdl-select__label' for='graphColorScheme'>Graph Color Scheme</label>
+          </div><br />
+          <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='facilitiesEdit' id='switch-1'>
+            <input type='checkbox' id='facilitiesEdit' class='mdl-switch__input' #{if Coconut.config.facilitiesEdit then 'checked'}>
+            <span class='mdl-switch__label facilities_editable'>Facilities Editable</span>
+          </label>
+          
         </div>
         <h4>Database Settings</h4>
         <div class='indent m-l-20'>
@@ -117,6 +150,7 @@ class SystemSettingsView extends Backbone.View
       
     "
     Dialog.markTextfieldDirty()
-    
+    # This is for MDL switch
+    componentHandler.upgradeAllRegistered()
     
 module.exports = SystemSettingsView

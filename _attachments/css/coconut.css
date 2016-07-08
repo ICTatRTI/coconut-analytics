@@ -335,6 +335,11 @@ input.datepicker {
 	color: #fff;
 }
 
+.mdl-switch__label.facilities_editable {
+  color: rgba(33, 150, 243, 1);
+  font-size: 12px;
+}
+
 /* Top right menu */
 li.mdl-menu__item a {
    text-decoration: none;	
@@ -1091,7 +1096,7 @@ button.caseBtn {
   width: 40px;
 }
 
-.chart {
+.chart, .chart_lg {
   position: relative;
   left: 40px;
 	padding: 10px 0 20px 5px;
@@ -1100,6 +1105,10 @@ button.caseBtn {
 	vertical-align: bottom;
 	display: table-cell;
   float: left;
+}
+
+.chart_lg {
+  height: 385px;
 }
 
 .legend {
@@ -1134,7 +1143,7 @@ button.caseBtn {
   
 /* Temporarily disable graphs menu items */
 #Todos, #graph_attendence, #graph_positivity, #graph_testrate, #positivity_with_rainfall, #positivity_by_year, 
-#setting_theme, #setting_general, #setting_language, #setting_misc {
+#setting_theme, #setting_general, #setting_language, #setting_misc, #shehias_received_irs, #shehias_high_risk {
   color: rgba(0,0,0,.26) !important;
   cursor: default;
   background-color: transparent;

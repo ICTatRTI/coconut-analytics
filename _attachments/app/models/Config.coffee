@@ -15,16 +15,7 @@ Config.getConfig = (options) ->
       options.error()
     success: ->
       Coconut.config = config.attributes
+      Coconut.config.role_types = Coconut.config.role_types.split(",")
       options.success()
-  
-Config.saveConfig = (config) ->
-  Coconut.database.put config
-  .then =>
-    console.log("Configuration saved successful")
-    Dialog.createDialogWrap()
-    Dialog.confirm("Configuration has been saved. You need to reload your screen in order for settings to take effect.", 'System Settings',['Ok'])
-  .catch (error) -> 
-    console.error error
-    Dialog.errorMessage( error)
-
+    
 module.exports = Config

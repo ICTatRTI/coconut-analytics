@@ -147,8 +147,8 @@ class MenuView extends Backbone.View
             facilities: "Facilities"
             rainfall_station: "Rainfall Station"
             geo_hierarchy: "Regions, Districts & Shehias"
-            "edit_data/shehias_received_irs": "Shehias Received IRS"
-            "edit_data/shehias_high_risk": "Shehias High Risk"
+            "shehias_received_irs": "Shehias Received IRS"
+            "shehias_high_risk": "Shehias High Risk"
             system_settings: "System Settings"
             users: "Users"
           }

@@ -108,7 +108,7 @@ Graphs.createGraph = (options, callback) ->
     if options.dataForGraph.length == 0
        $("div##{container}").html('<h6>No Records found for date range</h6>')
     else
-      palette = new Rickshaw.Color.Palette()
+      palette = new Rickshaw.Color.Palette({scheme: Coconut.config.graphColorScheme })
       graphSeries =[]
       i = 0
       _.each options.dataForGraph, (series_data) ->

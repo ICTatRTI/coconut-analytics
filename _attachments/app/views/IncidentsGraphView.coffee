@@ -22,7 +22,7 @@ class IncidentsGraphView extends Backbone.View
          <div class='chart-title'>Incidence Graph - Cases by Week</div>
          <div id='chart_container_1' class='chart_container f-left'>
            <div id='y_axis_1' class='y_axis'></div>
-           <div id='chart_1' class='chart'></div>
+           <div id='chart_1' class='chart_lg'></div>
            <div id='legend' class='legend'></div>
          </div>
        </div>

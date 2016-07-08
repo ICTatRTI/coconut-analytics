@@ -96,7 +96,7 @@ class FacilityHierarchyView extends Backbone.View
     options = $.extend({},Coconut.router.reportViewOptions)
     @fields = "Region,District,Facility Name,Aliases,Phone Numbers,Type".split(/,/)
     @document_id = "Facility Hierarchy"
-
+    
     @dialogEdit = "
       <form id='facility' method='dialog'>
          <div id='dialog-title'> </div>
@@ -110,11 +110,10 @@ class FacilityHierarchyView extends Backbone.View
             "
             ).join("")
           }
-
-        <div id='dialogActions'>
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
-        </div> 
+          <div id='dialogActions'>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+          </div> 
       </form>
     "
     $('#analysis-spinner').show()
@@ -128,7 +127,7 @@ class FacilityHierarchyView extends Backbone.View
         table.dataTable thead th { padding: 0 0 8px}
       </style>
       <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-facility-btn'>
-              <i class='material-icons'>add_circle</i>
+              #{ if(Coconut.config.facilitiesEdit) then "<i class='material-icons'>add_circle</i>" else "" }
             </button>
       </h4>
       <dialog id='dialog'>
@@ -158,10 +157,14 @@ class FacilityHierarchyView extends Backbone.View
               .join()
             }
             <td>
-               <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='facility-edit' data-facility-id='#{rowIdentifier}'><i class='material-icons icon-24'>mode_edit</i></a></button>
-               <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='facility-delete' data-facility-id='#{rowIdentifier}'><i class='material-icons icon-24'>delete</i></a></button>
+            #{ if(Coconut.config.facilitiesEdit)
+                "<button class='edit mdl-button mdl-js-button mdl-button--icon'>
+                  <a href='#' class='facility-edit' data-facility-id='#{rowIdentifier}'><i class='material-icons icon-24'>mode_edit</i></a></button>
+                 <button class='delete mdl-button mdl-js-button mdl-button--icon'>
+                  <a href='#' class='facility-delete' data-facility-id='#{rowIdentifier}'><i class='material-icons icon-24'>delete</i></a></button>
+                "
+               else ""
+            }
             </td>
           </tr>
           "

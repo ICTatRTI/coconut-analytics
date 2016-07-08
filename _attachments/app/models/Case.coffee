@@ -618,7 +618,26 @@ Case.updateSpreadsheetForCases = (options) ->
         Coconut.database.get docId
         .catch (error) -> saveRowDoc()
         .then (result) -> saveRowDoc(result)
-        
+
+Case.getCases = (options) ->
+  Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
+    keys: options.caseIDs
+    include_docs: true
+  .catch (error) ->
+      options?.error(error)
+  .then (result) =>
+    options?.success(_.chain(result.rows)
+      .groupBy (row) =>
+        row.key
+      .map (resultsByCaseID) =>
+        malariaCase = new Case
+          results: _.pluck resultsByCaseID, "doc"
+        malariaCase
+      .compact()
+      .value()
+    )
+
+                    
 Case.createCaseView = (options) ->
   @case = options.case
   
@@ -659,8 +678,9 @@ Case.createCaseView = (options) ->
         else
           @createObjectTable(tableType,@case[tableType], @mappings)
     ).join("")
-    options?.success()
-     
+    return options?.success()
+    
+
     # _.each $('table tr'), (row, index) ->
     #   $(row).addClass("odd") if index%2 is 1
     #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
@@ -671,7 +691,7 @@ Case.createCaseView = (options) ->
       success: =>
         _.extend(@mappings, question.safeLabelsToLabelsMappings())
         finished()
-        
+        return
         
 Case.createObjectTable = (name,object,mappings) ->
   #Hack to replace title to differ from Questions title
