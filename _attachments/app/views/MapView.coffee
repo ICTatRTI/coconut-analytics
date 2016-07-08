@@ -6,6 +6,8 @@ d3 = require 'd3'
 
 
 casesLayer = undefined
+casesTimeLayer = undefined
+materialLayersControl = undefined
 singleCaseStyle = 
     radius: 4
     fillColor: '#FFA000'
@@ -23,7 +25,7 @@ multiCaseStyle =
 travelCaseStyle = 
     radius: 6
     fillColor: '#CDDC39'
-    color: '#000'
+    color: '#D32F2F'
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8 
@@ -35,16 +37,16 @@ noTravelCaseStyle =
     opacity: 1
     fillOpacity: 0.8 
 llinLTCaseStyle = 
-    radius: 6
+    radius: 4
     fillColor: '#FF4081'
     color: '#000'
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8
 llinGTCaseStyle = 
-    radius: 4
+    radius: 6
     fillColor: '#512DA8'
-    color: '#000'
+    color: '#FFA000'
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8
@@ -81,42 +83,66 @@ getColor = (d) ->
     color
   else
     '#666666'    
-window.addEventListener 'caseStyleChange', ((e) ->
-  styleType = e.detail.caseType
-  casesLayer.eachLayer (layer) ->
+setCaseStyle = (styleType, feature) ->
+    console.log(styleType)
     if styleType == 'travelCases'
-      if layer.feature.properties.RecentTravel == 'No'
-        layer.setStyle
+      if feature.feature.properties.RecentTravel == 'No'
+        feature.setStyle
           fillColor: '#303F9F'
           color: '#000'
-        layer.setRadius 4
+        feature.setRadius 4
       else
-        layer.setStyle
+        feature.setStyle
           fillColor: '#CDDC39'
           color: '#D32F2F'
-        layer.setRadius 6
+        feature.setRadius 6
     else if styleType == 'numberCases'
-      if layer.feature.properties.numberOfCasesInHousehold == 0
-        layer.setStyle
+      if feature.feature.properties.numberOfCasesInHousehold == 0
+        feature.setStyle
           fillColor: '#FFA000'
           color: '#000'
-        layer.setRadius 4
+        feature.setRadius 4
       else
-        layer.setStyle
+        feature.setStyle
           fillColor: '#D32F2F'
           color: '#000'
-        layer.setRadius 6
+        feature.setRadius 6
     else if styleType == 'llinCases'
-      if layer.feature.properties.NumberofLLIN < layer.feature.properties.SleepingSpaces
-        layer.setStyle
+      if feature.feature.properties.NumberofLLIN < feature.feature.properties.SleepingSpaces
+        feature.setStyle
           fillColor: '#FF4081'
           color: '#000'
-        layer.setRadius 4
+        feature.setRadius 4
       else
-        layer.setStyle
+        feature.setStyle
           fillColor: '#512DA8'
           color: '#FFA000'
-        layer.setRadius 6
+        feature.setRadius 6  
+        
+getCaseStyle = (feature) -> 
+    if caseStyle == 'travelCases'
+      if feature.properties.RecentTravel == 'No'
+        return noTravelCaseStyle
+      else
+        return travelCaseStyle
+    else if caseStyle == 'numberCases'
+      if feature.properties.numberOfCasesInHousehold == 0
+        return singleCaseStyle
+      else
+        return multiCaseStyle
+    else if caseStyle == 'llinCases'
+      if feature.properties.NumberofLLIN < feature.properties.SleepingSpaces
+        return llinLTCaseStyle
+      else
+        return llinGTCaseStyle
+window.addEventListener 'caseStyleChange', ((e) ->
+  styleType = e.detail.caseType  
+  casesLayer.eachLayer (layer) ->
+    setCaseStyle(styleType, layer)
+  console.log(typeof casesTimeLayer)
+  if typeof casesTimeLayer != 'undefined'
+    casesTimeLayer.eachLayer (layer) ->
+        setCaseStyle(styleType, layer)
   return
 ), false
 
@@ -169,7 +195,6 @@ class MapView extends Backbone.View
   materialHeatMapControl = undefined
   materialClusterControl = undefined
   materialTimeControl = undefined
-  materialLayersControl = undefined
   casesGeoJSON = undefined
   turnCasesLayerOn = false
   timeCasesGeoJSON = undefined
@@ -178,7 +203,6 @@ class MapView extends Backbone.View
   villagesData = undefined
   textE = undefined
   textW = undefined
-  casesTimeLayer = undefined
   timeScale = undefined
   formatDate = d3.time.format('%b %d')
   outFormat = d3.time.format("%Y-%m-%d")
@@ -427,10 +451,11 @@ class MapView extends Backbone.View
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
             #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, singleCaseStyle
-            else
-                L.circleMarker latlng, multiCaseStyle
+#            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+#                L.circleMarker latlng, singleCaseStyle
+#            else
+#                L.circleMarker latlng, multiCaseStyle
+            L.circleMarker latlng, getCaseStyle(feature)
           )
         casesLayer.addTo(map)
         
@@ -456,10 +481,11 @@ class MapView extends Backbone.View
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
             #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, singleCaseStyle
-            else
-                L.circleMarker latlng, multiCaseStyle
+#            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+#                L.circleMarker latlng, singleCaseStyle
+#            else
+#                L.circleMarker latlng, multiCaseStyle
+            L.circleMarker latlng, getCaseStyle(feature)
           )
         if data.features.length > 0
           console.log('multiCase')
@@ -542,11 +568,13 @@ class MapView extends Backbone.View
               pointToLayer: (feature, latlng) =>
                 # household markers with secondary cases
                 #clusering as well
-                if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                    L.circleMarker latlng, singleCaseStyle
-                else
-                    L.circleMarker latlng, multiCaseStyle
+#                if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+#                    L.circleMarker latlng, singleCaseStyle
+#                else
+#                    L.circleMarker latlng, multiCaseStyle
+                L.circleMarker latlng, getCaseStyle(feature)
               ).addTo(map)
+
               materialLayersControl.removeLayer casesLayer 
               console.log("timeInput? " + document.getElementById('timeInput'))
               if !document.getElementById('timeInput')
@@ -1030,37 +1058,17 @@ class MapView extends Backbone.View
       else if running == false
         $('#play').html "<i class='material-icons'>pause</i>"
         $('#play').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" )
-#        sliderValue = $('.theSVG').val()
         playEndTime = timeScale.brush.extent()[1]
-#      console.log 'playEndTime1: ' + playEndTime
-#      console.log 'playEndTime1: ' + playEndTime
         playStartTime = timeScale.brush.extent()[0]
-        console.log('playEndTime: '+playEndTime)
-        console.log('playStartTime: '+playStartTime)
-#        TODO if endTime < queried extent then proceed. Otherwise stop. 
-#        console.log('sliderValue: '+sliderValue)
-        
-        #TODO: build in cases for brush endpoints 
-        #TODO: if brushEndpoint is greather than or equal to scale endpoint
-        #TODO:      restart time interval
-        #TODO:   else
-        #TODO:          
         timer = setInterval((->
           if timeScale.brush.extent()[1] < timeScale.domain()[1]
-              console.log("brushLessThan")
               update()
           else
               oneDay = 24*60*60*1000
               diffDays = Math.round(Math.abs((timeScale.brush.extent()[1] - timeScale.brush.extent()[0])/(oneDay)));
-              console.log("diffDays: " + diffDays)
-#              diff = timeScale.brush.extent()[1] - timeScale.brush.extent()[0]
-#              diff = new Date(diff + new Date(timeScale.domain()[0]))
-#              console.log("diff: " + diff)
               lowerExtent = new Date(timeScale.domain()[0])
               upperExtent = new Date(timeScale.domain()[0])
               upperExtent.setDate(upperExtent.getDate() + diffDays)
-              console.log("lowerExtent: " + lowerExtent)
-              console.log("upperExtent: " + upperExtent)
               d3.select('resizew').attr 'transform', 'translate(' + timeScale.domain()[0] + ',0)'
         #      handle.select('text').text formatDate(playStartTime)
               d3.select('textw').text formatDate(timeScale.domain()[0])
