@@ -1,6 +1,8 @@
 'use strict'
+var caseStyle = 'numberCases';
+    
 var myLayersControl =  L.Control.extend({
-
+    
   options: {
       position: 'topright',
       autoZIndex: true
@@ -328,12 +330,19 @@ var myLayersControl =  L.Control.extend({
             select.options[select.options.length] = new Option('One and More Cases', 'numberCases');
             select.options[select.options.length] = new Option('Travel History', 'travelCases');
             select.options[select.options.length] = new Option('# of LLIN < Sleeping Places', 'llinCases');
+            console.log("this.caseStyle: " + caseStyle)
+            select.value = caseStyle;
+            console.log("select.options[select.selectedIndex].value: " + select.options[select.selectedIndex].value)
             L.DomEvent.on(select, 'change', function () {
 //                console.log(select.options[select.selectedIndex].value);
+                console.log("caseStyle: " + caseStyle);
+                var newStyle = select.options[select.selectedIndex].value;
+                caseStyle = newStyle; 
+                console.log("this.caseStyle: " + caseStyle)
                 var event = new CustomEvent('caseStyleChange', { 'detail': { 
-                        caseType: select.options[select.selectedIndex].value 
+                    caseType: newStyle 
                     }
-                });
+                });   
                 window.dispatchEvent(event);
             });
             label.appendChild(select);
