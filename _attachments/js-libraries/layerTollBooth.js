@@ -52,12 +52,14 @@ function LayerTollBooth() {
             if (this.heatLayerOn){
                 if (map.hasLayer(casesTimeLayer)){
                     map.removeLayer(casesTimeLayer)
+                    materialLayersControl.removeLayer (casesTimeLayer)
                 }
                 map.addLayer(heatTimeLayer)
             }
             else{
                 if (!this.clustersOn){
                     map.addLayer(casesTimeLayer)
+                    materialLayersControl.addQueriedLayer (casesTimeLayer, 'Cases (time)')
                 }
                 map.removeLayer(heatTimeLayer)
             }
@@ -79,10 +81,12 @@ function LayerTollBooth() {
             }
         }
     }
-    this.handleTime = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer){
+    this.handleTime = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl){
         if (this.timeOn){
             if (map.hasLayer(casesLayer)){
+                console.log("timeOnRemove")
                 map.removeLayer(casesLayer);
+                materialLayersControl.removeLayer(casesLayer)
             }
             if (map.hasLayer(heatLayer)){
                 map.removeLayer(heatLayer);
@@ -91,8 +95,11 @@ function LayerTollBooth() {
         else{
             if(map.hasLayer(casesTimeLayer)){
                 map.removeLayer(casesTimeLayer);
+                materialLayersControl.removeLayer(casesTimeLayer)
                 if (this.casesLoaded){
+                console.log("timeOffAdd")
                     map.addLayer(casesLayer)
+                    materialLayersControl.addQueriedLayer (casesLayer, 'Cases')
                 }
             }
             if(map.hasLayer(heatTimeLayer)){

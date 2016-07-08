@@ -29,7 +29,7 @@ var myLayersControl =  L.Control.extend({
 //    console.log ('initialize overlays: ' + overlays)
   },
   onAdd: function (map) {
-    console.log('onAdd');
+    console.log('onAdd Update');
     this._initLayout();
 		this._update();
 
@@ -56,27 +56,45 @@ var myLayersControl =  L.Control.extend({
 		    .off('layerremove', this._onLayerChange, this);
   },
   addBaseLayer: function (layer, name) {
+    console.log("addbaseLayer Update")
     this._addLayer(layer, name);
 	this._update();
 	return this;
   },
 
   addOverlay: function (layer, name) {
+    console.log("addOverlay Update")
     this._addLayer(layer, name, true);
 	this._update();
 	return this;
   },
   addQueriedLayer: function (layer, name) {
-	this._addLayer(layer, name, true, true);
-	this._update();
-	return this;
+//    if(!$("#caseInput")){
+        console.log("addQuerriedLayer update")
+        this._addLayer(layer, name, true, true);
+        this._update();
+        return this;
+//    }
+  },
+  addTimeLayer: function (layer, name) {
+//    if(!$("#timeInput")){
+        console.log("addTimeLayer update")
+        this._addLayer(layer, name, true, true, true);
+        this._update();
+        return this;
+//    }
   },
   removeLayer: function (layer) {
+    console.log("removeLayer Update")  
 	var id = L.stamp(layer);
 	delete this._layers[id];
     this._update();
     return this;
   },
+//  setLayerTollBooth: function(layerTollBooth){
+//      this._layerTollBooth = layerTollBooth;
+//      console.log("setLayerTollBooth")
+//  },
 //  _addItem: function (obj){
 //    console.log('addItem obj: ' + JSON.stringify(obj))    
 //  },
@@ -173,15 +191,16 @@ var myLayersControl =  L.Control.extend({
 		
 	}, 
         
-    _addLayer: function (layer, name, overlay, queried) {
-//	console.log('addLayer name: '+name)
+    _addLayer: function (layer, name, overlay, queried, time) {
+	console.log('addLayer name: '+name)
     var id = L.stamp(layer);
 
 	this._layers[id] = {
 		layer: layer,
 		name: name,
 		overlay: overlay,
-        queried: queried
+        queried: queried, 
+        time: time
 	};
     if (this.options.autoZIndex && layer.setZIndex) {
         console.log('this._lastZIndex')
@@ -214,6 +233,7 @@ var myLayersControl =  L.Control.extend({
 		this._baseLayersList.innerHTML = '';
 		this._overlaysList.innerHTML = '';
 		this._queriedLayersList.innerHTML = '';
+        
 
 		var baseLayersPresent = false,
 		    overlaysPresent = false,
@@ -241,9 +261,10 @@ var myLayersControl =  L.Control.extend({
         var obj = this._layers[L.stamp(e.layer)];
 
 		if (!obj) { return; }
-
-		if (!this._handlingClick) {
-			this._update();
+        console.log("obj.name: " + obj.name)
+		if (!this._handlingClick && obj.name != "Cases") {
+			console.log("onLayerChange update")
+            this._update();
 		}
 
 		var type = obj.overlay ?
@@ -268,17 +289,19 @@ var myLayersControl =  L.Control.extend({
 		return radioFragment.firstChild;
 	},
     _addItem: function (obj) {
-//        console.log('addItem obj.name: '+obj.name)
+        console.log('addItem obj.name: '+obj.name)
 //        console.log('addItem obj.layer: '+obj.layer)
         var label = document.createElement('label'),
 		    input,
             select,
 		    checked = this._map.hasLayer(obj.layer);
+        if (obj.queried && !obj.time){label.id = "caseInput"}
+        else if(obj.time){label.id = "timeInput"}
 //        console.log('obj.name: '+obj.name);
 //		console.log('obj.overlay: '+obj.overlay);
 		if (obj.overlay) {
 			input = document.createElement('input');
-			input.type = 'checkbox';
+            input.type = 'checkbox';
 			input.className = 'leaflet-control-layers-selector';
 			input.defaultChecked = checked;
         } else if(!obj.overlay) {
@@ -298,6 +321,7 @@ var myLayersControl =  L.Control.extend({
         
 //        if(obj.queried && !$( "#mapStyleSelect" )[ 0 ]){
         if(obj.queried){
+            console.log('obj.querried = true')
             select = document.createElement('select');
             select.id = 'mapStyleSelect';
             select.className = 'mdl-select__input';
@@ -314,11 +338,12 @@ var myLayersControl =  L.Control.extend({
             });
             label.appendChild(select);
         }
-//        console.log('myLayerControl obj.overlay: ' + obj.overlay)
-//        console.log('myLayerControl obj.queried: ' + obj.queried)
+        console.log('myLayerControl obj.overlay: ' + obj.overlay)
+        console.log('myLayerControl obj.queried: ' + obj.queried)
         var container;
         if(obj.overlay){
             if(obj.queried){
+                console.log("overlay and query")
                 container = this._queriedLayersList;
             }
             else{
@@ -329,68 +354,82 @@ var myLayersControl =  L.Control.extend({
             container = this._baseLayersList;
         }
 //		var container = obj.overlay ? this._overlaysList : this._baseLayersList;
-		container.appendChild(label);
+		console.log("label: " + label)
+        container.appendChild(label);
         
 		return label;
 	},
-    _update: function () {
-		if (!this._container) {
-			return;
-		}
-
-		this._baseLayersList.innerHTML = '';
-		this._overlaysList.innerHTML = '';
-
-		var baseLayersPresent = false,
-		    overlaysPresent = false,
-		    i, obj;
-
-		for (i in this._layers) {
-			obj = this._layers[i];
-            this._addItem(obj);
-			overlaysPresent = overlaysPresent || obj.overlay;
-			baseLayersPresent = baseLayersPresent || !obj.overlay;
-		}
-
-		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
-	},
-    _onLayerChange: function (e) {
-		var obj = this._layers[L.stamp(e.layer)];
-
-		if (!obj) { return; }
-        
-//		if (!this._handlingClick) {
-//			this._update();
+//    _update: function () {
+//		console.log('update')
+//        if (!this._container) {
+//			return;
 //		}
-        this._update()
-
-		var type = obj.overlay ?
-			(e.type === 'layeradd' ? 'overlayadd' : 'overlayremove') :
-			(e.type === 'layeradd' ? 'baselayerchange' : null);
-
-		if (type) {
-			this._map.fire(type, obj);
-		}
-	},
+//
+//		this._baseLayersList.innerHTML = '';
+//		this._overlaysList.innerHTML = '';
+//
+//		var baseLayersPresent = false,
+//		    overlaysPresent = false,
+//		    i, obj;
+//
+//		for (i in this._layers) {
+//			obj = this._layers[i];
+//            this._addItem(obj);
+//			overlaysPresent = overlaysPresent || obj.overlay;
+//			baseLayersPresent = baseLayersPresent || !obj.overlay;
+//		}
+//
+//		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
+//	},
+//    _onLayerChange: function (e) {
+//		var obj = this._layers[L.stamp(e.layer)];
+//
+//		if (!obj) { return; }
+//        
+////		if (!this._handlingClick) {
+////			this._update();
+////		}
+//        console.log("_onLayerChange update")
+//        this._update()
+//
+//		var type = obj.overlay ?
+//			(e.type === 'layeradd' ? 'overlayadd' : 'overlayremove') :
+//			(e.type === 'layeradd' ? 'baselayerchange' : null);
+//
+//		if (type) {
+//			this._map.fire(type, obj);
+//		}
+//	},
     
     _onInputClick: function () {
 		var i, input, obj,
 		    inputs = this._form.getElementsByTagName('input'),
 		    inputsLen = inputs.length;
-
-		this._handlingClick = true;
+        this._handlingClick = true;
 		for (i = 0; i < inputsLen; i++) {
 			input = inputs[i];
 //			console.log('input.LayerId: '+input.layerId);
             obj = this._layers[input.layerId];
 //            console.log('obj.layer: '+obj.layer);
-//			console.log('obj.name: '+obj.name);
-			if (input.checked && !this._map.hasLayer(obj.layer)) {
-				this._map.addLayer(obj.layer);
+			console.log('obj.name: '+obj.name);
+            if(obj.name != "Cases"){    
+                if (input.checked && !this._map.hasLayer(obj.layer)) {
+                    this._map.addLayer(obj.layer);
 
-			} else if (!input.checked && this._map.hasLayer(obj.layer)) {
-				this._map.removeLayer(obj.layer);
-			}
+                } else if (!input.checked && this._map.hasLayer(obj.layer)) {
+                    this._map.removeLayer(obj.layer);
+                }
+            }
+            else{
+//                console.log("this._layerTollBooth: " + this._layerTollBooth.timeOn)
+//                LayerTollBooth.timeOn
+                if (input.checked && !this._map.hasLayer(obj.layer)) {
+                    this._map.addLayer(obj.layer);
+
+                } else if (!input.checked && this._map.hasLayer(obj.layer)) {
+                    this._map.removeLayer(obj.layer);
+                }
+            }
 		}
 
 		this._handlingClick = false;

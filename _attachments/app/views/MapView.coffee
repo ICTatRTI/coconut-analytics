@@ -189,6 +189,8 @@ class MapView extends Backbone.View
   svgHeight = undefined
   svgWidth = undefined
   winWidth = undefined
+  timer = undefined    
+  running = false    
   el: '#content'
 
   events:
@@ -250,7 +252,7 @@ class MapView extends Backbone.View
             Coconut.router.navigate(url,{trigger: false})
             heatLayer = L.heatLayer(heatMapCoords, radius: 10) 
             heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10) 
-            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, )
+            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
         else
             layerTollBooth.setHeatLayerStatus false
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
@@ -287,7 +289,9 @@ class MapView extends Backbone.View
 #      legend.removeFrom map
   
   timeToggle: =>
+        
     dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
+    console.log "dateRange: " + dateRange
 #    if map.hasLayer casesLayer 
 #      updateFeaturesByDate(dateRange)
 #    if map.hasLayer heatLayer
@@ -297,7 +301,7 @@ class MapView extends Backbone.View
       $("#sliderControls").toggle()
       layerTollBooth.handleActiveState $('.timeButton button'), 'on'
       layerTollBooth.setTimeStatus true
-      layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+      layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
       Coconut.router.reportViewOptions['timeMap'] = 'on'
       url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
       Coconut.router.navigate(url,{trigger: false})
@@ -311,8 +315,13 @@ class MapView extends Backbone.View
       layerTollBooth.setTimeStatus false
       $("#sliderControls").toggle()
       layerTollBooth.handleActiveState $('.timeButton button'), 'off'
+      if running == true
+        $('#play').html "<i class='material-icons'>play_arrow</i>"
+        $('#play').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" )
+        running = false
+        clearInterval timer
 #      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
-      layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+      layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
       Coconut.router.reportViewOptions['timeMap'] = 'off'
       url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
       Coconut.router.navigate(url,{trigger: false})
@@ -354,7 +363,7 @@ class MapView extends Backbone.View
         casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
           if malariaCase.Household?["HouseholdLocation-latitude"]
-#            console.log 'Household' + JSON.stringify malariaCase.Household.NumberofSleepingPlacesbedsmattresses
+#            console.log 'Household' + JSON.stringify malariaCase
 #            console.log 'Household' + JSON.stringify malariaCase.Facility.TravelledOvernightinpastmonth
             { 
               type: 'Feature'
@@ -379,6 +388,8 @@ class MapView extends Backbone.View
 #          @CasesLoaded = false
 #          return
         layerTollBooth = new LayerTollBooth(map, casesLayer)
+#        myLayerContromaterialLayersControl.setLayerTollBooth layerTollBooth
+    
         if casesGeoJSON.features.length > 0
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
@@ -449,7 +460,7 @@ class MapView extends Backbone.View
                 L.circleMarker latlng, multiCaseStyle
           )
         if data.features.length > 0
-#          console.log('multiCase')
+          console.log('multiCase')
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
         
         heatMap = getURLValue 'heatMap'
@@ -507,8 +518,9 @@ class MapView extends Backbone.View
           casesTimeLayer.clearLayers()
           casesTimeLayer.addData(timeFeatures) 
     else    
-        if !map.hasLayer casesTimeLayer
+        if !map.hasLayer(casesTimeLayer) and !layerTollBooth.timeOn
               #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
+              console.log("layerTollBooth.timeOn: " + layerTollBooth.timeOn)
               clustersTimeLayer = L.markerClusterGroup()
               casesTimeLayer = L.geoJson(timeCasesGeoJSON, 
               onEachFeature: (feature, layer) =>
@@ -533,6 +545,11 @@ class MapView extends Backbone.View
                 else
                     L.circleMarker latlng, multiCaseStyle
               ).addTo(map)
+              materialLayersControl.removeLayer casesLayer 
+              console.log("timeInput? " + document.getElementById('timeInput'))
+              if !document.getElementById('timeInput')
+                materialLayersControl.addTimeLayer casesTimeLayer, 'Cases (time)'
+#              materialLayersControl.addTimeLayer casesTimeLayer, 'Cases (time)'    
         else
           casesTimeLayer.clearLayers()
           casesTimeLayer.addData(timeFeatures) 
@@ -576,7 +593,8 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    console.log('reportsGetCases about to fire')
+    console.log "renderStartDate: " + startDate
+    console.log "renderEndDate: " + endDate
     Reports.getCases
       startDate: startDate
       endDate: endDate
@@ -813,10 +831,10 @@ class MapView extends Backbone.View
       materialOptions: materialOptions).addTo(map)
 #    var materialLayerControl = new L.materialControl.Layers(layers, overlays, {position: 'bottomright', materialOptions: materialOptions}).addTo(map);
 
-    materialLayersControl = new (myLayersControl)(layers, overlays, queriedLayers, 
+    materialLayersControl = new (myLayersControl)(layers, overlays, queriedLayers,
       position: 'topright'
       materialOptions: materialOptions).addTo(map)
-    
+#    materialLayersControl.setLayerTollBooth layerTollBooth
     materialImageControl = new (imageControl)(
       position: 'topright'
       materialOptions: materialOptions).addTo(map)
@@ -998,8 +1016,6 @@ class MapView extends Backbone.View
         outFormat = d3.time.format("%Y-%m-%d")
         dateRange = [outFormat(startingValue), outFormat(endingValue)]
     
-    running = false
-    timer = undefined
     $('#play').on 'click', ->
       duration = 300
       maxstep = 201
