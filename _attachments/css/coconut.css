@@ -1143,7 +1143,7 @@ button.caseBtn {
   
 /* Temporarily disable graphs menu items */
 #Todos, #graph_attendence, #graph_positivity, #graph_testrate, #positivity_with_rainfall, #positivity_by_year, 
-#setting_theme, #setting_general, #setting_language, #setting_misc {
+#setting_theme, #setting_general, #setting_language, #setting_misc, #shehias_received_irs, #shehias_high_risk {
   color: rgba(0,0,0,.26) !important;
   cursor: default;
   background-color: transparent;
