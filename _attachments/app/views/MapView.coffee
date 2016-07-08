@@ -451,10 +451,11 @@ class MapView extends Backbone.View
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
             #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, singleCaseStyle
-            else
-                L.circleMarker latlng, multiCaseStyle
+#            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+#                L.circleMarker latlng, singleCaseStyle
+#            else
+#                L.circleMarker latlng, multiCaseStyle
+            L.circleMarker latlng, getCaseStyle(feature)
           )
         casesLayer.addTo(map)
         
@@ -480,10 +481,11 @@ class MapView extends Backbone.View
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
             #clusering as well
-            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
-                L.circleMarker latlng, singleCaseStyle
-            else
-                L.circleMarker latlng, multiCaseStyle
+#            if feature.properties.hasAdditionalPositiveCasesAtIndexHousehold == false
+#                L.circleMarker latlng, singleCaseStyle
+#            else
+#                L.circleMarker latlng, multiCaseStyle
+            L.circleMarker latlng, getCaseStyle(feature)
           )
         if data.features.length > 0
           console.log('multiCase')
@@ -571,11 +573,8 @@ class MapView extends Backbone.View
 #                else
 #                    L.circleMarker latlng, multiCaseStyle
                 L.circleMarker latlng, getCaseStyle(feature)
-              )
-              console.log ('materialLayersControl.caseStyle: ' + caseStyle)
-#              casesTimeLayer.eachLayer (layer) ->
-#                setCaseStyle(caseStyle, layer) 
-              casesTimeLayer.addTo(map)
+              ).addTo(map)
+
               materialLayersControl.removeLayer casesLayer 
               console.log("timeInput? " + document.getElementById('timeInput'))
               if !document.getElementById('timeInput')
