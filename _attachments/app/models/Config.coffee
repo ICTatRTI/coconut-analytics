@@ -15,7 +15,8 @@ Config.getConfig = (options) ->
       options.error()
     success: ->
       Coconut.config = config.attributes
-      Coconut.config.role_types = Coconut.config.role_types.split(",")
+      # Set role_types default values if none found on coucbdb.
+      Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
       options.success()
     
 module.exports = Config
