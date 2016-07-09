@@ -7,7 +7,6 @@ d3 = require 'd3'
 
 casesLayer = undefined
 casesTimeLayer = undefined
-materialLayersControl = undefined
 singleCaseStyle = 
     radius: 4
     fillColor: '#FFA000'
@@ -37,29 +36,29 @@ noTravelCaseStyle =
     opacity: 1
     fillOpacity: 0.8 
 llinLTCaseStyle = 
-    radius: 4
-    fillColor: '#FF4081'
-    color: '#000'
-    weight: 0.5
-    opacity: 1
-    fillOpacity: 0.8
-llinGTCaseStyle = 
     radius: 6
     fillColor: '#512DA8'
     color: '#FFA000'
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8
-
-Style = (feature) ->
-  {
-    radius: getRadius(feature.properties[activeMeasure]),
-    fillColor: 'blue'
+llinGTCaseStyle = 
+    radius: 4
+    fillColor: '#FF4081'
     color: '#000'
-    weight: 1
+    weight: 0.5
     opacity: 1
     fillOpacity: 0.8
-  }
+
+#Style = (feature) ->
+#  {
+#    radius: getRadius(feature.properties[activeMeasure]),
+#    fillColor: 'blue'
+#    color: '#000'
+#    weight: 1
+#    opacity: 1
+#    fillOpacity: 0.8
+#  }
 getRadius = (d) ->
   #TODO: Create the marker classes here for each
   radius = ''
@@ -68,21 +67,31 @@ getRadius = (d) ->
     radius
   else
     6
+   
+setUpLegend = () ->
+    console.log "SetUpLegendCaseStyle: " + caseStyle
+
+    theDiv = L.DomUtil.get('mapLegend')
+    theDiv.innerHTML = ""
+    if caseStyle == 'numberCases'
+        theDiv.innerHTML += '<i class="smallCircle" style="background:#FFA000; border: 1px solid #000"></i><div class="legendLable">Single Case</div><br>'
+        theDiv.innerHTML += '<i class="largeCircle" style="background:#D32F2F; border: 1px solid #000"></i><div class="legendLable">Multiple Cases</div>'
+    if caseStyle == 'travelCases'
+        theDiv.innerHTML += '<i class="smallCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">No Travel</div><br>'
+        theDiv.innerHTML += '<i class="largeCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">Recent Travel</div>'
+    if caseStyle == 'llinCases'
+        theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN <= Sleeping Spaces</div><br>'
+        theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN > Sleeping Spaces</div>'
+    #    while i < categories.length
+    #        $("#mapLegend").innerHTML += '<i class="caseCircle" style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
+      
 
 getColor = (d) ->
-  #TODO: Create the marker classes here for each
-  color = ''
-  colors = HUCMeta[activeMeasure].style.colors
-  breaks = HUCMeta[activeMeasure].style.breaks
-  $.each breaks, (index, value) ->
-    if value <= d and d != null
-      color = colors[index]
-      return
-    return
-  if color.length > 0
-    color
-  else
-    '#666666'    
+#  TODO: Create the marker classes here for each
+  console.log('d: ' + d)
+    
+
+
 setCaseStyle = (styleType, feature) ->
     console.log(styleType)
     if styleType == 'travelCases'
@@ -110,14 +119,14 @@ setCaseStyle = (styleType, feature) ->
     else if styleType == 'llinCases'
       if feature.feature.properties.NumberofLLIN < feature.feature.properties.SleepingSpaces
         feature.setStyle
-          fillColor: '#FF4081'
-          color: '#000'
-        feature.setRadius 4
-      else
-        feature.setStyle
           fillColor: '#512DA8'
           color: '#FFA000'
-        feature.setRadius 6  
+        feature.setRadius 6 
+      else
+        feature.setStyle
+          fillColor: '#FF4081'
+          color: '#000'
+        feature.setRadius 4  
         
 getCaseStyle = (feature) -> 
     if caseStyle == 'travelCases'
@@ -136,7 +145,8 @@ getCaseStyle = (feature) ->
       else
         return llinGTCaseStyle
 window.addEventListener 'caseStyleChange', ((e) ->
-  styleType = e.detail.caseType  
+  styleType = e.detail.caseType
+  setUpLegend()
   casesLayer.eachLayer (layer) ->
     setCaseStyle(styleType, layer)
   console.log(typeof casesTimeLayer)
@@ -214,7 +224,8 @@ class MapView extends Backbone.View
   svgWidth = undefined
   winWidth = undefined
   timer = undefined    
-  running = false    
+  running = false
+  materialLayersControl = undefined    
   el: '#content'
 
   events:
@@ -354,7 +365,7 @@ class MapView extends Backbone.View
 #      if turnCasesLayerOn == true
 #        map.addLayer casesLayer
 #        turnCasesLayerOn = false          
-    
+      
   setUpTypeAheadData = (geojson) -> 
     typeAheadAdminNames = {}
     typeAheadAdminNames.islands = ['Pemba', 'Unguja']
@@ -679,23 +690,38 @@ class MapView extends Backbone.View
 			border-radius: 5px;
         }
         .legend i {
-            width: 18px;
+            width: 38px;
             height: 18px;
             float: left;
             margin-right: 8px;
             opacity: 0.7;
         }
-        .legend .caseCircle {
+        .legend .smallCircle {
           border-radius: 50%;
-          width: 10px;
-          height: 10px;
-          margin-top: 8px;
+          width: 8px;
+          height: 8px;
+          margin-top: 4px;
+          margin-left: 2px;
         }
-        .legend .caseCircle {
+        .legend .largeCircle {
           border-radius: 50%;
-          width: 10px;
-          height: 10px;
-          margin-top: 8px;
+          width: 12px;
+          height: 12px;
+        }
+        .legend .legendLabel {
+          display: inline;    
+        }
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        .info h4 {
+            margin: 0 0 5px;
+            color: #777;
         }
         #sliderControls{
             display: flex;
@@ -871,6 +897,38 @@ class MapView extends Backbone.View
     layerTollBooth.enableDisableButtons 'disable'
     L.control.scale(position: 'bottomright').addTo map
     
+    legend = L.control(position: 'bottomleft')
+
+    legend.onAdd = (map) ->
+      div = L.DomUtil.create('div', 'info legend')
+      div.id = "mapLegend"
+#      grades = [
+#        0
+#        10
+#        20
+#        50
+#        100
+#        200
+#        500
+#        1000
+#      ]
+      labels = []
+      # loop through our density intervals and generate a label with a colored square for each interval
+      categories = [
+        'Single Case'
+        'Multiple Cases'
+      ]
+#      div.innerHTML = "Legend"
+      
+
+#        div.innerHTML += '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' + grades[i] + (if grades[i + 1] then '&ndash;' + grades[i + 1] + '<br>' else '+')
+#        i++
+      div
+    
+    legend.addTo map    
+    
+    setUpLegend()
+    
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
     .then (data) ->
@@ -909,9 +967,11 @@ class MapView extends Backbone.View
       )
       materialLayersControl.addOverlay(villagesLayer, 'Villages')
 
+    
+    
 #    customLayers = L.control.layers(layers, overlays).addTo map
 #
-#    legend = L.control(position: 'topright')
+#    legend = L.control(position: 'bottomleft')
 #
 #    legend.onAdd = (map) ->
 #      div = L.DomUtil.create('div', '<div class="demo-card-square mdl-card mdl-shadow--2dp">')
@@ -939,25 +999,27 @@ class MapView extends Backbone.View
 #      View Updates
 #    </a>
 #  </div>'
-#        
-#      i = 0
-#      while i < grades.length
-#        i++
-#      div
-
-    
+        
+#    i = 0
+#    while i < grades.length
+#      i++
+#    div
+#
+#    
 #    legend.onAdd = (map) =>
 #      console.log 'legend.onAdd'
-#          categories = [
-#            'Single Case'
-#            'Multiple Cases'
-#          ]
-#          i = 0
-#          while i < categories.length
-#            div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
-#            i++
-#          div  
-
+#      categories = [
+#        'Single Case'
+#        'Multiple Cases'
+#      ]
+#      i = 0
+#      while i < categories.length
+#        div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
+#        i++
+#      div 
+        
+#    legend.addTo(map)
+    
     brushed = ->
 #      console.log('brushed')
       actives = svg.filter((p) ->
