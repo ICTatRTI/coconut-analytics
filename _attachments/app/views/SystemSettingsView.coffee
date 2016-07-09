@@ -14,28 +14,29 @@ class SystemSettingsView extends Backbone.View
   events:
     "click button#updateBtn": "updateConfig"
     
-  updateConfig: (e) =>  
-    Coconut.database.get("coconut.config")
+  updateConfig: (e) =>
+    Coconut.database.get(Coconut.config._id)
     .then (doc) ->
       fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud','cloud_credentials','design_doc_name','role_types']
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
       doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
-      console.log(doc._rev)
       return Coconut.database.put(doc)
-        .then () ->
+        .catch (error) ->
+          console.error error
+          Dialog.errorMessage(error)
+          return false
+        .then (response) ->
           Dialog.createDialogWrap()
           Dialog.confirm("Configuration has been saved.", 'System Settings',['Ok']) 
           dialog.addEventListener 'close', ->
             location.reload(true)
-        .catch (error) ->
-          console.error error
-          Dialog.errorMessage(error)
+          return false
     .catch (error) ->
       console.error error
       Dialog.errorMessage(error)
+      return false
 
-    return false
     
   render: =>
     countries = _.pluck(CONST.Countries, 'name')

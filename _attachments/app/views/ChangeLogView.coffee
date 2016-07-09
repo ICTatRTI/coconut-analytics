@@ -29,11 +29,19 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 9, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>#160 - Error when UPDATEing Admin | System Settings</li>
+          </ul>
+        </div>  
         <h5>July 8, 2016</h5>
         <div class='changes'>
           <ul>
            <li>Add missing IssueView that was called from the Epidemic Thresholds report</li>
            <li>MapView: #163 time slider play bug resolved </li>
+           <li>MapView: #164 styling time layer matches styling in cases layer while switching back and forth between cases layer and cases time layer </li>
+           <li>MapView: #133 - Turning on and off time slider causes multiple instances of cases to be created in layer control</li>
            <li>Quick Fix for a bug in Config model</li>
            <li>Other bug fixes as detailed in issue tickets</li>
           </ul>
