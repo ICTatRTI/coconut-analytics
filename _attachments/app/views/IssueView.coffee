@@ -21,11 +21,11 @@ class IssueView extends Backbone.View
           success: ->
             $('#caseDialog').html(Coconut.caseview)            
             if (Env.is_chrome)
-               caseDialog.showModal()
+               caseDialog.showModal() if !caseDialog.open
             else
-               caseDialog.show()
+               caseDialog.show() if !caseDialog.open
                
-            $('html, body').animate({ scrollTop: $("##{scrollTargetID}").position().top }, 'slow') if scrollTargetID?
+        return false
   
   closeDialog: () ->
     caseDialog.close()
