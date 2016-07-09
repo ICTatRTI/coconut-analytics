@@ -25,7 +25,7 @@ class IssueView extends Backbone.View
             else
                caseDialog.show()
                
-            $('html, body').animate({ scrollTop: $("h4##{scrollTargetID}").position().top }, 'slow') if scrollTargetID?
+            $('html, body').animate({ scrollTop: $("##{scrollTargetID}").position().top }, 'slow') if scrollTargetID?
   
   closeDialog: () ->
     caseDialog.close()
@@ -74,7 +74,7 @@ class IssueView extends Backbone.View
         <table id='caseTable' class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
           <thead>
             #{
-              _(["caseID","district","shehia","village","indexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (header) ->
+              _(["caseId","district","shehia","village","indexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (header) ->
                 "<th>#{header}</th>"
               .join ""
             }
@@ -101,15 +101,14 @@ class IssueView extends Backbone.View
             $("#caseTable tbody").append "
                 #{
                 _(cases).map (malariaCase) ->
-                  console.log(malariaCase)
                   "
                   <tr>
                   #{
-                    _(["caseID","district","shehia","village","indexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (property) ->
+                    _(["caseId","district","shehia","village","indexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (property) ->
                       "<td>
                         #{
-                          if property is "caseID"
-                            "<button id= '#{malariaCase[property]}' class='caseBtnLg btn btn-small'>#{malariaCase[property]}</a>"
+                          if property is "caseId"
+                            "<button id= '#{malariaCase[property]()}' class='caseBtnLg btn btn-small'>#{malariaCase[property]()}</a>"
                           else
                             malariaCase[property]()
                         }

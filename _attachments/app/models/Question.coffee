@@ -13,6 +13,8 @@ class Question extends Backbone.Model
     returnVal = if @get("label")? then @get("label") else @get("id")
     returnVal.replace(/[^a-zA-Z0-9]/g,"")
 
+  url: "/question"
+  
   set: (attributes) ->
     if attributes.questions?
       attributes.questions =  _.map attributes.questions, (question) ->

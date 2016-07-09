@@ -93,6 +93,8 @@ class Case
           returnVal["#{question}:#{field}"] = value
     returnVal
 
+  caseId: => @caseID
+  
   LastModifiedAt: ->
     _.chain(@toJSON())
     .map (question) ->
@@ -660,13 +662,13 @@ Case.createCaseView = (options) ->
   
   #hack to rename Question name in Case view report
   caseQuestions = @case.Questions().replace("Case Notification", "Case Notification Received").replace("USSD Notification","Case Notification Sent")
-
+  
   Coconut.caseview = "
     <h5>Case ID: #{@case.MalariaCaseID()}</h5><button id='closeDialog' class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored f-right'><i class='material-icons'>cancel</i></button>
     <h6>Last Modified: #{@case.LastModifiedAt()}</h6>
     <h6>Questions: #{caseQuestions}</h6>
   "
-        
+             
   # USSD Notification doesn't have a mapping
   finished = _.after 4, =>
     Coconut.caseview += _.map(tables, (tableType) =>
@@ -678,21 +680,16 @@ Case.createCaseView = (options) ->
         else
           @createObjectTable(tableType,@case[tableType], @mappings)
     ).join("")
-    return options?.success()
-    
-
-    # _.each $('table tr'), (row, index) ->
-    #   $(row).addClass("odd") if index%2 is 1
-    #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
-  
+    options?.success()
+   
   _(tables).each (question) =>
-    question = new Question(id: question)
-    question.fetch
-      success: =>
-        _.extend(@mappings, question.safeLabelsToLabelsMappings())
-        finished()
-        return
-        
+    if question != "USSD Notification"
+      question = new Question(id: question)
+      question.fetch
+        success: =>
+          _.extend(@mappings, question.safeLabelsToLabelsMappings())
+          finished()
+              
 Case.createObjectTable = (name,object,mappings) ->
   #Hack to replace title to differ from Questions title
   name = "Case Notification Received" if name == 'Case Notification'
