@@ -1,0 +1,17 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "NAME": "Chake Chake" }, "geometry": { "type": "Point", "coordinates": [ 39.771698594420542, -5.252117432688262 ] } },
+{ "type": "Feature", "properties": { "NAME": "Kaskazini A" }, "geometry": { "type": "Point", "coordinates": [ 39.307263771678436, -5.860669916608844 ] } },
+{ "type": "Feature", "properties": { "NAME": "Kaskazini B" }, "geometry": { "type": "Point", "coordinates": [ 39.270717289383185, -5.980293191629349 ] } },
+{ "type": "Feature", "properties": { "NAME": "Kati" }, "geometry": { "type": "Point", "coordinates": [ 39.371700420007848, -6.166153507783778 ] } },
+{ "type": "Feature", "properties": { "NAME": "Kusini" }, "geometry": { "type": "Point", "coordinates": [ 39.493813168552222, -6.340627904764039 ] } },
+{ "type": "Feature", "properties": { "NAME": "Magharibi" }, "geometry": { "type": "Point", "coordinates": [ 39.252231271900136, -6.169889832487065 ] } },
+{ "type": "Feature", "properties": { "NAME": "Micheweni" }, "geometry": { "type": "Point", "coordinates": [ 39.776940210793413, -4.974117820210472 ] } },
+{ "type": "Feature", "properties": { "NAME": "Mjini" }, "geometry": { "type": "Point", "coordinates": [ 39.210237960867438, -6.16843638420454 ] } },
+{ "type": "Feature", "properties": { "NAME": "Mkoani" }, "geometry": { "type": "Point", "coordinates": [ 39.707403178403077, -5.382730476126492 ] } },
+{ "type": "Feature", "properties": { "NAME": "Wete" }, "geometry": { "type": "Point", "coordinates": [ 39.767834253912476, -5.101326870430841 ] } }
+]
+}

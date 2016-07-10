@@ -412,6 +412,7 @@ class MapView extends Backbone.View
                 SleepingSpaces: malariaCase.Household.NumberofSleepingPlacesbedsmattresses
                 RecentTravel: malariaCase.Facility.TravelledOvernightinpastmonth
                 date: malariaCase.Household?.lastModifiedAt
+                dateIRS: malariaCase.Household.LastdateofIRS
               geometry:
                 type: 'Point'
                 coordinates: [
@@ -456,7 +457,7 @@ class MapView extends Backbone.View
               <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
               #{feature.properties.MalariaCaseID}</button>
             "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces   
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
             clustersLayer.addLayer layer
             return
           pointToLayer: (feature, latlng) =>
@@ -486,8 +487,9 @@ class MapView extends Backbone.View
               <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
               #{feature.properties.MalariaCaseID}</button>
             "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces   
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS   
             #clustersLayer.addLayer layer
+#            dateIRS
             return
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
@@ -573,7 +575,7 @@ class MapView extends Backbone.View
                   <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
                   #{feature.properties.MalariaCaseID}</button>
                 "
-                layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces   
+                layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
                 clustersTimeLayer.addLayer layer
                 return
               pointToLayer: (feature, latlng) =>
@@ -710,6 +712,12 @@ class MapView extends Backbone.View
         }
         .legend .legendLabel {
           display: inline;    
+        }
+        .mapLabels{
+          white-space:nowrap;
+          text-shadow: 0 0 0.1em black, 0 0 0.1em black,
+                0 0 0.1em black,0 0 0.1em black,0 0 0.1em;
+          color: yellow
         }
         .info {
             padding: 6px 8px;
@@ -941,6 +949,53 @@ class MapView extends Backbone.View
           return
       ).addTo map
       materialLayersControl.addOverlay(districtsLayer, 'Districts')
+    
+    
+#    districtsCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/DistrictsCntrPtsWGS84.json?V=1'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        console.log "success: " + JSON.stringify data
+#        districtsCntrPtsJSON = data
+#        return
+#    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
+#    
+#    districtsCntrPtFeatures = districtsCntrPtsJSON.features
+#    for key of districtsCntrPtFeatures
+#      if districtsCntrPtFeatures.hasOwnProperty(key)
+#        val = districtsCntrPtFeatures[key]
+#        divIcon = L.divIcon(html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon }).addTo(map)
+#        console.log val.properties.NAME
+#        console.log val.geometry.coordinates
+        
+        
+#    geojsonMarkerOptions = 
+#      radius: 0
+#      fillColor: '#ff7800'
+#      opacity: 0
+#      fillOpacity: 0
+#    L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
+#        console.log "pointToLayerDistrictCntrPt"
+#        L.circleMarker latlng, geojsonMarkerOptions
+#    ).addTo map
+
+
+#    Coconut.database.get 'DistrictsCntrPtsWGS84'
+#    .catch (error) -> console.error error
+#    .then (data) ->
+#      districtsData = data
+#      #console.log('districtsData: '+districtsData)
+#      districtsCntrPtsLayer = L.geoJson(districtsData,
+#        style: cntrpts
+#        onEachFeature: (feature, layer) ->
+##          layer.bindPopup 'District: ' + feature.properties.District_N
+#          return
+#      ).addTo map
+      
     
     Coconut.database.get 'ShahiasWGS84'
     .catch (error) -> console.error error
