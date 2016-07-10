@@ -670,7 +670,7 @@ Case.createCaseView = (options) ->
   "
              
   # USSD Notification doesn't have a mapping
-  finished = _.after 4, =>
+  finished = _.after 5, =>
     Coconut.caseview += _.map(tables, (tableType) =>
       if @case[tableType]?
         if tableType is "Household Members"
@@ -681,6 +681,7 @@ Case.createCaseView = (options) ->
           @createObjectTable(tableType,@case[tableType], @mappings)
     ).join("")
     options?.success()
+    return false
    
   _(tables).each (question) =>
     if question != "USSD Notification"
@@ -688,7 +689,9 @@ Case.createCaseView = (options) ->
       question.fetch
         success: =>
           _.extend(@mappings, question.safeLabelsToLabelsMappings())
-          finished()
+    finished()
+    return false
+          
               
 Case.createObjectTable = (name,object,mappings) ->
   #Hack to replace title to differ from Questions title

@@ -254,9 +254,10 @@ class MapView extends Backbone.View
           success: ->
             $('#caseDialog').html(Coconut.caseview)
             if (Env.is_chrome)
-               caseDialog.showModal()
+               caseDialog.showModal() if !caseDialog.open
             else
-               caseDialog.show()
+               caseDialog.show() if !caseDialog.open
+        return false  
 
   closeDialog: () ->
     caseDialog.close()
