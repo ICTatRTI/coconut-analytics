@@ -32,26 +32,15 @@ class CaseFollowupView extends Backbone.View
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
     scrollTargetID = $(e.target).parent().attr('data-anchor')
-    
-    Coconut.case = new Case
+    Case.showCaseDialog
       caseID: caseID
-    Coconut.case.fetch
       success: ->
-        Case.createCaseView
-          case: Coconut.case
-          success: ->
-            $('#caseDialog').html(Coconut.caseview)
-            if (Env.is_chrome)
-               caseDialog.showModal() if !caseDialog.open
-            else
-               caseDialog.show() if !caseDialog.open
-               
-            $('html, body').animate({ scrollTop: $("##{scrollTargetID}").position().top }, 'slow') if scrollTargetID?
-        return false
+        $('html, body').animate({ scrollTop: $("##{scrollTargetID}").position().top }, 'slow') if scrollTargetID?
+    return false
       
 
   closeDialog: () ->
-    caseDialog.close()
+    caseDialog.close() if caseDialog.open
     
   render: =>
     @reportOptions = $.extend({},Coconut.router.reportViewOptions)

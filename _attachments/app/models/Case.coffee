@@ -729,5 +729,24 @@ Case.createObjectTable = (name,object,mappings) ->
       </tbody>
     </table>
   "
+
+Case.showCaseDialog = (options) ->
+  caseId = options.caseID
+  
+  Coconut.case = new Case
+    caseID: caseId
+  Coconut.case.fetch
+    success: ->
+      Case.createCaseView
+        case: Coconut.case
+        success: ->
+          $('#caseDialog').html(Coconut.caseview)
+          if (Env.is_chrome)
+             caseDialog.showModal() if !caseDialog.open
+          else
+             caseDialog.show() if !caseDialog.open
+          options?.success()
+      return false
+
     
 module.exports = Case

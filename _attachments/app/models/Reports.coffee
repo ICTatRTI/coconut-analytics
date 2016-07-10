@@ -435,15 +435,14 @@ class Reports
           delete dataByUser[user]
       
       successWhenDone = _.after _(dataByUser).size(), ->
-        console.log("Entering successWhenDone")
         options.success
           dataByUser: dataByUser
           total: total
+        return false
 
       #return if no users with cases
       successWhenDone() if _.isEmpty(dataByUser)
       
-      console.log(_(dataByUser).size())
       _(dataByUser).each (userData,user) ->
         # Get the time differences within each case
         caseIds = _(userData.cases).map (foo, caseId) -> caseId

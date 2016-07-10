@@ -27,22 +27,13 @@ class UsersReportView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
-    Coconut.case = new Case
+    Case.showCaseDialog
       caseID: caseID
-    Coconut.case.fetch
       success: ->
-        Case.createCaseView
-          case: Coconut.case
-          success: ->
-            $('#caseDialog').html(Coconut.caseview)
-            if (Env.is_chrome)
-               caseDialog.showModal() if !caseDialog.open
-            else
-               caseDialog.show() if !caseDialog.open
-        return false
+    return false
         
   closeDialog: () ->
-    caseDialog.close()
+    caseDialog.close() if caseDialog.open
     
   render: =>
     @$el.html "

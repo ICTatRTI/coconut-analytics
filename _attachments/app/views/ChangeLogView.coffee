@@ -33,6 +33,9 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
            <li>#160 - Error when UPDATEing Admin | System Settings</li>
+           <li>#135 - Case data repeats in case detail modal dialog</li>
+           <li>MapView:  legend added</li>
+           <li>MapView #142 Add last Date of IRS to cases and cases (time) layers Also preliminary district labeling implementation</li>
           </ul>
         </div>  
         <h5>July 8, 2016</h5>
