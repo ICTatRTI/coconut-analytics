@@ -26,8 +26,8 @@ class HTMLHelpers
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->
     _.map(cases, (malariaCase) =>
-      @createCaseLink  
-        caseID: (malariaCase.caseID or malariaCase.MalariaCaseID)
+      @createCaseLink 
+        caseID: malariaCase
         iconOnly: false
     ).join("")
 
