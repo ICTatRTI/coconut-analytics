@@ -438,7 +438,6 @@ class Reports
         options.success
           dataByUser: dataByUser
           total: total
-        return false
 
       #return if no users with cases
       successWhenDone() if _.isEmpty(dataByUser)
@@ -496,7 +495,6 @@ class Reports
 
             caseResults.push row.doc
             caseId = row.key
-
           _(userData.cases).each (results,caseId) ->
             _([
               "SMSToCaseNotification"
@@ -505,18 +503,18 @@ class Reports
               "SMSToCompleteHousehold"
             ]).each (property) ->
               _(["quartile1","median","quartile3"]).each (dataPoint) ->
+
                 try
                   userData["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](userData["timesFrom#{property}"])
                   userData["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](userData["timesFrom#{property}"])
+                  total["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](total["timesFrom#{property}"])
+                  total["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](total["timesFrom#{property}"])
                 catch error
+                  console.error error
                   console.error "Error processing data for the following user:"
                   console.error userData
-
-                total["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](total["timesFrom#{property}"])
-                total["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](total["timesFrom#{property}"])
-
+          
           successWhenDone()
-
 
   @aggregateWeeklyReports = (options) ->
     startDate = moment(options.startDate)

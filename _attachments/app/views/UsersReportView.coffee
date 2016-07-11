@@ -40,6 +40,25 @@ class UsersReportView extends Backbone.View
        <dialog id='caseDialog'></dialog>
        <div id='dateSelector'></div>
        <h4>How fast are followups occuring?</h4> 
+       <div id='users'> 
+         <div class='userReports dropDownBtn'>
+            <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+             All Users</h4>
+         </div>
+         <div id='allUsers' class='user-report dropdown-section'>
+           <table style='font-size:150%' class='tablesorter' style=' id='usersReportTotals'>
+             <tbody>
+               <tr style='font-weight:bold' id='medianTimeFromSMSToCompleteHousehold'><td>Median time from Case Notification Sent to Complete Household</td></tr>
+               <tr class='odd' id='cases'><td>Cases</td></tr>
+               <tr id='casesWithoutCompleteFacilityAfter24Hours'><td>Cases without completed <b>facility</b> record 24 hours after facility notification</td></tr>
+               <tr class='odd' id='casesWithoutCompleteHouseholdAfter48Hours'><td>Cases without complete <b>household</b> record 48 hours after facility notification</td></tr>
+               <tr id='casesWithCompleteHousehold'><td>Cases with complete household record</td></tr>
+               <tr class='odd' id='medianTimeFromSMSToCaseNotification'><td>Median time from Case Notification Sent to Case Notification Received on tablet</td></tr>
+               <tr id='medianTimeFromCaseNotificationToCompleteFacility'><td>Median time from Case Notification Received to Complete Facility</td></tr>
+               <tr class='odd' id='medianTimeFromFacilityToCompleteHousehold'><td>Median time from Complete Facility to Complete Household</td></tr>
+             </tbody>
+           </table>
+         </div>
     "
     $('#analysis-spinner').show()
     Users = new UserCollection()
@@ -57,25 +76,6 @@ class UsersReportView extends Backbone.View
             console.error error
           success: (userAnalysis) =>
             $('#content').append "
-              <div id='users'> 
-                <div class='userReports dropDownBtn'>
-                   <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-                    All Users</h4>
-                </div>
-                <div id='allUsers' class='user-report dropdown-section'>
-                  <table style='font-size:150%' class='tablesorter' style=' id='usersReportTotals'>
-                    <tbody>
-                      <tr style='font-weight:bold' id='medianTimeFromSMSToCompleteHousehold'><td>Median time from Case Notification Sent to Complete Household</td></tr>
-                      <tr class='odd' id='cases'><td>Cases</td></tr>
-                      <tr id='casesWithoutCompleteFacilityAfter24Hours'><td>Cases without completed <b>facility</b> record 24 hours after facility notification</td></tr>
-                      <tr class='odd' id='casesWithoutCompleteHouseholdAfter48Hours'><td>Cases without complete <b>household</b> record 48 hours after facility notification</td></tr>
-                      <tr id='casesWithCompleteHousehold'><td>Cases with complete household record</td></tr>
-                      <tr class='odd' id='medianTimeFromSMSToCaseNotification'><td>Median time from Case Notification Sent to Case Notification Received on tablet</td></tr>
-                      <tr id='medianTimeFromCaseNotificationToCompleteFacility'><td>Median time from Case Notification Received to Complete Facility</td></tr>
-                      <tr class='odd' id='medianTimeFromFacilityToCompleteHousehold'><td>Median time from Complete Facility to Complete Household</td></tr>
-                    </tbody>
-                  </table>
-                </div>
                 <div class='userReports dropDownBtn'>
                    <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
                     By User</h4>
