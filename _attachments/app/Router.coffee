@@ -236,11 +236,11 @@ class Router extends Backbone.Router
     Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
     [startDate,endDate] = @setStartEndDateIfMissing()
     @.navigate "#dashboard/#{startDate}/#{endDate}"
-    Coconut.dashboardView.startDate = startDate
-    Coconut.dashboardView.endDate = endDate
+    Coconut.router.reportViewOptions['startDate'] = startDate
+    Coconut.router.reportViewOptions['endDate'] = endDate
     @reportType = 'dashboard'
     Coconut.dashboardView.render()
-    @showDateFilter(Coconut.dashboardView.startDate, Coconut.dashboardView.endDate, Coconut.dashboardView, @reportType)
+    @showDateFilter(startDate, endDate, Coconut.dashboardView, @reportType)
     
     
   dataExport: ->
@@ -374,8 +374,8 @@ class Router extends Backbone.Router
         callback.error()
 
   setStartEndDateIfMissing: (startDate,endDate) =>
-    startDate = Coconut.router.reportViewOptions.startDate || moment().subtract("7","days").format(Coconut.config.dateFormat)
-    endDate = Coconut.router.reportViewOptions.endDate || moment().format(Coconut.config.dateFormat)
+    startDate = Coconut.router.reportViewOptions.startDate || moment().subtract("7","days").format("YYYY-MM-DD")
+    endDate = Coconut.router.reportViewOptions.endDate || moment().format("YYYY-MM-DD")
     [startDate, endDate]
 
   showDateFilter: (startDate, endDate, reportView, reportType) ->
@@ -390,8 +390,8 @@ class Router extends Backbone.Router
   setDefaultOptions: () ->
     return {
        type: "Analysis"
-       startDate:  moment().subtract("7","days").format(Coconut.config.dateFormat)
-       endDate: moment().format(Coconut.config.dateFormat)
+       startDate:  moment().subtract("7","days").format("YYYY-MM-DD")
+       endDate: moment().format("YYYY-MM-DD")
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
