@@ -29,10 +29,30 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 12, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>#175 - Fix bug where Case list toggle not working consistently</li>
+           <li>#173 - Change wording 'tablet' to 'mobile device'</li>
+           <li>Fixed #166 bug in relations to #172</li>
+          </ul>
+        </div>
+        <h5>July 11, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>#166 - Fixed bug for Weekly Facilty Report</li>
+           <li>#56 - Fix bug in Users Report - how fast followup</li>
+           <li>#172 - Fix bug caused by #80</li>
+           <li>Keeping Date Selector format as static YYYY-MM-DD instead of config.dateFormat</li>
+          </ul>
+        </div>
         <h5>July 9, 2016</h5>
         <div class='changes'>
           <ul>
            <li>#160 - Error when UPDATEing Admin | System Settings</li>
+           <li>#135 - Case data repeats in case detail modal dialog</li>
+           <li>MapView:  legend added</li>
+           <li>MapView #142 Add last Date of IRS to cases and cases (time) layers Also preliminary district labeling implementation</li>
           </ul>
         </div>  
         <h5>July 8, 2016</h5>

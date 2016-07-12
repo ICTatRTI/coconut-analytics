@@ -435,7 +435,6 @@ class Reports
           delete dataByUser[user]
       
       successWhenDone = _.after _(dataByUser).size(), ->
-        console.log("Entering successWhenDone")
         options.success
           dataByUser: dataByUser
           total: total
@@ -443,7 +442,6 @@ class Reports
       #return if no users with cases
       successWhenDone() if _.isEmpty(dataByUser)
       
-      console.log(_(dataByUser).size())
       _(dataByUser).each (userData,user) ->
         # Get the time differences within each case
         caseIds = _(userData.cases).map (foo, caseId) -> caseId
@@ -497,7 +495,6 @@ class Reports
 
             caseResults.push row.doc
             caseId = row.key
-
           _(userData.cases).each (results,caseId) ->
             _([
               "SMSToCaseNotification"
@@ -506,18 +503,18 @@ class Reports
               "SMSToCompleteHousehold"
             ]).each (property) ->
               _(["quartile1","median","quartile3"]).each (dataPoint) ->
+
                 try
                   userData["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](userData["timesFrom#{property}"])
                   userData["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](userData["timesFrom#{property}"])
+                  total["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](total["timesFrom#{property}"])
+                  total["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](total["timesFrom#{property}"])
                 catch error
+                  console.error error
                   console.error "Error processing data for the following user:"
                   console.error userData
-
-                total["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](total["timesFrom#{property}"])
-                total["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](total["timesFrom#{property}"])
-
+          
           successWhenDone()
-
 
   @aggregateWeeklyReports = (options) ->
     startDate = moment(options.startDate)

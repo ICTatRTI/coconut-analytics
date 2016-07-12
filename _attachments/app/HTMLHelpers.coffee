@@ -26,15 +26,16 @@ class HTMLHelpers
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->
     _.map(cases, (malariaCase) =>
-      @createCaseLink  
-        caseID: (malariaCase.caseID or malariaCase.MalariaCaseID)
+      caseID = if typeof malariaCase == 'object' then (malariaCase.caseID or malariaCase.MalariaCaseID) else malariaCase
+      @createCaseLink 
+        caseID: caseID
         iconOnly: false
     ).join("")
 
   @createDisaggregatableCaseGroup = (cases, text) ->
     text = cases.length unless text?
     "
-      <button class='sort-value same-cell-disaggregatable'>#{text}</button>
+      <button class='sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
       <div class='cases' style='padding:10px;display:none'>
         #{@createCasesLinks cases}
       </div>

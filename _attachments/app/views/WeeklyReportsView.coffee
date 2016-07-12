@@ -10,10 +10,9 @@ Case = require '../models/Case'
 
 class WeeklyReportsView extends Backbone.View
   el: "#content"
-
+    
   events:
     "change select.aggregation": "updateAggregation"
-    "click button.same-cell-disaggregatable": "showHiddenCases"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
 
@@ -23,28 +22,16 @@ class WeeklyReportsView extends Backbone.View
     @render()
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.render()
-  
-  showHiddenCases: (e) =>
-    $(e.target).parent().find('div.cases').toggle()
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
-    Coconut.case = new Case
+    Case.showCaseDialog
       caseID: caseID
-    Coconut.case.fetch
       success: ->
-        Case.createCaseView
-          case: Coconut.case
-          success: ->
-            $('#caseDialog').html(Coconut.caseview)
-            if (Env.is_chrome)
-               caseDialog.showModal() if !caseDialog.open
-            else
-               caseDialog.show() if !caseDialog.open
-        return false
+    return false
 
   closeDialog: () ->
-    caseDialog.close()
+    caseDialog.close() if caseDialog.open
         
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
@@ -123,7 +110,7 @@ class WeeklyReportsView extends Backbone.View
                           #{
                           _.map results.fields, (field) =>
                             if field is "Facility Followed-Up Positive Cases"
-                              "<td>#{HTMLHelpers.createDisaggregatableCaseGroupWithLength data[field]}</td>"
+                              "<td>#{HTMLHelpers.createDisaggregatableCaseGroup data[field]}</td>"
                             else
                               "<td>#{if data[field]? then data[field] else "-"}</td>"
                           .join("")

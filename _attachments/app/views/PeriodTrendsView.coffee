@@ -16,8 +16,6 @@ class PeriodTrendsView extends Backbone.View
   events:
     "click button.toggle-trend-data": "toggleTrendData"
     "click #switch-trend": "toggleTrendData"
-    "click .toggleDisaggregation": "toggleDisaggregation"
-    "click .same-cell-disaggregatable": "toggleDisaggregationSameCell"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
     
@@ -28,30 +26,15 @@ class PeriodTrendsView extends Backbone.View
       $(".data").hide()
       $(".period-0.data").show()
 
-  toggleDisaggregation: (event) ->
-    $(event.target).parents("td").siblings(".cases").toggle()
-
-  toggleDisaggregationSameCell: (event) ->
-    $(event.target).siblings(".cases").toggle()
-
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id')
-    Coconut.case = new Case
+    Case.showCaseDialog
       caseID: caseID
-    Coconut.case.fetch
       success: ->
-        Case.createCaseView
-          case: Coconut.case
-          success: ->
-            $('#caseDialog').html(Coconut.caseview)
-            if (Env.is_chrome)
-               caseDialog.showModal() if !caseDialog.open
-            else
-               caseDialog.show() if !caseDialog.open
-        return false
+    return false
 
   closeDialog: () ->
-    caseDialog.close()
+    caseDialog.close() if caseDialog.open
 
   render: =>
     @reportOptions = $.extend({},Coconut.router.reportViewOptions)
@@ -114,7 +97,7 @@ class PeriodTrendsView extends Backbone.View
 
     renderDataElement = (data) =>
       if data.disaggregated?
-        output = HTMLHelpers.createDisaggregatableCaseGroup(data.disaggregated)
+        output = HTMLHelpers.createDisaggregatableCaseGroupWithLength(data.disaggregated)
         if data.appendPercent?
           output += " (#{HTMLHelpers.formattedPercent(data.appendPercent)})"
         output
