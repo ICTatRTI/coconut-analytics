@@ -194,8 +194,7 @@ var myLayersControl =  L.Control.extend({
 	}, 
         
     _addLayer: function (layer, name, overlay, queried, time) {
-	console.log('addLayer name: '+name)
-    var id = L.stamp(layer);
+	var id = L.stamp(layer);
 
 	this._layers[id] = {
 		layer: layer,
@@ -205,7 +204,6 @@ var myLayersControl =  L.Control.extend({
         time: time
 	};
     if (this.options.autoZIndex && layer.setZIndex) {
-        console.log('this._lastZIndex')
         this._lastZIndex++;
 		layer.setZIndex(this._lastZIndex);
 	}
@@ -295,6 +293,7 @@ var myLayersControl =  L.Control.extend({
 //        console.log('addItem obj.layer: '+obj.layer)
         var label = document.createElement('label'),
 		    input,
+            button,
             select,
 		    checked = this._map.hasLayer(obj.layer);
         if (obj.queried && !obj.time){label.id = "caseInput"}
@@ -320,6 +319,12 @@ var myLayersControl =  L.Control.extend({
         
 		label.appendChild(input);
 		label.appendChild(name);
+        
+//        var buttonContainer = document.createElement('button', 'mdl-button mdl-js-button mdl-button--icon');
+//        if (obj.overlay && !obj.queried){
+//            
+//            label.appendChild(buttonContainer)
+//        }
         
 //        if(obj.queried && !$( "#mapStyleSelect" )[ 0 ]){
         if(obj.queried){
