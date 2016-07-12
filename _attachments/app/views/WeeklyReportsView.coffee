@@ -25,7 +25,7 @@ class WeeklyReportsView extends Backbone.View
     Coconut.dateSelectorView.render()
   
   showHiddenCases: (e) =>
-    $(e.target).parent().find('div.cases').toggle()
+    $(e.target).parents("td").children(".cases").toggle()
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
@@ -114,7 +114,7 @@ class WeeklyReportsView extends Backbone.View
                           #{
                           _.map results.fields, (field) =>
                             if field is "Facility Followed-Up Positive Cases"
-                              "<td>#{HTMLHelpers.createDisaggregatableCaseGroupWithLength data[field]}</td>"
+                              "<td>#{HTMLHelpers.createDisaggregatableCaseGroup data[field]}</td>"
                             else
                               "<td>#{if data[field]? then data[field] else "-"}</td>"
                           .join("")

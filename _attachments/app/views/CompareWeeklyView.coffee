@@ -152,7 +152,7 @@ class CompareWeeklyView extends Backbone.View
                                 if @csvMode
                                   data[property]?.length or "-"
                                 else
-                                  if data[property] then HTMLHelpers.createDisaggregatableCaseGroupWithLength data[property] else '-'
+                                  if data[property] then HTMLHelpers.createDisaggregatableCaseGroup data[property] else '-'
                               }
                             </td>
                           "
