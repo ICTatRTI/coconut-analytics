@@ -1,4 +1,5 @@
 Case = require '../models/Case'
+Issue = require '../models/Issue'
 
 class IssueView extends Backbone.View
   el: '#content'
