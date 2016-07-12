@@ -80,8 +80,8 @@ setUpLegend = () ->
         theDiv.innerHTML += '<i class="smallCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">No Travel</div><br>'
         theDiv.innerHTML += '<i class="largeCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">Recent Travel</div>'
     if caseStyle == 'llinCases'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN <= Sleeping Spaces</div><br>'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN > Sleeping Spaces</div>'
+        theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN < Sleeping Spaces</div><br>'
+        theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN >= Sleeping Spaces</div>'
     #    while i < categories.length
     #        $("#mapLegend").innerHTML += '<i class="caseCircle" style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
       
@@ -225,7 +225,8 @@ class MapView extends Backbone.View
   winWidth = undefined
   timer = undefined    
   running = false
-  materialLayersControl = undefined    
+  materialLayersControl = undefined
+  districtsLabelsLayerGroup = L.layerGroup()
   el: '#content'
 
   events:
@@ -273,9 +274,10 @@ class MapView extends Backbone.View
         map.setView([-6.1, 39.348], 10, {animate:true})
   
   testButtonClick: (event)=>
-        console.log('testClick')
-        $('.heatMapButton').trigger "click"
-        
+    if map.hasLayer(districtsLabelsLayerGroup)
+        map.removeLayer(districtsLabelsLayerGroup) 
+    else
+        map.addLayer(districtsLabelsLayerGroup)
   heatMapToggle: =>
     console.log 'heatMapToggle'
     if heatMapCoords.length>0
@@ -412,7 +414,7 @@ class MapView extends Backbone.View
                 NumberofLLIN: malariaCase.Household.NumberofLLIN
                 SleepingSpaces: malariaCase.Household.NumberofSleepingPlacesbedsmattresses
                 RecentTravel: malariaCase.Facility.TravelledOvernightinpastmonth
-                date: malariaCase.Household?.lastModifiedAt
+                date: malariaCase.indexCaseDiagnosisDate() #malariaCase.householdMembersDiagnosisDates() malariaCase.indexCaseDiagnosisDate() malariaCase.Household?.lastModifiedAt
                 dateIRS: malariaCase.Household.LastdateofIRS
               geometry:
                 type: 'Point'
@@ -772,7 +774,7 @@ class MapView extends Backbone.View
                         <label for='ungujaToggle'>or</label>
                         <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
                         
-                        <!--<button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>-->
+                        <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>
                         
                         <!--<form style='display: inline-flex'>
                           <div class='mui-select'>
@@ -968,12 +970,14 @@ class MapView extends Backbone.View
 #    for key of districtsCntrPtFeatures
 #      if districtsCntrPtFeatures.hasOwnProperty(key)
 #        val = districtsCntrPtFeatures[key]
-#        divIcon = L.divIcon(html: val.properties.NAME)
-#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon }).addTo(map)
+#        divIcon = L.divIcon(className: "mapLabels", html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+#        districtsLabelsLayerGroup.addLayer(marker)
 #        console.log val.properties.NAME
 #        console.log val.geometry.coordinates
-        
-        
+#    
+#    districtsLabelsLayerGroup.addTo(map)
+    
 #    geojsonMarkerOptions = 
 #      radius: 0
 #      fillColor: '#ff7800'
