@@ -66,7 +66,7 @@ class MessagingView extends Backbone.View
           <th class='mdl-data-table__cell--non-numeric'>District</th> 
           <th class='mdl-data-table__cell--non-numeric'>Name</th>
           <th class='mdl-data-table__cell--non-numeric'>Roles</th>            
-          <th class='mdl-data-table__cell--non-numeric'>Inactive</th>
+<!--          <th class='mdl-data-table__cell--non-numeric'>Inactive</th> -->
         </thead>
         <tbody>
         </tbody>
@@ -103,7 +103,7 @@ class MessagingView extends Backbone.View
         @userCollection.sortBy (user) ->
           user.get "district"
         .forEach (user) ->
-          return unless user.get("_id").match(/\d\d\d/)
+          return unless user.get("_id").match(/\d\d\d/) and !user.get('inactive')
           $("#recipients tbody").append "
             <tr>
               <td class='mdl-data-table__cell--non-numeric'><input class='phone-number' id='check-#{user.get("_id")}' type='checkbox'></input></td>
@@ -111,25 +111,25 @@ class MessagingView extends Backbone.View
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('district')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{user.get('name')}</td>
               <td class='mdl-data-table__cell--non-numeric'>#{if user.get('roles')? then user.get('roles') else ''} </td>
-              <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.get('inactive'))}</td>
+<!--              <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.get('inactive'))}</td> -->
             </tr>
             "
-        $(".recipients tbody").append "
+        $("#recipients tbody").append "
           <tr>
-            <td><input class='phone-number' id='check-user.0787263670' type='checkbox'></input></td>
+            <td class='mdl-data-table__cell--non-numeric'><input class='phone-number' id='check-user.0787263670' type='checkbox'></input></td>
             <td class='mdl-data-table__cell--non-numeric'>0787263670</td>
             <td class='mdl-data-table__cell--non-numeric'></td>
             <td class='mdl-data-table__cell--non-numeric'>Ritha</td>
             <td class='mdl-data-table__cell--non-numeric'> </td>
-            <td class='mdl-data-table__cell--non-numeric'>RTI</td>
+<!--            <td class='mdl-data-table__cell--non-numeric'>RTI</td> -->
           </tr>
           <tr>
-            <td><input class='phone-number' id='check-user.3141' type='checkbox'></input></td>
+            <td class='mdl-data-table__cell--non-numeric'><input class='phone-number' id='check-user.3141' type='checkbox'></input></td>
             <td class='mdl-data-table__cell--non-numeric'>31415926</td>
             <td class='mdl-data-table__cell--non-numeric'></td>
             <td class='mdl-data-table__cell--non-numeric'>Test</td>
             <td class='mdl-data-table__cell--non-numeric'>test</td>
-            <td class='mdl-data-table__cell--non-numeric'>Doesn't actually work</td>
+<!--            <td class='mdl-data-table__cell--non-numeric'>Doesn't actually work</td> -->
           </tr>
         "
 

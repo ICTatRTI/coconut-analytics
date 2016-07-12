@@ -32,6 +32,7 @@ class ChangeLogView extends Backbone.View
         <h5>July 12, 2016</h5>
         <div class='changes'>
           <ul>
+           <li>#113 - Completed the enhancement to the Messaging module</li>
            <li>#175 - Fix bug where Case list toggle not working consistently</li>
            <li>#173 - Change wording 'tablet' to 'mobile device'</li>
            <li>Fixed #166 bug in relations to #172</li>
