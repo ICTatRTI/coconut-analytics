@@ -10,17 +10,14 @@ Reports = require '../models/Reports'
 Case = require '../models/Case'
 
 class AnalysisView extends Backbone.View
-
+  el: "#content"
+    
   events:
     "click div.analysis.dropDownBtn": "showDropDown"
-    "click button.same-cell-disaggregatable": "toggleDisaggregation"
     "click #switch-details": "toggleDetails"
     "click #switch-unknown": "toggleGenderUnknown"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
-
-  toggleDisaggregation: (event) ->
-    $(event.target).parents("td").children(".cases").toggle()
 
   toggleDetails: (e)->
     $(".details").toggle()

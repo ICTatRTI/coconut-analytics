@@ -10,10 +10,9 @@ Case = require '../models/Case'
 
 class WeeklyReportsView extends Backbone.View
   el: "#content"
-
+    
   events:
     "change select.aggregation": "updateAggregation"
-    "click button.same-cell-disaggregatable": "showHiddenCases"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
 
@@ -23,9 +22,6 @@ class WeeklyReportsView extends Backbone.View
     @render()
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.render()
-  
-  showHiddenCases: (e) =>
-    $(e.target).parents("td").children(".cases").toggle()
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')

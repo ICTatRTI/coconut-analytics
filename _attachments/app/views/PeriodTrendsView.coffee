@@ -16,8 +16,6 @@ class PeriodTrendsView extends Backbone.View
   events:
     "click button.toggle-trend-data": "toggleTrendData"
     "click #switch-trend": "toggleTrendData"
-    "click .toggleDisaggregation": "toggleDisaggregation"
-    "click .same-cell-disaggregatable": "toggleDisaggregationSameCell"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
     
@@ -27,12 +25,6 @@ class PeriodTrendsView extends Backbone.View
     else
       $(".data").hide()
       $(".period-0.data").show()
-
-  toggleDisaggregation: (event) ->
-    $(event.target).parents("td").siblings(".cases").toggle()
-
-  toggleDisaggregationSameCell: (event) ->
-    $(event.target).siblings(".cases").toggle()
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id')
@@ -105,7 +97,7 @@ class PeriodTrendsView extends Backbone.View
 
     renderDataElement = (data) =>
       if data.disaggregated?
-        output = HTMLHelpers.createDisaggregatableCaseGroup(data.disaggregated)
+        output = HTMLHelpers.createDisaggregatableCaseGroupWithLength(data.disaggregated)
         if data.appendPercent?
           output += " (#{HTMLHelpers.formattedPercent(data.appendPercent)})"
         output
