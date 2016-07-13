@@ -139,7 +139,7 @@ class SystemSettingsView extends Backbone.View
         </div>
         <hr />
         <div id='dialogActions'>
-         <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='submit' value='save'><i class='material-icons'>save</i> Update</button> &nbsp;
+         <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button' value='save'><i class='material-icons'>save</i> Update</button> &nbsp;
         </div>
       </form>
       
