@@ -56,7 +56,7 @@ class FacilityHierarchyView extends Backbone.View
 #       Form2js.js2form($('form#facility').get(0), @facility)
   formSave: (e) =>
     console.log("Saving Data")
-    dialog.close()
+    dialog.close() if dialog.open
     
     @data = new FacilityHierarchy()
     @data.Region = $("input#Region").val()
@@ -65,6 +65,7 @@ class FacilityHierarchyView extends Backbone.View
     @data.FacilityAlias = $("input#Aliases").val()
     @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
     @data.Type = $("input#Type").val()
+
     Coconut.database.put @data
       _rev: @data._rev if @mode == "edit"
     .catch (error) -> console.error error
@@ -83,7 +84,7 @@ class FacilityHierarchyView extends Backbone.View
   deleteFacility: (e) =>
     e.preventDefault
     console.log("Record Deleted")
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 
   formCancel: (e) =>
@@ -212,4 +213,5 @@ class FacilityHierarchyView extends Backbone.View
           mobile_numbers: if phone_numbers is "" then [] else phone_numbers.split(/ +|, */)
           aliases: if aliases is "" then [] else aliases.split(/, */)
           type: type or "public"
+          
 module.exports = FacilityHierarchyView

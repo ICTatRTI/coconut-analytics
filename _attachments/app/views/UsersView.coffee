@@ -173,7 +173,7 @@ class UsersView extends Backbone.View
 	
     formCancel: (e) =>
       e.preventDefault
-      dialog.close()
+      dialog.close() if dialog.open
       return false
 
     render: =>

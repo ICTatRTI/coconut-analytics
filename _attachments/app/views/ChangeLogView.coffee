@@ -29,6 +29,12 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 13, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>#177 - Fixed Missing DateSelector in IssuesView, Add, Edit and Delete functionality</li>
+          </ul>
+        </div>   
         <h5>July 12, 2016</h5>
         <div class='changes'>
           <ul>
@@ -36,6 +42,7 @@ class ChangeLogView extends Backbone.View
            <li>#175 - Fix bug where Case list toggle not working consistently</li>
            <li>#173 - Change wording 'tablet' to 'mobile device'</li>
            <li>Fixed #166 bug in relations to #172</li>
+           <li>MapView: #167: corrected labeling for LLIN styling</li>
           </ul>
         </div>
         <h5>July 11, 2016</h5>
