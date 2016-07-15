@@ -7,6 +7,8 @@ d3 = require 'd3'
 
 casesLayer = undefined
 casesTimeLayer = undefined
+layerTollBooth = undefined
+
 singleCaseStyle = 
     radius: 4
     fillColor: '#FFA000'
@@ -168,7 +170,6 @@ Dialog = require './Dialog'
 
 class MapView extends Backbone.View
   map = undefined
-  layerTollBooth = undefined
   clustersLayer = undefined
   clustersTimeLayer = undefined
   timeFeatures = []
@@ -405,7 +406,7 @@ class MapView extends Backbone.View
                 NumberofLLIN: malariaCase.Household.NumberofLLIN
                 SleepingSpaces: malariaCase.Household.NumberofSleepingPlacesbedsmattresses
                 RecentTravel: malariaCase.Facility.TravelledOvernightinpastmonth
-                date: malariaCase.indexCaseDiagnosisDate() #malariaCase.householdMembersDiagnosisDates() malariaCase.indexCaseDiagnosisDate() malariaCase.Household?.lastModifiedAt
+                date: malariaCase.indexCaseDiagnosisDate() or malariaCase.householdMembersDiagnosisDates() #malariaCase.householdMembersDiagnosisDates() malariaCase.indexCaseDiagnosisDate() malariaCase.Household?.lastModifiedAt
                 dateIRS: malariaCase.Household.LastdateofIRS
               geometry:
                 type: 'Point'
@@ -738,9 +739,10 @@ class MapView extends Backbone.View
         }
         #sliderContainer{
             background-color: #393939;
-            height: 90px;
+            height: 85px;
             font-size: 14px;
             font-family: 'Raleway', sans-serif;
+            padding-top: 7px;
         }
         .theSVG{
             padding-left: 7px;
@@ -757,7 +759,7 @@ class MapView extends Backbone.View
         </style>
         <dialog id='caseDialog'></dialog>
         <div id='dateSelector'></div>
-        <div class='mdl-grid'>
+        <div class='mdl-grid' style='height:5%'>
             <div class='mdl-cell mdl-cell--12-col'>
                     <div style='display: inline-block'>
                         <label for='pembaToggle'>Switch to: </label>
@@ -784,12 +786,12 @@ class MapView extends Backbone.View
                 </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>
-        <div class='mdl-grid' style='height:80%'>                
+        <div class='mdl-grid' style='height:70%'>                
             <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
         </div>
-        <div class='mdl-grid' style='height:20%'>
+        <div class='mdl-grid' style='height:10%'>
             <div class='mdl-cell mdl-cell--12-col' id='sliderCell' style='height:20%'>
                 <div id='sliderControls'>
                     <div id='playDiv'>
@@ -883,7 +885,7 @@ class MapView extends Backbone.View
     materialTimeControl = new (timeControl)(
       position: 'topleft'
       materialOptions: materialOptions).addTo(map)
-    materialFullscreen = new (L.materialControl.Fullscreen)(
+    materialFullscreen = new (fullScreenControl)(
       position: 'topright'
       pseudoFullscreen: false
       materialOptions: materialOptions).addTo(map)
