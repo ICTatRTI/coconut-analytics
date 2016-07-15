@@ -80,7 +80,6 @@ class MenuView extends Backbone.View
         #{
              activityLinks = {
                Issues: "Issues"
-               Todos: "To Do"
                Messaging: "Send SMS To Users"
              }
              _(activityLinks).map (linkText, linkUrl) ->

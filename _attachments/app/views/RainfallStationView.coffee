@@ -49,7 +49,7 @@ class RainfallStationView extends Backbone.View
 
   formSave: (e) =>
     console.log("Saving Data")
-    dialog.close()
+    dialog.close() if dialog.open
 #    @updateDatabaseDoc(@dataTable.data())
 #    Coconut.database.put @databaseDoc
 #      _rev: doc._rev #if edit mode
@@ -69,7 +69,7 @@ class RainfallStationView extends Backbone.View
   deleteStation: (e) =>
     e.preventDefault
     console.log("Record Deleted")
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 			
   render: ->

@@ -25,17 +25,17 @@ class IssuesView extends Backbone.View
   events:
     "click button#new-issue-btn": "newIssue"
     "click a.issue-edit": "editIssue"
-    "click a.issue-delete": "deleteDialog"
+    "click a.issue-delete": "deleteIssue"
     "click button#formSave" : "saveIssue"
     "click button#formCancel": "formCancel"
-    "click button#buttonYes": "deleteIssue"
 	  
   formCancel: (e) =>
-    dialog.close()
+    dialog.close() if dialog.open
     return false
 	
   newIssue: (e) =>
    e.preventDefault
+   @mode = "create"
    dialogTitle = "New Issue"
    Dialog.create(dialogEdit, dialogTitle)
    $('form#issue input').val('')
@@ -43,6 +43,7 @@ class IssuesView extends Backbone.View
    
   editIssue: (e) =>
     e.preventDefault
+    @mode = "edit"
     dialogTitle = "Edit Issue"
     Dialog.create(dialogEdit, dialogTitle)
     Dialog.markTextfieldDirty()
@@ -62,25 +63,33 @@ class IssuesView extends Backbone.View
        #Form2js.js2form($('form#issue').get(0), issue)
        
      return false
-
-  deleteDialog: (e) =>
-    e.preventDefault
-    dialogTitle = "Are you sure?"
-    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
-    return false
  
- #TODO Need codes to delete doc
   deleteIssue: (e) =>
-    console.log("Delete initiated")
+    view = @
+    e.preventDefault
+    id = $(e.target).closest("a").attr "data-issue-id"
+    dialogTitle = "Are you sure?"
+    Dialog.confirm("This will permanently remove the record id: #{id}.", dialogTitle,['No', 'Yes'])
+    dialog.addEventListener 'close', (event) ->
+      if (dialog.returnValue == 'Yes')
+        Coconut.database.get(id).then (doc) ->
+          return Coconut.database.remove(doc)
+        .then (result) =>
+          Dialog.confirm( 'Issue Successfully Deleted..', 'Delete Issue',['Ok'])
+          Backbone.history.loadUrl(Backbone.history.fragment)
+        .catch (error) ->
+          console.error error
+          Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
+          
+    return false
     
   saveIssue: =>
     description = $("[name=description]").val()
     if description is ""
       $("#alertMsg").html("Description is required").show().fadeOut(5000)
       return false
-    if not @issue?
+    if @mode is 'create'
       dateCreated = moment().format("YYYY-MM-DD HH:mm:ss")
-
       @issue = {
         _id: "issue-#{dateCreated}-#{description.substr(0,10)}"
         "Date Created": dateCreated
@@ -93,19 +102,15 @@ class IssuesView extends Backbone.View
     @issue["Action Taken"] = $("[name=actionTaken]").val()
     @issue.Solution = $("[name=solution]").val()
     @issue["Date Resolved"] = $("[name=dateResolved]").val()
+
     Coconut.database.put @issue
     .catch (error) ->
       console.error error
       Dialog.confirm(error, 'Error Encountered',['Ok'])
       #$("#message").html("Error saving issue: #{JSON.stringify error}").show().fadeOut(10000)
       return false
-    .then () =>
-      console.log("Saving successful")
-      Coconut.router.navigate "#activities/type/Issues"
-      @render()
-#      $("#message").html("Issue saved")
-#      .show()
-#      .fadeOut(2000) 
+    .then (result) =>
+      Backbone.history.loadUrl(Backbone.history.fragment)
 
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
@@ -228,7 +233,7 @@ class IssuesView extends Backbone.View
                    <a href='#' class='issue-edit' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>mode_edit</i></a>
                   </button>
                   <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                  <a href='#' class='issue-delete' data-facility-id='#{issue._id}'><i class='material-icons icon-24'>delete</i></a>
+                  <a href='#' class='issue-delete' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>delete</i></a>
                    </button>
                 </td>
               </tr>
