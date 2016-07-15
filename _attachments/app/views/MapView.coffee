@@ -157,6 +157,20 @@ window.addEventListener 'caseStyleChange', ((e) ->
         setCaseStyle(styleType, layer)
   return
 ), false
+wasFullScreen = false
+window.addEventListener 'fullScreenChange', ((e) ->
+  screenState = e.detail.screenState
+  console.log("mapViewFullScreenChange screenState: " + screenState)
+  if screenState == "Fullscreen" and layerTollBooth.timeOn
+    console.log("getReadyToClickTimeButtonProgrammatically")
+    wasFullScreen = true
+    $(".timeButton").click()
+  else if screenState == "Screen" and wasFullScreen == true
+    wasFullScreen = false
+    $(".timeButton").click()
+  
+  return
+), false
 
 require 'mapbox.js'
 require 'leaflet'
