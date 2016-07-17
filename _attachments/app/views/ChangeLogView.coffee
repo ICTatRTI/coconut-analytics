@@ -29,10 +29,20 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 15, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>#86 - Display assignee's full name in the Issues table</li>
+           <li>MapView: #169 : Vertical Spacing of Map and Slider, begin work on full screen control slider deactivation(#170)</li>
+           <li>MapView: #170 deactivate time slider if active when going into full screen mode. Also captured time slider status on full screen enter to reactivate after full screen exit</li>
+          </ul>
+        </div>
         <h5>July 13, 2016</h5>
         <div class='changes'>
           <ul>
            <li>#177 - Fixed Missing DateSelector in IssuesView, Add, Edit and Delete functionality</li>
+           <li>Removed persistent params from URL after updating data in System Settings</li>
+           <li>Removed 'To Do' from Activities menu</li>
           </ul>
         </div>   
         <h5>July 12, 2016</h5>

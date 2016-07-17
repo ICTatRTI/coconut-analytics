@@ -14,6 +14,7 @@ Pikaday = require 'pikaday'
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 Issues = require '../models/Issues'
+User = require '../models/User'
 UserCollection = require '../models/UserCollection'
 Dialog = require './Dialog'
 
@@ -205,7 +206,7 @@ class IssuesView extends Backbone.View
             </div>
           </form>
         "
-
+            
     Reports.getIssues
       startDate: options.startDate
       endDate: options.endDate
@@ -216,39 +217,65 @@ class IssuesView extends Backbone.View
             <div>No records found...</div>
           "
         else
-          $("#issuesTable tbody").html _(issues).map (issue) ->
-            date = if issue.Week
-              moment(issue.Week, "GGGG-WW").format("YYYY-MM-DD")
-            else
-              issue["Date Created"]
+          populateUserName = (options) ->
+            issues = options.Issues
 
-            "
-              <tr>
-                <td class='mdl-data-table__cell--non-numeric'>#{issue.Description}</td>
-                <td class='mdl-data-table__cell--non-numeric'>#{date}</td>
-                <td><center>#{if issue['Assigned To']? then issue['Assigned To'].replace(/user\./,'') else '-'}</center></td>
-                <td><center>#{issue['Date Resolved'] or '-'}</center></td>
-                <td>
-                  <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                   <a href='#' class='issue-edit' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>mode_edit</i></a>
-                  </button>
-                  <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                  <a href='#' class='issue-delete' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>delete</i></a>
-                   </button>
-                </td>
-              </tr>
-            "
+            completed = _.after issues.length, ->
+              options.success(issues)
+        
+            _(issues).map (issue) ->              
+              issue['Assigned To'] == "none" if (issue['Assigned To'] is "" or issue['Assigned To'] is undefined)
+              Coconut.database.get issue['Assigned To']
+              .catch (error) -> 
+                  #console.error error
+                  issue.fullName = '-'
+                  completed()
+               .then (user) ->
+                  if user?._id == undefined
+                     issue.fullName = '-'
+                  else
+                    issue.fullName =  "#{user.name} #{ if user.district then ' - ' + user.district else ''}"
 
-          $("#issuesTable").dataTable
-            aaSorting: [[1,"desc"]]
-            iDisplayLength: 50
-            dom: 'T<"clear">lfrtip'
-            tableTools:
-              sSwfPath: "js-libraries/copy_csv_xls.swf"
-              aButtons: [
-                "csv",
-                ]
+                  completed()
+                  
+          populateUserName
+            Issues: issues
+            error: (error) -> console.error error
+            success: (issues) ->
+              $("#issuesTable tbody").html("")
+              _(issues).map (issue) ->
+                date = if issue.Week
+                  moment(issue.Week, "GGGG-WW").format("YYYY-MM-DD")
+                else
+                  issue["Date Created"]
 
-    $('#analysis-spinner').hide()
+                $("#issuesTable tbody").append "
+                   <tr>
+                     <td class='mdl-data-table__cell--non-numeric'>#{issue.Description}</td>
+                     <td class='mdl-data-table__cell--non-numeric'>#{date}</td>
+                     <td class='mdl-data-table__cell--non-numeric'>#{issue.fullName or '-'}</td>
+                     <td class='mdl-data-table__cell--non-numeric'>#{issue['Date Resolved'] or '-'}</td>
+                     <td>
+                       <button class='edit mdl-button mdl-js-button mdl-button--icon'>
+                        <a href='#' class='issue-edit' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>mode_edit</i></a>
+                       </button>
+                       <button class='delete mdl-button mdl-js-button mdl-button--icon'>
+                       <a href='#' class='issue-delete' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>delete</i></a>
+                        </button>
+                     </td>
+                   </tr>
+                "
+              $('#analysis-spinner').hide()
+            
+    $("#issuesTable").dataTable
+      aaSorting: [[1,"desc"]]
+      iDisplayLength: 50
+      dom: 'T<"clear">lfrtip'
+      tableTools:
+        sSwfPath: "./js-libraries/copy_csv_xls.swf"
+        aButtons: [
+          "csv",
+          ]
+
 
   module.exports = IssuesView
