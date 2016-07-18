@@ -440,9 +440,14 @@ class MapView extends Backbone.View
         if casesGeoJSON.features.length > 0
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
+            legend.addTo map
+            setUpLegend()
+            
         else
             layerTollBooth.setCasesStatus false
-            layerTollBooth.enableDisableButtons 'disable' 
+            layerTollBooth.enableDisableButtons 'disable'
+            if legend.getContainer()
+              legend.removeFrom map
         updateMap casesGeoJSON
         return
   
@@ -942,10 +947,9 @@ class MapView extends Backbone.View
 #        div.innerHTML += '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' + grades[i] + (if grades[i + 1] then '&ndash;' + grades[i + 1] + '<br>' else '+')
 #        i++
       div
+       
     
-    legend.addTo map    
     
-    setUpLegend()
     
     Coconut.database.get 'DistrictsWGS84'
     .catch (error) -> console.error error
