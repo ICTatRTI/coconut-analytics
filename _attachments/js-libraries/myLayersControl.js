@@ -322,7 +322,7 @@ var myLayersControl =  L.Control.extend({
 		label.appendChild(name);
         
         if (obj.overlay && !obj.queried){
-            var labelButtonContainer = document.createElement('button', 'mdl-button mdl-js-button mdl-button--icon');
+            var labelButtonContainer = L.DomUtil.create('div', 'mdl-button mdl-js-button mdl-button--icon');
             var labelButton = this._createMaterialButton(obj.name+'_lableButton', '<i class="material-icons off" id = "click_'+obj.name+'" style = "font-size: 14px;">label_outline</i>', "Label "+obj.name, labelButtonContainer);
             labelButton.style.fontSize = "14px";
             labelButton.style.minWidth = "22px";
