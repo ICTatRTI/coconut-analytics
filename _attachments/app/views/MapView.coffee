@@ -24,17 +24,17 @@ multiCaseStyle =
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8 
-travelCaseStyle = 
-    radius: 6
-    fillColor: '#CDDC39'
-    color: '#D32F2F'
-    weight: 0.5
-    opacity: 1
-    fillOpacity: 0.8 
 noTravelCaseStyle = 
     radius: 4
     fillColor: '#303F9F'
     color: '#000'
+    weight: 0.5
+    opacity: 1
+    fillOpacity: 0.8 
+travelCaseStyle = 
+    radius: 6
+    fillColor: '#CDDC39'
+    color: '#D32F2F'
     weight: 0.5
     opacity: 1
     fillOpacity: 0.8 
@@ -80,8 +80,8 @@ setUpLegend = () ->
         theDiv.innerHTML += '<i class="smallCircle" style="background:#FFA000; border: 1px solid #000"></i><div class="legendLable">Single Case</div><br>'
         theDiv.innerHTML += '<i class="largeCircle" style="background:#D32F2F; border: 1px solid #000"></i><div class="legendLable">Multiple Cases</div>'
     if caseStyle == 'travelCases'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">No Travel</div><br>'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">Recent Travel</div>'
+        theDiv.innerHTML += '<i class="smallCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">No Travel</div><br>'
+        theDiv.innerHTML += '<i class="largeCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">Recent Travel</div>'
     if caseStyle == 'llinCases'
         theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN < Sleeping Spaces</div><br>'
         theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN >= Sleeping Spaces</div>'
