@@ -5,6 +5,7 @@ Backbone.$  = $
 d3 = require 'd3'
 
 
+map = undefined
 casesLayer = undefined
 casesTimeLayer = undefined
 layerTollBooth = undefined
@@ -172,6 +173,23 @@ window.addEventListener 'fullScreenChange', ((e) ->
   return
 ), false
 
+districtsLabelsLayerGroup = "undefined"
+shehiasLabelsLayerGroup = "undefined"
+villagesLabelsLayerGroup = "undefined"
+window.addEventListener 'labelsOnOff', ((e) ->
+  layer = e.detail.layer
+  onOff = e.detail.onOff
+  console.log "labelsOnOff layer: " + layer
+  console.log "labelsOnOff onOff: " + onOff
+  if layer == "Districts"
+      if onOff == "on" then districtsLabelsLayerGroup.addTo(map) else map.removeLayer(districtsLabelsLayerGroup)      
+  else if layer == "Shehias"
+      if onOff == "on" then shehiasLabelsLayerGroup.addTo(map) else map.removeLayer(shehiasLabelsLayerGroup)      
+  else if layer == "Villages"
+      if onOff == "on" then villagesLabelsLayerGroup.addTo(map) else map.removeLayer(villagesLabelsLayerGroup)
+  return
+), false
+
 require 'mapbox.js'
 require 'leaflet'
 materialControl = require 'leaflet-material-controls'
@@ -183,7 +201,6 @@ HTMLHelpers = require '../HTMLHelpers'
 Dialog = require './Dialog'
 
 class MapView extends Backbone.View
-  map = undefined
   clustersLayer = undefined
   clustersTimeLayer = undefined
   timeFeatures = []
@@ -194,7 +211,7 @@ class MapView extends Backbone.View
 #    opacity: 1
 #    fillOpacity: 0
   admin1PolyOptions =
-    color: '#03A9F4'
+    color: '#03A9F4 '
     weight: 2.5
     opacity: 1
     fillOpacity: 0
@@ -224,7 +241,7 @@ class MapView extends Backbone.View
   turnCasesLayerOn = false
   timeCasesGeoJSON = undefined
   districtsData = undefined
-  shahiasData = undefined
+  shehiasData = undefined
   villagesData = undefined
   textE = undefined
   textW = undefined
@@ -242,6 +259,8 @@ class MapView extends Backbone.View
   running = false
   materialLayersControl = undefined
   districtsLabelsLayerGroup = L.layerGroup()
+  shehiasLabelsLayerGroup = L.layerGroup()
+  villagesLabelsLayerGroup = L.layerGroup()
   el: '#content'
 
   events:
@@ -727,11 +746,23 @@ class MapView extends Backbone.View
         .legend .legendLabel {
           display: inline;    
         }
-        .mapLabels{
+        .districtLabels{
           white-space:nowrap;
           text-shadow: 0 0 0.1em black, 0 0 0.1em black,
                 0 0 0.1em black,0 0 0.1em black,0 0 0.1em;
-          color: yellow
+          color: #feb493
+        }
+        .shehiaLabels{
+          white-space:nowrap;
+          text-shadow: 0 0 0.1em black, 0 0 0.1em black,
+                0 0 0.1em black,0 0 0.1em black,0 0 0.1em;
+          color: #d1bce9
+        }
+        .villageLabels{
+          white-space:nowrap;
+          text-shadow: 0 0 0.1em black, 0 0 0.1em black,
+                0 0 0.1em black,0 0 0.1em black,0 0 0.1em;
+          color: #8dffd8
         }
         .info {
             padding: 6px 8px;
@@ -793,7 +824,7 @@ class MapView extends Backbone.View
                             <select style='padding-right:20px'>
                               <option value='island'>Islands</option>
                               <option value='district'>Districts</option>
-                              <option value='shehias'>Shahias</option>
+                              <option value='shehias'>Shehias</option>
                               <option value='villages'>Villages</option>
                             </select>
                           </div>
@@ -972,7 +1003,6 @@ class MapView extends Backbone.View
 #      type: 'GET'
 #      async: false
 #      success: (data) ->
-#        console.log "success: " + JSON.stringify data
 #        districtsCntrPtsJSON = data
 #        return
 #    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
@@ -981,23 +1011,67 @@ class MapView extends Backbone.View
 #    for key of districtsCntrPtFeatures
 #      if districtsCntrPtFeatures.hasOwnProperty(key)
 #        val = districtsCntrPtFeatures[key]
-#        divIcon = L.divIcon(className: "mapLabels", html: val.properties.NAME)
+#        divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
 #        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
 #        districtsLabelsLayerGroup.addLayer(marker)
-#        console.log val.properties.NAME
-#        console.log val.geometry.coordinates
-#    
-#    districtsLabelsLayerGroup.addTo(map)
-    
-#    geojsonMarkerOptions = 
+#        
+#    invisibleMarkerOptions = 
 #      radius: 0
-#      fillColor: '#ff7800'
+#      fillColor: '#f44e03'
 #      opacity: 0
 #      fillOpacity: 0
+#        
 #    L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
-#        console.log "pointToLayerDistrictCntrPt"
-#        L.circleMarker latlng, geojsonMarkerOptions
-#    ).addTo map
+#        L.circleMarker latlng, invisibleMarkerOptions
+#    )
+#
+#    shehiasCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/ShehiaCntrPtsWGS84.json?V=2'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        console.log "shahias: " + JSON.stringify data
+#        shehiasCntrPtsJSON = data
+#        return
+#    console.log "districtsCntrPtsJSON: " + shehiasCntrPtsJSON.features.length
+#    
+#    shehiasCntrPtFeatures = shehiasCntrPtsJSON.features
+#    for key of shehiasCntrPtFeatures
+#      if shehiasCntrPtFeatures.hasOwnProperty(key)
+#        val = shehiasCntrPtFeatures[key]
+#        divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+#        shehiasLabelsLayerGroup.addLayer(marker)
+#    
+#    L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
+#        console.log "pointToLayerShahiaCntrPt"
+#        L.circleMarker latlng, invisibleMarkerOptions
+#    )
+#
+#    villagesCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/VillageCntrPtsWGS84.json?V=2'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        villagesCntrPtsJSON = data
+#        return
+#    
+#    villagesCntrPtFeatures = villagesCntrPtsJSON.features
+#    for key of villagesCntrPtFeatures
+#      if villagesCntrPtFeatures.hasOwnProperty(key)
+#        val = villagesCntrPtFeatures[key]
+#        divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+#        villagesLabelsLayerGroup.addLayer(marker)
+#    
+#    L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
+#        console.log "pointToLayerVillageCntrPt"
+#        L.circleMarker latlng, invisibleMarkerOptions
+#    )
 
 
 #    Coconut.database.get 'DistrictsCntrPtsWGS84'
@@ -1007,23 +1081,20 @@ class MapView extends Backbone.View
 #      #console.log('districtsData: '+districtsData)
 #      districtsCntrPtsLayer = L.geoJson(districtsData,
 #        style: cntrpts
-#        onEachFeature: (feature, layer) ->
-##          layer.bindPopup 'District: ' + feature.properties.District_N
-#          return
-#      ).addTo map
+#      )
       
     
     Coconut.database.get 'ShahiasWGS84'
     .catch (error) -> console.error error
     .then (data) ->
-      shahiasData = data
-      shahiasLayer = L.geoJson(shahiasData,
+      shehiasData = data
+      shehiasLayer = L.geoJson(shehiasData,
         style: admin2PolyOptions
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'Shehia: ' + feature.properties.Shehia
           return
       )
-      materialLayersControl.addOverlay(shahiasLayer, 'Shahias')
+      materialLayersControl.addOverlay(shehiasLayer, 'Shehias')
     
     Coconut.database.get 'VillagesWGS84'
     .catch (error) -> console.error error

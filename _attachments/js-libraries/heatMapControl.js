@@ -9,8 +9,7 @@ var heatMapControl =  L.Control.extend({
     var container, controlName, options;
     container = L.DomUtil.create('div', 'heatMapButton leaflet-control-zoom-mdl leaflet-bar-mdl');
     options = this.options;
-    console.log(JSON.stringify(options))
-      this._zoomHomeButton = this._createMaterialButton('leaflet-zoom-in-mdl ', '<i class="material-icons">whatshot</i>', "turn on heat map", container); 
+    this._zoomHomeButton = this._createMaterialButton('leaflet-zoom-in-mdl ', '<i class="material-icons">whatshot</i>', "turn on heat map", container); 
       
     return container;
   },

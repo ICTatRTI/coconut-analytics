@@ -260,7 +260,7 @@ var myLayersControl =  L.Control.extend({
         var obj = this._layers[L.stamp(e.layer)];
         console.log("obj: "+obj)
 		
-		if (!obj) { return; }
+		if (!obj || typeof(obj.name)!=undefined) { return; }
         console.log("obj.name: " + obj.name)
 		if (!this._handlingClick && obj.name != "Cases") {
 			console.log("onLayerChange update")
@@ -317,15 +317,22 @@ var myLayersControl =  L.Control.extend({
 
 		var name = document.createElement('span');
 		name.innerHTML = ' ' + obj.name;
-        
+        if (obj.overlay && !obj.queried){name.style.paddingRight = '7px'};
 		label.appendChild(input);
 		label.appendChild(name);
         
-//        var buttonContainer = document.createElement('button', 'mdl-button mdl-js-button mdl-button--icon');
-//        if (obj.overlay && !obj.queried){
-//            
-//            label.appendChild(buttonContainer)
-//        }
+        if (obj.overlay && !obj.queried){
+            var labelButtonContainer = document.createElement('button', 'mdl-button mdl-js-button mdl-button--icon');
+            var labelButton = this._createMaterialButton(obj.name+'_lableButton', '<i class="material-icons off" id = "click_'+obj.name+'" style = "font-size: 14px;">label_outline</i>', "Label "+obj.name, labelButtonContainer);
+            labelButton.style.fontSize = "14px";
+            labelButton.style.minWidth = "22px";
+            labelButton.style.minHeight = "22px";
+            labelButton.style.width = "22px";
+            labelButton.style.height = "22px";
+            labelButton.style.display = "inline";
+            label.appendChild(labelButton)
+            L.DomEvent.on(labelButton, 'click', this._onLabelButtonClick, this);
+        }
         
 //        if(obj.queried && !$( "#mapStyleSelect" )[ 0 ]){
         if(obj.queried){
@@ -460,6 +467,36 @@ var myLayersControl =  L.Control.extend({
 		this._handlingClick = false;
 
 		this._refocusOnMap();
+	},
+    _onLabelButtonClick: function (e) {
+		var targetID = $("#"+e.target.id);
+        var labelLayer = e.target.id.split("_")[1];
+        var targetButton = $("#"+labelLayer+"_lableButton");
+        var onOff;
+        if (targetID.hasClass("off")){
+            onOff = "on";
+            targetID.removeClass( "off" ).addClass( "on" );
+            targetButton.removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+        }
+        else{
+            onOff = "off";
+            targetID.removeClass( "on" ).addClass( "off" );
+            targetButton.removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
+        }
+        var event = new CustomEvent('labelsOnOff', { 'detail': { 
+                layer: labelLayer,
+                onOff: onOff
+            }
+        });   
+        window.dispatchEvent(event);
+
+//        if (activeStatus =='on'){
+//            button.removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
+//        }
+//        else{
+//            button.removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
+//        }
+        
 	},
   _toggleState: false,
   get toggleState(){

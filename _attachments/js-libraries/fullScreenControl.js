@@ -34,7 +34,7 @@ var fullScreenControl = L.Control.Fullscreen.extend({
             screenState: screenState 
         }
     });   
-                window.dispatchEvent(event);
+    window.dispatchEvent(event);
     if (this._materialToolTip) {
       this._materialToolTip.innerHTML = this.options.title[this._map.isFullscreen()];
       this._materialButton.removeAttribute('title');
