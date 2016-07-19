@@ -29,6 +29,17 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 18, 2016</h5>
+        <div class='changes'>
+          <ul>
+           <li>#183 - Switch pikaday to DateRangePicker</li>
+           <li>Added Bootstrap-DateRanePicker and removed Pikaday npm packages</li>
+           <li>MapView: moved label counterpoints files</li>
+           <li>MapView: #178 legend and case style matching</li>
+           <li>MapView: #134 district labeling - functionality coded referencing JSON files</li>
+           <li>MapView: #176 legend displays only when there are cases and is removed when query returns no cases</li>
+          </ul>
+        </div>
         <h5>July 15, 2016</h5>
         <div class='changes'>
           <ul>
