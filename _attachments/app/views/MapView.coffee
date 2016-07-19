@@ -997,82 +997,82 @@ class MapView extends Backbone.View
       materialLayersControl.addOverlay(districtsLayer, 'Districts')
     
     
-    districtsCntrPtsJSON = undefined
-    $.ajax
-      url: '../../mapdata/DistrictsCntrPtsWGS84.json?V=1'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-        districtsCntrPtsJSON = data
-        return
-    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
-    
-    districtsCntrPtFeatures = districtsCntrPtsJSON.features
-    for key of districtsCntrPtFeatures
-      if districtsCntrPtFeatures.hasOwnProperty(key)
-        val = districtsCntrPtFeatures[key]
-        divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
-        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-        districtsLabelsLayerGroup.addLayer(marker)
-        
-    invisibleMarkerOptions = 
-      radius: 0
-      fillColor: '#f44e03'
-      opacity: 0
-      fillOpacity: 0
-        
-    L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
-        L.circleMarker latlng, invisibleMarkerOptions
-    )
-
-    shehiasCntrPtsJSON = undefined
-    $.ajax
-      url: '../../mapdata/ShehiaCntrPtsWGS84.json?V=2'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-        console.log "shahias: " + JSON.stringify data
-        shehiasCntrPtsJSON = data
-        return
-    console.log "districtsCntrPtsJSON: " + shehiasCntrPtsJSON.features.length
-    
-    shehiasCntrPtFeatures = shehiasCntrPtsJSON.features
-    for key of shehiasCntrPtFeatures
-      if shehiasCntrPtFeatures.hasOwnProperty(key)
-        val = shehiasCntrPtFeatures[key]
-        divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
-        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-        shehiasLabelsLayerGroup.addLayer(marker)
-    
-    L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
-        console.log "pointToLayerShahiaCntrPt"
-        L.circleMarker latlng, invisibleMarkerOptions
-    )
-
-    villagesCntrPtsJSON = undefined
-    $.ajax
-      url: '../../mapdata/VillageCntrPtsWGS84.json?V=2'
-      dataType: 'json'
-      type: 'GET'
-      async: false
-      success: (data) ->
-        villagesCntrPtsJSON = data
-        return
-    
-    villagesCntrPtFeatures = villagesCntrPtsJSON.features
-    for key of villagesCntrPtFeatures
-      if villagesCntrPtFeatures.hasOwnProperty(key)
-        val = villagesCntrPtFeatures[key]
-        divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
-        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-        villagesLabelsLayerGroup.addLayer(marker)
-    
-    L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
-        console.log "pointToLayerVillageCntrPt"
-        L.circleMarker latlng, invisibleMarkerOptions
-    )
+#    districtsCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/DistrictsCntrPtsWGS84.json?V=1'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        districtsCntrPtsJSON = data
+#        return
+#    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
+#    
+#    districtsCntrPtFeatures = districtsCntrPtsJSON.features
+#    for key of districtsCntrPtFeatures
+#      if districtsCntrPtFeatures.hasOwnProperty(key)
+#        val = districtsCntrPtFeatures[key]
+#        divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+#        districtsLabelsLayerGroup.addLayer(marker)
+#        
+#    invisibleMarkerOptions = 
+#      radius: 0
+#      fillColor: '#f44e03'
+#      opacity: 0
+#      fillOpacity: 0
+#        
+#    L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
+#        L.circleMarker latlng, invisibleMarkerOptions
+#    )
+#
+#    shehiasCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/ShehiaCntrPtsWGS84.json?V=2'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        console.log "shahias: " + JSON.stringify data
+#        shehiasCntrPtsJSON = data
+#        return
+#    console.log "districtsCntrPtsJSON: " + shehiasCntrPtsJSON.features.length
+#    
+#    shehiasCntrPtFeatures = shehiasCntrPtsJSON.features
+#    for key of shehiasCntrPtFeatures
+#      if shehiasCntrPtFeatures.hasOwnProperty(key)
+#        val = shehiasCntrPtFeatures[key]
+#        divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+#        shehiasLabelsLayerGroup.addLayer(marker)
+#    
+#    L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
+#        console.log "pointToLayerShahiaCntrPt"
+#        L.circleMarker latlng, invisibleMarkerOptions
+#    )
+#
+#    villagesCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/VillageCntrPtsWGS84.json?V=2'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        villagesCntrPtsJSON = data
+#        return
+#    
+#    villagesCntrPtFeatures = villagesCntrPtsJSON.features
+#    for key of villagesCntrPtFeatures
+#      if villagesCntrPtFeatures.hasOwnProperty(key)
+#        val = villagesCntrPtFeatures[key]
+#        divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
+#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+#        villagesLabelsLayerGroup.addLayer(marker)
+#    
+#    L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
+#        console.log "pointToLayerVillageCntrPt"
+#        L.circleMarker latlng, invisibleMarkerOptions
+#    )
 
 
 #    Coconut.database.get 'DistrictsCntrPtsWGS84'
