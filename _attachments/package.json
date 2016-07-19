@@ -12,6 +12,7 @@
     "backbone": "^1.2.1",
     "backbone-pouch": "^1.5.0",
     "bcryptjs": "^2.3.0",
+    "bootstrap-daterangepicker": "^2.1.24",
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
     "coffee-script": "^1.9.3",
