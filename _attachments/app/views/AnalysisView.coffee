@@ -78,8 +78,8 @@ class AnalysisView extends Backbone.View
           "Cases"
           "Complete household visit"
           "%"
-          "Missing USSD Notification"
-          "Missing Case Notification"
+          "Missing Case Notification Sent"
+          "Missing Case Notification Received"
           "Complete facility visit"
           "Without complete facility visit (but with case notification)"
           "%"
@@ -139,7 +139,7 @@ class AnalysisView extends Backbone.View
 
         _([
           "Complete facility visit"
-          "Missing USSD Notification"
+          "Missing Case Notification Sent"
         ]).each (column) ->
           $("th:contains(#{column})").addClass "details"
         $(".details").hide()
@@ -379,12 +379,12 @@ class AnalysisView extends Backbone.View
 
         ###
         # dataTable doesn't help with copy/paste (disaggregated values appear) and sorting isn't sorted
-        $("#analysis table").dataTable
+        $("table#cases-followed-up").dataTable
           aaSorting: [[0,"asc"],[6,"desc"],[5,"desc"]]
           iDisplayLength: 50
           dom: 'T<"clear">lfrtip'
           tableTools:
-            sSwfPath: "js-libraries/copy_csv_xls.swf"
+            sSwfPath: "../js-libraries/copy_csv_xls.swf"
         ###
 
         $("#analysis table").tablesorter
