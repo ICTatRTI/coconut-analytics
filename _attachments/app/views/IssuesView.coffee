@@ -10,7 +10,6 @@ humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
 moment = require 'moment'
-Pikaday = require 'pikaday'
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 Issues = require '../models/Issues'
@@ -213,9 +212,8 @@ class IssuesView extends Backbone.View
       error: (error) -> console.error error
       success: (issues) ->
         if (issues.length == 0)
-          $("#content").append "
-            <div>No records found...</div>
-          "
+          $("#issuesTable tbody").html "<tr><td colspan='5'><center>No records found...</center></td></tr>"
+          $('#analysis-spinner').hide()
         else
           populateUserName = (options) ->
             issues = options.Issues

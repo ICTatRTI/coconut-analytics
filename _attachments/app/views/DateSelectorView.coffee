@@ -1,8 +1,9 @@
 $ = require 'jquery'
+require('jquery-ui')
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
-Pikaday = require 'pikaday'
+require 'bootstrap-daterangepicker'
 
 class DateSelectorView extends Backbone.View
   el: "#dateSelector"
@@ -11,173 +12,70 @@ class DateSelectorView extends Backbone.View
     "change #select-by": "selectBy"
     "click .submitBtn": "updateReportView"
     "click button#dateFilter": "showDateFilter"
+    "apply.daterangepicker #dateRange": "updateReportView"
 
   showDateFilter: (e) =>
     e.preventDefault
     $("div#filters-section").slideToggle()
 
-  updateReportView: (e) =>
+  updateReportView: (e, picker) =>
     e.preventDefault
-    startDate = $('#startDate').val()
-    endDate = $('#endDate').val()
-    Coconut.router.dateSelectorOptions['dateMode'] = dateMode = $('#select-by :selected').text()
-    if dateMode is "Week"
-      Coconut.router.dateSelectorOptions['startYear'] = startYear = $('[name=StartYear]').val()
-      Coconut.router.dateSelectorOptions['endYear'] = endYear = $('[name=EndYear]').val()
-      Coconut.router.dateSelectorOptions['startWeek'] = startWeek = $('[name=StartWeek]').val()
-      Coconut.router.dateSelectorOptions['endWeek'] = endWeek = $('[name=EndWeek]').val()
-      
-      startYearWeek = "#{startYear}-#{startWeek}"
-      endYearWeek = "#{endYear}-#{endWeek}"
-
-      startDate = moment( startYearWeek, 'YYYY-W').startOf("isoweek").format("YYYY-MM-DD")
-      endDate = moment( endYearWeek, 'YYYY-W').endOf("isoweek").format("YYYY-MM-DD")
-   
-    # TODO
-    # Select by week should update the startDate/endDate
-    # Select by date should update the startWeek/endWeek (tricky because they don't line up)
-    if moment(startDate, 'YYYY-MM-DD', true).isValid() and moment(endDate, 'YYYY-MM-DD', true).isValid()
-      if !(moment(endDate).isSameOrAfter(moment(startDate)))
-        $('#errMsg').html("End Date cannot be after Start Date")
-      else
-        $("div#filters-section").slideToggle()
-        # Update the URL and rerender page
-        Coconut.router.dateSelectorOptions['startDate'] = startDate
-        Coconut.router.dateSelectorOptions['endDate'] = endDate
-        Coconut.router.reportViewOptions['startDate'] = startDate
-        Coconut.router.reportViewOptions['endDate'] = endDate
-        if Coconut.dateSelectorView.reportType == 'dashboard'
-          url = "#{Coconut.dateSelectorView.reportType}/#{Coconut.router.dateSelectorOptions['startDate']}/#{Coconut.router.dateSelectorOptions['endDate']}"
-        else  
-          url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
-        Coconut.router.navigate(url,{trigger: true})
-    else
-      $('#errMsg').html("Invalid Date Format detected")
-
-  selectBy: (e) =>
-    selected = $('#select-by :selected').text()
-    if (selected == 'Date')
-      $('tr.select-by-date').show()
-      $('tr.select-by-week').hide()
-    else
-      $('tr.select-by-date').hide()
-      $('tr.select-by-week').show()
+    @startDate = picker.startDate
+    @endDate = picker.endDate
+    Coconut.router.reportViewOptions['startDate'] = @startDate.format("YYYY-MM-DD")
+    Coconut.router.reportViewOptions['endDate'] = @endDate.format("YYYY-MM-DD")
+    if Coconut.dateSelectorView.reportType == 'dashboard'
+      url = "#{Coconut.dateSelectorView.reportType}/#{Coconut.router.dateSelectorOptions['startDate']}/#{Coconut.router.dateSelectorOptions['endDate']}"
+    else  
+      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+    Coconut.router.navigate(url,{trigger: true})
 
   render: =>
     @$el.html "
       <style>
-
+        #dateRange {
+          background: #fff; 
+          cursor: pointer; 
+          padding: 5px 10px; 
+          border: 1px solid #08c; 
+          border-radius: 4px;
+          width: 250px
+        }
       </style>
-      <div id='date-range'>
-        <span id='filters-drop' class='drop-pointer'>
-          <button class='mdl-button mdl-js-button mdl-button--icon' id='dateFilter'> 
-            <i class='material-icons'>event</i> 
-          </button> 
-        </span>
-        <span id='date-period'>#{@startDate} to #{@endDate}</span>
-        <div><small><i>Click calendar icon to change date</i></small></div>
-        <div id='filters-section'>
-        <hr />
-        <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <table style='width: 450px; margin-left: 30px'>
-                <tbody>
-                   <tr id='select-date-week'>
-                     <td><label style='display:inline' for='SelectBy'>Select By</label></td>
-                     <td><select name='SelectBy' id='select-by'> 
-                        <option value='Week' #{if Coconut.router.dateSelectorOptions.dateMode is 'Week' then 'Selected'}>Week</option>
-                        <option value='Date' #{if Coconut.router.dateSelectorOptions.dateMode is 'Date' then 'Selected'}>Date</option></select>
-                     </td>
-                    <td colspan='3'> &nbsp; </td>
-                   </tr>
-                   <tr class='select-by-date hide'>
-                       <td>
-                         <label style='display:inline' for='StartDate'>Start Date</label>
-                       </td>
-                       <td>
-                          <div><input id='startDate' class='datepicker' value='#{@startDate}'></input></div>
-                       </td>
-                       <td rowspan='2'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
-                   </tr>
-                   <tr class='select-by-date hide'>	   
-                       <td>
-                         <label style='display:inline' for='EndDate'>End Date</label>
-                       </td>
-                       <td>
-                          <div><input id='endDate' class='datepicker' value='#{@endDate}'></input></div>
-                       </td>
-                       <td colspan='4'></td>
-                   </tr>	   
-                   <tr class='select-by-week'>
-                     <td>
-                       <label style='display:inline' for='StartYear'>Start Year</label>
-                     </td>
-                     <td>
-                       <select name='StartYear'>
-                         #{
-                           for i in [moment().year()..2012]
-                              "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startYear then 'Selected'}>#{i}</option>"
-                         }
-                       </select>
-                     </td>
-                     <td> </td>
-                     <td>
-                       <label style='display:inline' for='StartWeek'>Start Week</label>
-                     </td>
-                     <td>
-                       <select name='StartWeek'> <option></option>
-                         #{
-                             for i in [1..53]
-                               "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.startWeek then 'Selected'}>Week #{i}</option>"
-                         } 
-                       </select>
-                     </td>
-                     <td rowspan='2'><button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored submitBtn'>Submit</button></td>
-                   </tr>
-                   <tr class='select-by-week'>
-                       <td>
-                         <label style='display:inline' for='EndYear'>End Year</label>
-                       </td>
-                       <td>
-                         <select name='EndYear'> 
-                            #{
-                                for i in [moment().year()..2012]
-                                  "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endYear then 'Selected'}>#{i}</option>"
-                            }
-                          </select>
-                       </td>
-                       <td> </td>
-                       <td>
-                          <label style='display:inline' for='EndWeek'>End Week</label>
-                       </td>
-                       <td>
-                          <select name='EndWeek'><option></option>
-                            #{
-                                for i in [1..53] 
-                                  "<option value='#{i}' #{if i.toString() is Coconut.router.dateSelectorOptions.endWeek then 'Selected'}>Week #{i}</option>" 
-                            }
-                          </select>
-                       </td>
-                   </tr>
-                   <tr>
-                       <td colspan='6'><div id='errMsg'></div></td>
-                   </tr>
-                 </tbody>
-               </table>
-            </div>
-        </div>
-        <hr />
+      <div id='dateRange'>
+          <i class='material-icons'>event</i>&nbsp;
+          <span></span>
       </div>
+       <div><small><i>Click calendar icon to change date</i></small></div>
     "
-    @selectBy()
-
-    startDatePicker = new Pikaday
-      field: $(".datepicker")[0]
-      position: "bottom right"
-      reposition: false
-    endDatePicker = new Pikaday
-      field: $(".datepicker")[1]
-      position: "bottom right"
-      reposition: false
+    $('#dateRange span').html(@startDate + ' - ' + @endDate) 
+    $('#dateRange').daterangepicker
+      "startDate": @startDate
+      "endDate": @endDate
+      "showWeekNumbers": true
+      "ranges": 
+        'Today': [moment(), moment()],
+        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+        'This Month': [moment().startOf('month'), moment().endOf('month')],
+        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
+      "locale": 
+        "format": "YYYY-MM-DD"
+        "separator": " - "
+        "applyLabel": "Apply"
+        "cancelLabel": "Cancel"
+        "fromLabel": "From"
+        "toLabel": "To"
+        "customRangeLabel": "Custom"
+        "weekLabel": "W"
+        "daysOfWeek": ["Su","Mo","Tu","We","Th","Fr","Sa"]
+        "monthNames": ["January","February","March","April","May","June","July","August","September","October","November","December"]
+        "firstDay": 1
+      "alwaysShowCalendars": true
+    ,(start,end,label) ->
+      @startDate = start
+      @endDate = end
+      $('#dateRange span').html(@startDate.format('YYYY-MM-DD') + ' - ' + @endDate.format('YYYY-MM-DD'))
 
 module.exports = DateSelectorView
