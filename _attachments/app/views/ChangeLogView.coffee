@@ -29,6 +29,19 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 20, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>#186 - Change favicon</li>
+          </ul>
+        </div>    
+        <h5>July 19, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>MapView: comment out code for labeling</li>
+            <li>Re-wording of column headings in Analysis report</li>
+          </ul>
+        </div>  
         <h5>July 18, 2016</h5>
         <div class='changes'>
           <ul>
