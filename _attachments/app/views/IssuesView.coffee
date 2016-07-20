@@ -6,11 +6,14 @@ Backbone.$  = $
 global.jQuery = require 'jquery'
 require 'tablesorter'
 
-humanize = require 'underscore.string/humanize'
-Form2js = require 'form2js'
-js2form = require 'form2js'
 moment = require 'moment'
 DataTables = require( 'datatables.net' )()
+# Buttons = require('datatables.net-buttons')()
+# require( 'datatables.net-buttons/js/buttons.colVis.js' )() # Column visibility
+# require( 'datatables.net-buttons/js/buttons.html5.js' )()  # HTML 5 file export
+# require( 'datatables.net-buttons/js/buttons.flash.js' )()  # Flash file export
+# require( 'datatables.net-buttons/js/buttons.print.js' )()  # Print View button
+
 Reports = require '../models/Reports'
 Issues = require '../models/Issues'
 User = require '../models/User'
@@ -60,7 +63,6 @@ class IssuesView extends Backbone.View
        $("[name=actionTaken]").val(@issue["Action Taken"])
        $("[name=solution]").val(@issue.Solution)
        $("[name=dateResolved]").val(@issue["Date Resolved"])
-       #Form2js.js2form($('form#issue').get(0), issue)
        
      return false
  
@@ -130,7 +132,7 @@ class IssuesView extends Backbone.View
       <dialog id='dialog'>
         <div id='dialogContent'> </div>
       </dialog>
-      <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='issuesTable'>
+      <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='issuesTable' width='100%'>
         <thead>
           <th class='mdl-data-table__cell--non-numeric'>Description</th>
           <th class='mdl-data-table__cell--non-numeric'>Date Created</th>
@@ -263,17 +265,17 @@ class IssuesView extends Backbone.View
                      </td>
                    </tr>
                 "
+              datatable = $("#issuesTable").DataTable
+                'order': [[1,"desc"]]
+                "pagingType": "full_numbers"
+                "dom": '<"top"fl>rt<"bottom"ip><"clear">'
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+                "retrieve": true
+                "buttons": [
+                  "csv",'excel','pdf'
+                  ]
+                  
               $('#analysis-spinner').hide()
-            
-    $("#issuesTable").dataTable
-      aaSorting: [[1,"desc"]]
-      iDisplayLength: 50
-      dom: 'T<"clear">lfrtip'
-      tableTools:
-        sSwfPath: "./js-libraries/copy_csv_xls.swf"
-        aButtons: [
-          "csv",
-          ]
-
-
+              
+    
   module.exports = IssuesView

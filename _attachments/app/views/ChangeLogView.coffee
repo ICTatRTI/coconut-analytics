@@ -33,6 +33,7 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
             <li>#186 - Change favicon</li>
+            <li>#181 - Fixed Issues table search not working</li>
           </ul>
         </div>    
         <h5>July 19, 2016</h5>
