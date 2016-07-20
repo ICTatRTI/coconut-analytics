@@ -78,8 +78,8 @@ class AnalysisView extends Backbone.View
           "Cases"
           "Complete household visit"
           "%"
-          "Missing Case Notification Sent"
-          "Missing Case Notification Received"
+          "Missing Sent Case Notification"
+          "Missing Received Case Notification"
           "Complete facility visit"
           "Without complete facility visit (but with case notification)"
           "%"
@@ -139,7 +139,7 @@ class AnalysisView extends Backbone.View
 
         _([
           "Complete facility visit"
-          "Missing Case Notification Sent"
+          "Missing Sent Case Notification"
         ]).each (column) ->
           $("th:contains(#{column})").addClass "details"
         $(".details").hide()
