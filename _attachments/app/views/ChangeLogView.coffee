@@ -33,6 +33,7 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
             <li>#191 - Get Rickshaw chart to be responsive to screen width change</li>
+            <li>Graphs HoverDetail to display as integer</li>
           </ul>
         </div>
         <h5>July 20, 2016</h5>

@@ -1086,7 +1086,6 @@ button.caseBtn {
   padding: 10px;
   width: 100%;
   min-height: 320px;
-  /* border: 1px solid; */
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
 
@@ -1095,6 +1094,12 @@ button.caseBtn {
   top: 20px;
   bottom: 0;
   width: 40px;
+}
+
+.x_axis {
+  position: relative;
+  left: 40px;
+  height: 40px;
 }
 
 .chart, .chart_lg {

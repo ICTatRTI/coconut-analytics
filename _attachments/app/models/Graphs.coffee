@@ -103,7 +103,7 @@ Graphs.retrieveData = (options,callback) ->
         data4Graph = _.map casesPerAggregationPeriod, (numberOfCases, date) ->
           x: parseInt(date)
           y: numberOfCases
-        
+      
     callback(null, data4Graph)
   .catch (error) ->
     console.error error
@@ -111,6 +111,7 @@ Graphs.retrieveData = (options,callback) ->
     
              
 Graphs.createGraph = (options, callback) ->
+    x_axis = options.x_axis
     y_axis = options.y_axis
     div_chart = options.chart
     container = options.container
@@ -121,7 +122,7 @@ Graphs.createGraph = (options, callback) ->
     legend = options.legend || 'legend'
 
     if options.dataForGraph.length == 0 or _.isEmpty(options.dataForGraph[0])
-       $("div##{container}").html("<center><div style='margin-top: 15%'><h6>No records found for date range</h6></div></center>")
+       $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
        callback("No record for date range")
     else
       palette = new Rickshaw.Color.Palette({scheme: Coconut.config.graphColorScheme })
@@ -143,16 +144,28 @@ Graphs.createGraph = (options, callback) ->
   
       hoverDetail = new Rickshaw.Graph.HoverDetail
         graph: graph
+        formatter: (series,x,y) ->
+          return "#{series.name} :  #{parseInt(y)}"
         
       x_axis = new Rickshaw.Graph.Axis.Time
         graph: graph
-
+        orientation: 'bottom'
+        element: document.getElementById("#{x_axis}")
+        pixelsPerTick: 200
+        
       y_axis = new Rickshaw.Graph.Axis.Y
         graph: graph
         orientation: 'left'
         tickFormat: Rickshaw.Fixtures.Number.formatKMBT
         element: document.getElementById("#{y_axis}")
 
+      # x_ticks = new Rickshaw.Graph.Axis.X
+      #   graph: graph
+      #   orientation: 'bottom'
+      #   element: document.getElementById("#{x_axis}")
+      #   pixelsPerTick: 200
+      #   tickFormat: Rickshaw.Fixtures.Time
+   
       if options.dataForGraph.length > 1
         legend = new Rickshaw.Graph.Legend
           element: document.querySelector("##{legend}"),
