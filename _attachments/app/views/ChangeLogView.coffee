@@ -34,6 +34,7 @@ class ChangeLogView extends Backbone.View
           <ul>
             <li>#186 - Change favicon</li>
             <li>#181 - Fixed Issues table search not working</li>
+            <li>#188 - Graphs to filter by the specified date range</li>
           </ul>
         </div>    
         <h5>July 19, 2016</h5>

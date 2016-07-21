@@ -19,7 +19,7 @@ class DashboardView extends Backbone.View
 
   graph2: (e) ->
     Coconut.router.navigate("#graphs/type/PositiveCasesGraph", {trigger: true})
-      
+        
   render: =>
     $('#analysis-spinner').show()
     @$el.html "
@@ -114,7 +114,8 @@ class DashboardView extends Backbone.View
 
     options.chart_width = 500
     options.chart_height = 260
-
+    options.startDate = '2015-01-01'
+    options.endDate = '2015-12-31'
     # Incident Graph
     options.container = 'container_1'
     options.y_axis = 'y_axis_1'
@@ -123,6 +124,7 @@ class DashboardView extends Backbone.View
     Graphs.IncidentsGraph options, (err, response) ->
       if (err)
         console.log(err)
+        $('#analysis-spinner').hide()
       else
         # #PositiveCases
         options.container = 'container_2'
@@ -132,6 +134,7 @@ class DashboardView extends Backbone.View
         Graphs.PositiveCasesGraph options, (err2, response2) ->
           if (err2)
             console.log(err2)
+            $('#analysis-spinner').hide()
           else
             # Example Graph
             options.container = 'container_3'
@@ -141,13 +144,16 @@ class DashboardView extends Backbone.View
             Graphs.BarChart options, (err3, response3) ->
               if (err3) 
                 console.log(err3)
+                $('#analysis-spinner').hide()
               else
                 options.container = 'container_4'
                 options.y_axis = 'y_axis_4'
                 options.chart = 'chart_4'
                 options.legend = "legend4"
                 Graphs.ScatterPlotChart options, (err4, response4) ->
-                  if (err4) then console.log(err4)
+                  if (err4) 
+                    console.log(err4)
+                  
                   $('#analysis-spinner').hide()
-      
+   
 module.exports = DashboardView

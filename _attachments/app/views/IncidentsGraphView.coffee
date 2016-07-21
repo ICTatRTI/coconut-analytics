@@ -18,15 +18,18 @@ class IncidentsGraphView extends Backbone.View
          .chart_container { height: 400px;}
        </style>
        <div id='dateSelector'></div>
-       <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
-         <div class='chart-title'>Incidence Graph - Cases by Week</div>
-         <div id='chart_container_1' class='chart_container f-left'>
-           <div id='y_axis_1' class='y_axis'></div>
-           <div id='chart_1' class='chart_lg'></div>
-           <div id='legend' class='legend'></div>
+       <div class='mdl-grid'>
+         <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
+           <div class='chart-title'>Incidence Graph - Cases by Week</div>
+           <div id='chart_container_1' class='chart_container f-left'>
+             <div id='y_axis_1' class='y_axis'></div>
+             <div id='chart_1' class='chart_lg'></div>
+             <div id='legend' class='legend'></div>
+           </div>
          </div>
        </div>
     "
+    
     $('#analysis-spinner').show()
     options.container = 'chart_container_1'
     options.y_axis = 'y_axis_1'

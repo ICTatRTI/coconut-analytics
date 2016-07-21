@@ -11,12 +11,15 @@ Graphs.IncidentsGraph = (options, callback) ->
   options.names = ['Incident']
   Graphs.retrieveData options, (err, result) ->
     if (err)
-      console.log(err)
+      callback(err)
     else
       options.dataForGraph = [result]
       Graphs.createGraph options, (err, response) ->
-        if (err) then console.log(err) else callback(null, "Success")
-    
+        if (err) 
+          callback(err)
+        else 
+          callback(null, "Success")
+        
 Graphs.PositiveCasesGraph = (options, callback) ->
   options.renderer = 'lineplot'
   options.names = ["Age < 5","Age > 5"]
@@ -24,17 +27,20 @@ Graphs.PositiveCasesGraph = (options, callback) ->
   options.couch_view = "positiveCasesLT5"
   Graphs.retrieveData options, (err, response) ->
     if (err)
-      console.log(err)
+      callback(err)
     else
       options.dataForGraph .push(response)
       options.couch_view = "positiveCasesGT5"
       Graphs.retrieveData options, (err, response) ->
         if (err)
-          console.log(err)
+          callback(err)
         else
           options.dataForGraph.push(response)
           Graphs.createGraph options, (err, response) ->
-            if (err) then console.log(err) else callback(null, "Success")
+            if (err) 
+              callback(err)
+            else 
+              callback(null, "Success")
     
 
 Graphs.YearlyTrends = (options, callback) ->
@@ -51,11 +57,14 @@ Graphs.BarChart = (options, callback) ->
   options.names = ['test']
   Graphs.retrieveData options, (err, result) ->
     if (err)
-      console.log(err)
+      callback(err)
     else
       options.dataForGraph = [result]
       Graphs.createGraph options, (err, response) ->
-        if (err) then console.log(err) else callback(null, "Success")
+        if (err) 
+          callback(err)
+        else 
+          callback(null, "Success")
     
 Graphs.ScatterPlotChart = (options, callback) ->
   options.couch_view = "positiveCases"
@@ -63,23 +72,29 @@ Graphs.ScatterPlotChart = (options, callback) ->
   options.names = ['test']
   Graphs.retrieveData options, (err, result) ->
     if (err)
-      console.log(err)
+      callback(err)
     else
       options.dataForGraph = [result]
       Graphs.createGraph options, (err, response) ->
-        if (err) then console.log(err) else callback(null, "Success")
+        if (err) 
+          callback(err)
+        else 
+          callback(null, "Success")
 
 Graphs.retrieveData = (options,callback) ->
-  #startDate = moment(options.startDate, 'YYYY-MM-DD')
-  startDate = moment.utc("2012-07-01")
+  startDate = moment(options.startDate).format('YYYY-MM-DD')
+  endDate = moment(options.endDate).format('YYYY-MM-DD')
+  #startDate = moment.utc("2012-07-01")
+
   Coconut.database.query "#{Coconut.config.design_doc_name}/#{options.couch_view}",
-    startkey: startDate.year()
+    startkey: startDate
+    endkey: endDate
     include_docs: false
   .then (result) =>
     casesPerAggregationPeriod = {}
     data4Graph = {}
     _.each result.rows, (row) ->
-      date = moment(row.key.substr(0,10), 'DD-MM-YYYY')
+      date = moment(row.key.substr(0,10), 'YYYY-MM-DD')
       if row.key.substr(0,2) is "20" and date.isValid() and date.isBetween(startDate, new moment())
         aggregationKey = date.clone().endOf("isoweek").unix()
         casesPerAggregationPeriod[aggregationKey] = 0 unless casesPerAggregationPeriod[aggregationKey]
@@ -105,8 +120,9 @@ Graphs.createGraph = (options, callback) ->
     graph_renderer = options.renderer
     legend = options.legend || 'legend'
 
-    if options.dataForGraph.length == 0
-       $("div##{container}").html('<h6>No Records found for date range</h6>')
+    if options.dataForGraph.length == 0 or _.isEmpty(options.dataForGraph[0])
+       $("div##{container}").html("<center><div style='margin-top: 15%'><h6>No records found for date range</h6></div></center>")
+       callback("No record for date range")
     else
       palette = new Rickshaw.Color.Palette({scheme: Coconut.config.graphColorScheme })
       graphSeries =[]
@@ -117,7 +133,7 @@ Graphs.createGraph = (options, callback) ->
           color: palette.color()
           data: series_data
         i += 1
-        
+       
       graph = new Rickshaw.Graph
         element: document.querySelector("##{div_chart}")
         width: chart_width
