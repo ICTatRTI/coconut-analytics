@@ -32,21 +32,10 @@ class DateSelectorView extends Backbone.View
 
   render: =>
     @$el.html "
-      <style>
-        #dateRange {
-          background: #fff; 
-          cursor: pointer; 
-          padding: 5px 10px; 
-          border: 1px solid #08c; 
-          border-radius: 4px;
-          width: 250px
-        }
-      </style>
       <div id='dateRange'>
           <i class='material-icons'>event</i>&nbsp;
-          <span></span>
+          <span></span><i class='material-icons f-right'>arrow_drop_down</i>
       </div>
-       <div><small><i>Click calendar icon to change date</i></small></div>
     "
     $('#dateRange span').html(@startDate + ' - ' + @endDate) 
     $('#dateRange').daterangepicker

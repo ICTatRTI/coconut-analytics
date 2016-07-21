@@ -844,6 +844,15 @@ div.login-group input:focus ~ .login-highlight {
 	display: none;
 }
 
+#dateRange {
+  background: #fff; 
+  cursor: pointer; 
+  padding: 5px 10px; 
+  border: 1px solid #08c; 
+  border-radius: 4px;
+  width: 250px
+  }
+        
 .width30 {
 	width: 30px;
 }
