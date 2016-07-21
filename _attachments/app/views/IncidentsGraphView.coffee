@@ -19,7 +19,7 @@ class IncidentsGraphView extends Backbone.View
        </style>
        <div id='dateSelector'></div>
        <div class='mdl-grid'>
-         <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
+         <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
            <div class='chart-title'>Incidence Graph - Cases by Week</div>
            <div id='chart_container_1' class='chart_container f-left'>
              <div id='y_axis_1' class='y_axis'></div>
@@ -38,5 +38,5 @@ class IncidentsGraphView extends Backbone.View
     Graphs.IncidentsGraph options, (err, response) ->
       if (err) then console.log(err)
       $('#analysis-spinner').hide()
-       
+    
 module.exports = IncidentsGraphView

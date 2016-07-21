@@ -19,7 +19,7 @@ class PositiveCasesGraphView extends Backbone.View
        </style>
        <div id='dateSelector'></div>
        <div class='mdl-grid'>
-         <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet'>
+         <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
            <div class='chart-title'>Number of Positive Malaria Cases</div>
            <div id='chart_container_1' class='chart_container f-left'>
              <div id='y_axis_1' class='y_axis'></div>

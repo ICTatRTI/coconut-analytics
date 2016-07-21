@@ -159,7 +159,16 @@ Graphs.createGraph = (options, callback) ->
           graph: graph
       
       graph.render()
+      elmnt = $("##{container}")
       callback(null, "Success")
+
+      window.addEventListener 'resize', ->
+        graph.configure
+          width: 0.8 * $(elmnt).width()
+          height: $(elmnt).height()
+          #height:$(elmnt).clientHeight
+        graph.render()
+  
   # .catch (error) ->
   #   console.error error
       
