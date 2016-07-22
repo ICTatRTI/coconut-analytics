@@ -115,7 +115,8 @@ Graphs.createGraph = (options, callback) ->
     y_axis = options.y_axis
     div_chart = options.chart
     container = options.container
-    chart_width = options.chart_width || 580
+    #chart_width = options.chart_width || 580
+    chart_width = 0.8 * $('.chart_container').width()
     chart_height = options.chart_height || 350
     couch_view = options.couch_view
     graph_renderer = options.renderer
@@ -178,7 +179,7 @@ Graphs.createGraph = (options, callback) ->
       window.addEventListener 'resize', ->
         graph.configure
           width: 0.8 * $(elmnt).width()
-          height: $(elmnt).height()
+          height: 0.9 * $(elmnt).height()
           #height:$(elmnt).clientHeight
         graph.render()
   

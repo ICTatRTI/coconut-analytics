@@ -63,47 +63,64 @@ class DashboardView extends Backbone.View
         </div>
         <div class='page-content'>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_1' class='ui-widget-content draggable chartbox'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>Incidence Graph - cases by week</div>
                 <div id='container_1' class='chart_container f-left'>
-                  <div id='y_axis_1' class='y_axis'></div>
-                  <div id='chart_1' class='chart'></div>
-                  <div id='legend' class='legend'></div>
+                  <div class='mdl-grid'>
+                    <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
+                      <div id='y_axis_1' class='y_axis'></div>
+                      <div id='chart_1' class='chart'></div>
+                    </div>
+                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>
+                      <div id='legend' class='legend'></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+                
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_2' class='ui-widget-content draggable chartbox'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'> 
                 <div class='chart-title'>Number of Positive Cases</div>
                 <div id='container_2' class='chart_container f-left'>
-                  <div id='y_axis_2' class='y_axis'></div>
-                  <div id='chart_2' class='chart'></div>
-                  <div id='legend2' class='legend'></div>
+                  <div class='mdl-grid'>
+                    <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
+                      <div id='y_axis_2' class='y_axis'></div>
+                      <div id='chart_2' class='chart'></div>
+                    </div>
+                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'> 
+                      <div id='legend2' class='legend'></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_3' class='ui-widget-content draggable chartbox'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>Bar Graph</div>
                 <div id='container_3' class='chart_container f-left'>
-                  <div id='y_axis_3' class='y_axis'></div>
-                  <div id='chart_3' class='chart'></div>
-                  <div id='legend3' class='legend'></div>
+                  <div class='mdl-grid'>
+                    <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'> 
+                        <div id='y_axis_3' class='y_axis'></div>
+                        <div id='chart_3' class='chart'></div>
+                    </div>
+                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'> 
+                        <div id='legend3' class='legend'></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>
-              <div id='chart_box_4' class='ui-widget-content draggable chartbox'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>ScatterPlot Graph</div>
                 <div id='container_4' class='chart_container f-left'>
-                  <div id='y_axis_4' class='y_axis'></div>
-                  <div id='chart_4' class='chart'></div>
-                  <div id='legend4' class='legend'></div>
+                  <div class='mdl-grid'>
+                    <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone''> 
+                      <div id='y_axis_4' class='y_axis'></div>
+                      <div id='chart_4' class='chart'></div>
+                    </div>
+                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>
+                      <div id='legend4' class='legend'></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -111,8 +128,6 @@ class DashboardView extends Backbone.View
     #$("#chart_box_1, #chart_box_2, #chart_box_3, #chart_box_4").draggable()
     
     options = $.extend({},Coconut.router.reportViewOptions)
-
-    options.chart_width = 500
     options.chart_height = 260
     options.startDate = '2015-01-01'
     options.endDate = '2015-12-31'

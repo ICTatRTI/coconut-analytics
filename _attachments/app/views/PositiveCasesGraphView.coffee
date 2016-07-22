@@ -19,7 +19,7 @@ class PositiveCasesGraphView extends Backbone.View
        <div id='chart_container_1' class='chart_container f-left'>
        <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
-             <div id='y_axis_1' class='y_axis' style='top:35px;'></div>
+             <div id='y_axis_1' class='y_axis'></div>
              <div id='chart_1' class='chart_lg'></div>
              <div id='x_axis_1' class='x_axis'></div>
            </div>
@@ -34,7 +34,6 @@ class PositiveCasesGraphView extends Backbone.View
     options.container = 'chart_container_1'
     options.y_axis = 'y_axis_1'
     options.chart = 'chart_1'
-    options.chart_width = 0.8 * $('.chart_container').width()
     Graphs.PositiveCasesGraph options, (err, response) ->
       if (err) then console.log(err)
       $('#analysis-spinner').hide()
