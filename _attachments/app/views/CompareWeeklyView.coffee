@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 FacilityHierarchy = require '../models/FacilityHierarchy'
-
+  
 class CompareWeeklyView extends Backbone.View
   el: "#content"
 
@@ -128,7 +128,7 @@ class CompareWeeklyView extends Backbone.View
                         <!-- Total Tested -->
                         #{
                           totalTested = data["Mal POS < 5"]+data["Mal POS >= 5"]+data["Mal NEG < 5"]+data["Mal NEG >= 5"]
-                          if Number.isNaN(totalTested) then '-' else totalTested
+                          if Number.isNaN(totalTested) then '-' else HTMLHelpers.numberWithCommas(totalTested)
                         }
 
                       </td>

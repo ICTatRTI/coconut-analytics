@@ -67,4 +67,7 @@ class HTMLHelpers
     percent = (number * 100).toFixed(0)
     if isNaN(percent) then "--" else "#{percent}%"
     
+  @numberWithCommas: (num) ->
+     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    
 module.exports = HTMLHelpers
