@@ -437,7 +437,7 @@ class MapView extends Backbone.View
                 numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
                 NumberofLLIN: malariaCase.Household.NumberofLLIN
                 SleepingSpaces: malariaCase.Household.NumberofSleepingPlacesbedsmattresses
-                RecentTravel: malariaCase.Facility.TravelledOvernightinpastmonth
+                RecentTravel: malariaCase.Facility?.TravelledOvernightinpastmonth
                 date: malariaCase.indexCaseDiagnosisDate() or malariaCase.householdMembersDiagnosisDates() #malariaCase.householdMembersDiagnosisDates() malariaCase.indexCaseDiagnosisDate() malariaCase.Household?.lastModifiedAt
                 dateIRS: malariaCase.Household.LastdateofIRS
               geometry:
