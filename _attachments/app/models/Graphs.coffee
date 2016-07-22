@@ -173,14 +173,13 @@ Graphs.createGraph = (options, callback) ->
           graph: graph
       
       graph.render()
-      elmnt = $("##{container}")
       callback(null, "Success")
 
       window.addEventListener 'resize', ->
+        elmnt = $("##{container}")
         graph.configure
           width: 0.8 * $(elmnt).width()
-          height: 0.9 * $(elmnt).height()
-          #height:$(elmnt).clientHeight
+          height: 0.78 * $(elmnt).height()
         graph.render()
   
   # .catch (error) ->
