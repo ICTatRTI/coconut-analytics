@@ -70,6 +70,7 @@ header .mdl-layout-title{
           justify-content: flex-end;
   /* padding: 16px;
   height: 151px; */
+  cursor: pointer;
 }
 .coconut-avatar-dropdown {
   display: -webkit-box;

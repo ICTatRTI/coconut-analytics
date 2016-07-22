@@ -10,7 +10,11 @@ class MenuView extends Backbone.View
   events:
     "click a.mdl-navigation__link": "changeStatus"
     "click span.drawer__subtitle": "toggleDropdownMenu"
+    "click header.coconut-drawer-header": "goHome"
 
+  goHome: (e) ->
+    Coconut.router.navigate("#dashboard", {trigger: true})
+    
   toggleDropdownMenu: (e) =>
     e.preventDefault
     $target = $(e.target)

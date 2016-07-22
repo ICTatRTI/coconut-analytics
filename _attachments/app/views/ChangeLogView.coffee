@@ -33,6 +33,10 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
             <li>Improved the graphs screen responsiveness</li>
+            <li>#193 - Add Response settings to System Settings</li>
+            <li>#194 - Fixed the x-axis position issue upon resizing</li>
+            <li>#84 - Using thousands separator</li>
+            <li>#107 - Clicking logo goes to Dashboard page</li>
           </ul>
         </div>
         <h5>July 21, 2016</h5>
