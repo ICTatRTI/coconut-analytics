@@ -115,9 +115,8 @@ Graphs.createGraph = (options, callback) ->
     y_axis = options.y_axis
     div_chart = options.chart
     container = options.container
-    #chart_width = options.chart_width || 580
     chart_width = 0.8 * $('.chart_container').width()
-    chart_height = options.chart_height || 350
+    chart_height = options.chart_height || 450
     couch_view = options.couch_view
     graph_renderer = options.renderer
     legend = options.legend || 'legend'
@@ -141,7 +140,13 @@ Graphs.createGraph = (options, callback) ->
         width: chart_width
         height: chart_height
         renderer: graph_renderer
-        series: graphSeries
+        series: graphSeries
+        padding: 
+          top: 0.02
+          left: 0.02
+          right: 0.02 
+          bottom: 0.02
+        
   
       hoverDetail = new Rickshaw.Graph.HoverDetail
         graph: graph
@@ -179,7 +184,7 @@ Graphs.createGraph = (options, callback) ->
         elmnt = $("##{container}")
         graph.configure
           width: 0.8 * $(elmnt).width()
-          height: 0.78 * $(elmnt).height()
+          height: 0.8 * $(elmnt).height()
         graph.render()
   
   # .catch (error) ->

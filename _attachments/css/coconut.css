@@ -1100,7 +1100,7 @@ button.caseBtn {
 
 .y_axis {
   position: absolute;
-  top: 35px;
+  top: 36px;
   bottom: 0;
   width: 40px;
 }
@@ -1114,16 +1114,15 @@ button.caseBtn {
 .chart, .chart_lg {
   position: relative;
   left: 40px;
-	padding: 10px 0 20px 5px;
+	padding: 10px 0 0 5px;
 	background: #fff;
 	height: 290px;
 	vertical-align: bottom;
 	display: table-cell;
-  float: left;
 }
 
 .chart_lg {
-  height: 385px;
+  height: 450px;
 }
 
 .legend {
@@ -1165,9 +1164,14 @@ button.caseBtn {
 }
 
 .rickshaw_graph .detail {
-  top: 10px;
+  top: 15px;
 }
 
 .rickshaw_graph .detail .dot {
   margin-left: 1px;
+}
+
+svg {
+  padding-top: 5px;
+  margin-bottom: 25px;
 }

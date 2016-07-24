@@ -37,6 +37,8 @@ class ChangeLogView extends Backbone.View
             <li>#194 - Fixed the x-axis position issue upon resizing</li>
             <li>#84 - Using thousands separator</li>
             <li>#107 - Clicking logo goes to Dashboard page</li>
+            <li>#187 - Fixed undefined property error</li>
+            <li>#194 - Fixed cut off top curve of lineplot graph</li>
           </ul>
         </div>
         <h5>July 21, 2016</h5>
