@@ -491,6 +491,10 @@ class MapView extends Backbone.View
             "
             layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
             clustersLayer.addLayer layer
+            layer.on 'click', (e) ->
+              console.log 'Click Cases'
+              return
+            
             return
           pointToLayer: (feature, latlng) =>
             # household markers with secondary cases
@@ -519,7 +523,10 @@ class MapView extends Backbone.View
               <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
               #{feature.properties.MalariaCaseID}</button>
             "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS   
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS
+            layer.on 'click', (e) ->
+              console.log 'Click Case Time 1'
+              return   
             #clustersLayer.addLayer layer
 #            dateIRS
             return
@@ -608,7 +615,10 @@ class MapView extends Backbone.View
                   #{feature.properties.MalariaCaseID}</button>
                 "
                 layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
-                clustersTimeLayer.addLayer layer
+                clustersTimeLayer.addLayer layer 
+                layer.on 'click', (e) ->
+                  console.log 'Click CaseTime2'
+                  return
                 return
               pointToLayer: (feature, latlng) =>
                 # household markers with secondary cases
@@ -992,39 +1002,76 @@ class MapView extends Backbone.View
         style: admin1PolyOptions
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'District: ' + feature.properties.District_N
+          layer.on 'click', (e) ->
+              console.log 'Click District'
+              return
           return
       ).addTo map
       materialLayersControl.addOverlay(districtsLayer, 'Districts')
     
-    
-#    districtsCntrPtsJSON = undefined
-#    $.ajax
-#      url: '../../mapdata/DistrictsCntrPtsWGS84.json?V=1'
-#      dataType: 'json'
-#      type: 'GET'
-#      async: false
-#      success: (data) ->
-#        districtsCntrPtsJSON = data
-#        return
-#    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
-#    
-#    districtsCntrPtFeatures = districtsCntrPtsJSON.features
-#    for key of districtsCntrPtFeatures
-#      if districtsCntrPtFeatures.hasOwnProperty(key)
-#        val = districtsCntrPtFeatures[key]
-#        divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
-#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-#        districtsLabelsLayerGroup.addLayer(marker)
-#        
-#    invisibleMarkerOptions = 
-#      radius: 0
-#      fillColor: '#f44e03'
-#      opacity: 0
-#      fillOpacity: 0
-#        
-#    L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
-#        L.circleMarker latlng, invisibleMarkerOptions
-#    )
+    districtsCntrPtsJSON = undefined
+    Coconut.database.get 'DistrictsCntrPtsWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+        districtsCntrPtsJSON = data
+        districtsCntrPtFeatures = districtsCntrPtsJSON.features
+        for key of districtsCntrPtFeatures
+          if districtsCntrPtFeatures.hasOwnProperty(key)
+            val = districtsCntrPtFeatures[key]
+            divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
+            console.log("divIcon: "+divIcon);
+            marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+            districtsLabelsLayerGroup.addLayer(marker)
+
+        invisibleMarkerOptions = 
+          radius: 0
+          fillColor: '#f44e03'
+          opacity: 0
+          fillOpacity: 0
+
+        L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
+            console.log("point")
+            L.circleMarker latlng, invisibleMarkerOptions
+        )    
+
+    shehiasCntrPtsJSON = undefined
+    Coconut.database.get 'ShehiaCntrPtsWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+        shehiasCntrPtsJSON = data
+        shehiasCntrPtFeatures = shehiasCntrPtsJSON.features
+        for key of shehiasCntrPtFeatures
+          if shehiasCntrPtFeatures.hasOwnProperty(key)
+            val = shehiasCntrPtFeatures[key]
+            divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
+            console.log("divIcon: "+divIcon);
+            marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+            shehiasLabelsLayerGroup.addLayer(marker)
+
+        L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
+            console.log("point")
+            L.circleMarker latlng, invisibleMarkerOptions
+        )
+
+    villagesCntrPtsJSON = undefined
+    Coconut.database.get 'VillageCntrPtsWGS84'
+    .catch (error) -> console.error error
+    .then (data) ->
+        villagesCntrPtsJSON = data
+        villagesCntrPtFeatures = villagesCntrPtsJSON.features
+        for key of villagesCntrPtFeatures
+          if villagesCntrPtFeatures.hasOwnProperty(key)
+            val = villagesCntrPtFeatures[key]
+            divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
+            console.log("divIcon: "+divIcon);
+            marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+            villagesLabelsLayerGroup.addLayer(marker)
+
+        L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
+            console.log("point")
+            L.circleMarker latlng, invisibleMarkerOptions
+        )
+
 #
 #    shehiasCntrPtsJSON = undefined
 #    $.ajax
@@ -1050,6 +1097,24 @@ class MapView extends Backbone.View
 #        console.log "pointToLayerShahiaCntrPt"
 #        L.circleMarker latlng, invisibleMarkerOptions
 #    )
+
+#      console.log('districtsData: '+districtsData)
+#      districtsCntrPtsLayer = L.geoJson(districtsData,
+#        style: cntrpts
+#      )
+#    districtsCntrPtsJSON = undefined
+#    $.ajax
+#      url: '../../mapdata/DistrictsCntrPtsWGS84.json?V=1'
+#      dataType: 'json'
+#      type: 'GET'
+#      async: false
+#      success: (data) ->
+#        districtsCntrPtsJSON = data
+#        return
+#    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
+#    
+
+
 #
 #    villagesCntrPtsJSON = undefined
 #    $.ajax
@@ -1075,14 +1140,7 @@ class MapView extends Backbone.View
 #    )
 
 
-#    Coconut.database.get 'DistrictsCntrPtsWGS84'
-#    .catch (error) -> console.error error
-#    .then (data) ->
-#      districtsData = data
-#      #console.log('districtsData: '+districtsData)
-#      districtsCntrPtsLayer = L.geoJson(districtsData,
-#        style: cntrpts
-#      )
+
       
     
     Coconut.database.get 'ShahiasWGS84'
@@ -1092,7 +1150,11 @@ class MapView extends Backbone.View
       shehiasLayer = L.geoJson(shehiasData,
         style: admin2PolyOptions
         onEachFeature: (feature, layer) ->
-          layer.bindPopup 'Shehia: ' + feature.properties.Shehia
+          layer.bindPopup 'Shehia: ' + feature.properties.Shehia         
+          layer.on 'click', (e) ->
+              console.log 'Click Shehia'
+              return
+            
           return
       )
       materialLayersControl.addOverlay(shehiasLayer, 'Shehias')
@@ -1105,7 +1167,10 @@ class MapView extends Backbone.View
         style: admin3PolyOptions
         onEachFeature: (feature, layer) ->
           #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
-          layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N
+          layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N     
+          layer.on 'click', (e) ->
+              console.log 'Click Village'
+              return
           return
       )
       materialLayersControl.addOverlay(villagesLayer, 'Villages')
