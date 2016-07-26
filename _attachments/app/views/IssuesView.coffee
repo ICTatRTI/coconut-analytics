@@ -220,8 +220,6 @@ class IssuesView extends Backbone.View
           completed = _.after issues.length, ->
             $("#issuesTable tbody").html("")
             _(issues).map (Issue) =>
-              console.log(Issue)
-              console.log(Issue.FullName)
               $("#issuesTable tbody").append "
                  <tr>
                    <td class='mdl-data-table__cell--non-numeric'>#{Issue.Description}</td>
@@ -238,36 +236,33 @@ class IssuesView extends Backbone.View
                    </td>
                  </tr>
               "
-            
+            datatable = $("#issuesTable").DataTable
+              'order': [[1,"desc"]]
+              "pagingType": "full_numbers"
+              "dom": '<"top"fl>rt<"bottom"ip><"clear">'
+              "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+              "retrieve": true
+              "buttons": [
+                "csv",'excel','pdf'
+                ]
+                
+            $('#analysis-spinner').hide()
+
           _(issues).map (issue) ->
             if (issue['Assigned To'] is "" or issue['Assigned To'] is undefined)
               issue.FullName = '-'
+              completed()
             else
              Coconut.database.get issue['Assigned To']
               .catch (error) ->
                   console.error error
                   issue.FullName = '-'
+                  completed()
               .then (user) =>
-                issue.FullName = user.name
-                # if user?._id == undefined
-                #   issue.FullName = '-'
-                # else
-                #   issue.FullName = "TESTING"
-                  #issue.FullName =  "#{user.name}#{ if user.district then ' - ' + user.district else ''}".trim()
-                    
-            completed()
-            
-          datatable = $("#issuesTable").DataTable
-#            'order': [[1,"desc"]]
-            "pagingType": "full_numbers"
-            "dom": '<"top"fl>rt<"bottom"ip><"clear">'
-            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
-            "retrieve": true
-            "buttons": [
-              "csv",'excel','pdf'
-              ]
-              
-           $('#analysis-spinner').hide()
-              
+                if user?._id == undefined
+                  issue.FullName = '-'
+                else
+                  issue.FullName=  "#{user.name}#{ if user.district then ' - ' + user.district else ''}".trim()    
+                completed()
     
   module.exports = IssuesView
