@@ -331,7 +331,7 @@ var myLayersControl =  L.Control.extend({
             labelButton.style.height = "22px";
             labelButton.style.display = "inline";
             label.appendChild(labelButton)
-            L.DomEvent.on(labelButton, 'click', this._onLabelButtonClick, this);
+            L.DomEvent.addListener(labelButton, 'click', this._onLabelButtonClick, this);
         }
         
 //        if(obj.queried && !$( "#mapStyleSelect" )[ 0 ]){
@@ -469,6 +469,8 @@ var myLayersControl =  L.Control.extend({
 		this._refocusOnMap();
 	},
     _onLabelButtonClick: function (e) {
+        L.DomEvent.stop(e)
+        console.log('stopped');
 		var targetID = $("#"+e.target.id);
         var labelLayer = e.target.id.split("_")[1];
         var targetButton = $("#"+labelLayer+"_lableButton");
@@ -490,12 +492,7 @@ var myLayersControl =  L.Control.extend({
         });   
         window.dispatchEvent(event);
 
-//        if (activeStatus =='on'){
-//            button.removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" );
-//        }
-//        else{
-//            button.removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" );
-//        }
+        
         
 	},
   _toggleState: false,

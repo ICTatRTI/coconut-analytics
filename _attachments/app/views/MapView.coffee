@@ -187,6 +187,7 @@ window.addEventListener 'labelsOnOff', ((e) ->
       if onOff == "on" then shehiasLabelsLayerGroup.addTo(map) else map.removeLayer(shehiasLabelsLayerGroup)      
   else if layer == "Villages"
       if onOff == "on" then villagesLabelsLayerGroup.addTo(map) else map.removeLayer(villagesLabelsLayerGroup)
+                                                
   return
 ), false
 
@@ -1008,6 +1009,12 @@ class MapView extends Backbone.View
           return
       ).addTo map
       materialLayersControl.addOverlay(districtsLayer, 'Districts')
+
+    invisibleMarkerOptions = 
+      radius: 0
+      fillColor: '#f44e03'
+      opacity: 0
+      fillOpacity: 0
     
     districtsCntrPtsJSON = undefined
     Coconut.database.get 'DistrictsCntrPtsWGS84'
@@ -1022,12 +1029,6 @@ class MapView extends Backbone.View
             console.log("divIcon: "+divIcon);
             marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
             districtsLabelsLayerGroup.addLayer(marker)
-
-        invisibleMarkerOptions = 
-          radius: 0
-          fillColor: '#f44e03'
-          opacity: 0
-          fillOpacity: 0
 
         L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
             console.log("point")
