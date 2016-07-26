@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
 Question = require './Question'
+bcrypt = require('bcryptjs')
 
 class Case
   constructor: (options) ->
@@ -712,6 +713,8 @@ Case.createObjectTable = (name,object,mappings) ->
       <tbody>
         #{
           _.map(object, (value, field) =>
+            if !(Coconut.currentUser.isAdmin())
+              value = bcrypt.hashSync('cOcOnUt',8).substr(30,30) if (_.indexOf(['name','Name','FirstName','MiddleName','LastName'],field) != -1)
             return if "#{field}".match(/_id|_rev|collection/)
             "
               <tr>

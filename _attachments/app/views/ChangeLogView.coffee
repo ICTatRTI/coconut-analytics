@@ -33,6 +33,7 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
             <li>#86 - Assignee's name display issue in Issues table</li>
+            <li>#199 - UI:Hash PII before display</li>
           </ul>
         </div>  
         <h5>July 25, 2016</h5>
