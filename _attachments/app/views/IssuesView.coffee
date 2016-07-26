@@ -217,65 +217,57 @@ class IssuesView extends Backbone.View
           $("#issuesTable tbody").html "<tr><td colspan='5'><center>No records found...</center></td></tr>"
           $('#analysis-spinner').hide()
         else
-          populateUserName = (options) ->
-            issues = options.Issues
-
-            completed = _.after issues.length, ->
-              options.success(issues)
-        
-            _(issues).map (issue) ->              
-              issue['Assigned To'] == "none" if (issue['Assigned To'] is "" or issue['Assigned To'] is undefined)
-              Coconut.database.get issue['Assigned To']
-              .catch (error) -> 
-                  #console.error error
-                  issue.fullName = '-'
-                  completed()
-               .then (user) ->
-                  if user?._id == undefined
-                     issue.fullName = '-'
-                  else
-                    issue.fullName =  "#{user.name} #{ if user.district then ' - ' + user.district else ''}"
-
-                  completed()
-                  
-          populateUserName
-            Issues: issues
-            error: (error) -> console.error error
-            success: (issues) ->
-              $("#issuesTable tbody").html("")
-              _(issues).map (issue) ->
-                date = if issue.Week
-                  moment(issue.Week, "GGGG-WW").format("YYYY-MM-DD")
-                else
-                  issue["Date Created"]
-
-                $("#issuesTable tbody").append "
-                   <tr>
-                     <td class='mdl-data-table__cell--non-numeric'>#{issue.Description}</td>
-                     <td class='mdl-data-table__cell--non-numeric'>#{date}</td>
-                     <td class='mdl-data-table__cell--non-numeric'>#{issue.fullName or '-'}</td>
-                     <td class='mdl-data-table__cell--non-numeric'>#{issue['Date Resolved'] or '-'}</td>
-                     <td>
-                       <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                        <a href='#' class='issue-edit' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>mode_edit</i></a>
-                       </button>
-                       <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                       <a href='#' class='issue-delete' data-issue-id='#{issue._id}'><i class='material-icons icon-24'>delete</i></a>
-                        </button>
-                     </td>
-                   </tr>
-                "
-              datatable = $("#issuesTable").DataTable
-                'order': [[1,"desc"]]
-                "pagingType": "full_numbers"
-                "dom": '<"top"fl>rt<"bottom"ip><"clear">'
-                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
-                "retrieve": true
-                "buttons": [
-                  "csv",'excel','pdf'
-                  ]
-                  
-              $('#analysis-spinner').hide()
+          completed = _.after issues.length, ->
+            $("#issuesTable tbody").html("")
+            _(issues).map (Issue) =>
+              console.log(Issue)
+              console.log(Issue.FullName)
+              $("#issuesTable tbody").append "
+                 <tr>
+                   <td class='mdl-data-table__cell--non-numeric'>#{Issue.Description}</td>
+                   <td class='mdl-data-table__cell--non-numeric'>#{Issue["Date Created"]}</td>
+                   <td class='mdl-data-table__cell--non-numeric'>#{Issue.FullName}</td>
+                   <td class='mdl-data-table__cell--non-numeric'>#{Issue['Date Resolved'] or '-'}</td>
+                   <td>
+                     <button class='edit mdl-button mdl-js-button mdl-button--icon'>
+                      <a href='#' class='issue-edit' data-issue-id='#{Issue._id}'><i class='material-icons icon-24'>mode_edit</i></a>
+                     </button>
+                     <button class='delete mdl-button mdl-js-button mdl-button--icon'>
+                     <a href='#' class='issue-delete' data-issue-id='#{Issue._id}'><i class='material-icons icon-24'>delete</i></a>
+                      </button>
+                   </td>
+                 </tr>
+              "
+            
+          _(issues).map (issue) ->
+            if (issue['Assigned To'] is "" or issue['Assigned To'] is undefined)
+              issue.FullName = '-'
+            else
+             Coconut.database.get issue['Assigned To']
+              .catch (error) ->
+                  console.error error
+                  issue.FullName = '-'
+              .then (user) =>
+                issue.FullName = user.name
+                # if user?._id == undefined
+                #   issue.FullName = '-'
+                # else
+                #   issue.FullName = "TESTING"
+                  #issue.FullName =  "#{user.name}#{ if user.district then ' - ' + user.district else ''}".trim()
+                    
+            completed()
+            
+          datatable = $("#issuesTable").DataTable
+#            'order': [[1,"desc"]]
+            "pagingType": "full_numbers"
+            "dom": '<"top"fl>rt<"bottom"ip><"clear">'
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            "retrieve": true
+            "buttons": [
+              "csv",'excel','pdf'
+              ]
+              
+           $('#analysis-spinner').hide()
               
     
   module.exports = IssuesView
