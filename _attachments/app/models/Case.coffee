@@ -714,7 +714,8 @@ Case.createObjectTable = (name,object,mappings) ->
         #{
           _.map(object, (value, field) =>
             if !(Coconut.currentUser.isAdmin())
-              value = bcrypt.hashSync('cOcOnUt',8).substr(30,30) if (_.indexOf(['name','Name','FirstName','MiddleName','LastName'],field) != -1)
+              if (_.indexOf(['name','Name','FirstName','MiddleName','LastName','HeadofHouseholdName','ContactMobilepatientrelative'],field) != -1)
+                value = "************" 
             return if "#{field}".match(/_id|_rev|collection/)
             "
               <tr>
