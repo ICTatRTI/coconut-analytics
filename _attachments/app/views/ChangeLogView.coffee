@@ -29,11 +29,18 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 27, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>#205 - Add email to user record</li>
+          </ul>
+        </div>
         <h5>July 26, 2016</h5>
         <div class='changes'>
           <ul>
             <li>#86 - Assignee's name display issue in Issues table</li>
             <li>#199 - UI:Hash PII before display</li>
+            <li>#203 label buttons no longer change the URL</li>
           </ul>
         </div>  
         <h5>July 25, 2016</h5>
