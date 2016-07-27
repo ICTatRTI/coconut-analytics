@@ -26,8 +26,8 @@ class UsersView extends Backbone.View
       "click #new-user-btn": "createUser"
       "click a.user-edit": "editUser"
       "click a.user-delete": "deleteUser"
-      "click #formSave": "formSave"
-      "click #formCancel": "formCancel"
+      "click #userSave": "formSave"
+      "click #userCancel": "formCancel"
       #"click button#buttonYes": "deleteUser"
       "click a.user-pw-reset": "showResetView"
       "click button#btnSubmit": "resetPassword"
@@ -229,8 +229,8 @@ class UsersView extends Backbone.View
                 <label class='mdl-textfield__label' for='comments'>Comments</label>
               </div>
               <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='userSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='userCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
               </div> 
           </form>
         "

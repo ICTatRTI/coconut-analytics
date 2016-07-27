@@ -29,8 +29,8 @@ class IssuesView extends Backbone.View
     "click button#new-issue-btn": "newIssue"
     "click a.issue-edit": "editIssue"
     "click a.issue-delete": "deleteIssue"
-    "click button#formSave" : "saveIssue"
-    "click button#formCancel": "formCancel"
+    "click button#issueSave" : "saveIssue"
+    "click button#issueCancel": "formCancel"
 	  
   formCancel: (e) =>
     dialog.close() if dialog.open
@@ -192,8 +192,8 @@ class IssuesView extends Backbone.View
                  <label class='mdl-textfield__label' for='dateResolved'>Date Resolved</label>
              </div>
              <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='issueSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='issueCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
              </div> 
           </form>
         "

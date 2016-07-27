@@ -17,8 +17,8 @@ class GeoHierarchyView extends Backbone.View
     "click #new-geo-btn": "createGeoHierarchy"
     "click a.geo-edit": "editGeoHierarchy"
     "click a.geo-delete": "deleteDialog"
-    "click button#formSave": "formSave"
-    "click button#formCancel": "formCancel"
+    "click button#ghSave": "formSave"
+    "click button#ghCancel": "formCancel"
     "click button#buttonYes": "deleteGeo"
 
   createGeoHierarchy: (e) =>
@@ -84,8 +84,8 @@ class GeoHierarchyView extends Backbone.View
           }
 
         <div id='dialogActions'>
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='ghSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='ghCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
         </div> 
       </form>
     "

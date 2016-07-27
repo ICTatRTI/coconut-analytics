@@ -17,8 +17,8 @@ class RainfallStationView extends Backbone.View
     "click #new-station-btn": "createStation"
     "click a.station-edit": "editStation"
     "click a.station-delete": "deleteDialog"
-    "click button#formSave": "formSave"
-    "click button#formCancel": "formCancel"
+    "click button#rsSave": "formSave"
+    "click button#rsCancel": "formCancel"
     "click button#buttonYes": "deleteStation"
 
   createStation: (e) =>
@@ -91,8 +91,8 @@ class RainfallStationView extends Backbone.View
           }
 
         <div id='dialogActions'>
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='formSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='formCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='rsSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='rsCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
         </div> 
       </form>
     "
