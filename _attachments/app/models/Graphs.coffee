@@ -95,7 +95,7 @@ Graphs.retrieveData = (options,callback) ->
     data4Graph = {}
     _.each result.rows, (row) ->
       date = moment(row.key.substr(0,10), 'YYYY-MM-DD')
-      if row.key.substr(0,2) is "20" and date.isValid() and date.isBetween(startDate, new moment())
+      if row.key.substr(0,2) is "20" and date.isValid() and date.isBetween(startDate, endDate)
         aggregationKey = date.clone().endOf("isoweek").unix()
         casesPerAggregationPeriod[aggregationKey] = 0 unless casesPerAggregationPeriod[aggregationKey]
         casesPerAggregationPeriod[aggregationKey] += 1
@@ -176,7 +176,7 @@ Graphs.createGraph = (options, callback) ->
         legend = new Rickshaw.Graph.Legend
           element: document.querySelector("##{legend}"),
           graph: graph
-      
+        
       graph.render()
       callback(null, "Success")
 

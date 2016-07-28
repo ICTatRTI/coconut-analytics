@@ -33,6 +33,7 @@ class ChangeLogView extends Backbone.View
         <div class='changes'>
           <ul>
             <li>#205 - Add email to user record</li>
+            <li>Graphs - changed endDate from current date to user specified endDate</li>
           </ul>
         </div>
         <h5>July 26, 2016</h5>
@@ -40,7 +41,7 @@ class ChangeLogView extends Backbone.View
           <ul>
             <li>#86 - Assignee's name display issue in Issues table</li>
             <li>#199 - UI:Hash PII before display</li>
-            <li>#203 label buttons no longer change the URL</li>
+            <li>MapView: #203 label buttons no longer change the URL</li>
           </ul>
         </div>  
         <h5>July 25, 2016</h5>
