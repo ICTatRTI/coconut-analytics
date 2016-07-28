@@ -437,13 +437,30 @@ var myLayersControl =  L.Control.extend({
             obj = this._layers[input.layerId];
 //            console.log('obj.layer: '+obj.layer);
 			console.log("i: "+i)
-            console.log('obj.name: '+obj.name);
+            var event;
             if (input.checked && !this._map.hasLayer(obj.layer)) {
+                console.log('obj.name: '+obj.name);
 				this._map.addLayer(obj.layer);
-
-			} else if (!input.checked && this._map.hasLayer(obj.layer)) {
+                if (obj.name == "Cases (time)" || obj.name == "Cases"){
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "on" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
+                }
+            } 
+            else if (!input.checked && this._map.hasLayer(obj.layer)) {
+                console.log('obj.name: '+obj.name);
 				this._map.removeLayer(obj.layer);
+                if (obj.name == "Cases (time)" || obj.name == "Cases"){
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "off" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
+                }
 			}
+            
 //            if(obj.name != "Cases"){    
 //                if (input.checked && !this._map.hasLayer(obj.layer)) {
 //                    this._map.addLayer(obj.layer);
