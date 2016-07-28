@@ -154,7 +154,7 @@ class SystemSettingsView extends Backbone.View
             </div>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
               <input class='mdl-textfield__input' type='text' id='case_followup' value='#{Coconut.config.case_followup}'>
-              <label class='mdl-textfield__label' for='cloud_database_name'>Followup</label>
+              <label class='mdl-textfield__label' for='cloud_database_name'>Follow-up</label>
             </div>
           </div>
         </div> 

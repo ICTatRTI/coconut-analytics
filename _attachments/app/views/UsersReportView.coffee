@@ -39,7 +39,7 @@ class UsersReportView extends Backbone.View
     @$el.html "
        <dialog id='caseDialog'></dialog>
        <div id='dateSelector'></div>
-       <h4>How fast are followups occuring?</h4> 
+       <h4>How fast are follow-ups occuring?</h4> 
        <div id='users'> 
          <div class='userReports dropDownBtn'>
             <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>

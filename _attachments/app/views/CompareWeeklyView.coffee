@@ -305,9 +305,9 @@ class CompareWeeklyView extends Backbone.View
             <th>Cases Followed-Up within 48 Hours</th>
             <th>Median Days from Positive Test Result to Facility Notification (IQR)</th>
             <th>Median Days from Facility Notification to Complete Facility (IQR)</th>
-            <th>% of Notified Cases with Complete Facility Followup</th>
+            <th>% of Notified Cases with Complete Facility Follow-up</th>
             <th>Median Days from Facility Notification to Complete Household (IQR)</th>
-            <th>% of Notified Cases with Complete Household Followup</th>
+            <th>% of Notified Cases with Complete Household Follow-up</th>
             <th>Number of Household or Neighbor Members</th>
             <th>Number of Household or Neighbor Members Tested (%)</th>
             <th>Number of Household or Neighbor Members Tested Positive (%)</th>

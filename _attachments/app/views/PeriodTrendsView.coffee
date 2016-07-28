@@ -248,7 +248,7 @@ class PeriodTrendsView extends Backbone.View
             disaggregated : data.ages[district].underFive
             appendPercent : data.ages[district].underFive.length / data.totalPositiveCases[district].length
           ,
-            title         : "Positive Cases (index & household) with at least a <b>facility followup</b>"
+            title         : "Positive Cases (index & household) with at least a <b>facility follow-up</b>"
             disaggregated : data.totalPositiveCases[district]
           ,
             title         : "Positive Cases (index & household) that <b>slept under a net</b> night before diagnosis"
