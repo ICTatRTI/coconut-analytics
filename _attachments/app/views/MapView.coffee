@@ -9,6 +9,7 @@ map = undefined
 casesLayer = undefined
 casesTimeLayer = undefined
 layerTollBooth = undefined
+legend = undefined
 
 singleCaseStyle = 
     radius: 4
@@ -173,6 +174,20 @@ window.addEventListener 'fullScreenChange', ((e) ->
   return
 ), false
 
+window.addEventListener 'toggleLegend', ((e) ->
+  toState = e.detail.toState
+  console.log("toggleLegend toState: " + toState)
+  if toState == "on"
+    console.log("turnLegendOn")
+    legend.addTo map
+    setUpLegend()
+  else if toState == "off"
+    console.log("turnLegendOff")
+    legend.removeFrom map
+  
+  return
+), false
+
 districtsLabelsLayerGroup = "undefined"
 shehiasLabelsLayerGroup = "undefined"
 villagesLabelsLayerGroup = "undefined"
@@ -249,7 +264,6 @@ class MapView extends Backbone.View
   timeScale = undefined
   formatDate = d3.time.format('%b %d')
   outFormat = d3.time.format("%Y-%m-%d")
-  legend = undefined
   svg = undefined
   svgXAxis = undefined
   svgMargin = undefined
@@ -315,7 +329,7 @@ class MapView extends Backbone.View
             Coconut.router.navigate(url,{trigger: false})
             heatLayer = L.heatLayer(heatMapCoords, radius: 10) 
             heatTimeLayer = L.heatLayer(heatMapCoordsTime, radius: 10) 
-            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
         else
             layerTollBooth.setHeatLayerStatus false
             layerTollBooth.handleActiveState $('.heatMapButton button'), 'off'
@@ -325,7 +339,7 @@ class MapView extends Backbone.View
             if map.hasLayer casesTimeLayer
                 casesTimeLayer.clearLayers()
                 casesTimeLayer.addData(timeFeatures) 
-            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer)
+            layerTollBooth.handleHeatMap(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
   clusterToggle: =>
     if !layerTollBooth.clustersOn
       layerTollBooth.setClustersStatus true

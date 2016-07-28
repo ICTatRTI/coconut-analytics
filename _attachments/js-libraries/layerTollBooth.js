@@ -1,4 +1,5 @@
 function LayerTollBooth() {
+    var event;
     this.casesLoaded =  false;
     this.heatLayerOn = false;
     this.heatMapButton = $('.heatMapButton button');
@@ -38,12 +39,22 @@ function LayerTollBooth() {
             if (this.heatLayerOn){
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "off" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
                 }
                 map.addLayer(heatLayer)
             }
             else{
                 if (!this.clustersOn){
                     map.addLayer(casesLayer)
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "on" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
                 }
                 map.removeLayer(heatLayer)
             }
@@ -53,6 +64,11 @@ function LayerTollBooth() {
                 if (map.hasLayer(casesTimeLayer)){
                     map.removeLayer(casesTimeLayer)
                     materialLayersControl.removeLayer (casesTimeLayer)
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "off" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
                 }
                 map.addLayer(heatTimeLayer)
             }
@@ -60,6 +76,12 @@ function LayerTollBooth() {
                 if (!this.clustersOn){
                     map.addLayer(casesTimeLayer)
                     materialLayersControl.addQueriedLayer (casesTimeLayer, 'Cases (time)')
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "on" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
+
                 }
                 map.removeLayer(heatTimeLayer)
             }
@@ -70,12 +92,22 @@ function LayerTollBooth() {
             if (this.clustersOn){
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "off" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
                 }
                 map.addLayer(clustersLayer)
             }
             else{
                 if (!this.heatLayerOn){
                     map.addLayer(casesLayer)
+                    event = new CustomEvent('toggleLegend', { 'detail': { 
+                        toState: "on" 
+                        }
+                    });   
+                    window.dispatchEvent(event);
                 }
                 map.removeLayer(clustersLayer)
             }
