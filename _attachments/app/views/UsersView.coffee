@@ -96,6 +96,7 @@ class UsersView extends Backbone.View
         @user.district = $("#district").val().toUpperCase()
         @user.password = $('#passwd').val()
         @user.name = $('#name').val()
+        @user.email = $('#email').val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
@@ -183,7 +184,7 @@ class UsersView extends Backbone.View
       .then (result) =>
         users = _(result.rows).pluck("doc")
 
-        @fields =  "_id,password,district,name".split(",")
+        @fields =  "_id,password,district,name,email".split(",")
         @dialogEdit = "
           <form id='user' method='dialog'>
              <div id='dialog-title'> </div>
@@ -263,6 +264,7 @@ class UsersView extends Backbone.View
                   <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
                   <th class='header mdl-data-table__cell--non-numeric'>District</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Name</th>
+                  <th class='header mdl-data-table__cell--non-numeric'>Email</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Roles</th>
                   <th class='mdl-data-table__cell--non-numeric'>Comments</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Inactive</th>
@@ -277,6 +279,7 @@ class UsersView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
+                        <td class='mdl-data-table__cell--non-numeric'>#{user.email || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.roles || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.comments || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>

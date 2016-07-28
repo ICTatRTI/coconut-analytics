@@ -1033,7 +1033,7 @@ html, body, .mdl-layout__content, #content{
 }
 
 dialog {
-  top: 20%;
+  top: 12%;
   width: 400px;
   padding: 30px;
   border: none;
