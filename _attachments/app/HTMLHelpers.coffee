@@ -36,7 +36,7 @@ class HTMLHelpers
     text = cases.length unless text?
     "
       <button class='sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
-      <div class='cases' style='padding:10px;display:none'>
+      <div class='cases' style='padding:10px; display:none'>
         #{@createCasesLinks cases}
       </div>
     "
@@ -54,8 +54,8 @@ class HTMLHelpers
 
   @createDisaggregatableDocGroup = (text,docs) ->
     "
-      <button class='sort-value same-cell-disaggregatable'>#{text}</button>
-      <div class='cases' style='display:none'>
+      <button class='sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
+      <div class='cases' style='padding:10px;text-align: left; display:none'>
         #{@createDocLinks docs}
       </div>
     "

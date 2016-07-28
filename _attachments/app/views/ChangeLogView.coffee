@@ -29,11 +29,20 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 28, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Add report pagination and search box to Case Followup report</li>
+            <li>#209 - Correct spelling in titles and labels</li>
+            <li>#210 - Reports: Case drill-down not working in Analysis</li>
+          </ul>
+        </div>
         <h5>July 27, 2016</h5>
         <div class='changes'>
           <ul>
             <li>#205 - Add email to user record</li>
             <li>Graphs - changed endDate from current date to user specified endDate</li>
+            <li>MapView: #176 legend handled</li>
           </ul>
         </div>
         <h5>July 26, 2016</h5>
