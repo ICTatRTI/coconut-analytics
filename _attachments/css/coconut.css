@@ -409,7 +409,8 @@ i.material-icons{
 }
 
 #unhide-icons {
-	float: right;
+	float: left;
+  margin-bottom: 10px;
 }
 
 td.CaseID a{
@@ -912,7 +913,7 @@ dialog#changeLogDialog {
 }
 
 #summary-dropdown, #dropdown-container {
-	margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 #IssueForm {

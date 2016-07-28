@@ -4,10 +4,10 @@ Backbone = require 'backbone'
 Backbone.$  = $
 
 global.jQuery = require 'jquery'
-require 'tablesorter'
 moment = require 'moment'
 Reports = require '../models/Reports'
 Case = require '../models/Case'
+DataTables = require( 'datatables.net' )()
 
 class CaseFollowupView extends Backbone.View
   events:
@@ -71,10 +71,9 @@ class CaseFollowupView extends Backbone.View
           </span>
         </div>
       </div>	
-      <div id='dropdown-container'>
+      <div id='dropdown-container' style='clear: both'>
            <div id='legend-drop-section'>
-             <h4>Legends</h4>	
-             <h6>Click on a button for more details about the case.</h6>
+             <h6>Click button for more details about the case.</h6>
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>account_circle</i></button> - Positive malaria result found at household<br />
              <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  c_orange'>account_circle</i></button> - Positive malaria result found at household with no travel history (probable local transmission). <br />
              <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>home</i></button> - Index case had travel history.<br />
@@ -87,7 +86,7 @@ class CaseFollowupView extends Backbone.View
           </div>
       </div>
       <div id='results' class='result'>
-        <table class='summary tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+        <table class='summary mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='casefollowup' width='100%'>
           <thead><tr></tr></thead>
           <tbody>
           </tbody>
@@ -223,7 +222,16 @@ class CaseFollowupView extends Backbone.View
               </tbody>
             </table>
           "
-        else
-          @$el.append "<div><center>No result found...</center></div><hr />"
-          
+        
+        casefollowuptable = $("#casefollowup").DataTable
+          'order': [[1,"desc"]]
+          "pagingType": "full_numbers"
+          "dom": '<"top"fl>rt<"bottom"ip><"clear">'
+          "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+          "iDisplayLength": 50
+          "retrieve": true
+          "buttons": [
+            "csv",'excel','pdf'
+            ]
+                  
 module.exports = CaseFollowupView
