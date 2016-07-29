@@ -3,28 +3,31 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
-DataTables = require( 'datatables.net' )()
 Graphs = require '../models/Graphs'
-require('jquery-ui/draggable')
+moment = require 'moment'
+Dialog = require './Dialog'
 
 class DashboardView extends Backbone.View
   el: "#content"
 
   events:
-    "click #container_1": "graph1"
-    "click #container_2": "graph2"
+    "click div.chart_container": "zoomGraph"
   
-  graph1: (e) ->
-    Coconut.router.navigate("#graphs/type/IncidentsGraph", {trigger: true})
-
-  graph2: (e) ->
-    Coconut.router.navigate("#graphs/type/PositiveCasesGraph", {trigger: true})
+  zoomGraph: (e) ->
+    graphName = $(e.currentTarget).attr "data-graph-id"
+    if graphName != undefined
+      Coconut.router.navigate("#graphs/type/#{graphName}", {trigger: true})
         
   render: =>
-    $('#analysis-spinner').show()
+    # $('#analysis-spinner').show()
     @$el.html "
-        <style>.page-content {margin: 0} </style>
+        <style>
+          .page-content {margin: 0} 
+        </style>
         <div id='dateSelector'></div>
+        <dialog id='dialog'>
+          <div id='dialogContent'> </div>
+        </dialog>
         <div id='dashboard-summary'>
           <div class='sub-header-color relative clear'>
             <div class='mdl-grid'>
@@ -65,11 +68,12 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>Incidence Graph - cases by week</div>
-                <div id='container_1' class='chart_container f-left'>
+                <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
                   <div class='mdl-grid'>
                     <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
                       <div id='y_axis_1' class='y_axis'></div>
                       <div id='chart_1' class='chart'></div>
+                      <div class='graph-spinner mdl-spinner mdl-js-spinner is-active'></div>
                     </div>
                     <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>
                       <div id='legend' class='legend'></div>
@@ -80,11 +84,12 @@ class DashboardView extends Backbone.View
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'> 
                 <div class='chart-title'>Number of Positive Cases</div>
-                <div id='container_2' class='chart_container f-left'>
+                <div id='container_2' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
                   <div class='mdl-grid'>
                     <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
                       <div id='y_axis_2' class='y_axis'></div>
                       <div id='chart_2' class='chart'></div>
+                      <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                     </div>
                     <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'> 
                       <div id='legend2' class='legend'></div>
@@ -101,6 +106,7 @@ class DashboardView extends Backbone.View
                     <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'> 
                         <div id='y_axis_3' class='y_axis'></div>
                         <div id='chart_3' class='chart'></div>
+                        <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                     </div>
                     <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'> 
                         <div id='legend3' class='legend'></div>
@@ -115,6 +121,7 @@ class DashboardView extends Backbone.View
                     <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone''> 
                       <div id='y_axis_4' class='y_axis'></div>
                       <div id='chart_4' class='chart'></div>
+                      <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                     </div>
                     <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>
                       <div id='legend4' class='legend'></div>
@@ -125,50 +132,99 @@ class DashboardView extends Backbone.View
           </div>
         </div>
     "
-    #$("#chart_box_1, #chart_box_2, #chart_box_3, #chart_box_4").draggable()
+    $('.graph-spinner').show()
     
-    options = $.extend({},Coconut.router.reportViewOptions)
-    options.chart_height = 260
-    options.startDate = '2015-01-01'
-    options.endDate = '2015-12-31'
-    # Incident Graph
-    options.container = 'container_1'
-    options.y_axis = 'y_axis_1'
-    options.chart = 'chart_1'
-    options.legend = "legend"
-    Graphs.IncidentsGraph options, (err, response) ->
-      if (err)
-        console.log(err)
-        $('#analysis-spinner').hide()
+    startDate = moment(Coconut.router.reportViewOptions.startDate).format('YYYY-MM-DD')
+    endDate = moment(Coconut.router.reportViewOptions.endDate).format('YYYY-MM-DD')
+    Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCases",
+      startkey: startDate
+      endkey: endDate
+      include_docs: false
+    .catch (error) ->
+      console.error error
+    .then (result) =>      
+      if result.rows.length == 0
+        Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCasesByDates",
+          include_docs: false
+        .catch (error) ->
+          console.error error
+        .then (results) =>
+          #sort to get the latest positive case date as the end date and startDate be a month before that.
+          results.rows.sort (a,b) ->
+            if a.key < b.key
+              return 1
+            if a.key > b.key
+              return -1
+            if a.key = b.key
+              return 0 
+          Coconut.router.reportViewOptions.endDate = endDate = results.rows[0].key.substr(0,10)
+          Coconut.router.reportViewOptions.startDate = startDate = moment(endDate).subtract(1, 'month').format('YYYY-MM-DD')
+
+          Coconut.dateSelectorView.startDate = startDate
+          Coconut.dateSelectorView.endDate = endDate
+          Coconut.dateSelectorView.render()
+          @showGraphs(startDate, endDate)
       else
-        # #PositiveCases
-        options.container = 'container_2'
-        options.y_axis = 'y_axis_2'
-        options.chart = 'chart_2'
-        options.legend = "legend2"
-        Graphs.PositiveCasesGraph options, (err2, response2) ->
-          if (err2)
-            console.log(err2)
-            $('#analysis-spinner').hide()
-          else
-            # Example Graph
-            options.container = 'container_3'
-            options.y_axis = 'y_axis_3'
-            options.chart = 'chart_3'
-            options.legend = "legend3"
-            Graphs.BarChart options, (err3, response3) ->
-              if (err3) 
-                console.log(err3)
-                $('#analysis-spinner').hide()
-              else
-                options.container = 'container_4'
-                options.y_axis = 'y_axis_4'
-                options.chart = 'chart_4'
-                options.legend = "legend4"
-                Graphs.ScatterPlotChart options, (err4, response4) ->
-                  if (err4) 
-                    console.log(err4)
-                  
-                  $('#analysis-spinner').hide()
-   
+        @showGraphs(startDate, endDate)
+
+  showGraphs: (startDate, endDate) ->
+    @chart_height = 260
+    # Incident Graph
+    Graphs.IncidentsGraph
+      chart_height: @chart_height
+      startDate: startDate
+      endDate: endDate
+      container: 'container_1'
+      y_axis: 'y_axis_1'
+      chart: 'chart_1'
+      legend: 'legend'
+    .catch (error) ->
+      console.error error
+    .then (response) ->
+      $('div#container_1 div.mdl-spinner').hide()
+
+    # PositiveCases
+    Graphs.PositiveCasesGraph
+      chart_height: @chart_height
+      startDate: startDate
+      endDate: endDate
+      container: 'container_2'
+      y_axis: 'y_axis_2'
+      chart: 'chart_2'
+      legend: "legend2"
+    .catch (error) ->
+      console.error error
+    .then (response) ->
+      $('div#container_2 div.mdl-spinner').hide()
+
+    # Example Bar Graph
+    Graphs.BarChart
+      chart_height: @chart_height
+      startDate: startDate
+      endDate: endDate
+      container: 'container_3'
+      y_axis: 'y_axis_3'
+      chart: 'chart_3'
+      legend: "legend3"
+    .catch (error) ->
+      console.error error
+    .then (response) ->
+      $('div#container_3 div.mdl-spinner').hide()
+
+    # Example ScatterPlot Graph
+    Graphs.ScatterPlotChart
+      chart_height: @chart_height
+      startDate: startDate
+      endDate: endDate
+      container: 'container_4'
+      y_axis: 'y_axis_4'
+      chart: 'chart_4'
+      legend: "legend4"
+    .catch (error) ->
+      console.log("ScatterPlot failed")
+      console.error error
+    .then (response) ->
+      console.log("ScatterPlot success")
+      $('div#container_4 div.mdl-spinner').hide()
+
 module.exports = DashboardView

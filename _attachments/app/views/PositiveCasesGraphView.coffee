@@ -34,8 +34,10 @@ class PositiveCasesGraphView extends Backbone.View
     options.container = 'chart_container_1'
     options.y_axis = 'y_axis_1'
     options.chart = 'chart_1'
-    Graphs.PositiveCasesGraph options, (err, response) ->
-      if (err) then console.log(err)
+    Graphs.PositiveCasesGraph options
+    .catch (err) ->
+      console.error err
+    .then () ->
       $('#analysis-spinner').hide()
        
 module.exports = PositiveCasesGraphView

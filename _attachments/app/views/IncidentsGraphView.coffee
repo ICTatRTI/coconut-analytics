@@ -35,8 +35,10 @@ class IncidentsGraphView extends Backbone.View
     options.y_axis = 'y_axis_1'
     options.x_axis = 'x_axis_1'
     options.chart = 'chart_1'
-    Graphs.IncidentsGraph options, (err, response) ->
-      if (err) then console.log(err)
+    Graphs.IncidentsGraph options
+    .catch (err) ->
+      console.error err
+    .then () ->
       $('#analysis-spinner').hide()
     
 module.exports = IncidentsGraphView

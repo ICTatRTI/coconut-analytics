@@ -29,6 +29,12 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>July 29, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Refactor Graphs model to use promises to improve performance in dashboard</li>
+          </ul>
+        </div>
         <h5>July 28, 2016</h5>
         <div class='changes'>
           <ul>
