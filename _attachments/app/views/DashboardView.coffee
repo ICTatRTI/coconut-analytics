@@ -3,6 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
+Reports = require '../models/Reports'
 Graphs = require '../models/Graphs'
 moment = require 'moment'
 Dialog = require './Dialog'
@@ -134,36 +135,22 @@ class DashboardView extends Backbone.View
     "
     $('.graph-spinner').show()
     
-    startDate = moment(Coconut.router.reportViewOptions.startDate).format('YYYY-MM-DD')
-    endDate = moment(Coconut.router.reportViewOptions.endDate).format('YYYY-MM-DD')
+    startDate = Coconut.router.reportViewOptions.startDate
+    endDate = Coconut.router.reportViewOptions.endDate
     Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCases",
       startkey: startDate
       endkey: endDate
       include_docs: false
     .catch (error) ->
       console.error error
-    .then (result) =>      
+    .then (result) =>
       if result.rows.length == 0
-        Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCasesByDates",
-          include_docs: false
-        .catch (error) ->
-          console.error error
-        .then (results) =>
-          #sort to get the latest positive case date as the end date and startDate be a month before that.
-          results.rows.sort (a,b) ->
-            if a.key < b.key
-              return 1
-            if a.key > b.key
-              return -1
-            if a.key = b.key
-              return 0 
-          Coconut.router.reportViewOptions.endDate = endDate = results.rows[0].key.substr(0,10)
-          Coconut.router.reportViewOptions.startDate = startDate = moment(endDate).subtract(1, 'month').format('YYYY-MM-DD')
-
-          Coconut.dateSelectorView.startDate = startDate
-          Coconut.dateSelectorView.endDate = endDate
-          Coconut.dateSelectorView.render()
-          @showGraphs(startDate, endDate)
+        Coconut.router.reportViewOptions.endDate = endDate = moment().format('YYYY-MM-DD')
+        Coconut.router.reportViewOptions.startDate = startDate = moment().dayOfYear(1).format('YYYY-MM-DD')
+        Coconut.dateSelectorView.startDate = startDate
+        Coconut.dateSelectorView.endDate = endDate
+        Coconut.dateSelectorView.render()
+        @showGraphs(startDate, endDate)
       else
         @showGraphs(startDate, endDate)
 
@@ -227,4 +214,14 @@ class DashboardView extends Backbone.View
       console.log("ScatterPlot success")
       $('div#container_4 div.mdl-spinner').hide()
 
+  showStats: (cases, startDate, endDate) ->
+    
+    
+    
+  filterByDate = (options) ->
+    return new Promise (resolve,reject) -> 
+      cases = _.filter options.rows, (row) ->
+        return moment(row.key).isBetween(options.startDate, options.endDate)
+      resolve(cases)    
+    
 module.exports = DashboardView
