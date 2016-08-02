@@ -26,7 +26,7 @@ Graphs.IncidentsGraph = (options) ->
         
 Graphs.PositiveCasesGraph = (options) ->
   options.renderer = 'lineplot'
-  options.names = ["Age < 5","Age > 5"]
+  options.names = ["Age < 5","Age >= 5"]
   options.dataForGraph = []
   options.couch_view = "positiveCasesLT5"
   return new Promise (resolve, reject) ->
