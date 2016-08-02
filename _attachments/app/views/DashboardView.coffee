@@ -20,6 +20,7 @@ class DashboardView extends Backbone.View
       Coconut.router.navigate("#graphs/type/#{graphName}", {trigger: true})
         
   render: =>
+    Coconut.statistics = Coconut.statistics || {}
     # $('#analysis-spinner').show()
     @$el.html "
         <style>
@@ -133,6 +134,8 @@ class DashboardView extends Backbone.View
     "
     $('.graph-spinner').show()
     
+    displayStatistics()
+    
     startDate = Coconut.router.reportViewOptions.startDate
     endDate = Coconut.router.reportViewOptions.endDate
     Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCases",
@@ -229,13 +232,22 @@ class DashboardView extends Backbone.View
           if moment(malariaCase.Facility?.DateofPositiveResults).isBefore(moment().subtract(2,'days'))
             if malariaCase["USSD Notification"]? &&  !malariaCase["USSD Notification"].complete?
               ++alertsCount
-            if malariaCase["Case Notification"]? &&  !malariaCase["Case Notification"].complete?
+            else if malariaCase["Case Notification"]? &&  !malariaCase["Case Notification"].complete?
               ++casesCount
-            if malariaCase.Facility? &&  !malariaCase.Facility.complete?
-              ++issuesCount     
-        $('#alertStat').html(alertsCount)
-        $('#caseStat').html(casesCount)
-        $('#issueStat').html(issuesCount)
+            else if malariaCase.Facility? &&  !malariaCase.Facility.complete?
+              ++issuesCount
+
+        Coconut.statistics.alerts = alertsCount
+        Coconut.statistics.cases = casesCount
+        Coconut.statistics.issues = issuesCount
+        displayStatistics()
+  
+  displayStatistics = () ->
+    console.log(Coconut.statistics.alerts, Coconut.statistics.cases, Coconut.statistics.issues)
+    $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?
+    $('#caseStat').html(Coconut.statistics.cases) if Coconut.statistics.cases?
+    $('#issueStat').html(Coconut.statistics.issues) if Coconut.statistics.issues?
+    
     
   filterByDate = (options) ->
     return new Promise (resolve,reject) -> 
