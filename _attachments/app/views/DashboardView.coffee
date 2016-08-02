@@ -232,9 +232,9 @@ class DashboardView extends Backbone.View
           if moment(malariaCase.Facility?.DateofPositiveResults).isBefore(moment().subtract(2,'days'))
             if malariaCase["USSD Notification"]? &&  !malariaCase["USSD Notification"].complete?
               ++alertsCount
-            else if malariaCase["Case Notification"]? &&  !malariaCase["Case Notification"].complete?
+            if malariaCase["Case Notification"]? &&  !malariaCase["Case Notification"].complete?
               ++casesCount
-            else if malariaCase.Facility? &&  !malariaCase.Facility.complete?
+            if malariaCase.Facility? &&  !malariaCase.Facility.complete?
               ++issuesCount
 
         Coconut.statistics.alerts = alertsCount
