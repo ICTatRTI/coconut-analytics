@@ -6,6 +6,7 @@ PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 Cookies = require 'js-cookie'
 bcrypt = require('bcryptjs')
+moment = require 'moment'
 
 class User extends Backbone.Model
   sync: BackbonePouch.sync
@@ -72,6 +73,12 @@ User.login = (options) ->
       $("a#logout").show()
       $("a#login").hide()
       if user.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
+      Coconut.database.post
+        collection: "login"
+        user: Coconut.currentlogin
+        date: moment(new Date()).format(Coconut.config.date_format)
+      .catch (error) -> 
+         console.error error
       options.success()
 #      else
 #        options.error("Incorrect Password")

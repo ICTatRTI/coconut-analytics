@@ -34,6 +34,7 @@ class ChangeLogView extends Backbone.View
           <ul>
             <li>Default date range set to Y-T-D, on first entry to Dashboard</li>
             <li>Dynamically calculate and display the statistics</li>
+            <li>#213 - Create a login log upon successful login</li>
           </ul>
         </div>
         <h5>July 29, 2016</h5>
