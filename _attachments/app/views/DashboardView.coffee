@@ -23,7 +23,7 @@ class DashboardView extends Backbone.View
     # $('#analysis-spinner').show()
     @$el.html "
         <style>
-          .page-content {margin: 0} 
+          .page-content {margin: 0}
         </style>
         <div id='dateSelector'></div>
         <dialog id='dialog'>
@@ -34,26 +34,24 @@ class DashboardView extends Backbone.View
             <div class='mdl-grid'>
               <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
                 <div class='summary' id='summary1'> 
-                  <div class='stats'>54</div>
+                  <div class='stats' id='alertStat'><div style='font-size:12px'>Loading...</div></div>
                   <div class='stats-title'>ALERTS</div>
                 </div>
               </div>
               <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
                 <div class='summary' id='summary2'> 
-                  <div class='stats'>76</div>
+                  <div class='stats' id='caseStat'><div style='font-size:12px'>Loading...</div></div>
                   <div class='stats-title'>CASES</div>
                 </div>
               </div>
               <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
                 <div class='summary' id='summary3'> 
-                  <div class='stats'>32</div>
+                  <div class='stats' id='issueStat'><div style='font-size:12px'>Loading...</div></div>
                   <div class='stats-title'>ISSUES</div>
                 </div>
               </div>
               <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary4'> 
-                  <div class='stats'>10</div>
-                  <div class='stats-title'>PILOT</div>
+                <div class='summary' id='summary4'>
                 </div>
               </div>
               <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
@@ -150,8 +148,10 @@ class DashboardView extends Backbone.View
         Coconut.dateSelectorView.startDate = startDate
         Coconut.dateSelectorView.endDate = endDate
         Coconut.dateSelectorView.render()
+        @showStats(startDate, endDate)
         @showGraphs(startDate, endDate)
       else
+        @showStats(startDate, endDate)
         @showGraphs(startDate, endDate)
 
   showGraphs: (startDate, endDate) ->
@@ -214,9 +214,28 @@ class DashboardView extends Backbone.View
       console.log("ScatterPlot success")
       $('div#container_4 div.mdl-spinner').hide()
 
-  showStats: (cases, startDate, endDate) ->
-    
-    
+  showStats: (startDate, endDate) ->
+    reports = new Reports()
+    reports.getCases
+      startDate: startDate
+      endDate: endDate
+      
+      
+      success: (cases) =>
+        alertsCount = 0
+        casesCount = 0
+        issuesCount = 0
+        _.each cases, (malariaCase) =>
+          if moment(malariaCase.Facility?.DateofPositiveResults).isBefore(moment().subtract(2,'days'))
+            if malariaCase["USSD Notification"]? &&  !malariaCase["USSD Notification"].complete?
+              ++alertsCount
+            if malariaCase["Case Notification"]? &&  !malariaCase["Case Notification"].complete?
+              ++casesCount
+            if malariaCase.Facility? &&  !malariaCase.Facility.complete?
+              ++issuesCount     
+        $('#alertStat').html(alertsCount)
+        $('#caseStat').html(casesCount)
+        $('#issueStat').html(issuesCount)
     
   filterByDate = (options) ->
     return new Promise (resolve,reject) -> 

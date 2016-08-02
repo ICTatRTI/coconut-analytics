@@ -634,28 +634,36 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 		cursor: pointer;
 }
 
-#summary1 {
-	background-image: url(../images/summary1.png);
+#summary1, #summary5, #summary6 {
+	background-image: url(../images/summary1a.png);
+  background-color: #ff5722;
 	background-repeat: no-repeat;
+  background-position:right center;
 }
 
 #summary2 {
-	background-image: url(../images/summary2.png);
+	background-image: url(../images/summary2a.png);
+  background-color: #05bcd4;
 	background-repeat: no-repeat;
+  background-position:right center;
 }
 
 #summary3 {
-	background-image: url(../images/summary3.png);
+	background-image: url(../images/summary3a.png);
+  background-color: #3f51b5;
 	background-repeat: no-repeat;
+  background-position:right center;
 }
 
 #summary4 {
-	background-image: url(../images/summary4.png);
+	background-image: url(../images/summary4a.png);
+  background-color: #059688;
 	background-repeat: no-repeat;
+  background-position:right center;
 }
 
 .stats {
-	font-size: 30px;
+	font-size: 20px;
 	color: #fff;
 	padding: 0px 20px;
 }
