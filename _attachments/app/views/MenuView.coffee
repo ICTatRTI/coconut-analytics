@@ -130,7 +130,7 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-settings'>
           #{
              settingLinks = {
-               setting_theme: "Color Theme"
+               setting_theme: "User Profile"
                setting_general: "General"
                setting_language: "Language"
                setting_misc: "Miscellaneous"
