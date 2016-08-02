@@ -7,7 +7,7 @@ class Graphs
 
 Graphs.IncidentsGraph = (options) ->
   options.couch_view = "positiveCases"
-  options.renderer = 'area'
+  options.renderer = 'line'
   options.names = ['Incident']
   return new Promise (resolve, reject) ->
     Graphs.retrieveData options

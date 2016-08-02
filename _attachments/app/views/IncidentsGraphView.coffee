@@ -15,7 +15,7 @@ class IncidentsGraphView extends Backbone.View
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <div id='dateSelector'></div>
-       <div class='chart-title'>Incidence Graph - Cases by Week</div>
+       <div class='chart-title'>Number of Cases</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>

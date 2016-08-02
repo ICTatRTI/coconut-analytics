@@ -67,7 +67,7 @@ class DashboardView extends Backbone.View
         <div class='page-content'>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
-                <div class='chart-title'>Incidence Graph - cases by week</div>
+                <div class='chart-title'>Number of Cases</div>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
                   <div class='mdl-grid'>
                     <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
@@ -83,7 +83,7 @@ class DashboardView extends Backbone.View
                 
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'> 
-                <div class='chart-title'>Number of Positive Cases</div>
+                <div class='chart-title'>Number of Positive Cases by Age Group</div>
                 <div id='container_2' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
                   <div class='mdl-grid'>
                     <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
