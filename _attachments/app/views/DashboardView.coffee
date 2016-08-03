@@ -147,15 +147,15 @@ class DashboardView extends Backbone.View
       console.error error
     .then (result) =>
       if result.rows.length == 0
-        displayError
-          success: ->
-            Coconut.router.reportViewOptions.endDate = endDate = moment().format('YYYY-MM-DD')
-            Coconut.router.reportViewOptions.startDate = startDate = moment().dayOfYear(1).format('YYYY-MM-DD')
-            Coconut.dateSelectorView.startDate = startDate
-            Coconut.dateSelectorView.endDate = endDate
-            Coconut.dateSelectorView.render()
-            view.showStats(startDate, endDate)
-            view.showGraphs(startDate, endDate)
+        Coconut.router.reportViewOptions.endDate = endDate = moment().format('YYYY-MM-DD')
+        Coconut.router.reportViewOptions.startDate = startDate = moment().dayOfYear(1).format('YYYY-MM-DD')
+        Coconut.dateSelectorView.startDate = startDate
+        Coconut.dateSelectorView.endDate = endDate
+        Coconut.dateSelectorView.render()
+        displayError()
+        view.showStats(startDate, endDate)
+        view.showGraphs(startDate, endDate)
+        
         
       else
         @showStats(startDate, endDate)
@@ -249,13 +249,8 @@ class DashboardView extends Backbone.View
     $('#caseStat').html(Coconut.statistics.cases) if Coconut.statistics.cases?
     $('#issueStat').html(Coconut.statistics.issues) if Coconut.statistics.issues?
     
-  displayError = (options) ->
-    $('div#noDataFound').show()
-    setTimeout ->
-      $('div#noDataFound').fadeOut()
-      options.success(true)
-    , 4000
-    
+  displayError = () ->
+    $('div#noDataFound').show().delay(4000).fadeOut()
     
   filterByDate = (options) ->
     return new Promise (resolve,reject) -> 
