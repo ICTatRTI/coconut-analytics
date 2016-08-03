@@ -81,7 +81,6 @@ Graphs.ScatterPlotChart = (options) ->
       options.dataForGraph = [result]
       Graphs.createGraph options
       .then (response) ->
-        console.log("Graph success")
         resolve(response)
       .catch (err) ->
         reject(err)

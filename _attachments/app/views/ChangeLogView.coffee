@@ -29,6 +29,16 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>Aug 2, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Moving user profile menu option under User Settings</li>
+            <li>#120 - Changing graph type and graph title</li>
+            <li>#214 - Minor correction to graph legend label</li>
+            <li>Cache statistics to for faster display on Dashboard reload</li>
+            <li>#188 - Display fading-out message if no data found, on Dashboard</li>
+          </ul>
+        </div>
         <h5>Aug 1, 2016</h5>
         <div class='changes'>
           <ul>

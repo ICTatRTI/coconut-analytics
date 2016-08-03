@@ -276,6 +276,13 @@ input.datepicker {
 	color: red;
 }
 
+#noDataFound {
+  font-size: 17px;
+	color: red;
+  padding-top: 15px;
+  display: none;
+}
+
 /* Material Design styling */
 
 .mdl-grid.mdl-grid-p-15 {
@@ -857,6 +864,7 @@ div.login-group input:focus ~ .login-highlight {
   background: #fff; 
   cursor: pointer; 
   padding: 5px 10px; 
+  margin-right: 25px;
   border: 1px solid #08c; 
   border-radius: 4px;
   width: 250px

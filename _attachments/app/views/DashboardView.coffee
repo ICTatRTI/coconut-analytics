@@ -138,6 +138,7 @@ class DashboardView extends Backbone.View
     
     startDate = Coconut.router.reportViewOptions.startDate
     endDate = Coconut.router.reportViewOptions.endDate
+    view = @
     Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCases",
       startkey: startDate
       endkey: endDate
@@ -146,13 +147,16 @@ class DashboardView extends Backbone.View
       console.error error
     .then (result) =>
       if result.rows.length == 0
-        Coconut.router.reportViewOptions.endDate = endDate = moment().format('YYYY-MM-DD')
-        Coconut.router.reportViewOptions.startDate = startDate = moment().dayOfYear(1).format('YYYY-MM-DD')
-        Coconut.dateSelectorView.startDate = startDate
-        Coconut.dateSelectorView.endDate = endDate
-        Coconut.dateSelectorView.render()
-        @showStats(startDate, endDate)
-        @showGraphs(startDate, endDate)
+        displayError
+          success: ->
+            Coconut.router.reportViewOptions.endDate = endDate = moment().format('YYYY-MM-DD')
+            Coconut.router.reportViewOptions.startDate = startDate = moment().dayOfYear(1).format('YYYY-MM-DD')
+            Coconut.dateSelectorView.startDate = startDate
+            Coconut.dateSelectorView.endDate = endDate
+            Coconut.dateSelectorView.render()
+            view.showStats(startDate, endDate)
+            view.showGraphs(startDate, endDate)
+        
       else
         @showStats(startDate, endDate)
         @showGraphs(startDate, endDate)
@@ -211,10 +215,8 @@ class DashboardView extends Backbone.View
       chart: 'chart_4'
       legend: "legend4"
     .catch (error) ->
-      console.log("ScatterPlot failed")
       console.error error
     .then (response) ->
-      console.log("ScatterPlot success")
       $('div#container_4 div.mdl-spinner').hide()
 
   showStats: (startDate, endDate) ->
@@ -243,10 +245,16 @@ class DashboardView extends Backbone.View
         displayStatistics()
   
   displayStatistics = () ->
-    console.log(Coconut.statistics.alerts, Coconut.statistics.cases, Coconut.statistics.issues)
     $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?
     $('#caseStat').html(Coconut.statistics.cases) if Coconut.statistics.cases?
     $('#issueStat').html(Coconut.statistics.issues) if Coconut.statistics.issues?
+    
+  displayError = (options) ->
+    $('div#noDataFound').show()
+    setTimeout ->
+      $('div#noDataFound').fadeOut()
+      options.success(true)
+    , 4000
     
     
   filterByDate = (options) ->

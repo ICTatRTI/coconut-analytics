@@ -32,10 +32,12 @@ class DateSelectorView extends Backbone.View
 
   render: =>
     @$el.html "
-      <div id='dateRange'>
+      <div id='dateRange' class='f-left'>
           <i class='material-icons'>event</i>&nbsp;
           <span></span><i class='material-icons f-right'>arrow_drop_down</i>
       </div>
+      <div id='noDataFound' class='f-left'>No data found for date range selected. Using predefined default dates</div>
+      <div style='clear:both'></div>
     "
     $('#dateRange span').html(@startDate + ' - ' + @endDate) 
     $('#dateRange').daterangepicker
