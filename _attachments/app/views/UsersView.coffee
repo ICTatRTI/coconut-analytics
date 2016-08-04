@@ -28,7 +28,6 @@ class UsersView extends Backbone.View
       "click a.user-delete": "deleteUser"
       "click #userSave": "formSave"
       "click #userCancel": "formCancel"
-      #"click button#buttonYes": "deleteUser"
       "click a.user-pw-reset": "showResetView"
       "click button#btnSubmit": "resetPassword"
 
@@ -73,7 +72,7 @@ class UsersView extends Backbone.View
          Dialog.markTextfieldDirty()
        return false
 	   
-    formSave: =>
+    formSave: (e) =>
       errorMsg = ""
       errorMsg += 'Username, ' if $('#_id').val() == ''
       errorMsg += 'Password, ' if $('input#mode').val() == 'add' and $('#passwd').val() == ''
@@ -108,12 +107,12 @@ class UsersView extends Backbone.View
 
         @user.roles = roles
         Coconut.database.put @user
-        .then =>
-          @render()
         .catch (error) -> 
            console.error error
            Dialog.confirm( error, 'Error Encountered',['Ok'])
-        
+        .then =>
+          console.log(@user)
+          @render()
         return false
 	
     deleteDialog: (e) =>
@@ -184,7 +183,7 @@ class UsersView extends Backbone.View
       .then (result) =>
         users = _(result.rows).pluck("doc")
 
-        @fields =  "_id,password,district,name,email".split(",")
+        @fields =  "_id,password,district,name".split(",")
         @dialogEdit = "
           <form id='user' method='dialog'>
              <div id='dialog-title'> </div>
@@ -206,6 +205,11 @@ class UsersView extends Backbone.View
                 "
                 ).join("")
               }
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_email' style='margin-bottom: 10px'>
+                <input class='mdl-textfield__input' type='text' pattern='^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$' id='email' name='email'</input>
+                <label class='mdl-textfield__label' for='email'>Email</label>
+                <span class='mdl-textfield__error'>Email is not valid!</span>
+              </div>
               <div style='color: rgb(33,150,243)'>Roles:</div>
               <div class='m-l-10 m-b-20'>
                 #{

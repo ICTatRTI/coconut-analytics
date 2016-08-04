@@ -32,6 +32,7 @@ class ChangeLogView extends Backbone.View
         <h5>Aug 4, 2016</h5>
         <div class='changes'>
           <ul>
+            <li>#211 - Add email validation for User record update</li>
             <li>#198 - Display human readable labels in Case detail popups</li>
             <li>Improving asynchronous data display in Dashboard</li>
           </ul>

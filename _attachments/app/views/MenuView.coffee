@@ -132,8 +132,6 @@ class MenuView extends Backbone.View
              settingLinks = {
                setting_theme: "User Profile"
                setting_general: "General"
-               setting_language: "Language"
-               setting_misc: "Miscellaneous"
              }
              _(settingLinks).map (linkText, linkUrl) ->
                "<a class='mdl-navigation__link setting__link' id = '#{linkUrl}' href='#settings/#{linkUrl}' data-title='Settings'>#{linkText}</a>"
