@@ -29,6 +29,13 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>Aug 4, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>#198 - Display human readable labels in Case detail popups</li>
+            <li>Improving asynchronous data display in Dashboard</li>
+          </ul>
+        </div>
         <h5>Aug 2, 2016</h5>
         <div class='changes'>
           <ul>

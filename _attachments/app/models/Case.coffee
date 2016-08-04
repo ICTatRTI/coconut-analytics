@@ -5,6 +5,7 @@ Backbone.$  = $
 moment = require 'moment'
 Question = require './Question'
 bcrypt = require('bcryptjs')
+CONST = require "../Constants"
 
 class Case
   constructor: (options) ->
@@ -712,6 +713,7 @@ Case.createObjectTable = (name,object,mappings) ->
       </thead>
       <tbody>
         #{
+          labels = CONST.Labels
           _.map(object, (value, field) =>
             if !(Coconut.currentUser.isAdmin())
               if (_.indexOf(['name','Name','FirstName','MiddleName','LastName','HeadofHouseholdName','ContactMobilepatientrelative'],field) != -1)
@@ -721,7 +723,7 @@ Case.createObjectTable = (name,object,mappings) ->
               <tr>
                 <td class='mdl-data-table__cell--non-numeric'>
                   #{
-                    mappings[field] or field
+                   mappings[field] or labels[field]
                   }
                 </td>
                 <td class='mdl-data-table__cell--non-numeric'>#{value}</td>
