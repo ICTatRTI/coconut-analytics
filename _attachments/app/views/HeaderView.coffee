@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Cookies = require 'js-cookie'
 AboutView = require './AboutView'
+HelpView = require './HelpView'
 ChangeLogView = require './ChangeLogView'
 
 class HeaderView extends Backbone.View
@@ -12,6 +13,7 @@ class HeaderView extends Backbone.View
   events:
     "click a#logout": "Logout"
     "click a#about": "About"
+    "click a#help": "Help"
     "click a#changes": "ChangeLog"
 
   Logout: -> 
@@ -28,6 +30,10 @@ class HeaderView extends Backbone.View
     Coconut.aboutView = new AboutView() if !Coconut.aboutView
     Coconut.aboutView.render()
     
+  Help: ->
+    Coconut.helpView = new HelpView() if !Coconut.helpView
+    Coconut.helpView.render()
+    
   render: =>
     @$el.html "
       <div class='mdl-layout__header-row'>
@@ -42,7 +48,7 @@ class HeaderView extends Backbone.View
 			    <i class='material-icons'>more_vert</i> 
 		    </button>	
 		    <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='menu-top-right'>
-    		  <li class='mdl-menu__item disabled'><a id='help' href='#' class='mdl-color-text--blue-grey-400'><i class='material-icons'>help</i> Help</a></li>
+    		  <li class='mdl-menu__item'><a id='help' class='mdl-color-text--blue-grey-400'><i class='material-icons'>help</i> Help</a></li>
           <li class='mdl-menu__item'><a id='changes' class='mdl-color-text--blue-grey-400'><i class='material-icons'>done_all</i> Change Log</a></li>
           <li class='mdl-menu__item'><a id='about' class='mdl-color-text--blue-grey-400'><i class='material-icons'>info</i> About</a></li>
     		  <li class='mdl-menu__item'><a id='logout' href='#login' class='mdl-color-text--blue-grey-400'><i class='material-icons'>exit_to_app</i> Logout</a></li>
