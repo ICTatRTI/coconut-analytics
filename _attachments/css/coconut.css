@@ -47,6 +47,9 @@ li.login{
 	display: none;
 }
 
+#appIcon {
+  cursor: pointer;
+}
 /* Tablesorter styling */
 table.tablesorter {
 	font-family: "Roboto", arial, san-serif;

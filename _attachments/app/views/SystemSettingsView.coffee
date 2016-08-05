@@ -13,12 +13,25 @@ class SystemSettingsView extends Backbone.View
 
   events:
     "click button#updateBtn": "updateConfig"
-    "change #uploadBtn": "updateFileName"
+    "change #logoImage": "updateFileName"
+    "click #appIcon": "showImage"
     
   updateFileName: (e) =>
     #document.getElementById('appIcon').value = this.files[0].name
     filename = $(e.target)[0].files[0].name
     $('#appIcon').val(filename)
+  
+  showImage: (e) ->
+    Dialog.createDialogWrap()
+    Config.getLogoUrl()
+    .then (url) ->
+      img = document.createElement('img')
+      img.src = url
+      Dialog.confirm("", Coconut.config.appIcon,['Close']) 
+      $('#alertText').html(img)
+    .catch (error) ->
+      console.error error
+    return false
     
   updateConfig: (e) =>
     Coconut.database.get(Coconut.config._id)
@@ -27,6 +40,12 @@ class SystemSettingsView extends Backbone.View
         'cloud_credentials','design_doc_name','role_types','case_notification','case_followup']
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
+      getFile = $('#logoImage')[0].files[0]
+      doc._attachments = {
+        "#{doc.appIcon}":
+          type: getFile.type
+          data: getFile
+      }
       doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
       return Coconut.database.put(doc)
         .catch (error) ->
@@ -61,12 +80,13 @@ class SystemSettingsView extends Backbone.View
                 <input class='mdl-textfield__input' type='text' id='appName' value='#{Coconut.config.appName}'>
                 <label class='mdl-textfield__label' for='appName'>Application Title</label>
               </div> 
-              <div class='mdl-textfield mdl-js-textfield mdl-textfield--file setting_inputs'>
-                <input class='mdl-textfield__input' placeholder='Application logo' type='text' id='appIcon' value='#{Coconut.config.appIcon}' readonly/>
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--file setting_inputs'>
+                <input class='mdl-textfield__input' placeholder='Application logo' type='text' id='appIcon' value='#{Coconut.config.appIcon}' title='Click to view image' readonly/>
                 <div class='mdl-button mdl-button--primary mdl-button--icon mdl-button--file'>
                   <i class='material-icons'>attach_file</i>
-                  <input type='file' id='uploadBtn'>
+                  <input type='file' id='logoImage'>
                 </div>
+                <label class='mdl-textfield__label' for='appName'>Application Logo</label>
               </div> 
               <div class='mdl-select mdl-js-select mdl-select--floating-label setting_inputs'>
                 <select class='mdl-select__input' id='country' name='country'>

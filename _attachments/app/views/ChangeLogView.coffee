@@ -29,6 +29,13 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>Aug 5, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>#154 - Allow to select filename from local storage</li>
+            <li>#154 - Enable logo upload and update</li>
+          </ul>
+        </div>
         <h5>Aug 4, 2016</h5>
         <div class='changes'>
           <ul>

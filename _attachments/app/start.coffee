@@ -50,13 +50,18 @@ Config.getConfig
   error: ->
     console.log("Error Retrieving Config")
   success: -> 
-    Coconut.menuView = new MenuView
-    Coconut.menuView.render()   
-    _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
-      Coconut.database.get docId
-      .catch (error) -> console.error error
-      .then (result) ->
-        Coconut[docId] = result
+    Config.getLogoUrl()
+    .catch (error) -> 
+      console.error error
+    .then (url) ->
+      Coconut.logoUrl = url
+      Coconut.menuView = new MenuView
+      Coconut.menuView.render()   
+      _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
+        Coconut.database.get docId
+        .catch (error) -> console.error error
+        .then (result) ->
+          Coconut[docId] = result
 
     GeoHierarchyClass = require './models/GeoHierarchy'
     global.GeoHierarchy = new GeoHierarchyClass

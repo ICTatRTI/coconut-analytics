@@ -15,5 +15,14 @@ Config.getConfig = (options) ->
   .catch (error) ->
     console.error error
     options.error()
+
+Config.getLogoUrl = (options) ->
+  return new Promise (resolve,reject) ->
+    Coconut.database.getAttachment('coconut.config',Coconut.config.appIcon)
+    .then (blob) ->
+      url = URL.createObjectURL(blob)
+      resolve(url)
+    .catch (error) ->
+      reject(error)
     
 module.exports = Config
