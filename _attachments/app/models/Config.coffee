@@ -7,16 +7,13 @@ class Config extends Backbone.Model
      db: pouchdb
   
 Config.getConfig = (options) ->
-  config = new Config
-    _id: "coconut.config"
-  config.fetch
-    error: ->
-      console.error error
-      options.error()
-    success: ->
-      Coconut.config = config.attributes
-      # Set role_types default values if none found on coucbdb.
-      Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
-      options.success()
+  Coconut.database.get "coconut.config"
+  .then (doc) ->
+    Coconut.config = doc
+    Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
+    options.success()
+  .catch (error) ->
+    console.error error
+    options.error()
     
 module.exports = Config
