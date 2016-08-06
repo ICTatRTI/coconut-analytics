@@ -32,8 +32,10 @@ class ChangeLogView extends Backbone.View
         <h5>Aug 5, 2016</h5>
         <div class='changes'>
           <ul>
+            <li>Fixed bug preventing completion of User How Fast Follow Up report</li>
             <li>#154 - Allow to select filename from local storage</li>
             <li>#154 - Enable logo upload and update</li>
+            <li>#220 - Fixed 'undefined' labels in the Case details</li>
           </ul>
         </div>
         <h5>Aug 4, 2016</h5>

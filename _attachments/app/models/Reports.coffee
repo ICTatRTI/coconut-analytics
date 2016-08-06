@@ -455,7 +455,7 @@ class Reports
           caseId = null
           caseResults = []
           # Collect all of the results for each caseid, then create the case and process it
-          _.each result.rows, (row) ->
+          _.each result?.rows, (row) ->
             if caseId? and caseId isnt row.key
               malariaCase = new Case
                 caseID: caseId
