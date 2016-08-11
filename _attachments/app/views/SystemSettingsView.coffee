@@ -86,7 +86,7 @@ class SystemSettingsView extends Backbone.View
                   <i class='material-icons'>attach_file</i>
                   <input type='file' id='logoImage'>
                 </div>
-                <label class='mdl-textfield__label' for='appName'>Application Logo</label>
+                <label class='mdl-textfield__label' for='appName'>Application Logo (recommended size: 70 x 55 px )</label>
               </div> 
               <div class='mdl-select mdl-js-select mdl-select--floating-label setting_inputs'>
                 <select class='mdl-select__input' id='country' name='country'>
