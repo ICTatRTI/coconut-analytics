@@ -150,6 +150,11 @@ table#alertsTable td.data{
     margin-bottom: 10px;
 }
 
+.mdl-data-table {
+    table-layout:fixed;
+    width:99%; 
+}
+
 .mdl-data-table thead tr {
     background-color: #eeeeee;	
 }
@@ -1197,7 +1202,7 @@ button.caseBtn {
   }
   
 /* Temporarily disable graphs menu items */
-#Todos, #graph_attendence, #graph_positivity, #graph_testrate, #positivity_with_rainfall, #positivity_by_year, 
+#Todos, #graph_attendence, #graph_positivity, #positivity_with_rainfall, #positivity_by_year, 
 #setting_theme, #setting_general, #setting_language, #setting_misc, #shehias_received_irs, #shehias_high_risk {
   color: rgba(0,0,0,.26) !important;
   cursor: default;
