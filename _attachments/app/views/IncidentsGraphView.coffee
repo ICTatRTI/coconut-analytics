@@ -35,7 +35,10 @@ class IncidentsGraphView extends Backbone.View
     options.y_axis = 'y_axis_1'
     options.x_axis = 'x_axis_1'
     options.chart = 'chart_1'
-    Graphs.IncidentsGraph options
+    options.renderer = 'line'
+    options.names = ['Incident']
+    options.couch_views = ["positiveCases"]
+    Graphs.create options
     .catch (err) ->
       console.error err
     .then () ->

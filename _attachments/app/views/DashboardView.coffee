@@ -100,8 +100,8 @@ class DashboardView extends Backbone.View
           </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
-                <div class='chart-title'>Bar Graph</div>
-                <div id='container_3' class='chart_container f-left'>
+                <div class='chart-title'>Attendance Graph</div>
+                <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
                   <div class='mdl-grid'>
                     <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'> 
                         <div id='y_axis_3' class='y_axis'></div>
@@ -115,8 +115,8 @@ class DashboardView extends Backbone.View
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
-                <div class='chart-title'>ScatterPlot Graph</div>
-                <div id='container_4' class='chart_container f-left'>
+                <div class='chart-title'>Test Rate Graph</div>
+                <div id='container_4' class='chart_container f-left' data-graph-id = 'TestRateGraph'>
                   <div class='mdl-grid'>
                     <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone''> 
                       <div id='y_axis_4' class='y_axis'></div>
@@ -163,8 +163,9 @@ class DashboardView extends Backbone.View
 
   showGraphs: (startDate, endDate) ->
     @chart_height = 260
-    # Incident Graph
-    Graphs.IncidentsGraph
+    
+    # Incident Graph - Number of Cases
+    Graphs.create
       chart_height: @chart_height
       startDate: startDate
       endDate: endDate
@@ -172,13 +173,16 @@ class DashboardView extends Backbone.View
       y_axis: 'y_axis_1'
       chart: 'chart_1'
       legend: 'legend'
+      renderer: 'line'
+      names: ['Incident']
+      couch_views: ["positiveCases"]
     .catch (error) ->
       console.error error
     .then (response) ->
       $('div#container_1 div.mdl-spinner').hide()
 
     # PositiveCases
-    Graphs.PositiveCasesGraph
+    Graphs.create
       chart_height: @chart_height
       startDate: startDate
       endDate: endDate
@@ -186,13 +190,16 @@ class DashboardView extends Backbone.View
       y_axis: 'y_axis_2'
       chart: 'chart_2'
       legend: "legend2"
+      renderer: 'lineplot'
+      names: ["Age < 5","Age >= 5"]
+      couch_views: ["positiveCasesLT5","positiveCasesGT5"]
     .catch (error) ->
       console.error error
     .then (response) ->
       $('div#container_2 div.mdl-spinner').hide()
 
-    # Example Bar Graph
-    Graphs.BarChart
+    # Attendance Graph
+    Graphs.create
       chart_height: @chart_height
       startDate: startDate
       endDate: endDate
@@ -200,13 +207,16 @@ class DashboardView extends Backbone.View
       y_axis: 'y_axis_3'
       chart: 'chart_3'
       legend: "legend3"
+      renderer: 'scatterplot'
+      names: ["Age < 5","Age >= 5"]
+      couch_views: ["positiveCasesByFacilityLT5","positiveCasesByFacilityGTE5"]
     .catch (error) ->
       console.error error
     .then (response) ->
       $('div#container_3 div.mdl-spinner').hide()
 
-    # Example ScatterPlot Graph
-    Graphs.ScatterPlotChart
+    # Example TestRate Graph
+    Graphs.create
       chart_height: @chart_height
       startDate: startDate
       endDate: endDate
@@ -214,6 +224,9 @@ class DashboardView extends Backbone.View
       y_axis: 'y_axis_4'
       chart: 'chart_4'
       legend: "legend4"
+      renderer: 'line'
+      names: ["Age < 5","Age >= 5"]
+      couch_views: ["positiveCasesByFacility"]
     .catch (error) ->
       console.error error
     .then (response) ->
@@ -250,12 +263,6 @@ class DashboardView extends Backbone.View
     $('#issueStat').html(Coconut.statistics.issues) if Coconut.statistics.issues?
     
   displayError = () ->
-    $('div#noDataFound').show().delay(4000).fadeOut()
-    
-  filterByDate = (options) ->
-    return new Promise (resolve,reject) -> 
-      cases = _.filter options.rows, (row) ->
-        return moment(row.key).isBetween(options.startDate, options.endDate)
-      resolve(cases)    
+    $('div#noDataFound').show().delay(4000).fadeOut()  
     
 module.exports = DashboardView
