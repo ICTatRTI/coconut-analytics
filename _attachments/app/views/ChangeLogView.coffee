@@ -29,6 +29,17 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>Aug 6 - 16, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Add footer 'Powered by Coconut Surveillance</li>
+            <li>Mapview: Adjusted Boundaries</li>
+            <li>Add Help text</li>
+            <li>Updated local copies of couchdb map/reduce views</li>
+            <li>Add statement about recommended size for logo image</li>
+            <li>Fixed mdl table responsiveness issue</li>
+          </ul>
+        </div>
         <h5>Aug 5, 2016</h5>
         <div class='changes'>
           <ul>

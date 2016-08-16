@@ -159,6 +159,9 @@ class MenuView extends Backbone.View
         }
         </div>	
       </nav>
+    <div id='footer'>
+      Powered by Coconut Surveillance
+    </div>
     "
 
 module.exports = MenuView
