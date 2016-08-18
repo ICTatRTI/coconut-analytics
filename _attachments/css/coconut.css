@@ -714,13 +714,13 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
   box-sizing: border-box;
   position: absolute;
   right: 20px;
-  margin-top: -63px;
+  /* margin-top: -63px; */
 }
 
 #logged-in{
     position: absolute;
     right: 80px;
-    margin-top: -50px;
+    margin-top: 12px;
 }
 
 /* margins setting */
