@@ -441,9 +441,10 @@ class MapView extends Backbone.View
   reportResults = (results) ->
         casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
-          if malariaCase.Household?["HouseholdLocation-latitude"]
-#            console.log 'Household' + JSON.stringify malariaCase
-#            console.log 'Household' + JSON.stringify malariaCase.Facility.TravelledOvernightinpastmonth
+          if malariaCase.Household?["HouseholdLocation-latitude"] and malariaCase.Household["HouseholdLocation-accuracy"] <= 50
+            console.log 'Household' + JSON.stringify malariaCase.Household
+            console.log 'HouseholdLocation-accuracy' + JSON.stringify malariaCase.Household["HouseholdLocation-accuracy"]
+            console.log 'Household' + JSON.stringify malariaCase.Facility.TravelledOvernightinpastmonth
             { 
               type: 'Feature'
               properties:
@@ -469,7 +470,7 @@ class MapView extends Backbone.View
 #          return
         layerTollBooth = new LayerTollBooth(map, casesLayer)
 #        myLayerContromaterialLayersControl.setLayerTollBooth layerTollBooth
-    
+        console.log "casesGeoJSON.features.length: " + casesGeoJSON.features.length
         if casesGeoJSON.features.length > 0
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
