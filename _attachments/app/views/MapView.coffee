@@ -835,7 +835,7 @@ class MapView extends Backbone.View
         </style>
         <dialog id='caseDialog'></dialog>
         <div id='dateSelector'></div>
-        <div class='mdl-grid' style='height:5%'>
+        <!--<div class='mdl-grid' style='height:5%'>
             <div class='mdl-cell mdl-cell--12-col'>
                     <div style='display: inline-block'>
                         <label for='pembaToggle'>Switch to: </label>
@@ -845,7 +845,7 @@ class MapView extends Backbone.View
                         
                         <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>
                         
-                        <!--<form style='display: inline-flex'>
+                        <form style='display: inline-flex'>
                           <div class='mui-select'>
                             <select style='padding-right:20px'>
                               <option value='island'>Islands</option>
@@ -857,12 +857,12 @@ class MapView extends Backbone.View
                           <div class='mui-textfield' style='padding-left:20px'>
                             <input type='text' class='typeahead' placeholder='Input 1'>
                           </div>
-                        </form>-->
+                        </form>
                     </div>
                 </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
-        </div>
-        <div class='mdl-grid' style='height:70%'>                
+        </div>-->
+        <div class='mdl-grid' style='height:80%'>                
             <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
