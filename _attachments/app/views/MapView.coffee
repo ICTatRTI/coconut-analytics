@@ -1008,7 +1008,7 @@ class MapView extends Backbone.View
     
     
     
-    Coconut.database.get 'DistrictsWGS84'
+    Coconut.database.get 'DistrictsAdjusted'
     .catch (error) -> console.error error
     .then (data) ->
       districtsData = data
@@ -1158,7 +1158,7 @@ class MapView extends Backbone.View
 
       
     
-    Coconut.database.get 'ShahiasWGS84'
+    Coconut.database.get 'ShehiasAdjusted'
     .catch (error) -> console.error error
     .then (data) ->
       shehiasData = data
@@ -1174,7 +1174,7 @@ class MapView extends Backbone.View
       )
       materialLayersControl.addOverlay(shehiasLayer, 'Shehias')
     
-    Coconut.database.get 'VillagesWGS84'
+    Coconut.database.get 'VillagesAdjusted'
     .catch (error) -> console.error error
     .then ( data) ->
       villagesData = data
