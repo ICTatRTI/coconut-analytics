@@ -41,11 +41,12 @@ class SystemSettingsView extends Backbone.View
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
       getFile = $('#logoImage')[0].files[0]
-      doc._attachments = {
-        "#{doc.appIcon}":
-          type: getFile.type
-          data: getFile
-      }
+      if getFile != undefined
+        doc._attachments = {
+          "#{doc.appIcon}":
+            type: getFile.type
+            data: getFile
+        }
       doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
       return Coconut.database.put(doc)
         .catch (error) ->
