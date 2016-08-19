@@ -37,7 +37,7 @@ class SystemSettingsView extends Backbone.View
     Coconut.database.get(Coconut.config._id)
     .then (doc) ->
       fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud',
-        'cloud_credentials','design_doc_name','role_types','case_notification','case_followup']
+        'cloud_credentials','design_doc_name','role_types','case_notification','case_followup','location_accuracy_threshold']
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
       getFile = $('#logoImage')[0].files[0]
@@ -176,7 +176,7 @@ class SystemSettingsView extends Backbone.View
         <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
           <h4>Reports Settings</h4>
           <div class='indent m-l-20'>
-            <h5>Responses <span><small>( in hours )<small></span>)</h5>
+            <h5>Responses <span><small>( in hours )</small></span>)</h5>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
               <input class='mdl-textfield__input' type='text' id='case_notification' value='#{Coconut.config.case_notification}'>
               <label class='mdl-textfield__label' for='case_notification'>Notification</label>
@@ -188,6 +188,13 @@ class SystemSettingsView extends Backbone.View
           </div>
         </div> 
         <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
+           <h4>Map Settings</h4>
+           <div class='indent m-l-20'>
+             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
+               <input class='mdl-textfield__input' type='text' id='location_accuracy_threshold' value='#{Coconut.config.location_accuracy_threshold}'>
+               <label class='mdl-textfield__label' for='location_accuracy_threshold'> Location Accuracy Threshold </label>
+             </div>
+           </div>
         </div>
       </div>  
       <hr />

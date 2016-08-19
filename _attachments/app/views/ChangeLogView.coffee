@@ -29,6 +29,16 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>Aug 18, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>Add Map Location Accuracy Threshold setting</li>
+            <li>Fixed missing top right menu icon after latest Chrome update</li>
+            <li>MapView: #189 points limited to accuracy of 50meters or less</li>
+            <li>MapView: #215 Remove Pemba, Unguga and Test and realigned map height</li>
+            <li>MapView: Updated Boundaries aligned to pier in Stone Town</li>
+          </ul>
+        </div>
         <h5>Aug 6 - 16, 2016</h5>
         <div class='changes'>
           <ul>
