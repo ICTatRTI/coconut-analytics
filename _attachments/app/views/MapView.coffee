@@ -153,7 +153,6 @@ window.addEventListener 'caseStyleChange', ((e) ->
   setUpLegend()
   casesLayer.eachLayer (layer) ->
     setCaseStyle(styleType, layer)
-  console.log(typeof casesTimeLayer)
   if typeof casesTimeLayer != 'undefined'
     casesTimeLayer.eachLayer (layer) ->
         setCaseStyle(styleType, layer)
@@ -162,9 +161,7 @@ window.addEventListener 'caseStyleChange', ((e) ->
 wasFullScreen = false
 window.addEventListener 'fullScreenChange', ((e) ->
   screenState = e.detail.screenState
-  console.log("mapViewFullScreenChange screenState: " + screenState)
   if screenState == "Fullscreen" and layerTollBooth.timeOn
-    console.log("getReadyToClickTimeButtonProgrammatically")
     wasFullScreen = true
     $(".timeButton").click()
   else if screenState == "Screen" and wasFullScreen == true
@@ -176,13 +173,10 @@ window.addEventListener 'fullScreenChange', ((e) ->
 
 window.addEventListener 'toggleLegend', ((e) ->
   toState = e.detail.toState
-  console.log("toggleLegend toState: " + toState)
   if toState == "on"
-    console.log("turnLegendOn")
     legend.addTo map
     setUpLegend()
   else if toState == "off"
-    console.log("turnLegendOff")
     legend.removeFrom map
   
   return
@@ -194,8 +188,6 @@ villagesLabelsLayerGroup = "undefined"
 window.addEventListener 'labelsOnOff', ((e) ->
   layer = e.detail.layer
   onOff = e.detail.onOff
-  console.log "labelsOnOff layer: " + layer
-  console.log "labelsOnOff onOff: " + onOff
   if layer == "Districts"
       if onOff == "on" then districtsLabelsLayerGroup.addTo(map) else map.removeLayer(districtsLabelsLayerGroup)      
   else if layer == "Shehias"
@@ -318,7 +310,6 @@ class MapView extends Backbone.View
     else
         map.addLayer(districtsLabelsLayerGroup)
   heatMapToggle: =>
-    console.log 'heatMapToggle'
     if heatMapCoords.length>0
 #        console.log 'layerTollBooth.heatLayerOn: ' + layerTollBooth.heatLayerOn
         if !layerTollBooth.heatLayerOn
@@ -368,7 +359,6 @@ class MapView extends Backbone.View
   timeToggle: =>
         
     dateRange = [outFormat(timeScale.brush.extent()[0]), outFormat(timeScale.brush.extent()[1])]
-    console.log "dateRange: " + dateRange
 #    if map.hasLayer casesLayer 
 #      updateFeaturesByDate(dateRange)
 #    if map.hasLayer heatLayer
@@ -441,11 +431,8 @@ class MapView extends Backbone.View
   reportResults = (results) ->
         casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
-          console.log("Coconut.config.location_accuracy_threshold: " + Coconut.config.location_accuracy_threshold)
           if malariaCase.Household?["HouseholdLocation-latitude"] and malariaCase.Household["HouseholdLocation-accuracy"] <= Coconut.config.location_accuracy_threshold
-            console.log 'Household' + JSON.stringify malariaCase.Household
-            console.log 'HouseholdLocation-accuracy' + JSON.stringify malariaCase.Household["HouseholdLocation-accuracy"]
-            console.log 'Household' + JSON.stringify malariaCase.Facility.TravelledOvernightinpastmonth
+            
             { 
               type: 'Feature'
               properties:
@@ -471,7 +458,6 @@ class MapView extends Backbone.View
 #          return
         layerTollBooth = new LayerTollBooth(map, casesLayer)
 #        myLayerContromaterialLayersControl.setLayerTollBooth layerTollBooth
-        console.log "casesGeoJSON.features.length: " + casesGeoJSON.features.length
         if casesGeoJSON.features.length > 0
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
@@ -542,7 +528,6 @@ class MapView extends Backbone.View
             "
             layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS
             layer.on 'click', (e) ->
-              console.log 'Click Case Time 1'
               return   
             #clustersLayer.addLayer layer
 #            dateIRS
@@ -557,7 +542,6 @@ class MapView extends Backbone.View
             L.circleMarker latlng, getCaseStyle(feature)
           )
         if data.features.length > 0
-          console.log('multiCase')
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
         
         heatMap = getURLValue 'heatMap'
@@ -617,7 +601,6 @@ class MapView extends Backbone.View
     else    
         if !map.hasLayer(casesTimeLayer) and !layerTollBooth.timeOn
               #create time features for clusters, heatmap and cases. Let the visualization toggles control the layers that are visible for time. 
-              console.log("layerTollBooth.timeOn: " + layerTollBooth.timeOn)
               clustersTimeLayer = L.markerClusterGroup()
               casesTimeLayer = L.geoJson(timeCasesGeoJSON, 
               onEachFeature: (feature, layer) =>
@@ -648,7 +631,6 @@ class MapView extends Backbone.View
               ).addTo(map)
 
               materialLayersControl.removeLayer casesLayer 
-              console.log("timeInput? " + document.getElementById('timeInput'))
               if !document.getElementById('timeInput')
                 materialLayersControl.addTimeLayer casesTimeLayer, 'Cases (time)'
 #              materialLayersControl.addTimeLayer casesTimeLayer, 'Cases (time)'    
@@ -671,14 +653,12 @@ class MapView extends Backbone.View
     $('#analysis-spinner').show()
     leafletImage map, (err, canvas) =>
       if (err)
-        console.log "snapImage err"
         console.log(err)
       else
         a = document.createElement('a')
         a.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream')
         a.download = 'coconutMap.jpg'
         a.click()
-        console.log "snapImage 1"
         #@snapshot.innerHTML = ''
         $('#analysis-spinner').hide()
         Dialog.createDialogWrap()
@@ -697,8 +677,6 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    console.log "renderStartDate: " + startDate
-    console.log "renderEndDate: " + endDate
     Reports.getCases
       startDate: startDate
       endDate: endDate
@@ -1020,7 +998,6 @@ class MapView extends Backbone.View
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'District: ' + feature.properties.District_N
           layer.on 'click', (e) ->
-              console.log 'Click District'
               return
           return
       ).addTo map
@@ -1042,12 +1019,10 @@ class MapView extends Backbone.View
           if districtsCntrPtFeatures.hasOwnProperty(key)
             val = districtsCntrPtFeatures[key]
             divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
-            console.log("divIcon: "+divIcon);
             marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
             districtsLabelsLayerGroup.addLayer(marker)
 
         L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
-            console.log("point")
             L.circleMarker latlng, invisibleMarkerOptions
         )    
 
@@ -1061,12 +1036,10 @@ class MapView extends Backbone.View
           if shehiasCntrPtFeatures.hasOwnProperty(key)
             val = shehiasCntrPtFeatures[key]
             divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
-            console.log("divIcon: "+divIcon);
             marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
             shehiasLabelsLayerGroup.addLayer(marker)
 
         L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
-            console.log("point")
             L.circleMarker latlng, invisibleMarkerOptions
         )
 
@@ -1080,12 +1053,10 @@ class MapView extends Backbone.View
           if villagesCntrPtFeatures.hasOwnProperty(key)
             val = villagesCntrPtFeatures[key]
             divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
-            console.log("divIcon: "+divIcon);
             marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
             villagesLabelsLayerGroup.addLayer(marker)
 
         L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
-            console.log("point")
             L.circleMarker latlng, invisibleMarkerOptions
         )
 
@@ -1169,7 +1140,6 @@ class MapView extends Backbone.View
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'Shehia: ' + feature.properties.Shehia         
           layer.on 'click', (e) ->
-              console.log 'Click Shehia'
               return
             
           return
@@ -1186,7 +1156,6 @@ class MapView extends Backbone.View
           #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
           layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N     
           layer.on 'click', (e) ->
-              console.log 'Click Village'
               return
           return
       )
@@ -1289,16 +1258,10 @@ class MapView extends Backbone.View
           left: 50
         svgWidth = winWidth - (svgMargin.left) - (svgMargin.right) - 100
         svgHeight = 80 - (svgMargin.bottom) - (svgMargin.top)
-        console.log("startDate: " + startDate)
-        console.log("startDate: " + startDate)
-        console.log("new Date(startDate): " + new Date(startDate))
-        console.log("endDate: " + endDate)
         inputStartDate = new Date(startDate)
         inputStartDate.setDate inputStartDate.getDate() + 1
         inputEndDate = new Date(endDate)
         inputEndDate.setDate inputEndDate.getDate() + 1
-        console.log("inputStartDate: " + inputStartDate)
-        console.log("inputEndDate: " + inputEndDate)
         timeScale = d3.time.scale().domain([
           inputStartDate
           inputEndDate
@@ -1306,13 +1269,10 @@ class MapView extends Backbone.View
           0
           svgWidth
         ]).clamp(true)
-        console.log("timeScale.domain: " + timeScale.domain())
         startValue = timeScale(inputStartDate)
         startingValue = inputStartDate
         endValue = timeScale(inputEndDate)
         endingValue = inputEndDate
-        console.log("endingValue: " + endingValue)
-        console.log("StartingValue: " + startingValue)
         d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
         d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
         d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
