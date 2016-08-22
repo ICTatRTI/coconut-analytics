@@ -441,7 +441,8 @@ class MapView extends Backbone.View
   reportResults = (results) ->
         casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
-          if malariaCase.Household?["HouseholdLocation-latitude"] and malariaCase.Household["HouseholdLocation-accuracy"] <= 50
+          console.log("Coconut.config.location_accuracy_threshold: " + Coconut.config.location_accuracy_threshold)
+          if malariaCase.Household?["HouseholdLocation-latitude"] and malariaCase.Household["HouseholdLocation-accuracy"] <= Coconut.config.location_accuracy_threshold
             console.log 'Household' + JSON.stringify malariaCase.Household
             console.log 'HouseholdLocation-accuracy' + JSON.stringify malariaCase.Household["HouseholdLocation-accuracy"]
             console.log 'Household' + JSON.stringify malariaCase.Facility.TravelledOvernightinpastmonth
