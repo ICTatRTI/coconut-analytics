@@ -41,6 +41,7 @@
   background: 16px;
   text-align: left;
   color: inherit;
+  height: 1.8em;
 }
 
 .mdl-select.is-focused .mdl-select__input {	outline: none; }

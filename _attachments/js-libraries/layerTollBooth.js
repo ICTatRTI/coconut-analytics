@@ -34,7 +34,7 @@ function LayerTollBooth() {
             }
         }   
     }
-    this.handleHeatMap = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer){
+    this.handleHeatMap = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl){
         if (!this.timeOn){
             if (this.heatLayerOn){
                 if (map.hasLayer(casesLayer)){

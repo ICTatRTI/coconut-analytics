@@ -31,7 +31,6 @@ var myLayersControl =  L.Control.extend({
 //    console.log ('initialize overlays: ' + overlays)
   },
   onAdd: function (map) {
-    console.log('onAdd Update');
     this._initLayout();
 		this._update();
 
@@ -58,21 +57,18 @@ var myLayersControl =  L.Control.extend({
 		    .off('layerremove', this._onLayerChange, this);
   },
   addBaseLayer: function (layer, name) {
-    console.log("addbaseLayer Update")
     this._addLayer(layer, name);
 	this._update();
 	return this;
   },
 
   addOverlay: function (layer, name) {
-    console.log("addOverlay Update")
     this._addLayer(layer, name, true);
 	this._update();
 	return this;
   },
   addQueriedLayer: function (layer, name) {
 //    if(!$("#caseInput")){
-        console.log("addQuerriedLayer update")
         this._addLayer(layer, name, true, true);
         this._update();
         return this;
@@ -80,15 +76,13 @@ var myLayersControl =  L.Control.extend({
   },
   addTimeLayer: function (layer, name) {
 //    if(!$("#timeInput")){
-        console.log("addTimeLayer update")
         this._addLayer(layer, name, true, true, true);
         this._update();
         return this;
 //    }
   },
   removeLayer: function (layer) {
-    console.log("removeLayer Update")  
-	var id = L.stamp(layer);
+    var id = L.stamp(layer);
 	delete this._layers[id];
     this._update();
     return this;
@@ -258,11 +252,9 @@ var myLayersControl =  L.Control.extend({
 	},
     _onLayerChange: function (e) {
         var obj = this._layers[L.stamp(e.layer)];
-        console.log("obj: "+obj)
-		
+    	
 		if (!obj || typeof(obj.name)!=undefined) { return; }
-        console.log("obj.name: " + obj.name)
-		if (!this._handlingClick && obj.name != "Cases") {
+    	if (!this._handlingClick && obj.name != "Cases") {
 			console.log("onLayerChange update")
             this._update();
 		}
@@ -272,8 +264,7 @@ var myLayersControl =  L.Control.extend({
 			(e.type === 'layeradd' ? 'baselayerchange' : null);
 
 		if (type) {
-            console.log("type: "+type)
-			this._map.fire(type, obj);
+    		this._map.fire(type, obj);
 		}
 	},
     _createRadioElement: function (name, checked) {
@@ -290,8 +281,6 @@ var myLayersControl =  L.Control.extend({
 		return radioFragment.firstChild;
 	},
     _addItem: function (obj) {
-        console.log('addItem obj.name: '+obj.name)
-//        console.log('addItem obj.layer: '+obj.layer)
         var label = document.createElement('label'),
 		    input,
             button,
@@ -345,13 +334,10 @@ var myLayersControl =  L.Control.extend({
             select.options[select.options.length] = new Option('# of LLIN < Sleeping Places', 'llinCases');
             console.log("this.caseStyle: " + caseStyle)
             select.value = caseStyle;
-            console.log("select.options[select.selectedIndex].value: " + select.options[select.selectedIndex].value)
             L.DomEvent.on(select, 'change', function () {
 //                console.log(select.options[select.selectedIndex].value);
-                console.log("caseStyle: " + caseStyle);
                 var newStyle = select.options[select.selectedIndex].value;
                 caseStyle = newStyle; 
-                console.log("this.caseStyle: " + caseStyle)
                 var event = new CustomEvent('caseStyleChange', { 'detail': { 
                     caseType: newStyle 
                     }
@@ -360,12 +346,9 @@ var myLayersControl =  L.Control.extend({
             });
             label.appendChild(select);
         }
-        console.log('myLayerControl obj.overlay: ' + obj.overlay)
-        console.log('myLayerControl obj.queried: ' + obj.queried)
         var container;
         if(obj.overlay){
             if(obj.queried){
-                console.log("overlay and query")
                 container = this._queriedLayersList;
             }
             else{
@@ -376,7 +359,6 @@ var myLayersControl =  L.Control.extend({
             container = this._baseLayersList;
         }
 //		var container = obj.overlay ? this._overlaysList : this._baseLayersList;
-		console.log("label: " + label)
         container.appendChild(label);
         
 		return label;
@@ -424,22 +406,17 @@ var myLayersControl =  L.Control.extend({
 //	},
     
     _onInputClick: function () {
-		console.log("onInputClick")
         var i, input, obj,
 		    inputs = this._form.getElementsByTagName('input'),
 		    inputsLen = inputs.length;
         this._handlingClick = true;
-        console.dir("inputs: " + inputs);
-        console.log("inputsLen: " + inputsLen);
 		for (i = 0; i < inputsLen; i++) {
 			input = inputs[i];
 //			console.log('input.LayerId: '+input.layerId);
             obj = this._layers[input.layerId];
 //            console.log('obj.layer: '+obj.layer);
-			console.log("i: "+i)
             var event;
             if (input.checked && !this._map.hasLayer(obj.layer)) {
-                console.log('obj.name: '+obj.name);
 				this._map.addLayer(obj.layer);
                 if (obj.name == "Cases (time)" || obj.name == "Cases"){
                     event = new CustomEvent('toggleLegend', { 'detail': { 
@@ -450,7 +427,6 @@ var myLayersControl =  L.Control.extend({
                 }
             } 
             else if (!input.checked && this._map.hasLayer(obj.layer)) {
-                console.log('obj.name: '+obj.name);
 				this._map.removeLayer(obj.layer);
                 if (obj.name == "Cases (time)" || obj.name == "Cases"){
                     event = new CustomEvent('toggleLegend', { 'detail': { 
@@ -487,7 +463,6 @@ var myLayersControl =  L.Control.extend({
 	},
     _onLabelButtonClick: function (e) {
         L.DomEvent.stop(e)
-        console.log('stopped');
 		var targetID = $("#"+e.target.id);
         var labelLayer = e.target.id.split("_")[1];
         var targetButton = $("#"+labelLayer+"_lableButton");

@@ -12,7 +12,6 @@ Graphs.retrieveData = (options) ->
   #startDate = moment.utc("2012-07-01")
   return new Promise (resolve,reject) ->
     data4Graph = []
-    console.log(options)
     
     finished = _.after options.couch_views.length, (err) =>
       if err
