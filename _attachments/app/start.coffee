@@ -20,6 +20,8 @@ User = require './models/User'
 Config = require './models/Config'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
+GeoHierarchyClass = require './models/GeoHierarchy'
+DHISHierarchy = require './models/DHISHierarchy'
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
@@ -49,31 +51,29 @@ Coconut.headerView.render()
 Config.getConfig
   error: ->
     console.log("Error Retrieving Config")
-  success: -> 
+  success: ->
     Config.getLogoUrl()
-    .catch (error) -> 
+    .catch (error) ->
       console.error error
     .then (url) ->
       Coconut.logoUrl = url
       Coconut.menuView = new MenuView
-      Coconut.menuView.render()   
+      Coconut.menuView.render()
       _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
         Coconut.database.get docId
         .catch (error) -> console.error error
         .then (result) ->
           Coconut[docId] = result
 
-    GeoHierarchyClass = require './models/GeoHierarchy'
-    global.GeoHierarchy = new GeoHierarchyClass
-      error: (error) ->
-        console.error error
-      success: =>
-        global.FacilityHierarchy = require './models/FacilityHierarchy'
-        global.FacilityHierarchy.load
-          error: (error) ->
-            console.error error
-          success: =>
-            Backbone.history.start()
+
+    dhisHierarchy = new DHISHierarchy()
+    dhisHierarchy.loadExtendExport
+      dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
+      error: (error) -> console.error error
+      success: (result) ->
+        global.GeoHierarchy = new GeoHierarchyClass(result)
+        global.FacilityHierarchy = GeoHierarchy # These have been combined
+        Backbone.history.start()
     
     global.Issues = require './models/Issues'
 

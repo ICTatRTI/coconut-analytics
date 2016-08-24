@@ -153,9 +153,9 @@ def fixIdentifyingAttributes(result)
 
 end
 
-#@db.view('results/results?include_docs=true')['rows'].map{|row|row["doc"]}.each do |doc|
-#  fixIdentifyingAttributes(doc)
-#end
+@db.view('results/results?include_docs=true')['rows'].map{|row|row["doc"]}.each do |doc|
+  fixIdentifyingAttributes(doc)
+end
 
 # Fix identifying attributes including lat/long
 @db.view('zanzibar/notifications?include_docs=true')['rows'].map{|row|row["doc"]}.each do |doc|
