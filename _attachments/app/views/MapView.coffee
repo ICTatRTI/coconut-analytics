@@ -74,7 +74,7 @@ getRadius = (d) ->
    
 setUpLegend = () ->
     console.log "SetUpLegendCaseStyle: " + caseStyle
-
+    
     theDiv = L.DomUtil.get('mapLegend')
     theDiv.innerHTML = ""
     if caseStyle == 'numberCases'
@@ -174,9 +174,12 @@ window.addEventListener 'fullScreenChange', ((e) ->
 window.addEventListener 'toggleLegend', ((e) ->
   toState = e.detail.toState
   if toState == "on"
-    legend.addTo map
-    setUpLegend()
+    console.dir("legend.getContainer().hidden: " + legend._map)
+    if !legend._map
+        legend.addTo map
+        setUpLegend()
   else if toState == "off"
+    console.dir("legend.getContainer().hidden: " + legend._map)
     legend.removeFrom map
   
   return
@@ -461,8 +464,9 @@ class MapView extends Backbone.View
         if casesGeoJSON.features.length > 0
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
-            legend.addTo map
-            setUpLegend()
+            if !legend._map    
+                legend.addTo map
+                setUpLegend()
             
         else
             layerTollBooth.setCasesStatus false
@@ -960,6 +964,7 @@ class MapView extends Backbone.View
     legend = L.control(position: 'bottomleft')
 
     legend.onAdd = (map) ->
+      console.log("legendOnAdd")
       div = L.DomUtil.create('div', 'info legend')
       div.id = "mapLegend"
 #      grades = [
