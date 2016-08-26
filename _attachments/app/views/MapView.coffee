@@ -391,7 +391,9 @@ class MapView extends Backbone.View
         running = false
         clearInterval timer
       materialLayersControl.removeLayer casesTimeLayer
-      materialLayersControl.addTimeLayer casesLayer, 'Cases'    
+      if !layerTollBooth.heatLayerOn 
+        console.log("mapView.coffee addTimeLayer line:395")
+        materialLayersControl.addTimeLayer casesLayer, 'Cases'    
 #      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
       Coconut.router.reportViewOptions['timeMap'] = 'off'
@@ -545,7 +547,8 @@ class MapView extends Backbone.View
 #                L.circleMarker latlng, multiCaseStyle
             L.circleMarker latlng, getCaseStyle(feature)
           )
-        if data.features.length > 0
+        if data.features.length > 0 && layerTollBooth.heatLayerOn == false
+          console.log("Mapview.Coffee addCasesLayer line:549")
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
         
         heatMap = getURLValue 'heatMap'
