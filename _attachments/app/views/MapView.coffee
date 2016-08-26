@@ -871,7 +871,7 @@ class MapView extends Backbone.View
     L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
     streets = L.mapbox.tileLayer('mapbox.streets')
     outdoors = L.mapbox.tileLayer('mapbox.outdoors')
-    satellite = L.mapbox.tileLayer('mapbox.satellite')
+    satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
     
     
     #Check map for url settings. 
