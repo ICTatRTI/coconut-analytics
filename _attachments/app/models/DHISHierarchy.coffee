@@ -18,7 +18,6 @@ class DHISHierarchy
             options.success(@extend())
 
   loadDHISHierarchy: (options) =>
-    console.log options
     Coconut.database.get options.dhisDocumentName
     .catch (error) ->
       console.error "Error loading Geo Hierarchy:"

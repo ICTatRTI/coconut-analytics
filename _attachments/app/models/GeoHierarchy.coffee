@@ -55,11 +55,13 @@ class GeoHierarchy
   ###
 
   find: (name, levelName) =>
+    return [] unless name? and levelName?
     _(@units).filter (unit) ->
       unit.levelName is levelName.toUpperCase() and
       (unit.name is name.toUpperCase() or _(unit.aliases).contains name.toUpperCase())
 
   findFirst: (name, levelName) =>
+    return null unless name? and levelName?
     _(@units).find (unit) -> unit.levelName is levelName.toUpperCase() and (unit.name is name.toUpperCase() or _(unit.aliases).contains name.toUpperCase())
 
   findOneMatchOrUndefined: (targetName, levelName) =>
@@ -79,11 +81,11 @@ class GeoHierarchy
     _(parentNode[0].children()).pluck "name"
 
   findAllDescendantsAtLevel: (name, sourceLevelName, targetLevelName) =>
-    descendants = @findFirst(name, sourceLevelName).descendants()
+    descendants = @findFirst(name, sourceLevelName)?.descendants()
     _(descendants).filter (descendant) -> descendant.levelName is targetLevelName
 
   findAllAncestorsAtLevel: (name, sourceLevelName, targetLevelName) =>
-    ancestors = @findFirst(name, sourceLevelName).ancestors()
+    ancestors = @findFirst(name, sourceLevelName)?.ancestors()
     _(ancestors).filter (ancestor) -> ancestor.levelName is targetLevelName
 
 
@@ -91,7 +93,8 @@ class GeoHierarchy
     Zanzibar Specific Functions - should have generic equivalent above
   ###
   
-  swahiliDistrictName: (districtName) => @findFirst(districtName, "DISTRICT").name
+  swahiliDistrictName: (districtName) =>
+    @findFirst(districtName, "DISTRICT")?.name
 
   englishDistrictName: (districtName) => @findFirst(districtName, "DISTRICT").aliases?[0]
 
@@ -159,12 +162,12 @@ class GeoHierarchy
     .phoneNumber
 
   facilityType: (facilityName) =>
-    facilityId = @findFirst(facilityName, "FACILITY").id
+    facilityId = @findFirst(facilityName, "FACILITY")?.id
     group = _(@rawData.organisationUnitGroups).find (group) ->
       _(group.organisationUnits).find (unit) ->
         unit.id is facilityId
 
-    group.name.toUpperCase()
+    group?.name.toUpperCase()
 
   allPrivateFacilities: =>
     privateFacilities = _(@rawData.organisationUnitGroups).find (group) ->
