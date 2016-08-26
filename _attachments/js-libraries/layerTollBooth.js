@@ -39,6 +39,7 @@ function LayerTollBooth() {
             if (this.heatLayerOn){
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
+                    materialLayersControl.removeLayer (casesLayer)
                     event = new CustomEvent('toggleLegend', { 'detail': { 
                         toState: "off" 
                         }
@@ -50,6 +51,7 @@ function LayerTollBooth() {
             else{
                 if (!this.clustersOn){
                     map.addLayer(casesLayer)
+                    materialLayersControl.addQueriedLayer (casesLayer, 'Cases')
                     event = new CustomEvent('toggleLegend', { 'detail': { 
                         toState: "on" 
                         }
