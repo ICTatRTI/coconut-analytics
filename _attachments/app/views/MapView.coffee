@@ -391,7 +391,9 @@ class MapView extends Backbone.View
         running = false
         clearInterval timer
       materialLayersControl.removeLayer casesTimeLayer
-      materialLayersControl.addTimeLayer casesLayer, 'Cases'    
+      if !layerTollBooth.heatLayerOn 
+        console.log("mapView.coffee addTimeLayer line:395")
+        materialLayersControl.addTimeLayer casesLayer, 'Cases'    
 #      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
       Coconut.router.reportViewOptions['timeMap'] = 'off'
@@ -545,7 +547,8 @@ class MapView extends Backbone.View
 #                L.circleMarker latlng, multiCaseStyle
             L.circleMarker latlng, getCaseStyle(feature)
           )
-        if data.features.length > 0
+        if data.features.length > 0 && layerTollBooth.heatLayerOn == false
+          console.log("Mapview.Coffee addCasesLayer line:549")
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
         
         heatMap = getURLValue 'heatMap'
@@ -871,7 +874,7 @@ class MapView extends Backbone.View
     L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
     streets = L.mapbox.tileLayer('mapbox.streets')
     outdoors = L.mapbox.tileLayer('mapbox.outdoors')
-    satellite = L.mapbox.tileLayer('mapbox.satellite')
+    satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
     
     
     #Check map for url settings. 

@@ -39,6 +39,7 @@ function LayerTollBooth() {
             if (this.heatLayerOn){
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
+                    materialLayersControl.removeLayer (casesLayer)
                     event = new CustomEvent('toggleLegend', { 'detail': { 
                         toState: "off" 
                         }
@@ -48,8 +49,10 @@ function LayerTollBooth() {
                 map.addLayer(heatLayer)
             }
             else{
-                if (!this.clustersOn){
+                if (!this.clustersOn && !this.heatLayerOn){
                     map.addLayer(casesLayer)
+                    console.log("layerTollBooth addCasesLayer line:54")
+                    materialLayersControl.addQueriedLayer (casesLayer, 'Cases')
                     event = new CustomEvent('toggleLegend', { 'detail': { 
                         toState: "on" 
                         }
@@ -75,6 +78,7 @@ function LayerTollBooth() {
             else{
                 if (!this.clustersOn){
                     map.addLayer(casesTimeLayer)
+                    console.log("layerTollBooth addCasesLayer line:81")
                     materialLayersControl.addQueriedLayer (casesTimeLayer, 'Cases (time)')
                     event = new CustomEvent('toggleLegend', { 'detail': { 
                         toState: "on" 
@@ -116,7 +120,6 @@ function LayerTollBooth() {
     this.handleTime = function(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl){
         if (this.timeOn){
             if (map.hasLayer(casesLayer)){
-                console.log("timeOnRemove")
                 map.removeLayer(casesLayer);
                 materialLayersControl.removeLayer(casesLayer)
             }
@@ -128,9 +131,9 @@ function LayerTollBooth() {
             if(map.hasLayer(casesTimeLayer)){
                 map.removeLayer(casesTimeLayer);
                 materialLayersControl.removeLayer(casesTimeLayer)
-                if (this.casesLoaded){
-                console.log("timeOffAdd")
+                if (this.casesLoaded && !this.heatLayerOn){
                     map.addLayer(casesLayer)
+                    console.log("layerTollBooth addCasesLayer line:136")
                     materialLayersControl.addQueriedLayer (casesLayer, 'Cases')
                 }
             }
