@@ -177,7 +177,7 @@ class SystemSettingsView extends Backbone.View
         <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
           <h4>Reports Settings</h4>
           <div class='indent m-l-20'>
-            <h5>Responses <span><small>( in hours )</small></span>)</h5>
+            <h5>Responses <span><small>( in hours )</small></span></h5>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
               <input class='mdl-textfield__input' type='text' id='case_notification' value='#{Coconut.config.case_notification}'>
               <label class='mdl-textfield__label' for='case_notification'>Notification</label>
@@ -193,7 +193,7 @@ class SystemSettingsView extends Backbone.View
            <div class='indent m-l-20'>
              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
                <input class='mdl-textfield__input' type='text' id='location_accuracy_threshold' value='#{Coconut.config.location_accuracy_threshold}'>
-               <label class='mdl-textfield__label' for='location_accuracy_threshold'> Location Accuracy Threshold </label>
+               <label class='mdl-textfield__label' for='location_accuracy_threshold'> Location Accuracy Threshold (in meters)</label>
              </div>
            </div>
         </div>

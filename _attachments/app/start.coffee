@@ -22,6 +22,7 @@ MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 GeoHierarchyClass = require './models/GeoHierarchy'
 DHISHierarchy = require './models/DHISHierarchy'
+QuestionCollection = require './models/QuestionCollection'
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
@@ -73,7 +74,11 @@ Config.getConfig
       success: (result) ->
         global.GeoHierarchy = new GeoHierarchyClass(result)
         global.FacilityHierarchy = GeoHierarchy # These have been combined
-        Backbone.history.start()
+        Coconut.questions = new QuestionCollection()
+        Coconut.questions.fetch
+          error: (error) -> console.error error
+          success: ->
+            Backbone.history.start()
     
     global.Issues = require './models/Issues'
 
