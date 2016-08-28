@@ -96,22 +96,12 @@ function LayerTollBooth() {
             if (this.clustersOn){
                 if (map.hasLayer(casesLayer)){
                     map.removeLayer(casesLayer)
-                    event = new CustomEvent('toggleLegend', { 'detail': { 
-                        toState: "off" 
-                        }
-                    });   
-                    window.dispatchEvent(event);
                 }
                 map.addLayer(clustersLayer)
             }
             else{
                 if (!this.heatLayerOn){
                     map.addLayer(casesLayer)
-                    event = new CustomEvent('toggleLegend', { 'detail': { 
-                        toState: "on" 
-                        }
-                    });   
-                    window.dispatchEvent(event);
                 }
                 map.removeLayer(clustersLayer)
             }

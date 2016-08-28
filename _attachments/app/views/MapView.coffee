@@ -658,6 +658,18 @@ class MapView extends Backbone.View
   snapImage: =>
 #    progressBar.showPleaseWait()
     $('#analysis-spinner').show()
+    blDistrictsLayerOn = false
+    blShehiasLayerOn = false
+    blVillagesLayerOn = false
+    if map.hasLayer districtsLabelsLayerGroup
+        map.removeLayer districtsLabelsLayerGroup
+        blDistrictsLayerOn = true
+    if map.hasLayer shehiasLabelsLayerGroup
+        map.removeLayer shehiasLabelsLayerGroup
+        blShehiasLayerOn = true
+    if map.hasLayer villagesLabelsLayerGroup
+        map.removeLayer villagesLabelsLayerGroup
+        blVillagesLayerOn = true
     leafletImage map, (err, canvas) =>
       if (err)
         console.log(err)
@@ -668,6 +680,12 @@ class MapView extends Backbone.View
         a.click()
         #@snapshot.innerHTML = ''
         $('#analysis-spinner').hide()
+        if blDistrictsLayerOn == true
+            map.addLayer districtsLabelsLayerGroup
+        if blShehiasLayerOn == true
+            map.addLayer shehiasLabelsLayerGroup
+        if blVillagesLayerOn == true
+            map.addLayer villagesLabelsLayerGroup
         Dialog.createDialogWrap()
         Dialog.confirm("Map download successfully completed...", "Success",["Ok"])
 
