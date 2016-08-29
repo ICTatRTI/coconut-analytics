@@ -1,7 +1,6 @@
 _ = require 'underscore'
 moment = require 'moment'
 Rickshaw = require 'rickshaw'
-d3 = require 'd3'
 Reports = require './Reports'
 
 class Graphs
@@ -80,6 +79,7 @@ Graphs.create = (options, callback) ->
             height: chart_height
             renderer: graph_renderer
             series: graphSeries
+            unstack: true
             padding: 
               top: 0.02
               left: 0.02
