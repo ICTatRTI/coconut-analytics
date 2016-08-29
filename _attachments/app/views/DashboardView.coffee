@@ -207,7 +207,7 @@ class DashboardView extends Backbone.View
       y_axis: 'y_axis_3'
       chart: 'chart_3'
       legend: "legend3"
-      renderer: 'scatterplot'
+      renderer: 'bar'
       names: ["Age < 5","Age >= 5"]
       couch_views: ["positiveCasesByFacilityLT5","positiveCasesByFacilityGTE5"]
     .catch (error) ->

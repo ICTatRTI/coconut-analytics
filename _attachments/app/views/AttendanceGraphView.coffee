@@ -35,7 +35,7 @@ class AttendanceGraphView extends Backbone.View
     options.y_axis = 'y_axis_1'
     options.x_axis = 'x_axis_1'
     options.chart = 'chart_1'
-    options.renderer = 'scatterplot'
+    options.renderer = 'bar'
     options.names = ["Age < 5","Age >= 5"]
     options.couch_views = ["positiveCasesByFacilityLT5","positiveCasesByFacilityGTE5"]
     Graphs.create options
