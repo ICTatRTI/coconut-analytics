@@ -191,6 +191,9 @@ class Case
     return @district() if geographicLevel.match(/district/i)
     return @validShehia() if geographicLevel.match(/shehia/i)
 
+  administrativeHierarchy: () =>
+    [{SHEHIA: @shehia()}].concat(GeoHierarchy.findFirst(@shehia(), "SHEHIA")?.ancestorLevels())
+
   possibleQuestions: ->
     ["Case Notification", "Facility","Household","Household Members"]
   
@@ -612,6 +615,8 @@ class Case
     indexCaseDiagnosisDate: {}
 
     # LostToFollowup: {}
+    #
+    administrativeHierarchy: {}
 
     district:
       propertyName: "District (if no household district uses facility)"
@@ -651,15 +656,19 @@ class Case
     numberHouseholdOrNeighborMembersTested: {}
     numberPositiveCasesIncludingIndex: {}
 
-    CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility: {}
+    CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
+      propertyName: "Case ID for Other Household Member That Tested Positive at a Health Facility"
     CommentRemarks: {}
-    ContactMobilepatientrelative: {}
-    Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility: {}
+    ContactMobilepatientrelative:
+      propertyName: "Contact Mobile Patient Relative"
+    Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility:
+      propertyName: "Has Someone From the Same Household Recently Tested Positive at a Health Facility"
     HeadofHouseholdName: {}
     ParasiteSpecies: {}
     ReferenceinOPDRegister: {}
     ShehaMjumbe: {}
-    TravelledOvernightinpastmonth:{}
+    TravelledOvernightinpastmonth:
+      propertyName: "Travelled Overnight in Past Month"
     IfYESlistALLplacestravelled:
       propertyName: "All Places Traveled to in Past Month"
     TreatmentGiven: {}
@@ -677,9 +686,12 @@ class Case
     "HouseholdLocation-latitude": {}
     "HouseholdLocation-longitude": {}
     "HouseholdLocation-timestamp": {}
-    IndexcaseIfpatientisfemale1545yearsofageissheispregant: {}
-    IndexcaseOvernightTraveloutsideofZanzibarinthepastyear: {}
+    IndexcaseIfpatientisfemale1545yearsofageissheispregant:
+      propertyName: "Is Index Case Pregnant"
+    IndexcaseOvernightTraveloutsideofZanzibarinthepastyear:
+      propertyName: "Has Index Case had Overnight Travel Outside of Zanzibar in the Past Year"
     IndexcaseOvernightTravelwithinZanzibar1024daysbeforepositivetestresult: {}
+      "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     travelLocationName: {}
     AlllocationsandentrypointsfromovernighttraveloutsideZanzibar07daysbeforepositivetestresult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 0-7 Days Before Positive Test Result"
@@ -702,8 +714,10 @@ class Case
     NumberofHouseholdMemberswithFeverorHistoryofFeverWithinPastWeek: {}
     NumberofLLIN: {}
     NumberofSleepingPlacesbedsmattresses: {}
-    Numberofotherhouseholdswithin50stepsofindexcasehousehold: {}
-    Reasonforvisitinghousehold: {}
+    Numberofotherhouseholdswithin50stepsofindexcasehousehold:
+      propertyName: "Number of Other Households Within 50 Steps of Index Case Household"
+    Reasonforvisitinghousehold:
+      propertyName: "Reason for Visiting Household"
     ShehaMjumbe: {}
     TotalNumberofResidentsintheHousehold: {}
 
@@ -881,8 +895,8 @@ Case.getCases = (options) ->
     )
 
 
-Case.resetAllCaseSummaryDocs= =>
-  Case.updateCaseSummaryDocs(null, true)
+Case.resetAllCaseSummaryDocs = (options)  =>
+  Case.updateCaseSummaryDocs(options, true)
 
 Case.updateCaseSummaryDocs = (options, reset = false) ->
 
@@ -920,6 +934,7 @@ Case.updateCaseSummaryDocs = (options, reset = false) ->
   .then (caseSummaryData) ->
     console.log caseSummaryData
     if reset
+      console.log "RESETTING CaseSummaryData"
       caseSummaryData.lastChangeSequenceProcessed = 0
       update(0, caseSummaryData)
     else
@@ -968,6 +983,7 @@ Case.updateSummaryForCases = (options) ->
       .catch (error) -> console.error error
 
   console.log "Fetching #{options.caseIDs.length} cases"
+  console.log "CASES: #{options.caseIDs.join ","}"
   _(options.caseIDs).each (caseID) ->
     malariaCase = new Case
       caseID: caseID

@@ -36,6 +36,10 @@ class GeoHierarchy
       _(@ancestors()).find (ancestor) ->
         ancestor.levelName is levelName
 
+    ancestorLevels: =>
+      _(@ancestors()).map (ancestor) ->
+        {"#{ancestor.levelName}": ancestor.name}
+
     descendants: =>
       children = @children()
       return [] if children is null
@@ -45,6 +49,7 @@ class GeoHierarchy
 
     descendantsAtLevel: (levelName) =>
       _(@descendants()).filter (descendant) -> descendant.levelName is levelName
+
 
   # function from legacy version #
 
@@ -88,6 +93,13 @@ class GeoHierarchy
     ancestors = @findFirst(name, sourceLevelName)?.ancestors()
     _(ancestors).filter (ancestor) -> ancestor.levelName is targetLevelName
 
+  availableLevelsAscending: ->
+    _(geohierarchy.rawData.organisationUnitLevels).chain().sort (level) ->
+      level.level
+    .pluck "name"
+    .value()
+
+
 
   ###
     Zanzibar Specific Functions - should have generic equivalent above
@@ -117,6 +129,7 @@ class GeoHierarchy
   allUniqueShehiaNames: => _(@allShehias()).uniq()
 
   all: (levelName) => _.pluck @findAllForLevel(levelName), "name"
+
 
   getZoneForDistrict: (districtName) =>
     district = @findOneMatchOrUndefined(districtName,"DISTRICT")
