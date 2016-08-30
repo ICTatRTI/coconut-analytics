@@ -24,9 +24,6 @@ class AttendanceGraphViewDC extends Backbone.View
            <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
              <div id='chart'></div>
            </div>
-           <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>   
-             <div id='legend' class='legend'></div>
-           </div>
          </div>
        </div>
     "
@@ -38,52 +35,67 @@ class AttendanceGraphViewDC extends Backbone.View
     options.chart = 'chart_1'
     options.renderer = 'bar'
     options.names = ["Age < 5","Age >= 5"]
-    chart_width = 0.8 * $('.chart_container').width()
+    chart_width = $('.chart_container').width()
     chart_height = options.chart_height || 450
-    couch_view = "positiveCasesByFacility"
+    couch_view1 = "positiveCasesByFacilityGTE5"
+    couch_view2 = "positiveCasesByFacilityLT5"
     container = 'chart_container_1'
     startDate = moment(options.startDate).format('YYYY-MM-DD')
     endDate = moment(options.endDate).format('YYYY-MM-DD')
-    Coconut.database.query "#{couch_view}/#{couch_view}",
+    Coconut.database.query "#{couch_view1}/#{couch_view1}",
       startkey: startDate
       endkey: endDate
       include_docs: true
     .then (result) =>
-      dataForGraph = _.pluck(result.rows, 'doc')
-      if dataForGraph.length == 0 or _.isEmpty(dataForGraph[0])
-         $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
-         #reject("No record for date range")
-      else
-        chart = dc.barChart("#chart")
-        dataForGraph.forEach((x) ->
-           x.Age = +x.Age
-        )
-        ndx = crossfilter(dataForGraph)
-        ageDimension  = ndx.dimension( (d) ->
-                          return d.Age
-        )
-        ageSumGroup  = ageDimension.group()
-        monthDimension  = ndx.dimension( (d) -> 
-                         return new Date(new Date(d.DateofPositiveResults))
-                        )
-        monthGroup = monthDimension.group()
-        
-        chart
-          .width(768)
-          .height(480)
-          .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-#          .y(d3.scale.linear().domain([0,100]))
-          .brushOn(false)
-          .yAxisLabel("Number of cases")
-#          .xAxisLabel("This is the X Axis!")
-          .dimension(ageDimension)
-          .group(monthGroup)
-          .on('renderlet', (chart) -> 
-              chart.selectAll('rect').on("click", (d) -> 
-                console.log("click!", d)
-              )
+      data1ForGraph = _.pluck(result.rows, 'doc')
+      Coconut.database.query "#{couch_view2}/#{couch_view2}",
+        startkey: startDate
+        endkey: endDate
+        include_docs: true
+      .then (result) =>
+        data2ForGraph = _.pluck(result.rows, 'doc')
+        if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
+           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
+           #reject("No record for date range")
+           $('#analysis-spinner').hide()
+        else
+          composite = dc.compositeChart("#chart")
+          ndx1 = crossfilter(data1ForGraph)
+          ndx2 = crossfilter(data2ForGraph)
+          dim1 = ndx1.dimension((d) ->
+            return new Date(d.DateofPositiveResults)
           )
-        chart.render()
+          dim2 = ndx2.dimension((d) ->
+            return new Date(d.DateofPositiveResults)
+          )
+          grp1 = dim1.group()
+          grp2 = dim2.group()
+          composite
+            .width(0.9*chart_width)
+            .height(480)
+            .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+            .y(d3.scale.linear().domain([0,80]))
+            .yAxisLabel("Number of Cases")
+            .legend(dc.legend().x(0.7*chart_width).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .renderHorizontalGridLines(true)
+#            .gap(65)
+            .compose([
+                dc.lineChart(composite)
+                    .dimension(dim1)
+                    .colors('red')
+                    .group(grp1, "Age >= 5")
+                    .dashStyle([2,2]),
+                dc.lineChart(composite)
+                    .dimension(dim2)
+                    .colors('blue')
+                    .group(grp2, "Age < 5")
+                    .dashStyle([5,5])
+            ])
+            .brushOn(false)
+            .render()
+          $('#analysis-spinner').hide()
+      .catch (error) ->
+        console.error error
         $('#analysis-spinner').hide()
     .catch (error) ->
       console.error error
