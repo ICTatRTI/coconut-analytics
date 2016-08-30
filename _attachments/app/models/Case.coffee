@@ -185,7 +185,10 @@ class Case
 
   highRiskShehia: (date) =>
     date = moment().startOf('year').format("YYYY-MM") unless date
-    _(Coconut.shehias_high_risk[date]).contains @shehia()
+    if Coconut.shehias_high_risk?[date]?
+      _(Coconut.shehias_high_risk[date]).contains @shehia()
+    else
+      false
 
   locationBy: (geographicLevel) =>
     return @district() if geographicLevel.match(/district/i)
@@ -226,7 +229,7 @@ class Case
 
   # Includes any kind of travel including only within Zanzibar
   indexCaseHasTravelHistory: =>
-    @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/) or false
+    @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/)? or false
 
   indexCaseHasNoTravelHistory: =>
     not @indexCaseHasTravelHistory()
@@ -894,11 +897,71 @@ Case.getCases = (options) ->
       .value()
     )
 
+Case.getLatestChange = (options) ->
+  Coconut.database.changes
+    descending: true
+    include_docs: false
+    limit: 1
+  .on "complete", (mostRecentChange) ->
+    options?.success(mostRecentChange.last_seq)
+  .on "error", (error) ->
+    console.error error
+    options?.error()
+
+Case.setCaseSummaryDataDoc = (options) ->
+  save = (doc) ->
+    Coconut.database.put doc
+    .catch (error) -> console.error error
+    .then -> options?.success()
+
+  Coconut.database.get "CaseSummaryData"
+  .catch (error) ->
+    console.log "Couldn't find 'CaseSummaryData' document (#{error.toJSON()}), creating a new one."
+    save(
+      _id: "CaseSummaryData",
+      lastChangeSequenceProcessed: options.changeSequence
+    )
+  .then (caseSummaryData) ->
+    caseSummaryData.lastChangeSequenceProcessed = options.changeSequence
+    save(caseSummaryData)
 
 Case.resetAllCaseSummaryDocs = (options)  =>
-  Case.updateCaseSummaryDocs(options, true)
+  # This approach works different than update, by getting all cases ids and updating every one, versus working based on changes. It's faster this way
+  #
+  Case.getLatestChange
+    error: (error) -> console.error error
+    success: (latestChange) ->
+      console.log "Latest change: #{latestChange}"
+      console.log "Retrieving all available case IDs"
 
-Case.updateCaseSummaryDocs = (options, reset = false) ->
+      Coconut.database.query "zanzibar/cases"
+      .catch (error) ->
+        options?.error()
+      .then (result) =>
+        allCases = _(result.rows).chain().pluck("key").uniq().value()
+
+        updateCases = ->
+          try
+            if allCases.length is 0
+              Case.setCaseSummaryDataDoc
+                changeSequence: latestChange
+                success: ->
+                  Case.updateCaseSummaryDocs # Catches changes since this process started
+                    error: (error) -> console.error error
+                    success: -> options?.success()
+
+              return
+            console.log "Remaining: #{allCases.length}"
+            casesToProcess = allCases.splice(-50,50) # Do 50 at a time
+            Case.updateSummaryForCases
+              caseIDs: casesToProcess
+              success: -> updateCases() # recurse
+          catch error
+            console.error error
+
+        updateCases()
+
+Case.updateCaseSummaryDocs = (options) ->
 
   update = (changeSequence, caseSummaryData) ->
     Case.updateCaseSummaryDocsSince
@@ -913,15 +976,13 @@ Case.updateCaseSummaryDocs = (options, reset = false) ->
         Coconut.database.put caseSummaryData
         .then (result) ->
           console.log numberCasesChanged
-          Coconut.database.changes
-            descending: true
-            include_docs: false
-            limit: 1
-          .on "complete", (result) ->
-            if lastChangeSequenceProcessed+1 < result.last_seq
-              Case.updateCaseSummaryDocs(options)  #recurse
-            else
-              options?.success?()
+          Case.getLatestChange
+            error: -> console.error error
+            success: (latestChange) ->
+              if lastChangeSequenceProcessed+1 < latestChange
+                Case.updateCaseSummaryDocs(options)  #recurse
+              else
+                options?.success?()
         .catch (error) -> console.error error
 
   
@@ -933,12 +994,7 @@ Case.updateCaseSummaryDocs = (options, reset = false) ->
     update(0,{_id: "CaseSummaryData"})
   .then (caseSummaryData) ->
     console.log caseSummaryData
-    if reset
-      console.log "RESETTING CaseSummaryData"
-      caseSummaryData.lastChangeSequenceProcessed = 0
-      update(0, caseSummaryData)
-    else
-      update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
+    update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
 
 Case.updateCaseSummaryDocsSince = (options) ->
     limit = options.maximumNumberChangesToProcess
@@ -982,8 +1038,6 @@ Case.updateSummaryForCases = (options) ->
         options.success()
       .catch (error) -> console.error error
 
-  console.log "Fetching #{options.caseIDs.length} cases"
-  console.log "CASES: #{options.caseIDs.join ","}"
   _(options.caseIDs).each (caseID) ->
     malariaCase = new Case
       caseID: caseID

@@ -54,36 +54,19 @@ dhisHierarchy.loadExtendExport
       error: (error) -> console.error error
       success: ->
 
-        Case = require './models/Case'
+        try
+          Case = require './models/Case'
+        catch error
+          console.error error
 
-        throttledUpdateCaseSummaryDocs = _.throttle (options) ->
-          Case.updateCaseSummaryDocs(options)
-        , 1000
+        console.log "Resetting"
 
         try
-          #Case.resetAllCaseSummaryDocs()
-          #
-          #
-          #Coconut.database.get "CaseSummaryData"
-          #.then (result) ->
-          #  result.lastChangeSequenceProcessed = 1000000
-          #  Coconut.database.put result
-          #  .then ->
-              Case.updateCaseSummaryDocs
-                maximumNumberChangesToProcess: 3000
-                error: (error) ->
-                  console.error "ERROR"
-                  console.error error
-                success: (result) ->
-                  console.log "DONE"
-                  Coconut.database.changes
-                    live: true
-                    since: "now"
-                    filter: (doc) ->
-                      doc._id isnt "CaseSummaryData"
-                  .on "change", ->
-                    throttledUpdateCaseSummaryDocs
-                      error: (error) -> console.error error
-                      success: (result) -> console.log "DONE"
+          Case.resetAllCaseSummaryDocs
+            error: (error) ->
+              console.error "ERROR"
+              console.error error
+            success: (result) ->
+              console.log "DONE"
         catch error
           console.log error
