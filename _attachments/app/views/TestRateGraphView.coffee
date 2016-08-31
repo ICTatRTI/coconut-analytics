@@ -28,7 +28,8 @@ class TestRateGraphView extends Backbone.View
          </div>
        </div>
     "
-    
+    $(".chart_container").height(0.80 * $('#content').height())
+    $(".chart_container").width(0.95 * $('#content').width())
     $('#analysis-spinner').show()
     adjustX = 10
     adjustY = 40
@@ -117,6 +118,8 @@ class TestRateGraphView extends Backbone.View
             .render()
 
           window.onresize = () ->
+            $(".chart_container").height(0.80 * $('#content').height())
+            $(".chart_container").width(0.95 * $('#content').width())
             composite.legend().x($('.chart_container').width()-200);
             composite
               .width($('.chart_container').width()-adjustX)

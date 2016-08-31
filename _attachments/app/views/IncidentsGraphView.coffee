@@ -28,7 +28,8 @@ class IncidentsGraphView extends Backbone.View
          </div>
        </div>
     "
-    
+    $(".chart_container").height(0.80 * $('#content').height())
+    $(".chart_container").width(0.95 * $('#content').width())
     $('#analysis-spinner').show()
     adjustX = 10
     adjustY = 40
@@ -89,6 +90,8 @@ class IncidentsGraphView extends Backbone.View
         chart.render()
 
         window.onresize = () ->
+          $(".chart_container").height(0.80 * $('#content').height())
+          $(".chart_container").width(0.95 * $('#content').width())
           chart
             .width($('.chart_container').width()-adjustX)
             .height($('.chart_container').height()-adjustY)

@@ -72,16 +72,16 @@ class DashboardView extends Backbone.View
         <div class='page-content'>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
-                <div class='chart-title'>Number of Cases</div>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
+                   <div class='chart-title'>Number of Cases</div>
                    <div id='chart_1' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
                 
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'> 
-                <div class='chart-title'>Number of Positive Cases by Age Group</div>
                 <div id='container_2' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
+                   <div class='chart-title'>Number of Positive Cases by Age Group</div>
                    <div id='chart_2' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
@@ -89,15 +89,15 @@ class DashboardView extends Backbone.View
           </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
-                <div class='chart-title'>Attendance Graph</div>
                 <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
+                   <div class='chart-title'>Attendance Graph</div>                
                    <div id='chart_3' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
-                <div class='chart-title'>Test Rate Graph</div>
                 <div id='container_4' class='chart_container f-left' data-graph-id = 'TestRateGraph'>
+                  <div class='chart-title'>Test Rate Graph</div>              
                   <div id='chart_4' class='chart'></div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
@@ -241,7 +241,7 @@ class DashboardView extends Backbone.View
             .y(d3.scale.linear().domain([0,120]))
             .yAxisLabel("Number of Positive Cases")
             .elasticY(true)
-            .legend(dc.legend().x($('#container_2').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .legend(dc.legend().x($('#container_2').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
             .renderHorizontalGridLines(true)
             .shareTitle(false)
             .compose([
@@ -322,7 +322,7 @@ class DashboardView extends Backbone.View
             .y(d3.scale.linear().domain([0,120]))
             .yAxisLabel("Number of Cases")
             .elasticY(true)
-            .legend(dc.legend().x($('#container_3').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .legend(dc.legend().x($('#container_3').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
             .renderHorizontalGridLines(true)
             .shareTitle(false)
             .compose([
@@ -402,7 +402,7 @@ class DashboardView extends Backbone.View
             .y(d3.scale.linear().domain([0,120]))
             .yAxisLabel("Proportion of OPD Cases Tested Positive")
             .elasticY(true)
-            .legend(dc.legend().x($('#container_4').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .legend(dc.legend().x($('#container_4').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
             .renderHorizontalGridLines(true)
             .shareTitle(false)
             .compose([
@@ -439,26 +439,26 @@ class DashboardView extends Backbone.View
 
     window.onresize = () ->
       chart1
-        .width($('#container_1').width()-adjustX)
-        .height($('#container_1').height()-adjustY)
+        .width($('.chart_container').width()-adjustX)
+        .height($('.chart_container').height()-adjustY)
         .rescale()
         .redraw()
         
       composite1
-        .width($('#container_2').width()-adjustX)
-        .height($('#container_2').height()-adjustY)
+        .width($('.chart_container').width()-adjustX)
+        .height($('.chart_container').height()-adjustY)
         .rescale()
         .redraw()
         
       composite2
-        .width($('#container_3').width()-adjustX)
-        .height($('#container_3').height()-adjustY)
+        .width($('.chart_container').width()-adjustX)
+        .height($('.chart_container').height()-adjustY)
         .rescale()
         .redraw()
         
       composite3
-        .width($('#container_4').width()-adjustX)
-        .height($('#container_4').height()-adjustY)
+        .width($('.chart_container').width()-adjustX)
+        .height($('.chart_container').height()-adjustY)
         .rescale()
         .redraw()
         
