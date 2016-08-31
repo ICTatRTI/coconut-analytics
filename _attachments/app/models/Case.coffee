@@ -952,7 +952,7 @@ Case.resetAllCaseSummaryDocs = (options)  =>
 
               return
             console.log "Remaining: #{allCases.length}"
-            casesToProcess = allCases.splice(-50,50) # Do 50 at a time
+            casesToProcess = allCases.splice(-2,2) # Do 2 at a time
             Case.updateSummaryForCases
               caseIDs: casesToProcess
               success: -> updateCases() # recurse
