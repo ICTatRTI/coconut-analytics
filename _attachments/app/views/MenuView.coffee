@@ -103,7 +103,6 @@ class MenuView extends Backbone.View
              PositiveCasesGraph: "Number of Positive Malaria Cases by Age"
              YearlyTrends: "Yearly Trends by Week"
              AttendanceGraph: "Attendance"
-             AttendanceGraphDC: "Attendance DC Version"
              TestRateGraph: "Test Rate"
              graph_positivity: "Positivity"
              positivity_with_rainfall: "Positivity With Rainfall"

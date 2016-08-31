@@ -4,9 +4,11 @@ Backbone = require 'backbone'
 Backbone.$  = $
 
 Reports = require '../models/Reports'
-Graphs = require '../models/Graphs'
 moment = require 'moment'
 Dialog = require './Dialog'
+dc = require 'dc'
+d3 = require 'd3'
+crossfilter = require 'crossfilter'
 
 class DashboardView extends Backbone.View
   el: "#content"
@@ -25,6 +27,9 @@ class DashboardView extends Backbone.View
     @$el.html "
         <style>
           .page-content {margin: 0}
+          .chart {left: 0; padding: 0}
+          .chart_container {width: 100%}
+          
         </style>
         <div id='dateSelector'></div>
         <dialog id='dialog'>
@@ -66,67 +71,35 @@ class DashboardView extends Backbone.View
         </div>
         <div class='page-content'>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>Number of Cases</div>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
-                  <div class='mdl-grid'>
-                    <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
-                      <div id='y_axis_1' class='y_axis'></div>
-                      <div id='chart_1' class='chart'></div>
-                      <div class='graph-spinner mdl-spinner mdl-js-spinner is-active'></div>
-                    </div>
-                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>
-                      <div id='legend' class='legend'></div>
-                    </div>
-                  </div>
+                   <div id='chart_1' class='chart'></div>
+                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
                 
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'> 
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'> 
                 <div class='chart-title'>Number of Positive Cases by Age Group</div>
                 <div id='container_2' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
-                  <div class='mdl-grid'>
-                    <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
-                      <div id='y_axis_2' class='y_axis'></div>
-                      <div id='chart_2' class='chart'></div>
-                      <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
-                    </div>
-                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'> 
-                      <div id='legend2' class='legend'></div>
-                    </div>
-                  </div>
+                   <div id='chart_2' class='chart'></div>
+                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
           </div>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>Attendance Graph</div>
                 <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
-                  <div class='mdl-grid'>
-                    <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'> 
-                        <div id='y_axis_3' class='y_axis'></div>
-                        <div id='chart_3' class='chart'></div>
-                        <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
-                    </div>
-                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'> 
-                        <div id='legend3' class='legend'></div>
-                    </div>
-                  </div>
+                   <div id='chart_3' class='chart'></div>
+                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--4-col-phone'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div class='chart-title'>Test Rate Graph</div>
                 <div id='container_4' class='chart_container f-left' data-graph-id = 'TestRateGraph'>
-                  <div class='mdl-grid'>
-                    <div class='mdl-cell mdl-cell--10-col mdl-cell--7-col-tablet mdl-cell--3-col-phone''> 
-                      <div id='y_axis_4' class='y_axis'></div>
-                      <div id='chart_4' class='chart'></div>
-                      <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
-                    </div>
-                    <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>
-                      <div id='legend4' class='legend'></div>
-                    </div>
-                  </div>
+                  <div id='chart_4' class='chart'></div>
+                  <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
           </div>
@@ -155,83 +128,340 @@ class DashboardView extends Backbone.View
         displayError()
         view.showStats(startDate, endDate)
         view.showGraphs(startDate, endDate)
-        
-        
       else
         @showStats(startDate, endDate)
         @showGraphs(startDate, endDate)
 
   showGraphs: (startDate, endDate) ->
+    chart1 = dc.lineChart("#chart_1")
+    composite1 = dc.compositeChart("#chart_2")
+    composite2 = dc.compositeChart("#chart_3")
+    composite3 = dc.compositeChart("#chart_4")
+    
     @chart_height = 260
+    adjustX = 15
+    adjustY = 40
+    
+    chart_width = $('.chart_container').width()-adjustX
+    chart_height = $('.chart_container').width()-adjustY
+    startDate = moment(startDate).format('YYYY-MM-DD')
+    endDate = moment(endDate).format('YYYY-MM-DD')
     
     # Incident Graph - Number of Cases
-    Graphs.create
-      chart_height: @chart_height
-      startDate: startDate
-      endDate: endDate
-      container: 'container_1'
-      y_axis: 'y_axis_1'
-      chart: 'chart_1'
-      legend: 'legend'
-      renderer: 'line'
-      names: ['Incident']
-      couch_views: ["positiveCases"]
-    .catch (error) ->
-      console.error error
-    .then (response) ->
-      $('div#container_1 div.mdl-spinner').hide()
+    Coconut.database.query "positiveCases/positiveCases",
+      startkey: startDate
+      endkey: endDate
+      include_docs: true
+    .then (result) =>
+        data1ForGraph = _.pluck(result.rows, 'doc')
+        if (data1ForGraph.length == 0 or _.isEmpty(data1ForGraph[0]))
+           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
+           #reject("No record for date range")
+           $('#analysis-spinner').hide()
+        else
+          data1ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults)
+          )
+          
+          ndx = crossfilter(data1ForGraph)
+          dim = ndx.dimension((d) ->
+            return d.datePR
+          )
+          grp = dim.group()
+
+          chart1
+            .width($('#container_1').width()-adjustX)
+            .height($('#container_1').height()-adjustY)
+            .margins({top: 20, right: 20, bottom: 30, left: 50})
+            .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
+            .y(d3.scale.linear().domain([0,120]))
+            .yAxisLabel("Number of Incidents")
+            .elasticY(true)
+            .renderHorizontalGridLines(true)
+            .dimension(dim)
+            .colors('red')
+            .group(grp)
+            # .dashStyle([2,2])
+            .xyTipsOn(true)
+            .renderDataPoints(false)
+            .title((d) ->
+              return d.key.toDateString() + ": " + d.value
+            )
+            .brushOn(false)
+              
+          chart1.render()
+                  
+          $('div#container_1 div.mdl-spinner').hide()
+      .catch (error) ->
+        console.error error
+        $('div#container_1 div.mdl-spinner').hide()
 
     # PositiveCases
-    Graphs.create
-      chart_height: @chart_height
-      startDate: startDate
-      endDate: endDate
-      container: 'container_2'
-      y_axis: 'y_axis_2'
-      chart: 'chart_2'
-      legend: "legend2"
-      renderer: 'lineplot'
-      names: ["Age < 5","Age >= 5"]
-      couch_views: ["positiveCasesLT5","positiveCasesGT5"]
-    .catch (error) ->
-      console.error error
-    .then (response) ->
-      $('div#container_2 div.mdl-spinner').hide()
+    Coconut.database.query "positiveCasesGT5/positiveCasesGT5",
+      startkey: startDate
+      endkey: endDate
+      include_docs: true
+    .then (result) =>
+      data1ForGraph = _.pluck(result.rows, 'doc')
+      Coconut.database.query "positiveCasesLT5/positiveCasesLT5",
+        startkey: startDate
+        endkey: endDate
+        include_docs: true
+      .then (result) =>
+        data2ForGraph = _.pluck(result.rows, 'doc')
+        if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
+           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
+           #reject("No record for date range")
+           $('#analysis-spinner').hide()
+        else
+          data1ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults)
+          )
+          data2ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults) 
+          )
 
-    # Attendance Graph
-    Graphs.create
-      chart_height: @chart_height
-      startDate: startDate
-      endDate: endDate
-      container: 'container_3'
-      y_axis: 'y_axis_3'
-      chart: 'chart_3'
-      legend: "legend3"
-      renderer: 'bar'
-      names: ["Age < 5","Age >= 5"]
-      couch_views: ["positiveCasesByFacilityLT5","positiveCasesByFacilityGTE5"]
+          ndx1 = crossfilter(data1ForGraph)
+          ndx2 = crossfilter(data2ForGraph)
+          
+          dim1 = ndx1.dimension((d) ->
+            return d.datePR
+          )
+          dim2 = ndx2.dimension((d) ->
+            return d.datePR
+          )
+          grp1 = dim1.group()
+          grp2 = dim2.group()
+          
+          composite1
+            .width($('#container_2').width()-adjustX)
+            .height($('#container_2').height()-adjustY)
+            .margins({top: 20, right: 20, bottom: 30, left: 50})
+            .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
+            .y(d3.scale.linear().domain([0,120]))
+            .yAxisLabel("Number of Positive Cases")
+            .elasticY(true)
+            .legend(dc.legend().x($('#container_2').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .renderHorizontalGridLines(true)
+            .shareTitle(false)
+            .compose([
+                dc.lineChart(composite1)
+                  .dimension(dim1)
+                  .colors('red')
+                  .group(grp1, "Age >= 5")
+                  .dashStyle([2,2])
+                  .xyTipsOn(true)
+                  .renderDataPoints(true)
+                  .title((d) ->
+                    return d.key.toDateString() + ": " + d.value
+                  ),
+                dc.lineChart(composite1)
+                  .dimension(dim2)
+                  .colors('blue')
+                  .group(grp2, "Age < 5")
+                  .dashStyle([5,5])
+                  .xyTipsOn(true)
+                  .renderDataPoints(true)
+                  .title((d) ->
+                    return d.key.toDateString() + ": " + d.value
+                  )
+            ])
+            .brushOn(false)
+            .render()
+                    
+          $('div#container_2 div.mdl-spinner').hide()
+      .catch (error) ->
+        console.error error
+        $('div#container_2 div.mdl-spinner').hide()
     .catch (error) ->
       console.error error
-    .then (response) ->
-      $('div#container_3 div.mdl-spinner').hide()
+      $('div#container_2 div.mdl-spinner').hide()
+      
+    # Attendance Graph
+    Coconut.database.query "positiveCasesByFacilityGTE5/positiveCasesByFacilityGTE5",
+      startkey: startDate
+      endkey: endDate
+      include_docs: true
+    .then (result) =>
+      data1ForGraph = _.pluck(result.rows, 'doc')
+      Coconut.database.query "positiveCasesByFacilityLT5/positiveCasesByFacilityLT5",
+        startkey: startDate
+        endkey: endDate
+        include_docs: true
+      .then (result) =>
+        data2ForGraph = _.pluck(result.rows, 'doc')
+        if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
+           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
+           #reject("No record for date range")
+           $('#analysis-spinner').hide()
+        else
+          data1ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults)
+          )
+          data2ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults) 
+          )
+
+          ndx1 = crossfilter(data1ForGraph)
+          ndx2 = crossfilter(data2ForGraph)
+          
+          dim1 = ndx1.dimension((d) ->
+            return d.datePR
+          )
+          dim2 = ndx2.dimension((d) ->
+            return d.datePR
+          )
+          grp1 = dim1.group()
+          grp2 = dim2.group()
+          
+          composite2
+            .width($('#container_3').width()-adjustX)
+            .height($('#container_3').height()-adjustY)
+            .margins({top: 20, right: 20, bottom: 30, left: 50})
+            .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
+            .y(d3.scale.linear().domain([0,120]))
+            .yAxisLabel("Number of Cases")
+            .elasticY(true)
+            .legend(dc.legend().x($('#container_3').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .renderHorizontalGridLines(true)
+            .shareTitle(false)
+            .compose([
+                dc.lineChart(composite2)
+                  .dimension(dim1)
+                  .colors('red')
+                  .group(grp1, "Age >= 5")
+                  .dashStyle([2,2])
+                  .xyTipsOn(true)
+                  .renderDataPoints(false)
+                  .title((d) ->
+                    return d.key.toDateString() + ": " + d.value
+                  ),
+                dc.lineChart(composite2)
+                  .dimension(dim2)
+                  .colors('blue')
+                  .group(grp2, "Age < 5")
+                  .dashStyle([5,5])
+                  .xyTipsOn(true)
+                  .renderDataPoints(false)
+                  .title((d) ->
+                    return d.key.toDateString() + ": " + d.value
+                  )
+            ])
+            .brushOn(false)
+            .render()
+              
+          $('div#container_3 div.mdl-spinner').hide()
+      .catch (error) ->
+        console.error error
+        $('div#container_3 div.mdl-spinner').hide()
+    .catch (error) ->
+      console.error error
 
     # Example TestRate Graph
-    Graphs.create
-      chart_height: @chart_height
-      startDate: startDate
-      endDate: endDate
-      container: 'container_4'
-      y_axis: 'y_axis_4'
-      chart: 'chart_4'
-      legend: "legend4"
-      renderer: 'line'
-      names: ["Age < 5","Age >= 5"]
-      couch_views: ["positiveCasesByFacility"]
+    Coconut.database.query "positiveCasesByFacilityGTE5/positiveCasesByFacilityGTE5",
+      startkey: startDate
+      endkey: endDate
+      include_docs: true
+    .then (result) =>
+      data1ForGraph = _.pluck(result.rows, 'doc')
+      Coconut.database.query "positiveCasesByFacilityLT5/positiveCasesByFacilityLT5",
+        startkey: startDate
+        endkey: endDate
+        include_docs: true
+      .then (result) =>
+        data2ForGraph = _.pluck(result.rows, 'doc')
+        if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
+           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
+           #reject("No record for date range")
+           $('#analysis-spinner').hide()
+        else
+          data1ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults)
+          )
+          data2ForGraph.forEach((d) ->
+            d.datePR = new Date(d.DateofPositiveResults) 
+          )
+
+          ndx1 = crossfilter(data1ForGraph)
+          ndx2 = crossfilter(data2ForGraph)
+          
+          dim1 = ndx1.dimension((d) ->
+            return d.datePR
+          )
+          dim2 = ndx2.dimension((d) ->
+            return d.datePR
+          )
+          grp1 = dim1.group()
+          grp2 = dim2.group()
+          
+          composite3
+            .width($('#container_4').width()-adjustX)
+            .height($('#container_4').height()-adjustY)
+            .margins({top: 20, right: 20, bottom: 30, left: 50})
+            .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
+            .y(d3.scale.linear().domain([0,120]))
+            .yAxisLabel("Proportion of OPD Cases Tested Positive")
+            .elasticY(true)
+            .legend(dc.legend().x($('#container_4').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+            .renderHorizontalGridLines(true)
+            .shareTitle(false)
+            .compose([
+                dc.lineChart(composite3)
+                  .dimension(dim1)
+                  .colors('red')
+                  .group(grp1, "Test rate [5+]")
+                  .dashStyle([2,2])
+                  .xyTipsOn(true)
+                  .renderDataPoints(false)
+                  .title((d) ->
+                    return d.key.toDateString() + ": " + d.value
+                  ),
+                dc.lineChart(composite3)
+                  .dimension(dim2)
+                  .colors('blue')
+                  .group(grp2, "Test rate [< 5]")
+                  .dashStyle([5,5])
+                  .xyTipsOn(true)
+                  .renderDataPoints(false)
+                  .title((d) ->
+                    return d.key.toDateString() + ": " + d.value
+                  )
+            ])
+            .brushOn(false)
+            .render()
+                        
+          $('div#container_4 div.mdl-spinner').hide()
+      .catch (error) ->
+        console.error error
+        $('div#container_4 div.mdl-spinner').hide()
     .catch (error) ->
       console.error error
-    .then (response) ->
-      $('div#container_4 div.mdl-spinner').hide()
 
+    window.onresize = () ->
+      chart1
+        .width($('#container_1').width()-adjustX)
+        .height($('#container_1').height()-adjustY)
+        .rescale()
+        .redraw()
+        
+      composite1
+        .width($('#container_2').width()-adjustX)
+        .height($('#container_2').height()-adjustY)
+        .rescale()
+        .redraw()
+        
+      composite2
+        .width($('#container_3').width()-adjustX)
+        .height($('#container_3').height()-adjustY)
+        .rescale()
+        .redraw()
+        
+      composite3
+        .width($('#container_4').width()-adjustX)
+        .height($('#container_4').height()-adjustY)
+        .rescale()
+        .redraw()
+        
   showStats: (startDate, endDate) ->
     reports = new Reports()
     reports.getCases
