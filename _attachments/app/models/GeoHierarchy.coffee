@@ -36,10 +36,6 @@ class GeoHierarchy
       _(@ancestors()).find (ancestor) ->
         ancestor.levelName is levelName
 
-    ancestorLevels: =>
-      _(@ancestors()).map (ancestor) ->
-        {"#{ancestor.levelName}": ancestor.name}
-
     descendants: =>
       children = @children()
       return [] if children is null

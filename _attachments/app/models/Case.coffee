@@ -194,8 +194,8 @@ class Case
     return @district() if geographicLevel.match(/district/i)
     return @validShehia() if geographicLevel.match(/shehia/i)
 
-  administrativeHierarchy: () =>
-    [{SHEHIA: @shehia()}].concat(GeoHierarchy.findFirst(@shehia(), "SHEHIA")?.ancestorLevels())
+  namesOfAdministrativeLevels: () =>
+    [@shehia()].concat(_(GeoHierarchy.findFirst(@shehia(), "SHEHIA")?.ancestors()).pluck "name").reverse().join(",")
 
   possibleQuestions: ->
     ["Case Notification", "Facility","Household","Household Members"]
@@ -619,7 +619,7 @@ class Case
 
     # LostToFollowup: {}
     #
-    administrativeHierarchy: {}
+    namesOfAdministrativeLevels: {}
 
     district:
       propertyName: "District (if no household district uses facility)"
@@ -1032,26 +1032,28 @@ Case.updateSummaryForCases = (options) ->
   options.success() if options.caseIDs.length is 0
 
   finished = _.after options.caseIDs.length, ->
+    console.log docsToSave
     Coconut.database.bulkDocs docsToSave
       .then ->
-        console.log "SAVED #{docsToSave.length}"
         options.success()
-      .catch (error) -> console.error error
+      .catch (error) ->
+        console.error "ERROR SAVING #{docsToSave.length} case summaries: #{docsToSave.join(',')}"
+        console.error error
 
   _(options.caseIDs).each (caseID) ->
     malariaCase = new Case
       caseID: caseID
     malariaCase.fetch
       error: (error) ->
-        console.log "ERROR"
-        console.log error
+        console.error "ERROR feching case: #{caseID}"
+        console.error error
       success: ->
 
         docId = "case_summary_#{caseID}"
         caseSummaryDoc = {_id: docId}
 
         saveCaseSummaryDoc = (result) ->
-          caseSummaryDoc = result if result? # if the row already exists use the _rev
+          caseSummaryDoc._rev = result._rev if result? # if the row already exists use the _rev
           try
             caseSummaryDoc = _(caseSummaryDoc).extend(malariaCase.summaryCollection())
           catch error
