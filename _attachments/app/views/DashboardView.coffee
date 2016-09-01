@@ -440,18 +440,21 @@ class DashboardView extends Backbone.View
       composite1
         .width(chart_width)
         .height(chart_height)
+        .legend(dc.legend().x($('#container_2').width()-120))
         .rescale()
         .redraw()
         
       composite2
         .width(chart_width)
         .height(chart_height)
+        .legend(dc.legend().x($('#container_3').width()-120))
         .rescale()
         .redraw()
         
       composite3
         .width(chart_width)
         .height(chart_height)
+        .legend(dc.legend().x($('#container_4').width()-120))
         .rescale()
         .redraw()
         
