@@ -30,9 +30,9 @@ class IncidentsGraphView extends Backbone.View
     adjustY = 40
     startDate = moment(options.startDate).format('YYYY-MM-DD')
     endDate = moment(options.endDate).format('YYYY-MM-DD')
-    Coconut.database.query "positiveCases/positiveCases",
-      startkey: startDate
-      endkey: endDate
+    Coconut.database.query "caseCountIncludingSecondary/caseCountIncludingSecondary",
+      startkey: [startDate]
+      endkey: [endDate]
       include_docs: true
     .then (result) =>
       data1ForGraph = _.pluck(result.rows, 'doc')
@@ -41,33 +41,39 @@ class IncidentsGraphView extends Backbone.View
          $('#analysis-spinner').hide()
       else
         data1ForGraph.forEach((d) ->
-          d.datePR = new Date(d.DateofPositiveResults)
+          d.datePR = new Date(d['Index Case Diagnosis Date'])
         )
         chart = dc.lineChart("#chart")
         ndx = crossfilter(data1ForGraph)
         
         dim = ndx.dimension((d) ->
-          return d.datePR
+          return d3.time.week(d.datePR)
         )
 
-        grp = dim.group()
+        grp = dim.group((d) ->
+          return d3.time.week(d)
+        )
 
         chart
           .width($('.chart_container').width()-adjustX)
           .height($('.chart_container').height()-adjustY)
-          .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+          .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
           .y(d3.scale.linear().domain([0,120]))
           .yAxisLabel("Number of Incidents")
+          .xAxisLabel("Week")
           .elasticY(true)
           .renderHorizontalGridLines(true)
+          .renderArea(true)
           .dimension(dim)
           .colors('red')
           .group(grp)
-          # .dashStyle([2,2])
           .xyTipsOn(true)
+          .xUnits(d3.time.weeks)
+          .elasticX(true)
           .renderDataPoints(false)
           .title((d) ->
-            return d.key.toDateString() + ": " + d.value
+            week = moment(d.key).week()
+            return 'Week: '+ week + ": " + d.value
           )
           .brushOn(false)
 
