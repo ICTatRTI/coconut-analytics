@@ -138,12 +138,8 @@ class DashboardView extends Backbone.View
     composite2 = dc.compositeChart("#chart_3")
     composite3 = dc.compositeChart("#chart_4")
     
-    @chart_height = 260
     adjustX = 15
     adjustY = 40
-    
-    chart_width = $('.chart_container').width()-adjustX
-    chart_height = $('.chart_container').width()-adjustY
     startDate = moment(startDate).format('YYYY-MM-DD')
     endDate = moment(endDate).format('YYYY-MM-DD')
     
@@ -155,8 +151,7 @@ class DashboardView extends Backbone.View
     .then (result) =>
         data1ForGraph = _.pluck(result.rows, 'doc')
         if (data1ForGraph.length == 0 or _.isEmpty(data1ForGraph[0]))
-           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
-           #reject("No record for date range")
+           $(".chart_container").html HTMLHelpers.noRecordFound()
            $('#analysis-spinner').hide()
         else
           data1ForGraph.forEach((d) ->
@@ -170,8 +165,8 @@ class DashboardView extends Backbone.View
           grp = dim.group()
 
           chart1
-            .width($('#container_1').width()-adjustX)
-            .height($('#container_1').height()-adjustY)
+            .width($('.chart_container').width()-adjustX)
+            .height($('.chart_container').height()-adjustY)
             .margins({top: 20, right: 20, bottom: 30, left: 50})
             .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
             .y(d3.scale.linear().domain([0,120]))
@@ -181,7 +176,6 @@ class DashboardView extends Backbone.View
             .dimension(dim)
             .colors('red')
             .group(grp)
-            # .dashStyle([2,2])
             .xyTipsOn(true)
             .renderDataPoints(false)
             .title((d) ->
@@ -190,7 +184,6 @@ class DashboardView extends Backbone.View
             .brushOn(false)
               
           chart1.render()
-                  
           $('div#container_1 div.mdl-spinner').hide()
       .catch (error) ->
         console.error error
@@ -210,8 +203,7 @@ class DashboardView extends Backbone.View
       .then (result) =>
         data2ForGraph = _.pluck(result.rows, 'doc')
         if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
-           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
-           #reject("No record for date range")
+           $(".chart_container").html HTMLHelpers.noRecordFound()
            $('#analysis-spinner').hide()
         else
           data1ForGraph.forEach((d) ->
@@ -234,8 +226,8 @@ class DashboardView extends Backbone.View
           grp2 = dim2.group()
           
           composite1
-            .width($('#container_2').width()-adjustX)
-            .height($('#container_2').height()-adjustY)
+            .width($('.chart_container').width()-adjustX)
+            .height($('.chart_container').height()-adjustY)
             .margins({top: 20, right: 20, bottom: 30, left: 50})
             .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
             .y(d3.scale.linear().domain([0,120]))
@@ -291,8 +283,7 @@ class DashboardView extends Backbone.View
       .then (result) =>
         data2ForGraph = _.pluck(result.rows, 'doc')
         if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
-           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
-           #reject("No record for date range")
+           $(".chart_container}").html HTMLHelpers.noRecordFound()
            $('#analysis-spinner').hide()
         else
           data1ForGraph.forEach((d) ->
@@ -315,8 +306,8 @@ class DashboardView extends Backbone.View
           grp2 = dim2.group()
           
           composite2
-            .width($('#container_3').width()-adjustX)
-            .height($('#container_3').height()-adjustY)
+            .width($('.chart_container').width()-adjustX)
+            .height($('.chart_container').height()-adjustY)
             .margins({top: 20, right: 20, bottom: 30, left: 50})
             .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
             .y(d3.scale.linear().domain([0,120]))
@@ -371,8 +362,7 @@ class DashboardView extends Backbone.View
       .then (result) =>
         data2ForGraph = _.pluck(result.rows, 'doc')
         if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
-           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
-           #reject("No record for date range")
+           $(".chart_container").html HTMLHelpers.noRecordFound()
            $('#analysis-spinner').hide()
         else
           data1ForGraph.forEach((d) ->
@@ -395,8 +385,8 @@ class DashboardView extends Backbone.View
           grp2 = dim2.group()
           
           composite3
-            .width($('#container_4').width()-adjustX)
-            .height($('#container_4').height()-adjustY)
+            .width($('.chart_container').width()-adjustX)
+            .height($('.chart_container').height()-adjustY)
             .margins({top: 20, right: 20, bottom: 30, left: 50})
             .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
             .y(d3.scale.linear().domain([0,120]))
@@ -438,27 +428,30 @@ class DashboardView extends Backbone.View
       console.error error
 
     window.onresize = () ->
+      chart_width = $('.chart_container').width()-adjustX
+      chart_height = $('.chart_container').height()-adjustY
+      
       chart1
-        .width($('.chart_container').width()-adjustX)
-        .height($('.chart_container').height()-adjustY)
+        .width(chart_width)
+        .height(chart_height)
         .rescale()
         .redraw()
         
       composite1
-        .width($('.chart_container').width()-adjustX)
-        .height($('.chart_container').height()-adjustY)
+        .width(chart_width)
+        .height(chart_height)
         .rescale()
         .redraw()
         
       composite2
-        .width($('.chart_container').width()-adjustX)
-        .height($('.chart_container').height()-adjustY)
+        .width(chart_width)
+        .height(chart_height)
         .rescale()
         .redraw()
         
       composite3
-        .width($('.chart_container').width()-adjustX)
-        .height($('.chart_container').height()-adjustY)
+        .width(chart_width)
+        .height(chart_height)
         .rescale()
         .redraw()
         

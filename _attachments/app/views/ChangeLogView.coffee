@@ -29,6 +29,26 @@ class ChangeLogView extends Backbone.View
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
         </div>
+        <h5>Aug 19-31, 2016</h5>
+        <div class='changes'>
+          <ul>
+            <li>#237 - fix Graphs vertical size responsiveness</li>
+            <li>Case summary now has list of admin hierarchies/li>
+            <li>Convert charts to using dc.js library</li>
+            <li> Added command line argument for db location</li>
+            <li>Bug fix for node usage and efficiency improvement for reset/li>
+            <li>Improved Summary Propery listing, added admin hierarchy</li>
+            <li>MapView: #204 Labels are turned off for map image download and then turned back on once download is complete</li>
+            <li>MapView: #231 Fixed cluster legend issue</li>
+            <li>Builds tertiary index for querying cases</li>
+            <li>MapView: #230 found and handled a second case causing this bug</li>
+            <li>MapView: #229 add satellite streets layer</li>
+            <li>File for manipulating DHIS2 administrative hierarchy exports</li>
+            <li>MapView: #226 heatmap bug resolved and console.log cleanup.</li>
+            <li>Location Accuracy Setting Implemented as Filter in Map Data Query</li>
+          </ul>
+        </div>
+        
         <h5>Aug 18, 2016</h5>
         <div class='changes'>
           <ul>
