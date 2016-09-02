@@ -316,7 +316,10 @@ class Case
 
   numberPositiveCasesIncludingIndex: =>
     @positiveCasesIncludingIndex().length
-      
+
+  numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
+    @positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5().length
+
   indexCasePatientName: ->
     if @["Facility"]?.complete is "true"
       return "#{@["Facility"].FirstName} #{@["Facility"].LastName}"
@@ -337,6 +340,9 @@ class Case
 
     else if @["Case Notification"]?
       return moment(@["Case Notification"].createdAt).format("YYYY-MM-DD")
+
+  indexCaseDiagnosisDateIsoWeek: =>
+    moment(@indexCaseDiagnosisDate()).isoWeek()
 
   householdMembersDiagnosisDates: =>
     @householdMembersDiagnosisDate()
@@ -616,6 +622,7 @@ class Case
     MalariaCaseID:
       propertyName: "Malaria Case ID"
     indexCaseDiagnosisDate: {}
+    indexCaseDiagnosisDateIsoWeek: {}
 
     # LostToFollowup: {}
     #
@@ -637,7 +644,8 @@ class Case
       propertyName: "Patient Name"
     ageInYears: {}
     Sex: {}
-    isUnder5: {}
+    isUnder5:
+      propertyName: "Is Index Case Under 5"
 
     SMSSent:
       propertyName: "SMS Sent to DMSO"
@@ -658,6 +666,7 @@ class Case
     numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: {}
     numberHouseholdOrNeighborMembersTested: {}
     numberPositiveCasesIncludingIndex: {}
+    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: {}
 
     CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
       propertyName: "Case ID for Other Household Member That Tested Positive at a Health Facility"
