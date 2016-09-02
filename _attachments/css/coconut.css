@@ -291,6 +291,12 @@ input.datepicker {
   display: none;
 }
 
+#noRecordFound {
+  margin-top: 5%;
+  text-align: center;
+  font-size: 1.3em;
+}
+
 /* Material Design styling */
 
 .mdl-grid.mdl-grid-p-15 {
