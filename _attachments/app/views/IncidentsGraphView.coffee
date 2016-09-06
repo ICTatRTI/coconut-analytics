@@ -28,39 +28,34 @@ class IncidentsGraphView extends Backbone.View
     $('#analysis-spinner').show()
     adjustX = 10
     adjustY = 40
-    startDate = moment(options.startDate).format('YYYY-MM-DD')
-    endDate = moment(options.endDate).format('YYYY-MM-DD')
-    Coconut.database.query "caseCountIncludingSecondary/caseCountIncludingSecondary",
+    startDate = options.startDate
+    endDate = options.endDate
+    Coconut.database.query "caseIndexIncludingSecondary/caseIndexIncludingSecondary",
       startkey: [startDate]
       endkey: [endDate]
       include_docs: true
     .then (result) =>
-      data1ForGraph = _.pluck(result.rows, 'doc')
-      if (data1ForGraph.length == 0 or _.isEmpty(data1ForGraph[0]))
+      dataForGraph = _.pluck(result.rows, 'doc')
+      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
-        data1ForGraph.forEach((d) ->
-          d.datePR = new Date(d['Index Case Diagnosis Date'])
+        dataForGraph.forEach((d) ->
+          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
         )
         chart = dc.lineChart("#chart")
-        ndx = crossfilter(data1ForGraph)
-        
+        ndx = crossfilter(dataForGraph)
         dim = ndx.dimension((d) ->
-          return d3.time.week(d.datePR)
+          return d['Index Case Diagnosis Date Iso Week']
         )
-
-        grp = dim.group((d) ->
-          return d3.time.week(d)
-        )
-
+        grp = dim.group()
         chart
           .width($('.chart_container').width()-adjustX)
           .height($('.chart_container').height()-adjustY)
-          .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
+          .x(d3.scale.linear())
           .y(d3.scale.linear().domain([0,120]))
           .yAxisLabel("Number of Incidents")
-          .xAxisLabel("Week")
+          .xAxisLabel("Weeks")
           .elasticY(true)
           .renderHorizontalGridLines(true)
           .renderArea(true)
@@ -72,8 +67,7 @@ class IncidentsGraphView extends Backbone.View
           .elasticX(true)
           .renderDataPoints(false)
           .title((d) ->
-            week = moment(d.key).week()
-            return 'Week: '+ week + ": " + d.value
+            return 'Week: '+ d.key + ": " + d.value
           )
           .brushOn(false)
 

@@ -28,94 +28,99 @@ class TestRateGraphView extends Backbone.View
     $('#analysis-spinner').show()
     adjustX = 10
     adjustY = 40
-    couch_view1 = "positiveCasesByFacilityGTE5"
-    couch_view2 = "positiveCasesByFacilityLT5"
     startDate = moment(options.startDate).format('YYYY-MM-DD')
     endDate = moment(options.endDate).format('YYYY-MM-DD')
-    Coconut.database.query "#{couch_view1}/#{couch_view1}",
-      startkey: startDate
-      endkey: endDate
+    Coconut.database.query "caseIndexIncludingSecondary/caseIndexIncludingSecondary",
+      startkey: [startDate]
+      endkey: [endDate]
       include_docs: true
     .then (result) =>
-      data1ForGraph = _.pluck(result.rows, 'doc')
-      Coconut.database.query "#{couch_view2}/#{couch_view2}",
-        startkey: startDate
-        endkey: endDate
-        include_docs: true
-      .then (result) =>
-        data2ForGraph = _.pluck(result.rows, 'doc')
-        if (data1ForGraph.length == 0 and data2ForGraph.length == 0) or (_.isEmpty(data1ForGraph[0]) and _.isEmpty(data2ForGraph[0]))
-           $(".chart_container").html HTMLHelpers.noRecordFound()
-           $('#analysis-spinner').hide()
-        else
-          data1ForGraph.forEach((d) ->
-            d.datePR = new Date(d.DateofPositiveResults)
-          )
-          data2ForGraph.forEach((d) ->
-            d.datePR = new Date(d.DateofPositiveResults) 
-          )
-          composite = dc.compositeChart("#chart")
-          ndx1 = crossfilter(data1ForGraph)
-          ndx2 = crossfilter(data2ForGraph)
-          
-          dim1 = ndx1.dimension((d) ->
-            return d.datePR
-          )
-          dim2 = ndx2.dimension((d) ->
-            return d.datePR
-          )
-          grp1 = dim1.group()
-          grp2 = dim2.group()
-          
+      dataForGraph = _.pluck(result.rows, 'doc')
+      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
+         $(".chart_container").html HTMLHelpers.noRecordFound()
+         $('#analysis-spinner').hide()
+      else
+        dataForGraph.forEach((d) ->
+          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+          d['Age In Years'] = +d['Age In Years']
+        )
+        data1 = _.filter(dataForGraph, (d) ->
+          return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+        )
+        data2 = _.filter(dataForGraph, (d) ->
+          return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+        )
+        total_cases1 = data1.length
+        total_cases2 = data2.length
+
+        composite = dc.compositeChart("#chart")
+        ndx1 = crossfilter(data1)
+        ndx2 = crossfilter(data2)
+        
+        dim1 = ndx1.dimension((d) ->
+          return d.dateICD
+        )
+        dim2 = ndx2.dimension((d) ->
+          return d.dateICD
+        )
+        grpGTE5 = dim1.group()
+        grpLT5 = dim2.group()
+
+        #calculate percentage poportion
+        grpGTE5.all().forEach((d) ->
+          d.value = parseFloat(100*d.value / total_cases1).toFixed(2)
+        )
+        grpLT5.all().forEach((d) ->
+          d.value = parseFloat(100*d.value / total_cases2).toFixed(2)
+        )
+
+        composite
+          .width($('.chart_container').width()-adjustX)
+          .height($('.chart_container').height()-adjustY)
+          .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
+          .y(d3.scale.linear().domain([0,120]))
+          .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
+          .elasticY(true)
+          .legend(dc.legend().x($('.chart_container').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+          .renderHorizontalGridLines(true)
+          .shareTitle(false)
+          .compose([
+              dc.lineChart(composite)
+                .dimension(dim1)
+                .colors('red')
+                .group(grpGTE5, "Test rate [5+]")
+                .dashStyle([2,2])
+                .xyTipsOn(true)
+                .renderDataPoints(false)
+                .title((d) ->
+                  return d.key.toDateString() + ": " + d.value
+                ),
+              dc.lineChart(composite)
+                .dimension(dim2)
+                .colors('blue')
+                .group(grpLT5, "Test rate [< 5]")
+                .dashStyle([5,5])
+                .xyTipsOn(true)
+                .renderDataPoints(false)
+                .title((d) ->
+                  return d.key.toDateString() + ": " + d.value
+                )
+          ])
+          .brushOn(false)
+          .render()
+
+        window.onresize = () ->
+          HTMLHelpers.resizeChartContainer()
+          composite.legend().x($('.chart_container').width()-200);
           composite
             .width($('.chart_container').width()-adjustX)
             .height($('.chart_container').height()-adjustY)
-            .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-            .y(d3.scale.linear().domain([0,120]))
-            .yAxisLabel("Proportion of OPD Cases Tested Positive")
-            .elasticY(true)
-            .legend(dc.legend().x($('.chart_container').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
-            .renderHorizontalGridLines(true)
-            .shareTitle(false)
-            .compose([
-                dc.lineChart(composite)
-                  .dimension(dim1)
-                  .colors('red')
-                  .group(grp1, "Test rate [5+]")
-                  .dashStyle([2,2])
-                  .xyTipsOn(true)
-                  .renderDataPoints(false)
-                  .title((d) ->
-                    return d.key.toDateString() + ": " + d.value
-                  ),
-                dc.lineChart(composite)
-                  .dimension(dim2)
-                  .colors('blue')
-                  .group(grp2, "Test rate [< 5]")
-                  .dashStyle([5,5])
-                  .xyTipsOn(true)
-                  .renderDataPoints(false)
-                  .title((d) ->
-                    return d.key.toDateString() + ": " + d.value
-                  )
-            ])
-            .brushOn(false)
-            .render()
-
-          window.onresize = () ->
-            HTMLHelpers.resizeChartContainer()
-            composite.legend().x($('.chart_container').width()-200);
-            composite
-              .width($('.chart_container').width()-adjustX)
-              .height($('.chart_container').height()-adjustY)
-              .rescale()
-              .redraw();
-                    
-          $('#analysis-spinner').hide()
-      .catch (error) ->
-        console.error error
+            .rescale()
+            .redraw();
+                  
         $('#analysis-spinner').hide()
     .catch (error) ->
       console.error error
+      $('#analysis-spinner').hide()
   
 module.exports = TestRateGraphView
