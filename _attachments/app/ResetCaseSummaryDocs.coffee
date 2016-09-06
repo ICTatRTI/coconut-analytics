@@ -20,11 +20,6 @@
 ###
 
 
-
-
-
-
-
 # Make these global so that they can be used from the javascript console
 global.Backbone = require 'backbone'
 PouchDB = require 'pouchdb'
@@ -63,6 +58,7 @@ dhisHierarchy.loadExtendExport
 
         try
           Case.resetAllCaseSummaryDocs
+            numberCasesToProcessConcurrently: process?.argv[3] or 2
             error: (error) ->
               console.error "ERROR"
               console.error error

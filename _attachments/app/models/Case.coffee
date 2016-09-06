@@ -69,12 +69,13 @@ class Case
     
 
   fetch: (options) =>
-    Coconut.database.query "zanzibar/cases",
+    Coconut.database.query "cases/cases",
       key: @caseID
       include_docs: true
     .catch (error) ->
-      options?.error()
+      options?.error(error)
     .then (result) =>
+      return options?.error("Could not find any existing data for case #{@caseID}") if result.rows.length is 0
       @loadFromResultDocs(_.pluck(result.rows, "doc"))
       options?.success()
 
@@ -935,40 +936,69 @@ Case.setCaseSummaryDataDoc = (options) ->
     save(caseSummaryData)
 
 Case.resetAllCaseSummaryDocs = (options)  =>
-  # This approach works different than update, by getting all cases ids and updating every one, versus working based on changes. It's faster this way
-  #
-  Case.getLatestChange
-    error: (error) -> console.error error
-    success: (latestChange) ->
-      console.log "Latest change: #{latestChange}"
-      console.log "Retrieving all available case IDs"
+  numberCasesToProcessConcurrently = options?.numberCasesToProcessConcurrently or 2
 
-      Coconut.database.query "zanzibar/cases"
-      .catch (error) ->
-        options?.error()
-      .then (result) =>
-        allCases = _(result.rows).chain().pluck("key").uniq().value()
+  # Delete all existing case_summary_ docs
+  Coconut.database.allDocs
+    startkey: "case_summary_"
+    endkey: "case_summary_\ufff0"
+    include_docs: false
+  .then (result) ->
+    docs = _(result.rows).map (row) ->
+      {
+        _id: row.id
+        _rev: row.value.rev
+        _deleted: true
+      }
 
-        updateCases = ->
-          try
-            if allCases.length is 0
-              Case.setCaseSummaryDataDoc
-                changeSequence: latestChange
-                success: ->
-                  Case.updateCaseSummaryDocs # Catches changes since this process started
+    console.log "Deleting #{docs.length} case_summary_ docs"
+
+    Coconut.database.bulkDocs docs
+    .catch (error) -> console.error error
+    .then ->
+      console.log "Existing case_summary_ docs deleted"
+
+      # This approach works different than update, by getting all cases ids and updating every one, versus working based on changes. It's faster this way
+      #
+      Case.getLatestChange
+        error: (error) -> console.error error
+        success: (latestChange) ->
+          console.log "Latest change: #{latestChange}"
+          console.log "Retrieving all available case IDs"
+
+          Coconut.database.query "cases/cases"
+          .then (result) =>
+            allCases = _(result.rows).chain().pluck("key").uniq().value()
+            console.log "ALL CASES"
+            console.log allCases.join(',')
+
+
+            updateCases = ->
+              try
+                if allCases.length is 0
+                  console.log "Finished, checking for changes since this process started: (#{latestChange})"
+                  Case.setCaseSummaryDataDoc
+                    changeSequence: latestChange
                     error: (error) -> console.error error
-                    success: -> options?.success()
+                    success: ->
+                      Case.updateCaseSummaryDocs # Catches changes since this process started
+                        error: (error) -> console.error error
+                        success: -> options?.success()
 
-              return
-            console.log "Remaining: #{allCases.length}"
-            casesToProcess = allCases.splice(-2,2) # Do 2 at a time
-            Case.updateSummaryForCases
-              caseIDs: casesToProcess
-              success: -> updateCases() # recurse
-          catch error
-            console.error error
+                  return
+                console.log "Remaining: #{allCases.length}"
+                casesToProcess = allCases.splice(-numberCasesToProcessConcurrently,numberCasesToProcessConcurrently)
+                Case.updateSummaryForCases
+                  caseIDs: casesToProcess
+                  success: ->
+                    console.log "Updated: #{casesToProcess.join(',')}"
+                    updateCases() # recurse
+              catch error
+                console.error error
 
-        updateCases()
+            updateCases()
+          .catch (error) ->
+            options?.error()
 
 Case.updateCaseSummaryDocs = (options) ->
 
@@ -1041,12 +1071,12 @@ Case.updateSummaryForCases = (options) ->
   options.success() if options.caseIDs.length is 0
 
   finished = _.after options.caseIDs.length, ->
-    console.log docsToSave
+    console.log "FINISHED"
     Coconut.database.bulkDocs docsToSave
       .then ->
         options.success()
       .catch (error) ->
-        console.error "ERROR SAVING #{docsToSave.length} case summaries: #{docsToSave.join(',')}"
+        console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
         console.error error
 
   _(options.caseIDs).each (caseID) ->
@@ -1054,10 +1084,9 @@ Case.updateSummaryForCases = (options) ->
       caseID: caseID
     malariaCase.fetch
       error: (error) ->
-        console.error "ERROR feching case: #{caseID}"
+        console.error "ERROR fetching case: #{caseID}"
         console.error error
       success: ->
-
         docId = "case_summary_#{caseID}"
         caseSummaryDoc = {_id: docId}
 
@@ -1072,8 +1101,10 @@ Case.updateSummaryForCases = (options) ->
           finished()
 
         Coconut.database.get docId
-        .catch (error) -> saveCaseSummaryDoc()
-        .then (result) -> saveCaseSummaryDoc(result)
+        .then (result) ->
+          saveCaseSummaryDoc(result)
+        .catch (error) ->
+          saveCaseSummaryDoc()
 
 
                     

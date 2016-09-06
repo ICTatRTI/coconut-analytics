@@ -50,7 +50,7 @@ class Reports
 
 
   @getCases = (options) =>
-    Coconut.database.query "zanzibar/caseIDsByDate",
+    Coconut.database.query "caseIDsByDate",
       # Note that these seem reversed due to descending order
       startkey: moment(options.endDate).endOf("day").format(Coconut.config.dateFormat)
       endkey: options.startDate
@@ -60,7 +60,7 @@ class Reports
     .then (result) ->
       caseIDs = _.unique(_.pluck result.rows, "value")
 
-      Coconut.database.query "zanzibar/cases",
+      Coconut.database.query "cases/cases",
         keys: caseIDs
         include_docs: true
       .catch (error) -> console.error error
@@ -416,7 +416,7 @@ class Reports
     }
     
     # Get the the caseids for all of the results in the data range with the user id
-    Coconut.database.query "zanzibar-server/resultsByDateWithUserAndCaseId",
+    Coconut.database.query "resultsByDateWithUserAndCaseId",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
@@ -526,7 +526,7 @@ class Reports
     aggregationArea = options.aggregationArea
     aggregationPeriod = options.aggregationPeriod
     facilityType = options.facilityType or "All"
-    Coconut.database.query "zanzibar-server/weeklyDataBySubmitDate",
+    Coconut.database.query "weeklyDataBySubmitDate",
       startkey: [startYear,startWeek]
       endkey: [endYear,endWeek]
       include_docs: true
@@ -678,7 +678,7 @@ class Reports
     aggregationPeriod = options.aggregationPeriod
 
 
-    Coconut.database.query "zanzibar-server/positiveFacilityCasesByDate",
+    Coconut.database.query "positiveFacilityCasesByDate",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false
@@ -784,7 +784,7 @@ class Reports
     aggregationPeriod = options.aggregationPeriod
     facilityType = options.facilityType
 
-    Coconut.database.query "zanzibar-server/positiveFacilityCasesByDate",
+    Coconut.database.query "positiveFacilityCasesByDate",
       startkey: options.startDate
       endkey: options.endDate
       include_docs: false

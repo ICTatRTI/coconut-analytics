@@ -12,8 +12,7 @@ class QuestionCollection extends Backbone.Collection
     options:
       query:
         include_docs: true
-        fun: "zanzibar/byCollection"
-        key: "question"
+        fun: "questions/questions"
 
       changes:
         include_docs: true

@@ -225,10 +225,12 @@ class Router extends Backbone.Router
         Coconut.caseView.case.fetch
           success: ->
             Coconut.caseView.render(docID)
+          error: (error) ->
+            alert "Could not display case: #{error}"
 
   dashboard: (startDate,endDate) =>
     @userLoggedIn
-      success:  => 
+      success:  =>
         @showDashboard(startDate,endDate)
       error: =>
         @loginFailed()
