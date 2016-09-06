@@ -63,22 +63,38 @@ class TestRateGraphView extends Backbone.View
         dim2 = ndx2.dimension((d) ->
           return d.dateICD
         )
-        grpGTE5 = dim1.group()
-        grpLT5 = dim2.group()
-
-        #calculate percentage poportion
-        grpGTE5.all().forEach((d) ->
-          d.value = parseFloat(100*d.value / total_cases1).toFixed(2)
+        
+        grpGTE5 = dim1.group().reduce(
+          (p,v) ->
+            ++p.count
+            p.pct = (p.count / total_cases1).toFixed(2)
+            return p
+          , (p,v) ->
+            --p.count
+            p.pct = (p.count / total_cases1).toFixed(2)
+            return p
+          , () ->
+            return {count:0, pct: 0}
         )
-        grpLT5.all().forEach((d) ->
-          d.value = parseFloat(100*d.value / total_cases2).toFixed(2)
+        
+        grpLT5 = dim2.group().reduce(
+          (p,v) ->
+            ++p.count
+            p.pct = (p.count / total_cases2).toFixed(2)
+            return p
+          , (p,v) ->
+            --p.count
+            p.pct = (p.count / total_cases2).toFixed(2)
+            return p
+          , () ->
+            return {count:0, pct: 0}
         )
 
         composite
           .width($('.chart_container').width()-adjustX)
           .height($('.chart_container').height()-adjustY)
           .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
-          .y(d3.scale.linear().domain([0,120]))
+          .y(d3.scale.linear())
           .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
           .elasticY(true)
           .legend(dc.legend().x($('.chart_container').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
@@ -89,21 +105,27 @@ class TestRateGraphView extends Backbone.View
                 .dimension(dim1)
                 .colors('red')
                 .group(grpGTE5, "Test rate [5+]")
+                .valueAccessor((p) ->
+                  return p.value.pct
+                  )
                 .dashStyle([2,2])
                 .xyTipsOn(true)
                 .renderDataPoints(false)
                 .title((d) ->
-                  return d.key.toDateString() + ": " + d.value
+                  return d.key.toDateString() + ": " + d.value.pct*100 +"%"
                 ),
               dc.lineChart(composite)
                 .dimension(dim2)
                 .colors('blue')
                 .group(grpLT5, "Test rate [< 5]")
+                .valueAccessor((p) ->
+                  return p.value.pct
+                  )
                 .dashStyle([5,5])
                 .xyTipsOn(true)
                 .renderDataPoints(false)
                 .title((d) ->
-                  return d.key.toDateString() + ": " + d.value
+                  return d.key.toDateString() + ": " + d.value.pct*100 +"%"
                 )
           ])
           .brushOn(false)

@@ -308,15 +308,31 @@ class DashboardView extends Backbone.View
           dim4b = ndx4b.dimension((d) ->
             return d.dateICD
           )
-          grpGTE5_3 = dim4a.group()
-          grpLT5_3 = dim4b.group()
-
-          #calculate percentage poportion
-          grpGTE5_3.all().forEach((d) ->
-            d.value = parseFloat(100*d.value / total_cases1).toFixed(2)
+          
+          grpGTE5_3 = dim4a.group().reduce(
+            (p,v) ->
+              ++p.count
+              p.pct = (p.count / total_cases1).toFixed(2)
+              return p
+            , (p,v) ->
+              --p.count
+              p.pct = (p.count / total_cases1).toFixed(2)
+              return p
+            , () ->
+              return {count:0, pct: 0}
           )
-          grpLT5_3.all().forEach((d) ->
-            d.value = parseFloat(100*d.value / total_cases2).toFixed(2)
+        
+          grpLT5_3 = dim4b.group().reduce(
+            (p,v) ->
+              ++p.count
+              p.pct = (p.count / total_cases2).toFixed(2)
+              return p
+            , (p,v) ->
+              --p.count
+              p.pct = (p.count / total_cases2).toFixed(2)
+              return p
+            , () ->
+              return {count:0, pct: 0}
           )
 
           composite3
@@ -334,21 +350,27 @@ class DashboardView extends Backbone.View
                   .dimension(dim4a)
                   .colors('red')
                   .group(grpGTE5_3, "Test rate [5+]")
+                  .valueAccessor((p) ->
+                    return p.value.pct
+                    )
                   .dashStyle([2,2])
                   .xyTipsOn(true)
                   .renderDataPoints(false)
                   .title((d) ->
-                    return d.key.toDateString() + ": " + d.value
+                    return d.key.toDateString() + ": " + d.value.pct*100 +"%"
                   ),
                 dc.lineChart(composite3)
                   .dimension(dim4b)
                   .colors('blue')
                   .group(grpLT5_3, "Test rate [< 5]")
+                  .valueAccessor((p) ->
+                    return p.value.pct
+                    )
                   .dashStyle([5,5])
                   .xyTipsOn(true)
                   .renderDataPoints(false)
                   .title((d) ->
-                    return d.key.toDateString() + ": " + d.value
+                    return d.key.toDateString() + ": " + d.value.pct*100 +"%"
                   )
             ])
             .brushOn(false)

@@ -8,13 +8,13 @@ Create a new view by creating a .coffee file in this directory. Each file be tur
 
     ./pushViews.rb databaseTarget
 
+(Note: the url is in quotes followed by the db name)
 For instance if the file
 
 docIDsForUpdating.coffee
 
 is here. Then running:
-
-    ./pushViews.rb http://localhost:5984/mydb
+    ./pushViews.rb "http://localhost:5984" mydb
     
 will create a design doc called docIdsForUpdating in the mydb database with a view called docIdsForUpdating. You could then access it by going to:
 
