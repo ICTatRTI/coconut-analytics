@@ -30,9 +30,10 @@ class TestRateGraphView extends Backbone.View
     adjustY = 40
     startDate = moment(options.startDate).format('YYYY-MM-DD')
     endDate = moment(options.endDate).format('YYYY-MM-DD')
-    Coconut.database.query "caseIndexIncludingSecondary/caseIndexIncludingSecondary",
+    Coconut.database.query "caseCountIncludingSecondary",
       startkey: [startDate]
       endkey: [endDate]
+      reduce: false
       include_docs: true
     .then (result) =>
       dataForGraph = _.pluck(result.rows, 'doc')

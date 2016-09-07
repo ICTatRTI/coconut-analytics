@@ -30,9 +30,10 @@ class AttendanceGraphView extends Backbone.View
     adjustY = 40
     startDate = options.startDate
     endDate = options.endDate
-    Coconut.database.query "caseIndexIncludingSecondary/caseIndexIncludingSecondary",
+    Coconut.database.query "caseCountIncludingSecondary",
       startkey: [startDate]
       endkey: [endDate]
+      reduce: false
       include_docs: true
     .then (result) =>
       dataForGraph = _.pluck(result.rows, 'doc')

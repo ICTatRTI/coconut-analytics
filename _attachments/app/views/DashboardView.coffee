@@ -112,9 +112,10 @@ class DashboardView extends Backbone.View
     startDate = Coconut.router.reportViewOptions.startDate
     endDate = Coconut.router.reportViewOptions.endDate
 
-    Coconut.database.query "caseIndexIncludingSecondary/caseIndexIncludingSecondary",
+    Coconut.database.query "caseCountIncludingSecondary",
       startkey: [startDate]
       endkey: [endDate]
+      reduce: false
       include_docs: true
     .then (result) =>
         if (result.rows.length < 2 or _.isEmpty(result.rows[0]))
@@ -124,9 +125,10 @@ class DashboardView extends Backbone.View
           Coconut.dateSelectorView.endDate = endDate
           Coconut.dateSelectorView.render()
           displayError()
-          Coconut.database.query "caseIndexIncludingSecondary/caseIndexIncludingSecondary",
+          Coconut.database.query "caseCountIncludingSecondary",
             startkey: [startDate]
             endkey: [endDate]
+            reduce: false
             include_docs: true
           .then (result) =>
             dataForGraph = _.pluck(result.rows, 'doc')
