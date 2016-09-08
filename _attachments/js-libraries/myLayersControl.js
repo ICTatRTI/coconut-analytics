@@ -129,7 +129,43 @@ var myLayersControl =  L.Control.extend({
 //            </a>
 //          </div>'
         var form = this._form = L.DomUtil.create('form', 'demo-card-square mdl-card mdl-shadow--2dp');
-        L.DomEvent.on(this._zoomHomeButton, 'click', function() {
+        
+		if (this.options.collapsed) {
+			if (!L.Browser.android) {
+				L.DomEvent
+				    .on(container, 'mouseover', this._expand, this)
+				    .on(container, 'mouseout', this._collapse, this);
+			}
+			var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
+			link.href = '#';
+			link.title = 'Layers';
+
+			if (L.Browser.touch) {
+				L.DomEvent
+				    .on(link, 'click', L.DomEvent.stop)
+				    .on(link, 'click', this._expand, this);
+			}
+			else {
+				L.DomEvent.on(link, 'focus', this._expand, this);
+			}
+			//Work around for Firefox android issue https://github.com/Leaflet/Leaflet/issues/2033
+			L.DomEvent.on(form, 'click', function () {
+				setTimeout(L.bind(this._onInputClick, this), 0);
+			}, this);
+//
+//			this._map.on('click', this._collapse, this);
+//			// TODO keyboard accessibility
+//		} else {
+//			this._expand();
+		}
+
+		this._baseLayersList = L.DomUtil.create('div', className + '-base', form);
+		this._separator = L.DomUtil.create('div', className + '-separator', form);
+		this._queriedLayersList = L.DomUtil.create('div', className + '-queriedLayers', form);
+		this._separator = L.DomUtil.create('div', className + '-separator', form);
+		this._overlaysList = L.DomUtil.create('div', className + '-overlays', form);
+
+		L.DomEvent.on(this._zoomHomeButton, 'click', function() {
 //            console.log('domeventCLick')
 //            console.log('container.childnodes: ' + container.childNodes)
             L.DomUtil.addClass(form, 'mdl-menu--bottom-right');
@@ -149,47 +185,11 @@ var myLayersControl =  L.Control.extend({
                 container.removeChild(form)
             }
         });
-//		if (this.options.collapsed) {
-//			if (!L.Browser.android) {
-//				L.DomEvent
-//				    .on(container, 'mouseover', this._expand, this)
-//				    .on(container, 'mouseout', this._collapse, this);
-//			}
-//			var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
-//			link.href = '#';
-//			link.title = 'Layers';
-//
-//			if (L.Browser.touch) {
-//				L.DomEvent
-//				    .on(link, 'click', L.DomEvent.stop)
-//				    .on(link, 'click', this._expand, this);
-//			}
-//			else {
-//				L.DomEvent.on(link, 'focus', this._expand, this);
-//			}
-//			//Work around for Firefox android issue https://github.com/Leaflet/Leaflet/issues/2033
-//			L.DomEvent.on(form, 'click', function () {
-//				setTimeout(L.bind(this._onInputClick, this), 0);
-//			}, this);
-//
-//			this._map.on('click', this._collapse, this);
-//			// TODO keyboard accessibility
-//		} else {
-//			this._expand();
-//		}
-
-		this._baseLayersList = L.DomUtil.create('div', className + '-base', form);
-		this._separator = L.DomUtil.create('div', className + '-separator', form);
-		this._queriedLayersList = L.DomUtil.create('div', className + '-queriedLayers', form);
-		this._separator = L.DomUtil.create('div', className + '-separator', form);
-		this._overlaysList = L.DomUtil.create('div', className + '-overlays', form);
-
-		
 	}, 
         
     _addLayer: function (layer, name, overlay, queried, time) {
     var id = L.stamp(layer);
-
+    console.log("id: " + id)
 	this._layers[id] = {
 		layer: layer,
 		name: name,
@@ -201,6 +201,8 @@ var myLayersControl =  L.Control.extend({
         this._lastZIndex++;
 		layer.setZIndex(this._lastZIndex);
 	}
+    console.log('this._layers[id]: '+JSON.stringify(this._layers[id].name))
+			    
 //    console.log('this._layers[id]: '+this._layers[id].layer+ ' ' + this._layers[id].name + ' ' + this._layers[id].overlay)
 //	console.log('this.options.autoZIndex: '+this.options.autoZIndex)
 //    if (this.options.autoZIndex && layer.setZIndex) {
@@ -235,9 +237,9 @@ var myLayersControl =  L.Control.extend({
 		    i, obj;
 
 		for (i in this._layers) {
-//			console.log('this._layers[i]: '+this._layers[i])
-//			console.log('this._layers[i].name: '+this._layers[i].name)
-//			console.log('this._layers[i].layer: '+this._layers[i].layer)
+			console.log('this._layers[i].id: '+this._layers[i].id)
+			console.log('this._layers[i].name: '+this._layers[i].name)
+			console.log('this._layers[i].layer: '+this._layers[i].layer)
             obj = this._layers[i];
 //            console.log('update obj: '+obj)
 //			console.log('update obj.name: '+obj.name)
@@ -251,9 +253,10 @@ var myLayersControl =  L.Control.extend({
 		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
 	},
     _onLayerChange: function (e) {
+        console.log("L.stamp(e.layer): " + L.stamp(e.layer))
         var obj = this._layers[L.stamp(e.layer)];
-    	
-		if (!obj || typeof(obj.name)!=undefined) { return; }
+    	console.log("this._layers[i].name" + this._layers[L.stamp(e.layer)])
+        if (!obj || typeof(obj.name)!=undefined) { return; }
     	if (!this._handlingClick && obj.name != "Cases") {
 			console.log("onLayerChange update")
             this._update();
