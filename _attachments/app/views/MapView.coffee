@@ -434,26 +434,27 @@ class MapView extends Backbone.View
     return typeAheadAdminNames 
    
   reportResults = (results) ->
-        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
+        casesGeoJSON.features =  _(results.rows).chain().map (result) ->
+          caseSummary = result.doc
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
-          if malariaCase.Household?["HouseholdLocation-latitude"] and malariaCase.Household["HouseholdLocation-accuracy"] <= Coconut.config.location_accuracy_threshold
+          if caseSummary["Household Location Latitude"] and caseSummary["Household Location Accuracy"] <= Coconut.config.location_accuracy_threshold
             
-            { 
+            {
               type: 'Feature'
               properties:
-                MalariaCaseID: malariaCase.caseID
-                hasAdditionalPositiveCasesAtIndexHousehold: malariaCase.hasAdditionalPositiveCasesAtIndexHousehold()
-                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
-                NumberofLLIN: malariaCase.Household.NumberofLLIN
-                SleepingSpaces: malariaCase.Household.NumberofSleepingPlacesbedsmattresses
-                RecentTravel: malariaCase.Facility?.TravelledOvernightinpastmonth
-                date: malariaCase.indexCaseDiagnosisDate() or malariaCase.householdMembersDiagnosisDates() #malariaCase.householdMembersDiagnosisDates() malariaCase.indexCaseDiagnosisDate() malariaCase.Household?.lastModifiedAt
-                dateIRS: malariaCase.Household.LastdateofIRS
+                MalariaCaseID: caseSummary["Malaria Case ID"]
+                hasAdditionalPositiveCasesAtIndexHousehold: caseSummary["Number Positive Cases At Index Household"] > 0
+                numberOfCasesInHousehold: caseSummary["Number Positive Cases At Index Household"]
+                NumberofLLIN: caseSummary["Number of Llin"]
+                SleepingSpaces: caseSummary["Number of Sleeping Places (beds/mattresses)"]
+                RecentTravel: caseSummary["Index Case Has Travel History"]
+                date: caseSummary["Index Case Diagnosis Date"]
+                dateIRS: caseSummary["Last Date of Irs"]
               geometry:
                 type: 'Point'
                 coordinates: [
-                  malariaCase.Household?["HouseholdLocation-longitude"]
-                  malariaCase.Household?["HouseholdLocation-latitude"]
+                  caseSummary["Household Location Longitude"]
+                  caseSummary["Household Location Latitude"]
                 ]
             }
         .compact().value()
@@ -702,10 +703,13 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    Reports.getCases
-      startDate: startDate
-      endDate: endDate
-      success: reportResults
+    console.log "AAAA"
+    Coconut.database.query "caseIDsByDate",
+      startkey: startDate
+      endkey: endDate
+      include_docs: true
+    .catch (error) -> console.error error
+    .then (result) -> reportResults(result)
 #        console.log 'success'
 ##        console.log "results: " + JSON.stringify results
 #        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
