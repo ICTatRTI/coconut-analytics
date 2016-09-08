@@ -50,7 +50,8 @@ class MenuView extends Backbone.View
           <div class='f-left m-l-20'><img src=\"#{Coconut.logoUrl}\" id='cslogo_sm'></div>
           <div class='mdl-layout-title' id='drawer-title'>#{Coconut.config.appName}</div>
         </div>
-      </header>		  
+      </header>	
+      <div id='container'>	  
       <nav class='coconut_navigation mdl-navigation'>
         <a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='#dashboard'>  
           <i class='mdl-color-text--blue-grey-400 material-icons'>dashboard</i>Dashboard</a>
@@ -159,6 +160,7 @@ class MenuView extends Backbone.View
         }
         </div>	
       </nav>
+    <div>
     <div id='footer'>
       Powered by Coconut Surveillance
     </div>

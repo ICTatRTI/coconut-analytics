@@ -19,50 +19,211 @@ class EpidemicThresholdView extends Backbone.View
     $("#row-region").hide()
 
     @$el.html "
-      <style>
-        .threshold {
-          border: solid 1px
-        }
-        .alarmAlert {
-          color:black;
-          background-color:#EEEEEE;
-          font-weight:bold;
-        }
-        th{
-          text-align:center;
-        }
-      </style>
-      <div id='dateSelector'></div>
+        <style>
+          .mdl-data-table { table-layout: auto}
+          .alert {padding: 0; margin-bottom: 5px }
+        </style>
+        <div class='clearfix'></div>
+          <div id='dateSelector'></div>
+          <div id='epi-key'>
+           <table id='thresholdKey' class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+              <thead> 
+                 <tr> 
+                    <th class='mdl-data-table__cell--non-numeric'>Status</th>
+                    <th class='threshold'>Your Alerts & Alarms</th>
+                    <th class='threshold'>Alerts & Alarms</th>
+                    <th class='threshold'>Facility</th> 
+                    <th class='threshold'>Shehia</th> 
+                    <th class='threshold'>Village</th> 
+                    <th class='threshold'>District</th>
+                 </tr> 
+              </thead> 
+              <tbody> 
+                 <tr> 
+                    <td style='background:#eee'>
+                      Alert <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent material-icons'>notifications_none</i>
+                    </td> 
+                    <td class='threshold'>
+                      <button class='mdl-card__media btn_th'>
+                        <div class='one'>
+                          <i class='material-icons assigned'>person_pin</i>
+                          <i class='material-icons alert'>notifications_none</i>
+                        </div>
+                        <div class='two'>
+                          <span class='alert-badge mdl-badge' style='position: relative'>2 Cases</span>
+                        </div>
+                        <div class='clearfix'></div>
+                      </button>
+                    </td>
+                    <td class='threshold'>
+                      <button class='mdl-card__media btn_th'>
+                        <div class='one'>
+                          <i class='material-icons visited'>priority_high</i>
+                          <i class='material-icons alert'>notifications_none</i>
+                        </div>
+                        <div class='two'>
+                          <span class='alert-badge mdl-badge' style='position: relative'>22 Cases</span>
+                        </div>
+                        <div class='clearfix'></div>
+                      </button>
+                    </td>
+                    <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
+                    <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td> 
+                    <td class='threshold'>5 or more total cases within 7 days</td> 
+                    <td class='threshold' rowspan='2'>Specific for each district and week, based on 5 years of previous data</td> 
+                 </tr> 
+                 <tr> 
+                    <td style='background:#eee'>
+                      <span>Alarm</span> <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent material-icons'>notifications_active</i>
+                    </td> 
+                    <td class='threshold'>
+                      <button class='mdl-card__media btn_th'>
+                        <div class='one'>
+                          <i class='material-icons assigned'>person_pin</i>
+                          <i class='material-icons alarm'>notifications_active</i>
+                        </div>
+                        <div class='two'>
+                          <span class='alarm-badge mdl-badge'>5 Cases</span>
+                        </div>
+                        <div class='clearfix'></div>
+                      </button>
+                      </td>
+                      <td class='threshold'>
+                        <button class='mdl-card__media btn_th'>
+                          <div class='one'>
+                            <i class='material-icons visited'>priority_high</i>
+                            <i class='material-icons alert'>notifications_active</i>
+                          </div>
+                          <div class='two'>
+                            <span class='alarm-badge mdl-badge'>Cases: 12</span>
+                          </div>
+                          <div class='clearfix'></div>
+                        </button>
+                      </td>
+                    <td class='threshold'>10 or more under 5 cases or 20 or more total cases within 14 days</td>
+                    <td class='threshold'>10 or more under 5 cases or 20 or more total cases within 14 days</td>  
+                    <td class='threshold'>10 or more total cases within 14 days</td> 
+                    
+                 </tr>
+                 
+              </tbody>
+           </table>
+           <p>
+           (Note that cases counted for district thresholds don't include household and neighbor cases)</p>
 
-      <table class='tablesorter tableData '>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Facility</th>
-            <th>Shehia</th>
-            <th>Village</th>
-            <th>District</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class='alarmAlert'>Alert</td>
-            <td class='threshold' colspan='2'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
-            <td class='threshold'>5 or more total cases within 7 days</td>
-            <td class='threshold'rowspan='2'>Specific for each district and week, based on 5 years of previous data</td>
-          </tr>
-          <tr>
-            <td class='alarmAlert'>Alarm <span style='font-weight:normal'><br/>(in <span style='color:red'>red</span>)</span></td>
-            <td class='threshold' colspan='2'>10 or more under 5 cases or 20 or more total cases within 14 days</td>
-            <td class='threshold'>10 or more total cases within 14 days</td>
-          </tr>
-        </tbody>
-      </table>
+         </div>
+        <!--<button class='btn' style='margin-top: 10px; float: right;'>Reset Table</button>-->
+      <div class='epi-summary'>
+            
+            <div id='district' class='mdl-card--expand'>
+              <h5>DISTRICTS:</h5>
+              <i class='material-icons alert'>notifications_none</i><span>5 Alerts</span>
+              <i class='material-icons alarm'>notifications_active</i><span>5 Alarms</span>         
+            </div>
+            <div id='facility' class='mdl-card--expand'>
+              <h5>FACILITIES:</h5>
+              <i class='material-icons alert'>notifications_none</i><span>8 Alerts</span>
+              <i class='material-icons alarm'>notifications_active</i><span>1 Alarms</span>     
+            </div>
+            
+            <div id='shehia' class='mdl-card--expand'>
+              <h5>SHEHIAS:</h5>
+              <i class='material-icons alert'>notifications_none</i><span>7 Alerts</span>
+              <i class='material-icons alarm'>notifications_active</i><span>1 Alarms</span>     
+            </div>
+            <div id='village' class='mdl-card--expand'>
+              <h5>VILLAGES:</h5>
+              <i class='material-icons alert'>notifications_none</i><span>4 Alerts</span>
+              <i class='material-icons alarm'>notifications_active</i><span>2 Alarms</span>     
+            </div>
+            
 
-      (Note that cases counted for district thresholds don't include household and neighbor cases)
-      <br/>
-      <br/>
-    "
+         </div>
+         
+         <div class='clearfix'></div>
+         
+         <div class='outer-div'>
+
+         <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'> 
+            <thead> 
+              <tr>
+                <th>District</th>
+                <th>2016-05</th>
+                <th>2016-06</th>
+                <th>2016-07</th>
+                <th>2016-08</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>WETE</td>
+                <td>
+                  <button class='mdl-card__media btn_th'>
+                    <div class='one'>
+                        <i class='material-icons visited'>priority_high</i>
+                        <i class='material-icons alert'>notifications_active</i>
+                    </div>
+                    <div class='two'>
+                      <span class='alarm-badge mdl-badge'>Cases: 12</span>
+                    </div>
+                    <div class='clearfix'></div>
+                    <div class='three'>
+                       <a href='#show/issue/threshold-2016-01-25--2016-02-01-Alert-7-days-facility-total.WETE'>VILLAGE: KIJICHAME</a>
+                    </div>
+                  </button>
+                </td>
+                <td>
+                  <button class='mdl-card__media btn_th'>
+                    <div class='one'>
+                      <i class='material-icons visited'>priority_high</i>
+                      <i class='material-icons alert'>notifications_none</i>
+                    </div>
+                    <div class='two'>
+                      <span class='alert-badge mdl-badge'>Cases: 14</span>
+                    </div>
+                    <div class='clearfix'></div>
+                    <div class='three'>
+                      <a href='#show/issue/threshold-2016-01-25--2016-02-01-Alert-7-days-facility-total.WETE'>FACILITY: WETE</a>
+                    </div>
+                  </button>
+                </td>
+                <td>
+                  <button class='mdl-card__media btn_th'>
+                    <div class='one'>
+                      <i class='material-icons assigned'>person_pin</i>
+                      <i class='material-icons alarm'>notifications_active</i>
+                    </div>
+                    <div class='two'>
+                      <span class='alarm-badge mdl-badge'>Cases: 13</span>
+                    </div>
+                    <div class='clearfix'></div>
+                    <div class='three'>
+                      <a href='#show/issue/threshold-2016-01-25--2016-02-01-Alert-7-days-facility-total.WETE'>DISTRICT: MICHEWENI</a>
+                    </div>
+                    </button>
+                </td>
+                
+                <td>
+                  <button class='mdl-card__media btn_th'>
+                    <div class='one'>
+                      <i class='material-icons visited'>person_pin</i>
+                      <i class='material-icons alert'>notifications_none</i>
+                    </div>
+                    <div class='two'>
+                      <span class='alert-badge mdl-badge'>Cases: 11</span>
+                    </div>
+                    <div class='clearfix'></div>
+                    <div class='three'>  
+                        <a href='#show/issue/threshold-2016-01-25--2016-02-01-Alert-7-days-facility-total.WETE'>SHEHIA: TUMBE MASHARIKI</a>
+                      </div>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+         
+         </div>
+      "
     startDate = moment(Coconut.router.reportViewOptions.startDate)
     endDate = moment(Coconut.router.reportViewOptions.endDate).endOf("day")
     weekRange = []
@@ -89,44 +250,15 @@ class EpidemicThresholdView extends Backbone.View
           thresholdsByDistrictAndWeek[district][week] = [] unless thresholdsByDistrictAndWeek[district][week]
           thresholdsByDistrictAndWeek[district][week].push row.doc
 
-      @$el.append "
-
-        <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
-          <thead>
-            <th class='mdl-data-table__cell--non-numeric'>District</th>
-            #{
-              _(weekRange).map (week) ->
-                "<th>#{week}</th>"
-              .join("")
-            }
-          </thead>
-          <tbody>
-            #{
-              _(GeoHierarchy.allDistricts()).map (district) ->
-                "
-                <tr> 
-                  <td class='mdl-data-table__cell--non-numeric'>#{district}</td>
-                  #{
-                  _(weekRange).map (week) ->
-                    "
-                    <td>
-                      #{
-                        _(thresholdsByDistrictAndWeek[district]?[week]).map (threshold) ->
-                          "<small><a style='color:#{if threshold.ThresholdType is 'Alarm' then 'red' else 'black'}' href='#show/issue/#{threshold._id}'>#{capitalize(threshold.Description)}</a></small>"
-                        .join("<br/><br/>")
-                      }
-                    </td>
-                    "
-                  .join("")
-                  }
-                </tr>
-                "
-              .join("")
-            }
-          </tbody>
-        </table>
-      "
-
+      
       $('#analysis-spinner').hide()
-
+      
+      # $("#thresholdTable").dataTable
+      #   aaSorting: [[0,"asc"]]
+      #   iDisplayLength: 50
+      #   dom: 'T<"clear">lfrtip'
+      #   tableTools:
+      #     sSwfPath: "js-libraries/copy_csv_xls.swf"
+      #     aButtons: ["csv"]
+          
 module.exports = EpidemicThresholdView

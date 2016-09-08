@@ -51,22 +51,6 @@ class PeriodTrendsView extends Backbone.View
         <div id='messages'></div>
     "
 
-    Coconut.database.query "zanzibar/byCollection",
-      # Note that these seem reversed due to descending order
-      key: "help"
-      include_docs: true
-    .catch (error) ->
-      console.log error
-    .then (result) =>
-      messages = _(result.rows).chain().map( (data) =>
-        return unless moment(@reportOptions.startDate).isBefore(data.value.date) and moment(@reportOptions.endDate).isAfter(data.value.date)
-        "#{data.value.date}: #{data.value.text}<br/>"
-      ).compact().value().join("")
-      if messages isnt "" then $("#messages").html "
-        <h2>Help Messages</h2>
-        #{messages}
-      "
-
     if @reportOptions.optionsArray
       optionsArray = options.optionsArray
     else

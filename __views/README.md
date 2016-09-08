@@ -8,18 +8,23 @@ Create a new view by creating a .coffee file in this directory. Each file be tur
 
     ./pushViews.rb databaseTarget
 
+(Note: the url is in quotes followed by the db name)
 For instance if the file
 
 docIDsForUpdating.coffee
 
 is here. Then running:
-
-    ./pushViews.rb http://localhost:5984/mydb
+    ./pushViews.rb "http://localhost:5984" mydb
     
-will create a design doc called docIdsForUpdating in the mydb database with a view called docIdsForUpdating. You could then access it by goign to:
+will create a design doc called docIdsForUpdating in the mydb database with a view called docIdsForUpdating. You could then access it by going to:
 
 http://localhost:5984/mydb/_design/docIdsForUpdating/_view/docIdsForUpdating
 
-TODO:
+If you also want to include a reduce function, just create a file with the same name as the associated map, but add __reduce at the end. For example:
 
-Handle reduces, probably by adding a _map to the file name, like: docIdsForUpdating_map.coffee
+results_by_question_set_and_date.coffee
+results_by_question_set_and_date__reduce.coffee
+
+Inside of the file you can define the reduce function, for example to use the built in couchdb count function, just put this:
+
+_count

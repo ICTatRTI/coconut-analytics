@@ -3,10 +3,10 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
-DataTables = require( 'datatables.net' )()
-Reports = require '../models/Reports'
 moment = require 'moment'
-Graphs = require '../models/Graphs'
+dc = require 'dc'
+d3 = require 'd3'
+crossfilter = require 'crossfilter'
 
 class IncidentsGraphView extends Backbone.View
   el: "#content"
@@ -18,30 +18,73 @@ class IncidentsGraphView extends Backbone.View
        <div class='chart-title'>Number of Cases</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
-           <div class='mdl-cell mdl-cell--11-col mdl-cell--7-col-tablet mdl-cell--3-col-phone'>
-             <div id='y_axis_1' class='y_axis'></div>
-             <div id='chart_1' class='chart_lg'></div>
-             <div id='x_axis_1' class='x_axis'></div>
-           </div>
-           <div class='mdl-cell mdl-cell--1-col mdl-cell--1-col-tablet mdl-cell--1-col-phone'>   
-             <div id='legend' class='legend'></div>
+           <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
+             <div id='chart'></div>
            </div>
          </div>
        </div>
     "
-    
+    HTMLHelpers.resizeChartContainer()
     $('#analysis-spinner').show()
-    options.container = 'chart_container_1'
-    options.y_axis = 'y_axis_1'
-    options.x_axis = 'x_axis_1'
-    options.chart = 'chart_1'
-    options.renderer = 'line'
-    options.names = ['Incident']
-    options.couch_views = ["positiveCases"]
-    Graphs.create options
-    .catch (err) ->
-      console.error err
-    .then () ->
+    adjustX = 10
+    adjustY = 40
+    startDate = options.startDate
+    endDate = options.endDate
+    Coconut.database.query "caseCountIncludingSecondary",
+      startkey: [startDate]
+      endkey: [endDate]
+      reduce: false
+      include_docs: true
+    .then (result) =>
+      dataForGraph = _.pluck(result.rows, 'doc')
+      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
+         $(".chart_container").html HTMLHelpers.noRecordFound()
+         $('#analysis-spinner').hide()
+      else
+        dataForGraph.forEach((d) ->
+          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+        )
+        chart = dc.lineChart("#chart")
+        ndx = crossfilter(dataForGraph)
+        dim = ndx.dimension((d) ->
+          return d['Index Case Diagnosis Date Iso Week']
+        )
+        grp = dim.group()
+        chart
+          .width($('.chart_container').width()-adjustX)
+          .height($('.chart_container').height()-adjustY)
+          .x(d3.scale.linear())
+          .y(d3.scale.linear().domain([0,120]))
+          .yAxisLabel("Number of Incidents")
+          .xAxisLabel("Weeks")
+          .elasticY(true)
+          .renderHorizontalGridLines(true)
+          .renderArea(true)
+          .dimension(dim)
+          .colors('red')
+          .group(grp)
+          .xyTipsOn(true)
+          .xUnits(d3.time.weeks)
+          .elasticX(true)
+          .renderDataPoints(false)
+          .title((d) ->
+            return 'Week: '+ d.key + ": " + d.value
+          )
+          .brushOn(false)
+
+        chart.render()
+
+        window.onresize = () ->
+          HTMLHelpers.resizeChartContainer()
+          chart
+            .width($('.chart_container').width()-adjustX)
+            .height($('.chart_container').height()-adjustY)
+            .rescale()
+            .redraw();
+                  
+        $('#analysis-spinner').hide()
+    .catch (error) ->
+      console.error error
       $('#analysis-spinner').hide()
     
 module.exports = IncidentsGraphView

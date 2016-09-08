@@ -177,7 +177,7 @@ class UsersView extends Backbone.View
       return false
 
     render: =>
-      Coconut.database.query "zanzibar-server/users",
+      Coconut.database.query "users",
         include_docs: true
       .catch (error) -> console.error error
       .then (result) =>

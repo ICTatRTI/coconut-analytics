@@ -69,12 +69,13 @@ class Case
     
 
   fetch: (options) =>
-    Coconut.database.query "zanzibar/cases",
+    Coconut.database.query "cases/cases",
       key: @caseID
       include_docs: true
     .catch (error) ->
-      options?.error()
+      options?.error(error)
     .then (result) =>
+      return options?.error("Could not find any existing data for case #{@caseID}") if result.rows.length is 0
       @loadFromResultDocs(_.pluck(result.rows, "doc"))
       options?.success()
 
@@ -185,11 +186,17 @@ class Case
 
   highRiskShehia: (date) =>
     date = moment().startOf('year').format("YYYY-MM") unless date
-    _(Coconut.shehias_high_risk[date]).contains @shehia()
+    if Coconut.shehias_high_risk?[date]?
+      _(Coconut.shehias_high_risk[date]).contains @shehia()
+    else
+      false
 
   locationBy: (geographicLevel) =>
     return @district() if geographicLevel.match(/district/i)
     return @validShehia() if geographicLevel.match(/shehia/i)
+
+  namesOfAdministrativeLevels: () =>
+    [@shehia()].concat(_(GeoHierarchy.findFirst(@shehia(), "SHEHIA")?.ancestors()).pluck "name").reverse().join(",")
 
   possibleQuestions: ->
     ["Case Notification", "Facility","Household","Household Members"]
@@ -223,7 +230,7 @@ class Case
 
   # Includes any kind of travel including only within Zanzibar
   indexCaseHasTravelHistory: =>
-    @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/) or false
+    @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/)? or false
 
   indexCaseHasNoTravelHistory: =>
     not @indexCaseHasTravelHistory()
@@ -310,7 +317,10 @@ class Case
 
   numberPositiveCasesIncludingIndex: =>
     @positiveCasesIncludingIndex().length
-      
+
+  numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
+    @positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5().length
+
   indexCasePatientName: ->
     if @["Facility"]?.complete is "true"
       return "#{@["Facility"].FirstName} #{@["Facility"].LastName}"
@@ -331,6 +341,9 @@ class Case
 
     else if @["Case Notification"]?
       return moment(@["Case Notification"].createdAt).format("YYYY-MM-DD")
+
+  indexCaseDiagnosisDateIsoWeek: =>
+    moment(@indexCaseDiagnosisDate()).isoWeek()
 
   householdMembersDiagnosisDates: =>
     @householdMembersDiagnosisDate()
@@ -610,8 +623,11 @@ class Case
     MalariaCaseID:
       propertyName: "Malaria Case ID"
     indexCaseDiagnosisDate: {}
+    indexCaseDiagnosisDateIsoWeek: {}
 
     # LostToFollowup: {}
+    #
+    namesOfAdministrativeLevels: {}
 
     district:
       propertyName: "District (if no household district uses facility)"
@@ -629,7 +645,8 @@ class Case
       propertyName: "Patient Name"
     ageInYears: {}
     Sex: {}
-    isUnder5: {}
+    isUnder5:
+      propertyName: "Is Index Case Under 5"
 
     SMSSent:
       propertyName: "SMS Sent to DMSO"
@@ -650,16 +667,21 @@ class Case
     numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: {}
     numberHouseholdOrNeighborMembersTested: {}
     numberPositiveCasesIncludingIndex: {}
+    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: {}
 
-    CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility: {}
+    CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
+      propertyName: "Case ID for Other Household Member That Tested Positive at a Health Facility"
     CommentRemarks: {}
-    ContactMobilepatientrelative: {}
-    Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility: {}
+    ContactMobilepatientrelative:
+      propertyName: "Contact Mobile Patient Relative"
+    Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility:
+      propertyName: "Has Someone From the Same Household Recently Tested Positive at a Health Facility"
     HeadofHouseholdName: {}
     ParasiteSpecies: {}
     ReferenceinOPDRegister: {}
     ShehaMjumbe: {}
-    TravelledOvernightinpastmonth:{}
+    TravelledOvernightinpastmonth:
+      propertyName: "Travelled Overnight in Past Month"
     IfYESlistALLplacestravelled:
       propertyName: "All Places Traveled to in Past Month"
     TreatmentGiven: {}
@@ -677,9 +699,12 @@ class Case
     "HouseholdLocation-latitude": {}
     "HouseholdLocation-longitude": {}
     "HouseholdLocation-timestamp": {}
-    IndexcaseIfpatientisfemale1545yearsofageissheispregant: {}
-    IndexcaseOvernightTraveloutsideofZanzibarinthepastyear: {}
+    IndexcaseIfpatientisfemale1545yearsofageissheispregant:
+      propertyName: "Is Index Case Pregnant"
+    IndexcaseOvernightTraveloutsideofZanzibarinthepastyear:
+      propertyName: "Has Index Case had Overnight Travel Outside of Zanzibar in the Past Year"
     IndexcaseOvernightTravelwithinZanzibar1024daysbeforepositivetestresult: {}
+      "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     travelLocationName: {}
     AlllocationsandentrypointsfromovernighttraveloutsideZanzibar07daysbeforepositivetestresult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 0-7 Days Before Positive Test Result"
@@ -702,8 +727,10 @@ class Case
     NumberofHouseholdMemberswithFeverorHistoryofFeverWithinPastWeek: {}
     NumberofLLIN: {}
     NumberofSleepingPlacesbedsmattresses: {}
-    Numberofotherhouseholdswithin50stepsofindexcasehousehold: {}
-    Reasonforvisitinghousehold: {}
+    Numberofotherhouseholdswithin50stepsofindexcasehousehold:
+      propertyName: "Number of Other Households Within 50 Steps of Index Case Household"
+    Reasonforvisitinghousehold:
+      propertyName: "Reason for Visiting Household"
     ShehaMjumbe: {}
     TotalNumberofResidentsintheHousehold: {}
 
@@ -880,11 +907,100 @@ Case.getCases = (options) ->
       .value()
     )
 
+Case.getLatestChange = (options) ->
+  Coconut.database.changes
+    descending: true
+    include_docs: false
+    limit: 1
+  .on "complete", (mostRecentChange) ->
+    options?.success(mostRecentChange.last_seq)
+  .on "error", (error) ->
+    console.error error
+    options?.error()
 
-Case.resetAllCaseSummaryDocs= =>
-  Case.updateCaseSummaryDocs(null, true)
+Case.setCaseSummaryDataDoc = (options) ->
+  save = (doc) ->
+    Coconut.database.put doc
+    .catch (error) -> console.error error
+    .then -> options?.success()
 
-Case.updateCaseSummaryDocs = (options, reset = false) ->
+  Coconut.database.get "CaseSummaryData"
+  .catch (error) ->
+    console.log "Couldn't find 'CaseSummaryData' document (#{error.toJSON()}), creating a new one."
+    save(
+      _id: "CaseSummaryData",
+      lastChangeSequenceProcessed: options.changeSequence
+    )
+  .then (caseSummaryData) ->
+    caseSummaryData.lastChangeSequenceProcessed = options.changeSequence
+    save(caseSummaryData)
+
+Case.resetAllCaseSummaryDocs = (options)  =>
+  numberCasesToProcessConcurrently = options?.numberCasesToProcessConcurrently or 2
+
+  # Delete all existing case_summary_ docs
+  Coconut.database.allDocs
+    startkey: "case_summary_"
+    endkey: "case_summary_\ufff0"
+    include_docs: false
+  .then (result) ->
+    docs = _(result.rows).map (row) ->
+      {
+        _id: row.id
+        _rev: row.value.rev
+        _deleted: true
+      }
+
+    console.log "Deleting #{docs.length} case_summary_ docs"
+
+    Coconut.database.bulkDocs docs
+    .catch (error) -> console.error error
+    .then ->
+      console.log "Existing case_summary_ docs deleted"
+
+      # This approach works different than update, by getting all cases ids and updating every one, versus working based on changes. It's faster this way
+      #
+      Case.getLatestChange
+        error: (error) -> console.error error
+        success: (latestChange) ->
+          console.log "Latest change: #{latestChange}"
+          console.log "Retrieving all available case IDs"
+
+          Coconut.database.query "cases/cases"
+          .then (result) =>
+            allCases = _(result.rows).chain().pluck("key").uniq().value()
+            console.log "ALL CASES"
+            console.log allCases.join(',')
+
+
+            updateCases = ->
+              try
+                if allCases.length is 0
+                  console.log "Finished, checking for changes since this process started: (#{latestChange})"
+                  Case.setCaseSummaryDataDoc
+                    changeSequence: latestChange
+                    error: (error) -> console.error error
+                    success: ->
+                      Case.updateCaseSummaryDocs # Catches changes since this process started
+                        error: (error) -> console.error error
+                        success: -> options?.success()
+
+                  return
+                console.log "Remaining: #{allCases.length}"
+                casesToProcess = allCases.splice(-numberCasesToProcessConcurrently,numberCasesToProcessConcurrently)
+                Case.updateSummaryForCases
+                  caseIDs: casesToProcess
+                  success: ->
+                    console.log "Updated: #{casesToProcess.join(',')}"
+                    updateCases() # recurse
+              catch error
+                console.error error
+
+            updateCases()
+          .catch (error) ->
+            options?.error()
+
+Case.updateCaseSummaryDocs = (options) ->
 
   update = (changeSequence, caseSummaryData) ->
     Case.updateCaseSummaryDocsSince
@@ -899,15 +1015,13 @@ Case.updateCaseSummaryDocs = (options, reset = false) ->
         Coconut.database.put caseSummaryData
         .then (result) ->
           console.log numberCasesChanged
-          Coconut.database.changes
-            descending: true
-            include_docs: false
-            limit: 1
-          .on "complete", (result) ->
-            if lastChangeSequenceProcessed+1 < result.last_seq
-              Case.updateCaseSummaryDocs(options)  #recurse
-            else
-              options?.success?()
+          Case.getLatestChange
+            error: -> console.error error
+            success: (latestChange) ->
+              if lastChangeSequenceProcessed+1 < latestChange
+                Case.updateCaseSummaryDocs(options)  #recurse
+              else
+                options?.success?()
         .catch (error) -> console.error error
 
   
@@ -919,11 +1033,7 @@ Case.updateCaseSummaryDocs = (options, reset = false) ->
     update(0,{_id: "CaseSummaryData"})
   .then (caseSummaryData) ->
     console.log caseSummaryData
-    if reset
-      caseSummaryData.lastChangeSequenceProcessed = 0
-      update(0, caseSummaryData)
-    else
-      update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
+    update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
 
 Case.updateCaseSummaryDocsSince = (options) ->
     limit = options.maximumNumberChangesToProcess
@@ -961,27 +1071,27 @@ Case.updateSummaryForCases = (options) ->
   options.success() if options.caseIDs.length is 0
 
   finished = _.after options.caseIDs.length, ->
+    console.log "FINISHED"
     Coconut.database.bulkDocs docsToSave
       .then ->
-        console.log "SAVED #{docsToSave.length}"
         options.success()
-      .catch (error) -> console.error error
+      .catch (error) ->
+        console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
+        console.error error
 
-  console.log "Fetching #{options.caseIDs.length} cases"
   _(options.caseIDs).each (caseID) ->
     malariaCase = new Case
       caseID: caseID
     malariaCase.fetch
       error: (error) ->
-        console.log "ERROR"
-        console.log error
+        console.error "ERROR fetching case: #{caseID}"
+        console.error error
       success: ->
-
         docId = "case_summary_#{caseID}"
         caseSummaryDoc = {_id: docId}
 
         saveCaseSummaryDoc = (result) ->
-          caseSummaryDoc = result if result? # if the row already exists use the _rev
+          caseSummaryDoc._rev = result._rev if result? # if the row already exists use the _rev
           try
             caseSummaryDoc = _(caseSummaryDoc).extend(malariaCase.summaryCollection())
           catch error
@@ -991,8 +1101,10 @@ Case.updateSummaryForCases = (options) ->
           finished()
 
         Coconut.database.get docId
-        .catch (error) -> saveCaseSummaryDoc()
-        .then (result) -> saveCaseSummaryDoc(result)
+        .then (result) ->
+          saveCaseSummaryDoc(result)
+        .catch (error) ->
+          saveCaseSummaryDoc()
 
 
                     

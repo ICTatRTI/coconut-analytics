@@ -95,19 +95,15 @@ class CaseFollowupView extends Backbone.View
     "
     tableColumns = ["Case ID","Diagnosis Date","Health Facility District","Shehia","USSD Notification"]
 
-    Coconut.database.query "zanzibar/byCollection",
-      key: "question"
-    .catch (error) -> console.error error
-    .then (result) ->
-      tableColumns = tableColumns.concat _(result.rows).pluck("id")
-      _.each tableColumns, (text) ->
-        #Hack to replace title to differ from Questions title
-        if ['USSD Notification','Case Notification'].indexOf(text) >= 0
-          colTitle = if(text == 'USSD Notification') then "Case Notification Sent" else "Case Notification Received" 
-        else
-          colTitle = text
-         
-        $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{colTitle} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
+    tableColumns = tableColumns.concat Coconut.questions.pluck("_id")
+    _.each tableColumns, (text) ->
+      #Hack to replace title to differ from Questions title
+      if ['USSD Notification','Case Notification'].indexOf(text) >= 0
+        colTitle = if(text == 'USSD Notification') then "Case Notification Sent" else "Case Notification Received"
+      else
+        colTitle = text
+       
+      $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{colTitle} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
  
     @getCases
       success: (cases) =>

@@ -18,11 +18,11 @@ class RainfallReportView extends Backbone.View
       <div id='dateSelector'></div>
       <div id='messages'></div>
     "
-    Coconut.database.query "zanzibar-server/rainfallDataByDateAndLocation",
+    Coconut.database.query "rainfallDataByDateAndLocation",
       startkey: [moment(options.startDate).year(), moment(options.startDate).week()]
-      endkey: [moment(options.endDate).year(), moment(options.endDate).week()] 
+      endkey: [moment(options.endDate).year(), moment(options.endDate).week()]
       include_docs: true
-    .catch (error) -> 
+    .catch (error) ->
       coconut.debug "Error: #{JSON.stringify error}"
       console.error error
     .then (results) =>
