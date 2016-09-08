@@ -8,7 +8,7 @@ class Reports
 
   positiveCaseLocations: (options) ->
 
-    Coconut.database.query "#{Coconut.config.design_doc_name}/positiveCaseLocations",
+    Coconut.database.query "positiveCaseLocations",
       startkey: moment(options.endDate).endOf("day").format(Coconut.config.get "date_format")
       endkey: options.startDate
       descending: true
@@ -59,12 +59,14 @@ class Reports
     .catch (error) -> console.error error
     .then (result) ->
       caseIDs = _.unique(_.pluck result.rows, "value")
+      console.log caseIDs
 
-      Coconut.database.query "cases/cases",
+      Coconut.database.query "cases",
         keys: caseIDs
         include_docs: true
       .catch (error) -> console.error error
       .then (result) =>
+        console.log result
         groupedResults = _.chain(result.rows)
           .groupBy (row) =>
             row.key
@@ -264,7 +266,7 @@ class Reports
         options.finished(data)
 
   @systemErrors: (options) ->
-    Coconut.database.query "#{Coconut.config.design_doc_name}/errorsByDate",
+    Coconut.database.query "errorsByDate",
       # Note that these seem reversed due to descending order
       startkey: options?.endDate || moment().format("YYYY-MM-DD")
       endkey: options?.startDate || moment().subtract(1,'days').format("YYYY-MM-DD")
@@ -446,7 +448,7 @@ class Reports
         # Get the time differences within each case
         caseIds = _(userData.cases).map (foo, caseId) -> caseId
         
-        Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
+        Coconut.database.query "cases",
           keys: caseIds
           include_docs: true
         .catch (error) ->
@@ -824,7 +826,7 @@ class Reports
       .uniq()
       .value()
 
-      Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
+      Coconut.database.query "cases",
         keys: caseIdsToFetch
         include_docs: true
       .catch (error) -> options?.error()

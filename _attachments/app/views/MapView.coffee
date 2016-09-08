@@ -466,14 +466,14 @@ class MapView extends Backbone.View
         if casesGeoJSON.features.length > 0
             layerTollBooth.setCasesStatus true
             layerTollBooth.enableDisableButtons 'enable'
-            if !legend._map    
+            if !legend._map
                 legend.addTo map
                 setUpLegend()
             
         else
             layerTollBooth.setCasesStatus false
             layerTollBooth.enableDisableButtons 'disable'
-            if legend.getContainer()
+            if legend?.getContainer()
               legend.removeFrom map
         updateMap casesGeoJSON
         return
