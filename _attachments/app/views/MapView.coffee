@@ -502,7 +502,8 @@ class MapView extends Backbone.View
             layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
             clustersLayer.addLayer layer
             layer.on 'click', (e) ->
-              console.log 'Click Cases'
+              console.log 'Click Cases';
+              console.log("map.getPanes: " + JSON.stringify(map.getPanes()));
               return
             
             return
@@ -1028,6 +1029,8 @@ class MapView extends Backbone.View
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'District: ' + feature.properties.District_N
           layer.on 'click', (e) ->
+              console.log 'Click Districts';
+              console.log("map.getPanes: " + JSON.stringify(map.getPanes()));
               return
           return
       ).addTo map
