@@ -37,38 +37,64 @@ class DashboardView extends Backbone.View
         </dialog>
         <div id='dashboard-summary'>
           <div class='sub-header-color relative clear'>
-            <div class='mdl-grid'>
-              <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary1'> 
-                  <div class='stats' id='alertStat'><div style='font-size:12px'>Loading...</div></div>
-                  <div class='stats-title'>ALERTS</div>
-                </div>
-              </div>
-              <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary2'> 
-                  <div class='stats' id='caseStat'><div style='font-size:12px'>Loading...</div></div>
-                  <div class='stats-title'>CASES</div>
-                </div>
-              </div>
-              <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary3'> 
-                  <div class='stats' id='issueStat'><div style='font-size:12px'>Loading...</div></div>
-                  <div class='stats-title'>ISSUES</div>
-                </div>
-              </div>
-              <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary4'>
-                </div>
-              </div>
-              <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary1'> </div>
-              </div>
-              <div class='mdl-cell mdl-cell--2-col mdl-cell--2-col-tablet'>
-                <div class='summary' id='summary1'> </div>
-              </div>
+            <div class='summary'> 
+              <a class='chip summary1'>
+                <div class='summary_icon'><i class='material-icons white'>notifications_none</i></div>
+                <div class='stats' id='alertStat'><div style='font-size:10px'>Loading...</div></div>
+                <div class='stats-title'>Alerts</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary2'>
+                <div class='summary_icon'><i class='material-icons white'>notifications_active</i></div>
+                <div class='stats' id='alarmStat'><div style='font-size:10px'>Loading...</div></div>
+                <div class='stats-title'>Alarms</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary3'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='casesStat'><div style='font-size:10px'>Loading...</div></div>
+                <div class='stats-title'>Notified Cases</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary4'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='hsatStat'>XXXX</div>
+                <div class='stats-title'>HSAT</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary5'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='fsatStat'>XXXX</div>
+                <div class='stats-title'>FSAT</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary6'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='msatStat'>XXXX</div>
+                <div class='stats-title'>MSAT</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary7'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='hsattestStat'>XXXX</div>
+                <div class='stats-title'>HSAT Tested</div>
+              </a>
+            </div>
+            <div class='summary'> 
+              <a class='chip summary8'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='importedStat'>XXXX</div>
+                <div class='stats-title'>Imported</div>
+              </a>
             </div>
           </div>
-        </div>
+        </div> 
         <div class='page-content'>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
@@ -105,6 +131,8 @@ class DashboardView extends Backbone.View
           </div>
         </div>
     "
+    adjustButtonSize()
+    
     $('.graph-spinner').show()
     
     displayStatistics()
@@ -441,11 +469,15 @@ class DashboardView extends Backbone.View
     Coconut.statistics.issues = issuesCount
     displayStatistics()
   
+  adjustButtonSize = () ->
+    noButtons = 8
+    summaryWidth = ($('#dashboard-summary').width())/noButtons
+    $('.chip').width(summaryWidth - 22)
   
   displayStatistics = () ->
     $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?
-    $('#caseStat').html(Coconut.statistics.cases) if Coconut.statistics.cases?
-    $('#issueStat').html(Coconut.statistics.issues) if Coconut.statistics.issues?
+    $('#casesStat').html(Coconut.statistics.cases) if Coconut.statistics.cases?
+    $('#alarmStat').html(Coconut.statistics.issues) if Coconut.statistics.issues?
     
   displayError = () ->
     $('div#noDataFound').show().delay(7000).fadeOut()  

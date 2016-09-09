@@ -39,10 +39,6 @@ body {
 	margin-right: 10px;
 }
 
-.sub-header-color{
-	background: #e0e0e0;
-}
-
 li.login{
 	display: none;
 }
@@ -661,55 +657,89 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f9f9f9', GradientType=0 );
 }
 
+#dashboard-summary {
+  display: inline-block;
+  width: 100%;
+  padding: 5px;
+  background: #e0e0e0;
+}
+/*
+  position: relative;
+  vertical-align: top;
+  white-space: nowrap; 
+}
+
+.sub-header-color{
+	background: #e0e0e0;
+  display: inline-block;
+  height: 90px;
+  padding: 5px 0;
+}
+*/
 .summary {
-	height: 70px;
-	margin: 0 5px;
-	padding-top: 20px;
-	text-align: left;
+  display: inline-block;
+  margin: 0 5px;
+/*	height: 70px;
+	padding-top: 5px;
+	text-align: left; */
+}
+a.chip {
+  border-radius: 3px;
+  box-shadow: 0 2px 1px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  height: 70px;
+  margin: 5px 4px 0;
+  overflow: hidden;
+  min-width: 150px;
+}
+
+.summary_icon {
+  padding: 5px 0 0 5px;  
 }
 
 .summary:hover {
 		cursor: pointer;
 }
 
-#summary1, #summary5, #summary6 {
-	background-image: url(../images/summary1a.png);
+.summary1, .summary5, .summary6 {
+	/*background-image: url(../images/summary1a.png); */
   background-color: #ff5722;
 	background-repeat: no-repeat;
   background-position:right center;
 }
 
-#summary2 {
-	background-image: url(../images/summary2a.png);
+.summary2, .summary7 {
+/*	background-image: url(../images/summary2a.png); */
   background-color: #05bcd4;
 	background-repeat: no-repeat;
   background-position:right center;
 }
 
-#summary3 {
-	background-image: url(../images/summary3a.png);
+.summary3, .summary8 {
+	/* background-image: url(../images/summary3a.png); */
   background-color: #3f51b5;
 	background-repeat: no-repeat;
   background-position:right center;
 }
 
-#summary4 {
-	background-image: url(../images/summary4a.png);
+.summary4 {
+/*	background-image: url(../images/summary4a.png); */
   background-color: #059688;
 	background-repeat: no-repeat;
   background-position:right center;
 }
 
 .stats {
-	font-size: 20px;
+	font-size: 1em;
 	color: #fff;
-	padding: 0px 20px;
+  text-align: center;
+  margin-top: -10px;
 }
 
 .stats-title {
-   fontsize: 15px;
+   font-size: 0.8em;
    color:#fff;
-   padding: 5px 20px;	
+   text-align: center;
 }
 
 .dashboard-content {
@@ -777,6 +807,10 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 
 .p-5 {
 	padding: 5px;
+}
+
+.p-l-5 {
+	padding-left: 5px;
 }
 
 .a-m {
@@ -1236,4 +1270,8 @@ div#footer {
   width: 100%;
   margin-bottom: 5px;
   text-align: center;
+}
+
+.white {
+  color: white;
 }
