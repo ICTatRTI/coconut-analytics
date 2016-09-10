@@ -420,6 +420,7 @@ class DashboardView extends Backbone.View
           
 
     window.onresize = () ->
+      adjustButtonSize()
       chart_width = $('.chart_container').width()-adjustX
       chart_height = $('.chart_container').height()-adjustY
       
@@ -471,8 +472,10 @@ class DashboardView extends Backbone.View
   
   adjustButtonSize = () ->
     noButtons = 8
-    summaryWidth = ($('#dashboard-summary').width())/noButtons
-    $('.chip').width(summaryWidth - 22)
+    summaryWidth = $('#dashboard-summary').width()
+    buttonWidth = (summaryWidth - 14)/noButtons
+    console.log(summaryWidth, buttonWidth-2)
+    $('.chip').width(buttonWidth-2)
   
   displayStatistics = () ->
     $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?

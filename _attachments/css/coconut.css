@@ -660,7 +660,7 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 #dashboard-summary {
   display: inline-block;
   width: 100%;
-  padding: 5px;
+  padding: 5px 7px;
   background: #e0e0e0;
 }
 
@@ -675,9 +675,9 @@ a.chip {
   box-shadow: 0 2px 1px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.1);
   display: inline-block;
   height: 70px;
-  margin: 5px 4px 0;
+  margin: 5px 0 0;
   overflow: hidden;
-  min-width: 150px;
+  /*min-width: 138px;*/
 }
 
 .summary_icon {
@@ -727,7 +727,6 @@ a.chip {
 
 .stat_summary {
   display: inline-block;
-  margin: 0 5px;
 }
 
 .dashboard-content {
