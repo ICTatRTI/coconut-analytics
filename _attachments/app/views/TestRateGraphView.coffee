@@ -43,7 +43,6 @@ class TestRateGraphView extends Backbone.View
       else
         dataForGraph.forEach((d) ->
           d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
-          d['Age In Years'] = +d['Age In Years']
         )
         data1 = _.filter(dataForGraph, (d) ->
           return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
@@ -109,7 +108,7 @@ class TestRateGraphView extends Backbone.View
                 .valueAccessor((p) ->
                   return p.value.pct
                   )
-                .dashStyle([2,2])
+#                .dashStyle([2,2])
                 .xyTipsOn(true)
                 .renderDataPoints(false)
                 .title((d) ->
@@ -122,7 +121,7 @@ class TestRateGraphView extends Backbone.View
                 .valueAccessor((p) ->
                   return p.value.pct
                   )
-                .dashStyle([5,5])
+#                .dashStyle([5,5])
                 .xyTipsOn(true)
                 .renderDataPoints(false)
                 .title((d) ->

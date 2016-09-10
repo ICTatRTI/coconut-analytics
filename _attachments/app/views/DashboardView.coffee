@@ -250,9 +250,9 @@ class DashboardView extends Backbone.View
           .dimension(dim2a)
           .colors('red')
           .group(grpGTE5, "Age 5+")
-          .dashStyle([2,2])
+#          .dashStyle([2,2])
           .xyTipsOn(true)
-          .renderDataPoints(true)
+          .renderDataPoints(false)
           .title((d) ->
             return d.key.toDateString() + ": " + d.value
           ),
@@ -260,9 +260,9 @@ class DashboardView extends Backbone.View
           .dimension(dim2b)
           .colors('blue')
           .group(grpLT5, "Age < 5")
-          .dashStyle([5,5])
+#          .dashStyle([5,5])
           .xyTipsOn(true)
-          .renderDataPoints(true)
+          .renderDataPoints(false)
           .title((d) ->
             return d.key.toDateString() + ": " + d.value
           )
@@ -297,7 +297,7 @@ class DashboardView extends Backbone.View
       .height($('.chart_container').height()-adjustY)
       .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
       .y(d3.scale.linear().domain([0,120]))
-      .yAxisLabel("Number of Cases")
+      .yAxisLabel("Number of Positive Cases")
       .elasticY(true)
       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
       .renderHorizontalGridLines(true)
@@ -307,7 +307,7 @@ class DashboardView extends Backbone.View
           .dimension(dim3a)
           .colors('red')
           .group(grpGTE5_2, "Age >= 5")
-          .dashStyle([2,2])
+#          .dashStyle([2,2])
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
@@ -317,7 +317,7 @@ class DashboardView extends Backbone.View
           .dimension(dim3b)
           .colors('blue')
           .group(grpLT5_2, "Age < 5")
-          .dashStyle([5,5])
+#          .dashStyle([5,5])
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
@@ -393,7 +393,7 @@ class DashboardView extends Backbone.View
             .valueAccessor((p) ->
               return p.value.pct
               )
-            .dashStyle([2,2])
+#            .dashStyle([2,2])
             .xyTipsOn(true)
             .renderDataPoints(false)
             .title((d) ->
@@ -406,7 +406,7 @@ class DashboardView extends Backbone.View
             .valueAccessor((p) ->
               return p.value.pct
               )
-            .dashStyle([5,5])
+#            .dashStyle([5,5])
             .xyTipsOn(true)
             .renderDataPoints(false)
             .title((d) ->

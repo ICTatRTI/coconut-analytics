@@ -43,7 +43,6 @@ class AttendanceGraphView extends Backbone.View
       else
         dataForGraph.forEach((d) ->
           d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
-          d['Age In Years'] = +d['Age In Years']
         )
         data1 = _.filter(dataForGraph, (d) ->
           return !d['Is Index Case Under 5']
@@ -68,7 +67,7 @@ class AttendanceGraphView extends Backbone.View
           .width($('.chart_container').width()-adjustX)
           .height($('.chart_container').height()-adjustY)
           .x(d3.time.scale().domain([new Date(startDate), new Date(endDate)]))
-          .y(d3.scale.linear().domain([0,120]))
+          .y(d3.scale.linear())
           .yAxisLabel("Number of Cases")
           .elasticY(true)
           .legend(dc.legend().x($('.chart_container').width()-200).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
@@ -79,7 +78,7 @@ class AttendanceGraphView extends Backbone.View
               .dimension(dim1)
               .colors('red')
               .group(grpGTE5, "Age >= 5")
-              .dashStyle([2,2])
+#              .dashStyle([2,2])
               .xyTipsOn(true)
               .renderDataPoints(false)
               .title((d) ->
@@ -89,7 +88,7 @@ class AttendanceGraphView extends Backbone.View
               .dimension(dim2)
               .colors('blue')
               .group(grpLT5, "Age < 5")
-              .dashStyle([5,5])
+#              .dashStyle([5,5])
               .xyTipsOn(true)
               .renderDataPoints(false)
               .title((d) ->

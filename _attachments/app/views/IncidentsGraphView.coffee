@@ -54,7 +54,7 @@ class IncidentsGraphView extends Backbone.View
           .width($('.chart_container').width()-adjustX)
           .height($('.chart_container').height()-adjustY)
           .x(d3.scale.linear())
-          .y(d3.scale.linear().domain([0,120]))
+          .y(d3.scale.linear())
           .yAxisLabel("Number of Incidents")
           .xAxisLabel("Weeks")
           .elasticY(true)
