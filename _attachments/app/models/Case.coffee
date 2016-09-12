@@ -300,13 +300,31 @@ class Case
   numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: ->
     @positiveCasesAtIndexHouseholdAndNeighborHouseholds().length
 
+  numberHouseholdMembers: ->
+    @["Household Members"].length
+
+  #TODO this name implies neighbor members are counted, but they aren't - should be fixed
   numberHouseholdOrNeighborMembers: ->
     @["Household Members"].length
 
+  # TODO this is only filtering for a specific result, not whether or not they are tested
   numberHouseholdOrNeighborMembersTested: ->
     _(@["Household Members"]).filter (householdMember) =>
       householdMember.MalariaTestResult is "NPF"
     .length
+
+  numberHouseholdMembersTestedAndUntested: =>
+    @["Facility"]["Total Number of Residents in the Household"]
+
+  numberHouseholdMembersTested: =>
+    _(@["Household Members"]).filter (householdMember) =>
+      switch householdMember.MalariaTestResult
+        when "NPF", "PF", "Mixed"
+          true
+    .length
+
+  percentOfHouseholdMembersTested: =>
+    (@numberHouseholdMembersTested()/@numberHouseholdMembersTestedAndUntested()*100).toFixed(0)
 
   positiveCasesIncludingIndex: =>
     if @["Facility"]
@@ -320,6 +338,9 @@ class Case
 
   numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
     @positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5().length
+
+  massScreenCase: =>
+    @Household?["Reason for visiting household"]? is "Mass Screen"
 
   indexCasePatientName: ->
     if @["Facility"]?.complete is "true"
@@ -663,11 +684,15 @@ class Case
     indexCaseHasTravelHistory: {}
     indexCaseHasNoTravelHistory: {}
     completeHouseholdVisit: {}
+    numberHouseholdMembersTestedAndUntested: {}
+    numberHouseholdMembersTested: {}
     numberPositiveCasesAtIndexHousehold: {}
     numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: {}
+    numberHouseholdOrNeighborMembers: {}
     numberHouseholdOrNeighborMembersTested: {}
     numberPositiveCasesIncludingIndex: {}
     numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: {}
+    massScreenCase: {}
 
     CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
       propertyName: "Case ID for Other Household Member That Tested Positive at a Health Facility"
