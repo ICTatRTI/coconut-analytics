@@ -9,14 +9,14 @@ dc = require 'dc'
 d3 = require 'd3'
 crossfilter = require 'crossfilter'
 
-class IncidentsGraphView extends Backbone.View
+class TimeToNotifyGraphView extends Backbone.View
   el: "#content"
 
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <div id='dateSelector'></div>
-       <div class='chart-title'>Number of Cases</div>
+       <div class='chart-title'>Time To Notify</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
@@ -38,23 +38,26 @@ class IncidentsGraphView extends Backbone.View
       include_docs: true
     .then (result) =>
       dataForGraph = _.pluck(result.rows, 'doc')
-      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
-         $(".chart_container").html HTMLHelpers.noRecordFound()
-         $('#analysis-spinner').hide()
+      if (dataForGraph.length == 0  or _.isEmpty(dataForGraph[0]))
+        $(".chart_container").html HTMLHelpers.noRecordFound()
+        $('#analysis-spinner').hide()
       else
+        console.log(dataForGraph)
         dataForGraph.forEach((d) ->
-          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+            d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
         )
-        chart = dc.lineChart("#chart")
-        Graphs.incidents(dataForGraph, chart, options)
+        composite = dc.compositeChart("#chart")
+        Graphs.timeToNotify(dataForGraph, composite, options)
 
         window.onresize = () ->
           HTMLHelpers.resizeChartContainer()
-          Graphs.chartResize(chart, 'chart_container', options)
-                  
+          Graphs.compositeResize(composite, 'chart_container', options)
+          
         $('#analysis-spinner').hide()
+        
     .catch (error) ->
       console.error error
       $('#analysis-spinner').hide()
     
-module.exports = IncidentsGraphView
+       
+module.exports = TimeToNotifyGraphView

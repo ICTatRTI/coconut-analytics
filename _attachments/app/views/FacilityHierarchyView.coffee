@@ -191,7 +191,7 @@ class FacilityHierarchyView extends Backbone.View
         _(facilities).each (facility) ->
           uniqueKey = "#{district}-#{facility.facility}"
           districtData = GeoHierarchy.findFirst(district,"district")
-          region = if districtData then districtData.REGION else null
+          region = if districtData then districtData.parent().name else null
           data[uniqueKey] =
             Region: region
             District: district
