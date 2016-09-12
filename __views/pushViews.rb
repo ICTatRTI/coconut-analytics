@@ -26,6 +26,7 @@ Dir.glob("*.coffee").each do |view|
 
   reduce_file = view.sub(/\.coffee/,"__reduce.coffee")
   if File.exist? reduce_file
+    puts "Adding in reduce: #{reduce_file}"
     reduce = File.read(view.sub(/\.coffee/,"__reduce.coffee"))
     local_view_doc[:views][view_name][:reduce] = reduce
   end
