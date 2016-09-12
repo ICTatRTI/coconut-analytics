@@ -1,130 +1,314 @@
 _ = require 'underscore'
 moment = require 'moment'
-Rickshaw = require 'rickshaw'
-Reports = require './Reports'
+
+dc = require 'dc'
+d3 = require 'd3'
+crossfilter = require 'crossfilter'
 
 class Graphs
 
-Graphs.retrieveData = (options) ->
-  startDate = moment(options.startDate).format('YYYY-MM-DD')
-  endDate = moment(options.endDate).format('YYYY-MM-DD')
-  #startDate = moment.utc("2012-07-01")
-  return new Promise (resolve,reject) ->
-    data4Graph = []
-    
-    finished = _.after options.couch_views.length, (err) =>
-      if err
-        reject(err)
-      else
-        resolve(data4Graph)
-      
-    _.each options.couch_views, (couch_view) ->
-      dataGraph = {}
-      Coconut.database.query "#{couch_view}/#{couch_view}",
-        startkey: startDate
-        endkey: endDate
-        include_docs: true
-      .then (result) =>
-        casesPerAggregationPeriod = {}
-        _.each result.rows, (row) ->
-          date = moment(row.key.substr(0,10), 'YYYY-MM-DD')
-          if row.key.substr(0,2) is "20" and date.isValid() and date.isBetween(startDate, endDate)
-            aggregationKey = date.clone().endOf("isoweek").unix()
-            casesPerAggregationPeriod[aggregationKey] = 0 unless casesPerAggregationPeriod[aggregationKey]
-            casesPerAggregationPeriod[aggregationKey] += 1
-        
-            dataGraph = _.map casesPerAggregationPeriod, (numberOfCases, date) ->
-              x: parseInt(date)
-              y: numberOfCases
-        data4Graph .push(dataGraph)
-        finished()
-      .catch (error) ->
-        console.error error
-        finished(error)
-                   
-Graphs.create = (options, callback) ->
-    x_axis = options.x_axis
-    y_axis = options.y_axis
-    div_chart = options.chart
-    container = options.container
-    chart_width = 0.8 * $('.chart_container').width()
-    chart_height = options.chart_height || 450
-    couch_view = options.couch_view
-    graph_renderer = options.renderer
-    legend = options.legend || 'legend'
-    dataForGraph = []
-    startDate = moment(options.startDate).format('YYYY-MM-DD')
-    endDate = moment(options.endDate).format('YYYY-MM-DD')
-    return new Promise (resolve,reject) ->
-      Graphs.retrieveData options
-      .then (result) =>
-        dataForGraph = result
-        if dataForGraph.length == 0 or _.isEmpty(dataForGraph[0])
-           $("div##{container}").html("<center><div style='margin-top: 5%'><h6>No records found for date range</h6></div></center>")
-           reject("No record for date range")
-        else
-          palette = new Rickshaw.Color.Palette({scheme: Coconut.config.graphColorScheme })
-          graphSeries =[]
-          i = 0
-          _.each dataForGraph, (series_data) ->
-            graphSeries.push 
-              name: options.names[i],
-              color: palette.color()
-              data: series_data
-            i += 1
-       
-          graph = new Rickshaw.Graph
-            element: document.querySelector("##{div_chart}")
-            width: chart_width
-            height: chart_height
-            renderer: graph_renderer
-            series: graphSeries
-            unstack: true
-            padding: 
-              top: 0.02
-              left: 0.02
-              right: 0.02 
-              bottom: 0.02
-            
+Graphs.chartResize = (chart, container, options) ->
+  width = $(".#{container}").width() - options.adjustX
+  height = $(".#{container}").height() - options.adjustY
+  chart
+    .width(width)
+    .height(height)
+    .rescale()
+    .redraw()
   
-          hoverDetail = new Rickshaw.Graph.HoverDetail
-            graph: graph
-            formatter: (series,x,y) ->
-              return "#{series.name} :  #{parseInt(y)}"
-        
-          x_axis = new Rickshaw.Graph.Axis.Time
-            graph: graph
-            orientation: 'bottom'
-            element: document.getElementById("#{x_axis}")
-            pixelsPerTick: 200
-        
-          y_axis = new Rickshaw.Graph.Axis.Y
-            graph: graph
-            orientation: 'left'
-            tickFormat: Rickshaw.Fixtures.Number.formatKMBT
-            element: document.getElementById("#{y_axis}")
+Graphs.compositeResize = (composite, container, options) ->
+  width = $(".#{container}").width() - options.adjustX
+  height = $(".#{container}").height() - options.adjustY
+  composite
+    .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+    .y(d3.scale.linear().domain([0,120]))
+    .width(width)
+    .height(height)
+    .legend(dc.legend().x($(".#{container}").width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .rescale()
+    .redraw()
+  
+Graphs.incidents = (dataForGraph, chart, options) ->
 
-          # x_ticks = new Rickshaw.Graph.Axis.X
-          #   graph: graph
-          #   orientation: 'bottom'
-          #   element: document.getElementById("#{x_axis}")
-          #   pixelsPerTick: 200
-          #   tickFormat: Rickshaw.Fixtures.Time
-   
-          if dataForGraph.length > 1
-            legend = new Rickshaw.Graph.Legend
-              element: document.querySelector("##{legend}"),
-              graph: graph
+  ndx = crossfilter(dataForGraph)
+  dim = ndx.dimension((d) ->
+    return d['Index Case Diagnosis Date Iso Week']
+  )
+  grp = dim.group()
+    
+  chart
+    .width($('.chart_container').width()-options.adjustX)
+    .height($('.chart_container').height()-options.adjustY)
+    .x(d3.scale.linear())
+    .y(d3.scale.linear())
+    .yAxisLabel("Number of Incidents")
+    .xAxisLabel("Weeks")
+    .elasticY(true)
+    .renderHorizontalGridLines(true)
+    .renderArea(true)
+    .dimension(dim)
+    .colors('red')
+    .group(grp)
+    .xyTipsOn(true)
+    .xUnits(d3.time.weeks)
+    .elasticX(true)
+    .renderDataPoints(false)
+    .title((d) ->
+      return 'Week: '+ d.key + ": " + d.value
+    )
+    .brushOn(false)
+    .render()
+  
+Graphs.positiveCases = (dataForGraph, composite, options) ->
+  
+  data1 = _.filter(dataForGraph, (d) ->
+    return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+  )
+  data2 = _.filter(dataForGraph, (d) ->
+    return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+  )
+
+  ndx1 = crossfilter(data1)
+  ndx2 = crossfilter(data2)
+
+  dim1 = ndx1.dimension((d) ->
+    return d.dateICD
+  )
+  dim2 = ndx2.dimension((d) ->
+    return d.dateICD
+  )
+  grpGTE5 = dim1.group()
+  grpLT5 = dim2.group()
+
+  composite
+    .width($('.chart_container').width()-options.adjustX)
+    .height($('.chart_container').height()-options.adjustY)
+    .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+    .y(d3.scale.linear().domain([0,120]))
+    .yAxisLabel("Number of Positive Cases")
+    .elasticY(true)
+    .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .renderHorizontalGridLines(true)
+    .shareTitle(false)
+    .compose([
+      dc.lineChart(composite)
+        .dimension(dim1)
+        .colors('red')
+        .group(grpGTE5, "Age 5+")
+        .xyTipsOn(true)
+        .renderDataPoints(false)
+        .title((d) ->
+          return d.key.toDateString() + ": " + d.value
+        ),
+      dc.lineChart(composite)
+        .dimension(dim2)
+        .colors('blue')
+        .group(grpLT5, "Age < 5")
+        .xyTipsOn(true)
+        .renderDataPoints(false)
+        .title((d) ->
+          return d.key.toDateString() + ": " + d.value
+        )
+    ])
+    .brushOn(false)
+    .render()
+  
+
+Graphs.attendance = (dataForGraph, composite2, options) ->
+    data3a = _.filter(dataForGraph, (d) ->
+      return !d['Is Index Case Under 5']
+    )
+    data3b = _.filter(dataForGraph, (d) ->
+      return d['Is Index Case Under 5']
+    )
+
+    ndx3a = crossfilter(data3a)
+    ndx3b = crossfilter(data3b)
+    
+    dim3a = ndx3a.dimension((d) ->
+      return d.dateICD 
+    )
+    dim3b = ndx3b.dimension((d) ->
+      return d.dateICD
+    )
+    grpGTE5_2 = dim3a.group()
+    grpLT5_2 = dim3b.group()
+    
+
+    composite2
+      .width($('.chart_container').width()-options.adjustX)
+      .height($('.chart_container').height()-options.adjustY)
+      .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+      .y(d3.scale.linear().domain([0,120]))
+      .yAxisLabel("Number of Positive Cases")
+      .elasticY(true)
+      .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+      .renderHorizontalGridLines(true)
+      .shareTitle(false)
+      .compose([
+        dc.lineChart(composite2)
+          .dimension(dim3a)
+          .colors('red')
+          .group(grpGTE5_2, "Age >= 5")
+          .xyTipsOn(true)
+          .renderDataPoints(false)
+          .title((d) ->
+            return d.key.toDateString() + ": " + d.value
+          ),
+        dc.lineChart(composite2)
+          .dimension(dim3b)
+          .colors('blue')
+          .group(grpLT5_2, "Age < 5")
+          .xyTipsOn(true)
+          .renderDataPoints(false)
+          .title((d) ->
+            return d.key.toDateString() + ": " + d.value
+          )
+        ])
+      .brushOn(false)
+      .render()
+ 
+ 
+ Graphs.testRate = (dataForGraph, composite, options) ->
+     data4a = _.filter(dataForGraph, (d) ->
+       return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+     )
+     data4b = _.filter(dataForGraph, (d) ->
+       return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+     )
+     total_cases1 = data4a.length
+     total_cases2 = data4b.length
+
+     ndx4a = crossfilter(data4a)
+     ndx4b = crossfilter(data4b)
+  
+     dim4a = ndx4a.dimension((d) ->
+       return d.dateICD
+     )
+     dim4b = ndx4b.dimension((d) ->
+       return d.dateICD
+     )
+    
+     grpGTE5_3 = dim4a.group().reduce(
+       (p,v) ->
+         ++p.count
+         p.pct = (p.count / total_cases1).toFixed(2)
+         return p
+       , (p,v) ->
+         --p.count
+         p.pct = (p.count / total_cases1).toFixed(2)
+         return p
+       , () ->
+         return {count:0, pct: 0}
+     )
+  
+     grpLT5_3 = dim4b.group().reduce(
+       (p,v) ->
+         ++p.count
+         p.pct = (p.count / total_cases2).toFixed(2)
+         return p
+       , (p,v) ->
+         --p.count
+         p.pct = (p.count / total_cases2).toFixed(2)
+         return p
+       , () ->
+         return {count:0, pct: 0}
+     )
+
+     composite
+       .width($('.chart_container').width() - options.adjustX)
+       .height($('.chart_container').height() - options.adjustY)
+       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+       .y(d3.scale.linear().domain([0,120]))
+       .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
+       .elasticY(true)
+       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .renderHorizontalGridLines(true)
+       .shareTitle(false)
+       .compose([
+           dc.lineChart(composite)
+             .dimension(dim4a)
+             .colors('red')
+             .group(grpGTE5_3, "Test rate [5+]")
+             .valueAccessor((p) ->
+               return p.value.pct
+               )
+ #            .dashStyle([2,2])
+             .xyTipsOn(true)
+             .renderDataPoints(false)
+             .title((d) ->
+               return d.key.toDateString() + ": " + d.value.pct*100 +"%"
+             ),
+           dc.lineChart(composite)
+             .dimension(dim4b)
+             .colors('blue')
+             .group(grpLT5_3, "Test rate [< 5]")
+             .valueAccessor((p) ->
+               return p.value.pct
+               )
+ #            .dashStyle([5,5])
+             .xyTipsOn(true)
+             .renderDataPoints(false)
+             .title((d) ->
+               return d.key.toDateString() + ": " + d.value.pct*100 +"%"
+             )
+       ])
+       .brushOn(false)
+       .render()
+
+ Graphs.timeToNotify = (dataForGraph, composite, options) ->
+     data1 = _.filter(dataForGraph, (d) ->
+       return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+     )
+     data2 = _.filter(dataForGraph, (d) ->
+       return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+     )
+
+     ndx1 = crossfilter(data1)
+     ndx2 = crossfilter(data2)
+
+     dim1 = ndx1.dimension((d) ->
+       return d.dateICD
+     )
+     dim2 = ndx2.dimension((d) ->
+       return d.dateICD
+     )
+     grpGTE5 = dim1.group()
+     grpLT5 = dim2.group()
+       
+     composite
+       .width($('.chart_container').width() - options.adjustX)
+       .height($('.chart_container').height() - options.adjustY)
+       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+       .y(d3.scale.linear())
+       .yAxisLabel("Number of Cases")
+       .elasticY(true)
+       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .renderHorizontalGridLines(true)
+       .shareTitle(false)
+       .compose([
+         dc.barChart(composite)
+           .dimension(dim1)
+           .group(grpGTE5, "Winthin 24hrs")
+           .colors('red')
+           .centerBar(true)
+           .gap(1)
+           .xUnits(d3.time.week)
+           .title((d) ->
+             return d.key.toDateString() + ": " + d.value
+           ),
+         dc.barChart(composite)
+           .dimension(dim2)
+           .group(grpLT5, "25 to 72 hrs")
+           .colors('blue')
+           .centerBar(true)
+           .gap(1)
+           .xUnits(d3.time.week)
+           .title((d) ->
+             return d.key.toDateString() + ": " + d.value
+           )
+       ])
+       .brushOn(false)
+       .render()
         
-          graph.render()
-          resolve("Success")
-
-          window.addEventListener 'resize', ->
-            elmnt = $("##{container}")
-            graph.configure
-              width: 0.8 * $(elmnt).width()
-              height: 0.8 * $(elmnt).height()
-            graph.render()
-
-      
 module.exports = Graphs
