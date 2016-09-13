@@ -12,7 +12,7 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB("http://coconut.zmcp.org/zanzibar")
+global.pouchdb = new PouchDB("http://localhost:5984/zanzibar")
 
 # These are local .coffee files
 Router = require './Router'
