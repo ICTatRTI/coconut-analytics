@@ -311,10 +311,15 @@ class Case
   numberHouseholdOrNeighborMembersTested: ->
     _(@["Household Members"]).filter (householdMember) =>
       householdMember.MalariaTestResult is "NPF"
-    .length
+    .length or 0
 
   numberHouseholdMembersTestedAndUntested: =>
-    @["Facility"]["Total Number of Residents in the Household"]
+    numberHouseholdMembersFromHousehold = @["Household"]?["TotalNumberofResidentsintheHousehold"]
+    numberHouseholdMembersWithRecord = @numberHouseholdMembers()
+    # Some cases have more member records than TotalNumberofResidentsintheHousehold so use higher
+
+    Math.max(numberHouseholdMembersFromHousehold, numberHouseholdMembersWithRecord)
+
 
   numberHouseholdMembersTested: =>
     _(@["Household Members"]).filter (householdMember) =>
@@ -353,11 +358,13 @@ class Case
   indexCaseDiagnosisDate: ->
     if @["Facility"]?.DateofPositiveResults?
       date = @["Facility"].DateofPositiveResults
-      if date.match(/^20\d\d/)
-        return moment(@["Facility"].DateofPositiveResults).format("YYYY-MM-DD")
+      momentDate = if date.match(/^20\d\d/)
+        moment(@["Facility"].DateofPositiveResults)
       else
-        return moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
-    else if @["USSD Notification"]?
+        moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY")
+      return momentDate.format("YYYY-MM-DD") if momentDate.isValid()
+
+    if @["USSD Notification"]?
       return moment(@["USSD Notification"].date).format("YYYY-MM-DD")
 
     else if @["Case Notification"]?
