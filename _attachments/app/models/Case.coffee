@@ -235,6 +235,32 @@ class Case
   indexCaseHasNoTravelHistory: =>
     not @indexCaseHasTravelHistory()
 
+  personTravelledInLast3Weeks = (householdOrHouseholdMember) ->
+    zeroToSevenDays = householdOrHouseholdMember?["AlllocationsandentrypointsfromovernighttraveloutsideZanzibar07daysbeforepositivetestresult"]
+    eightToFourteenDays = householdOrHouseholdMember?["AlllocationsandentrypointsfromovernighttraveloutsideZanzibar814daysbeforepositivetestresult"]
+    fourteenToTwentyOneDays = householdOrHouseholdMember?["AlllocationsandentrypointsfromovernighttraveloutsideZanzibar1421daysbeforepositivetestresult"]
+    if zeroToSevenDays?
+      return true if zeroToSevenDays isnt ""
+    else if eightToFourteenDays?
+      return true if eightToFourteenDays isnt ""
+    else if fourteenToTwentyOneDays?
+      return true if fourteenToTwentyOneDays isnt ""
+    else
+      return false
+
+  indexCaseSuspectedImportedCase: =>
+    personTravelledInLast3Weeks(@.Household) or @indexCaseHasTravelHistory()
+
+  numberSuspectedImportedCasesIncludingHouseholdMembers: =>
+    result = 0
+    # Check index case
+    result +=1 if @indexCaseSuspectedImportedCase()
+    # Check household cases
+    _(@["Household Members"]).each (householdMember) ->
+      console.log personTravelledInLast3Weeks(householdMember)
+      result +=1 if personTravelledInLast3Weeks(householdMember)
+    return result
+
   completeHouseholdVisit: =>
     @.Household?.complete is "true" or @.Facility?.Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility is "Yes"
 
@@ -690,6 +716,7 @@ class Case
     followedUpWithin48Hours: {}
     indexCaseHasTravelHistory: {}
     indexCaseHasNoTravelHistory: {}
+    indexCaseSuspectedImportedCase: {}
     completeHouseholdVisit: {}
     numberHouseholdMembersTestedAndUntested: {}
     numberHouseholdMembersTested: {}
@@ -699,6 +726,7 @@ class Case
     numberHouseholdOrNeighborMembersTested: {}
     numberPositiveCasesIncludingIndex: {}
     numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: {}
+    numberSuspectedImportedCasesIncludingHouseholdMembers: {}
     massScreenCase: {}
 
     CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:

@@ -3,7 +3,7 @@ _ = require 'underscore'
 $ = jQuery = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
-moment = require 'moment'
+global.moment = require 'moment'
 PouchDB = require 'pouchdb'
 
 DashboardView = require './views/DashboardView'
