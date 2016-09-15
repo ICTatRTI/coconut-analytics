@@ -16,7 +16,6 @@ class HTMLHelpers
     else ""
 
   @createCaseLink = (options) ->
-    console.log(options)
     options.buttonText ?= options.caseID
     buttonText = if(options.iconOnly) then "" else options.buttonText    
     "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' id='#{options.caseID}' data-anchor='#{if options.docId? then options.docId else ""}'>
