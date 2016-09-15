@@ -3,7 +3,7 @@ TARGET=$1
 PUSHTARGET=$2
 if [ $# -lt 2 ]
   then
-    printf "Must specify the URL as well as a URL with username/password, e.g.\\n  ./deploy.sh http://cococloud.co/zanzibar http://admin:password@cococloud.co/zanzibar\\n"
+    printf "Must specify the URL as well as a URL with username/password, e.g.\\n  ./deploy.sh https://cococloud.co/zanzibar https://admin:password@cococloud.co/zanzibar\\n"
     exit
 fi
 echo "Replacing http://localhost:5984/zanzibar in app/start/coffee to use $TARGET"
