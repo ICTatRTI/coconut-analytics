@@ -169,18 +169,19 @@ i.malaria-positive {
 }
 
 i.no-travel-malaria-positive {
-	/* background: #ffc107 */
-    color: #fcd059;
     width: 28px;
     height: 25px;
 }
 
 i.travel-history-false {
-	/* background-color: #fcd059; */
-	color: black;
-    width: 28px;
-    height: 25px;
+	/* background-color: #fcd059; 
+	color: black;*/
+  width: 28px;
+  height: 25px;
 	padding: 0px;
+}
+i.travel-history-true {
+  color: rgb(255,64,129);
 }
 i.incomplete {
    /* background-color: #fcd059; */
@@ -585,7 +586,7 @@ td.CaseID a:hover{
 
 .caseTable { width: 99%}
 
-.width50pct { width: 50%;}
+.width65pct { width: 65%;}
 
 #closeDialog {
   margin-top: -50px; 
@@ -1158,7 +1159,7 @@ form#system_settings {
 }
 
 button.caseBtn {
-  font-size: 0.65em;
+/*  font-size: 0.65em; */
 }
 
 /* Graphs */
@@ -1261,4 +1262,20 @@ div#footer {
 
 .white {
   color: white;
+}
+
+.loading {
+  font-size: 10px;
+}
+
+button div.overlay i.incomplete {
+  position: absolute;
+  z-index: -1;
+}
+
+div.overlay {
+  border-right: 15px solid #fff;
+  position: absolute;
+  top: 0px;
+  right: 0px;
 }

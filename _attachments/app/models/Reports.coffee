@@ -59,14 +59,12 @@ class Reports
     .catch (error) -> console.error error
     .then (result) ->
       caseIDs = _.unique(_.pluck result.rows, "value")
-      console.log caseIDs
 
       Coconut.database.query "cases",
         keys: caseIDs
         include_docs: true
       .catch (error) -> console.error error
       .then (result) =>
-        console.log result
         groupedResults = _.chain(result.rows)
           .groupBy (row) =>
             row.key

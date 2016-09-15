@@ -1,7 +1,6 @@
 class HTMLHelpers
 
-  @createDashboardLinkForResult = (malariaCase,resultType,buttonText, buttonClass = "") ->
-
+  @createDashboardLinkForResult = (malariaCase,resultType,iconText, buttonText = "", buttonClass = "") ->
     if malariaCase[resultType]?
       unless malariaCase[resultType].complete?
         unless malariaCase[resultType].complete
@@ -11,17 +10,20 @@ class HTMLHelpers
         caseID: malariaCase.caseID
         docId: malariaCase[resultType]._id
         buttonClass: buttonClass
+        iconText: iconText
         buttonText: buttonText
         iconOnly: true
     else ""
 
   @createCaseLink = (options) ->
+    console.log(options)
     options.buttonText ?= options.caseID
-    buttonText = if(options.iconOnly) then "" else options.buttonText
-     
+    buttonText = if(options.iconOnly) then "" else options.buttonText    
     "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' id='#{options.caseID}' data-anchor='#{if options.docId? then options.docId else ""}'>
-      <i class='material-icons #{options.buttonClass}'>#{options.buttonText}</i>
+      <i class=\"mdi #{options.iconText} #{options.buttonClass}\"></i>
+      #{if(options.buttonClass == 'incomplete') then "<div class='overlay'>&nbsp;</div>"}
       #{buttonText}</button>"
+      
 
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->

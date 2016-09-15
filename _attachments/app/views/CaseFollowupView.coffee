@@ -74,15 +74,120 @@ class CaseFollowupView extends Backbone.View
       <div id='dropdown-container' style='clear: both'>
            <div id='legend-drop-section'>
              <h6>Click button for more details about the case.</h6>
-             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>account_circle</i></button> - Positive malaria result found at household<br />
-             <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  c_orange'>account_circle</i></button> - Positive malaria result found at household with no travel history (probable local transmission). <br />
-             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'><i class='material-icons'>home</i></button> - Index case had travel history.<br />
-             <button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons  travel-history-false'>home</i></button> - Index case had no travel history (probable local transmission).<br />
-             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>home</i></button> - Household incomplete.<br />
-             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>error_outline</i></button> - Case not followed up to facility after 24 hours. <br />
-             <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'><i class='material-icons'>tap_and_play</i></button> - Case notification incomplete.<br />
-             <span style='font-size:75%;color:#3F51B5;font-weight:bold'>SHEHIA</span> - is a shehia classified as high risk based on previous data. <br />
-             <button class='btn btn-small  mdl-button--primary'>caseid</button> - Case not followed up after 48 hours. <br />
+             <table id='followUp'>
+               <tbody>
+                 <tr>
+                    <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent''>
+                       <i class='mdi mdi-account-star'></i>
+                     </button>
+                   </td>
+                    <td>Positive malaria result found at household with no travel history (probable local transmission).</td>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button mdl-button--primary'>
+                       <i class='mdi mdi-hospital'></i>
+                     </button>
+                   </td>
+                   <td>Case followed up to facility.</td>
+                 </tr>
+                 <tr>
+                  <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
+                       <i class='mdi mdi-account'></i>
+                     </button>
+                   </td>
+                   <td>Positive malaria result found at household</td>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
+                       <i class='mdi mdi-hospital'></i>
+                       <div class='overlay'>&nbsp;</div>
+                     </button>
+                   </td>
+                   <td>Case not followed up to facility after 24 hours.</td>
+                 </tr>
+                 <tr>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>
+                       <i class='mdi mdi-nature-people'></i>
+                     </button>
+                   </td>
+                   <td>Index case had no travel history (probable local transmission).</td>
+                   <td>
+                     <button class='btn btn-small mdl-button--primary caseid'>caseid</button>&nbsp;
+                   </td>
+                   <td>Case not followed up after 48 hours.</td>
+                 </tr>
+                 <tr>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
+                       <i class='mdi mdi-run'></i>
+                     </button>
+                   </td>
+                   <td>Index case had travel history.</td>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'> 
+                       <i class='mdi mdi-upload'></i>
+                     </button>
+                   </td>
+                   <td>Notification has been sent.</td>
+                 </tr>
+                 <tr>
+                   <td>
+                    <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
+                       <i class='mdi mdi-account'></i>
+                       <div class='overlay'>&nbsp;</div>
+                     </button>
+                   </td>
+                   <td>Household Members incomplete</td>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'> 
+                       <i class='mdi mdi-upload'></i>
+                        <div class='overlay'>&nbsp;</div>
+                     </button>
+                   </td>
+                   <td>Notification has not been sent.</td>
+                 </tr>
+                 <tr>
+                   <td>
+                      <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
+                         <i class='mdi mdi-home incomplete'></i>
+                         <div class='overlay'>&nbsp;</div>
+                     </button>
+                   </td>
+                   <td>Household incomplete.</td>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>
+                       <i class='mdi mdi-wifi'></i>
+                      
+                     </button>
+                   </td>
+                   <td>Case notification complete.</td>
+                 </tr>
+                 <tr>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>
+                       <i class='mdi mdi-home'></i>
+                     </button>
+                   </td>
+                   <td>Household complete.</td>
+                   <td>
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
+                       <i class='mdi mdi-wifi'></i>
+                       <div class='overlay'>&nbsp;</div>
+                     </button>
+                   </td>
+                   <td>Case notification is incomplete.</td>
+                 </tr>
+                 <tr>
+                   <td>
+                    
+                   </td>
+                   <td></td>
+                   <td><span style='color:#3F51B5;font-weight:bold'>SHEHIA</span></td>
+                   <td>a shehia classified as high risk based on previous data.</td>
+                 </tr>
+               </tbody>
+             </table>
           </div>
       </div>
       <div id='results' class='result'>
@@ -94,8 +199,7 @@ class CaseFollowupView extends Backbone.View
       </div>	
     "
     tableColumns = ["Case ID","Diagnosis Date","Health Facility District","Shehia","USSD Notification"]
-
-    tableColumns = tableColumns.concat Coconut.questions.pluck("_id")
+    tableColumns = tableColumns.concat Coconut.questions.pluck("_id").sort()
     _.each tableColumns, (text) ->
       #Hack to replace title to differ from Questions title
       if ['USSD Notification','Case Notification'].indexOf(text) >= 0
@@ -104,17 +208,18 @@ class CaseFollowupView extends Backbone.View
         colTitle = text
        
       $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{colTitle} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
- 
+
     @getCases
       success: (cases) =>
         $('#analysis-spinner').hide()
         if(cases.length > 0)
           _.each cases, (malariaCase) =>
+            if (malariaCase.indexCaseHasTravelHistory()) then travelHistory = "mdi-run" else travelHistory =  "mdi-nature-people"
 
             $("table.summary tbody").append "
               <tr id='case-#{malariaCase.caseID}'>
                 <td class='CaseID mdl-data-table__cell--non-numeric'>
-                    <button id= '#{malariaCase.caseID}' class='caseBtnLg btn btn-small not-followed-up-after-48-hours-#{malariaCase.notFollowedUpAfter48Hours()}'>#{malariaCase.caseID}</button>
+                    <button id= '#{malariaCase.caseID}' class='btn btn-small #{if malariaCase.notFollowedUpAfter48Hours() then "mdl-button--primary" } caseid'>#{malariaCase.caseID}</button>
                 </td>
                 <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
                   #{malariaCase.indexCaseDiagnosisDate()}
@@ -133,23 +238,31 @@ class CaseFollowupView extends Backbone.View
                   }
                 </td>
                 <td class='USSDNotification mdl-data-table__cell--non-numeric'>
-                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "open_in_browser")}
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"USSD Notification", "mdi-upload")}
                 </td>
                 <td class='CaseNotification mdl-data-table__cell--non-numeric'>
-                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","tap_and_play")}
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Case Notification","mdi-wifi")}
                 </td>
                 <td class='Facility mdl-data-table__cell--non-numeric'>
-                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "error_outline","not-complete-facility-after-24-hours-#{malariaCase.notCompleteFacilityAfter24Hours()}")}
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "mdi-hospital")}
                 </td>
                 <td class='Household mdl-data-table__cell--non-numeric'>
-                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "home","travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", travelHistory , "" ,"travel-history-#{malariaCase.indexCaseHasTravelHistory()}")}
                 </td>
                 <td class='HouseholdMembers mdl-data-table__cell--non-numeric'>
                   #{
                     _.map(malariaCase["Household Members"], (householdMember) =>
                       malariaPositive = householdMember.MalariaTestResult? and (householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed")
                       noTravelPositive = householdMember.OvernightTravelinpastmonth isnt "Yes outside Zanzibar" and malariaPositive
-                      buttonText = "account_circle"
+                      iconText = "mdi-account"
+                      if malariaPositive and noTravelPositive
+                        iconText = 'mdi-account-star'
+                        buttonClass = "no-travel-malaria-positive"
+                      else if malariaPositive
+                        iconText ='mdi-account'
+                        buttonClass = 'malaria-positive'
+                      else
+                        buttonClass = ''
                       unless householdMember.complete?
                         unless householdMember.complete
                            buttonClass = "mdl-button--accent"
@@ -158,12 +271,9 @@ class CaseFollowupView extends Backbone.View
                         caseID: malariaCase.caseID
                         docId: householdMember._id
                         iconOnly: true
-                        buttonClass: if malariaPositive and noTravelPositive
-                         "no-travel-malaria-positive"
-                        else if malariaPositive
-                         "malaria-positive"
-                        else ""
-                        buttonText: buttonText
+                        iconText: iconText
+                        buttonClass: buttonClass
+                        buttonText: ""
                     ).join("")
                   }
                 </td>
