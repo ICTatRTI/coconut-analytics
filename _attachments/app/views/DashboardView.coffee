@@ -90,7 +90,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'> 
               <a class='chip summary8'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='importedStat'>0</div>
+                <div class='stats' id='importedStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Imported</div>
               </a>
             </div>

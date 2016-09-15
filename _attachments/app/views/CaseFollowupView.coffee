@@ -52,6 +52,9 @@ class CaseFollowupView extends Backbone.View
     $('#analysis-spinner').show()
 
     @$el.html "
+      <style>
+        td.CaseID.mdl-data-table__cell--non-numeric { padding-top: 6px !important;}
+      </style>
       <dialog id='caseDialog'></dialog>
       <div id='dateSelector'></div>
       <div id='summary-dropdown'>
