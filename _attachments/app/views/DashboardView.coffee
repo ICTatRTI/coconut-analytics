@@ -163,12 +163,10 @@ class DashboardView extends Backbone.View
             include_docs: true
           .then (result) =>
             dataForGraph = _.pluck(result.rows, 'doc')
-            console.log(dataForGraph)
             showStats()    
             @showGraphs(dataForGraph,options)
         else
           dataForGraph = _.pluck(result.rows, 'doc')
-          console.log(dataForGraph)
           showStats()    
           @showGraphs(dataForGraph,options)
     .catch (error) ->
@@ -229,10 +227,10 @@ class DashboardView extends Backbone.View
     Coconut.statistics.imported = 0
 
     #Grouped by ISO Year Week
-    groupCaseCounterResult "GGGG-WW",
-      success: (result) ->
-        console.log("Grouped by ISO Year Week")
-        console.log(result)
+    # groupCaseCounterResult "GGGG-WW",
+    #   success: (result) ->
+    #     console.log("Grouped by ISO Year Week")
+    #     console.log(result)
 
     #Grouped by Year
     groupCaseCounterResult "YYYY",
