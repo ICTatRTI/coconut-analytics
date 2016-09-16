@@ -214,9 +214,10 @@ class EpidemicThresholdView extends Backbone.View
                                   else
                                     priorityIcon = "<i class='material-icons visited''>priority_high</i>"
                                   
+                                  tileTitle = threshold.Description.split(',')[0].toUpperCase()
                                   "
                                   <button class='mdl-card__media btn_th'>
-                                   <a href='#show/issue/#{threshold._id}'>
+                                   <a href='#show/issue/#{threshold._id}' title='#{tileTitle}'>
                                     <div class='one'>
                                       #{priorityIcon}
                                       #{notifyIcon}
@@ -226,7 +227,7 @@ class EpidemicThresholdView extends Backbone.View
                                     </div>
                                     <div class='clearfix'></div>
                                     <div class='three'>
-                                         #{threshold.Description.split(',')[0].toUpperCase()}
+                                         #{tileTitle}
                                     </div>
                                     </a>
                                   </button>

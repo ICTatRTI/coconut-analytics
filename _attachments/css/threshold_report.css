@@ -37,6 +37,7 @@
 
 .mdl-card__media.btn_th div.three {
   text-align: right;
+  overflow: auto;
   
 }
 
