@@ -160,7 +160,7 @@ class Case
       
       findOneShehia = GeoHierarchy.findOneShehia(shehia)
       if findOneShehia
-        return findOneShehia.DISTRICT
+        return findOneShehia.parent().name
       else
         shehias = GeoHierarchy.findShehia(shehia)
         district = GeoHierarchy.swahiliDistrictName @["USSD Notification"]?.facility_district
