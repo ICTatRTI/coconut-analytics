@@ -216,6 +216,7 @@ class EpidemicThresholdView extends Backbone.View
                                   
                                   "
                                   <button class='mdl-card__media btn_th'>
+                                   <a href='#show/issue/#{threshold._id}'>
                                     <div class='one'>
                                       #{priorityIcon}
                                       #{notifyIcon}
@@ -225,8 +226,9 @@ class EpidemicThresholdView extends Backbone.View
                                     </div>
                                     <div class='clearfix'></div>
                                     <div class='three'>
-                                         <a href='#show/issue/#{threshold._id}'>#{threshold.Description.split(',')[0].toUpperCase()}</a>
+                                         #{threshold.Description.split(',')[0].toUpperCase()}
                                     </div>
+                                    </a>
                                   </button>
                                   "    
                               }
