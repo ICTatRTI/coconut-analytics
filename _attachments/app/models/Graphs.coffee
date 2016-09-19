@@ -310,5 +310,78 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        ])
        .brushOn(false)
        .render()
-        
+
+ Graphs.timeToComplete = (dataForGraph, composite, options) ->
+    data1 = _.filter(dataForGraph, (d) ->
+      return (d['threshold'] >= 0 && d['threshold'] <= 1)
+    )
+    data2 = _.filter(dataForGraph, (d) ->
+      return (d['threshold'] > 1 && d['threshold'] <= 3)
+    )
+    data3 = _.filter(dataForGraph, (d) ->
+      return (d['threshold'] > 3)
+    )
+    ndx1 = crossfilter(data1)
+    ndx2 = crossfilter(data2)
+    ndx3 = crossfilter(data3)
+    
+    dim1 = ndx1.dimension((d) ->
+      return  d.dateICD
+    )
+    dim2 = ndx2.dimension((d) ->
+      return  d.dateICD
+    )
+    dim3 = ndx3.dimension((d) ->
+      return  d.dateICD
+    )
+    grp1 = dim1.group()
+    grp2 = dim2.group()
+    grp3 = dim3.group()
+
+    composite
+       .width($('.chart_container').width() - options.adjustX)
+       .height($('.chart_container').height() - options.adjustY)
+       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+       .y(d3.scale.linear())
+       .yAxisLabel("Number of Cases")
+       .xAxisLabel("Weeks")
+       .elasticY(true)
+       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .renderHorizontalGridLines(true)
+       .shareTitle(false)
+       .compose([
+         dc.barChart(composite)
+           .dimension(dim1)
+           .group(grp1, "Within 24hrs")
+           .colors('red')
+           .centerBar(true)
+           .gap(1)
+           .xUnits(d3.time.week)
+           .title((d) ->
+             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+           ),
+         dc.barChart(composite)
+           .dimension(dim2)
+           .group(grp2, "25 to 72 hrs")
+           .colors('blue')
+           .centerBar(true)
+           .gap(1)
+           .xUnits(d3.time.week)
+           .title((d) ->
+             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+           )
+         dc.barChart(composite)
+           .dimension(dim3)
+           .group(grp3, "Over 72 hrs")
+           .colors('green')
+           .centerBar(true)
+           .gap(1)
+           .xUnits(d3.time.week)
+           .title((d) ->
+             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+           )
+       ])
+       .brushOn(false)
+       .render()
+
 module.exports = Graphs
