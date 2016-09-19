@@ -174,8 +174,7 @@ i.no-travel-malaria-positive {
 }
 
 i.travel-history-false {
-	/* background-color: #fcd059; 
-	color: black;*/
+	color: rgb(255,64,129);
   width: 28px;
   height: 25px;
 	padding: 0px;
@@ -184,13 +183,12 @@ i.travel-history-true {
   color: rgb(255,64,129);
 }
 i.incomplete {
-   /* background-color: #fcd059; */
+	/*color: rgb(255,64,129); */
+}
+i.not-complete-facility-after-24-hours-true {
 	color: rgb(255,64,129);
 }
-
 button.not-complete-facility-after-24-hours-true {
-	/* background: #18ffff 
-    background-color: #a2d7d8; */
 	background-color: #de5842;
     width: 28px;
     height: 25px;

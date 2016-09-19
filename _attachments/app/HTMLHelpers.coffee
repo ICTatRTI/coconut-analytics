@@ -3,8 +3,8 @@ class HTMLHelpers
   @createDashboardLinkForResult = (malariaCase,resultType,iconText, buttonText = "", buttonClass = "") ->
     if malariaCase[resultType]?
       unless malariaCase[resultType].complete?
-        unless malariaCase[resultType].complete
-           buttonClass = "incomplete" unless resultType is "USSD Notification"
+#        unless malariaCase[resultType].complete
+           buttonClass = "incomplete" unless (resultType is "USSD Notification" or buttonClass is "not-complete-facility-after-24-hours-true")
 #          buttonText = buttonText.replace(".png","Incomplete.png") unless resultType is "USSD Notification"
       @createCaseLink
         caseID: malariaCase.caseID
