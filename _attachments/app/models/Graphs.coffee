@@ -7,6 +7,7 @@ d3-scale = require 'd3-scale'
 crossfilter = require 'crossfilter'
 
 class Graphs
+colorScale = d3.scale.category20()
 
 Graphs.chartResize = (chart, container, options) ->
   width = $(".#{container}").width() - options.adjustX
@@ -149,7 +150,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .compose([
         dc.lineChart(composite2)
           .dimension(dim3a)
-          .colors('red')
+          .colors(colorScale(5))
           .group(grpGTE5_2, "Age >= 5")
           .xyTipsOn(true)
           .renderDataPoints(false)
@@ -158,7 +159,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
           ),
         dc.lineChart(composite2)
           .dimension(dim3b)
-          .colors('blue')
+          .colors(colorScale(7))
           .group(grpLT5_2, "Age < 5")
           .xyTipsOn(true)
           .renderDataPoints(false)
@@ -229,7 +230,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .compose([
            dc.lineChart(composite)
              .dimension(dim4a)
-             .colors('red')
+             .colors(colorScale(0))
              .group(grpGTE5_3, "Test rate [5+]")
              .valueAccessor((p) ->
                return p.value.pct
@@ -242,7 +243,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
              ),
            dc.lineChart(composite)
              .dimension(dim4b)
-             .colors('blue')
+             .colors(colorScale(1))
              .group(grpLT5_3, "Test rate [< 5]")
              .valueAccessor((p) ->
                return p.value.pct
@@ -292,7 +293,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grpGTE5, "Winthin 24hrs")
-           .colors('red')
+           .colors(colorScale(1))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -301,7 +302,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim2)
            .group(grpLT5, "25 to 72 hrs")
-           .colors('blue')
+           .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -338,7 +339,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
     grp1 = dim1.group()
     grp2 = dim2.group()
     grp3 = dim3.group()
-    colorScale = d3.scale.category20()
+
     composite
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)

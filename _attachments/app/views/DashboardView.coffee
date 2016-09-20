@@ -130,6 +130,22 @@ class DashboardView extends Backbone.View
                 </div>
             </div>
           </div>
+          <div class='mdl-grid'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+                <div id='container_5' class='chart_container f-left' data-graph-id = 'TimeToComplete'>
+                   <div class='chart-title'>Time To Complete</div>                
+                   <div id='chart_5' class='chart'></div>
+                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                </div>
+            </div>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+                <div id='container_6' class='chart_container f-left' data-graph-id = 'TimeToNotify'>
+                  <div class='chart-title'>Time To Notify</div>              
+                  <div id='chart_6' class='chart'></div>
+                  <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                </div>
+            </div>
+          </div>
         </div>
     "
     adjustButtonSize()
@@ -181,12 +197,17 @@ class DashboardView extends Backbone.View
     options.adjustY = 40
     
     dataForGraph.forEach((d) ->
+      UssdDate = moment(d['Ussd Notification: Date']?.substring(0,10))
+      CaseNotify = moment(d['Case Notification: Created At']?.substring(0,10))
+      d.threshold = CaseNotify.diff(UssdDate,'days')
       d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
     )
     chart1 = dc.lineChart("#chart_1")
     composite1 = dc.compositeChart("#chart_2")
     composite2 = dc.compositeChart("#chart_3")
     composite3 = dc.compositeChart("#chart_4")
+    composite4 = dc.compositeChart("#chart_5")
+    composite5 = dc.compositeChart("#chart_6")
     
     # Incident Graph - Number of Cases
     Graphs.incidents(dataForGraph, chart1, options)
@@ -203,6 +224,14 @@ class DashboardView extends Backbone.View
     # TestRate Graph 
     Graphs.testRate(dataForGraph, composite3, options)
     $('div#container_4 div.mdl-spinner').hide()
+    
+    # TimeToComplete Graph 
+    Graphs.timeToComplete(dataForGraph, composite4, options)
+    $('div#container_5 div.mdl-spinner').hide()
+    
+    # TimeToNotify Graph 
+    Graphs.timeToNotify(dataForGraph, composite5, options)
+    $('div#container_6 div.mdl-spinner').hide()
           
 
     window.onresize = () ->
