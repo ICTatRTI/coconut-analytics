@@ -28,7 +28,7 @@ class DashboardView extends Backbone.View
     @$el.html "
         <style>
           .page-content {margin: 0}
-          .chart {left: 0; padding: 0}
+          .chart {left: 0; padding: 5px}
           .chart_container {width: 100%}
           
         </style>

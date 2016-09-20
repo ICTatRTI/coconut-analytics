@@ -42,6 +42,7 @@ class TestRateGraphView extends Backbone.View
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
+        console.log(dataForGraph)
         dataForGraph.forEach((d) ->
           d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
         )
