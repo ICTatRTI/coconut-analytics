@@ -104,9 +104,9 @@ class MenuView extends Backbone.View
              YearlyTrends: "Yearly Trends by Week"
              AttendanceGraph: "Attendance"
              TestRateGraph: "Test Rate"
-             graph_positivity: "Positivity"
-             positivity_with_rainfall: "Positivity With Rainfall"
-             positivity_by_year: "Positivity Cases By Year"
+             # graph_positivity: "Positivity"
+             # positivity_with_rainfall: "Positivity With Rainfall"
+             # positivity_by_year: "Positivity Cases By Year"
              TimeToComplete: "Time to Complete"
              TimeToNotify: "Time to Notify"
              

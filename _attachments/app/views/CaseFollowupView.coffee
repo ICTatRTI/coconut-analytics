@@ -71,7 +71,7 @@ class CaseFollowupView extends Backbone.View
             <button class='mdl-button mdl-js-button mdl-button--icon'> 
               <i class='material-icons'>dashboard</i> 
             </button>
-              Legend
+              Legend <small>( click for dropdown )</small>
           </span>
         </div>
       </div>	

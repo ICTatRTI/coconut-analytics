@@ -3,6 +3,7 @@ moment = require 'moment'
 
 dc = require 'dc'
 d3 = require 'd3'
+d3-scale = require 'd3-scale'
 crossfilter = require 'crossfilter'
 
 class Graphs
@@ -283,6 +284,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .y(d3.scale.linear())
        .yAxisLabel("Number of Cases")
        .elasticY(true)
+       .xUnits(d3.time.days)
        .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
@@ -293,7 +295,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .colors('red')
            .centerBar(true)
            .gap(1)
-           .xUnits(d3.time.week)
            .title((d) ->
              return d.key.toDateString() + ": " + d.value
            ),
@@ -303,7 +304,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .colors('blue')
            .centerBar(true)
            .gap(1)
-           .xUnits(d3.time.week)
            .title((d) ->
              return d.key.toDateString() + ": " + d.value
            )
@@ -312,6 +312,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .render()
 
  Graphs.timeToComplete = (dataForGraph, composite, options) ->
+    
     data1 = _.filter(dataForGraph, (d) ->
       return (d['threshold'] >= 0 && d['threshold'] <= 1)
     )
@@ -337,7 +338,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
     grp1 = dim1.group()
     grp2 = dim2.group()
     grp3 = dim3.group()
-
+    colorScale = d3.scale.category20()
     composite
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
@@ -346,6 +347,8 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .yAxisLabel("Number of Cases")
        .xAxisLabel("Weeks")
        .elasticY(true)
+       .elasticX(true)
+       .xUnits(d3.time.days)
        .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
@@ -353,35 +356,38 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grp1, "Within 24hrs")
-           .colors('red')
+#           .colors(colorScale(getRandomInt(0,19)))
+           .colors(colorScale(5))
            .centerBar(true)
            .gap(1)
-           .xUnits(d3.time.week)
            .title((d) ->
              return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
-           ),
+             ),
          dc.barChart(composite)
            .dimension(dim2)
            .group(grp2, "25 to 72 hrs")
-           .colors('blue')
+#           .colors(colorScale(getRandomInt(0,19)))
+           .colors(colorScale(6))
            .centerBar(true)
            .gap(1)
-           .xUnits(d3.time.week)
            .title((d) ->
              return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
-           )
+             ),
          dc.barChart(composite)
            .dimension(dim3)
            .group(grp3, "Over 72 hrs")
-           .colors('green')
+#           .colors(colorScale(getRandomInt(0,19)))
+           .colors(colorScale(7))
            .centerBar(true)
            .gap(1)
-           .xUnits(d3.time.week)
            .title((d) ->
              return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
-           )
+             )
        ])
        .brushOn(false)
        .render()
 
+  getRandomInt = (min,max) ->
+    return Math.floor(Math.random()*(max-min + 1)) + min
+    
 module.exports = Graphs
