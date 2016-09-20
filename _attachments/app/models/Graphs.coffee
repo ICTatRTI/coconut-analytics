@@ -146,12 +146,13 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .width($('.chart_container').width()-options.adjustX)
       .height($('.chart_container').height()-options.adjustY)
       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-      .y(d3.scale.linear().domain([0,120]))
+      .y(d3.scale.linear())
       .yAxisLabel("Number of Positive Cases")
       .elasticY(true)
       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
       .renderHorizontalGridLines(true)
       .shareTitle(false)
+      .xUnits(d3.time.days)
       .compose([
         dc.lineChart(composite2)
           .dimension(dim3a)
@@ -160,8 +161,8 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
-            return d.key.toDateString() + ": " + d.value
-          ),
+            return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+           ),
         dc.lineChart(composite2)
           .dimension(dim3b)
           .colors(colorScale(1))
@@ -169,8 +170,8 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
-            return d.key.toDateString() + ": " + d.value
-          )
+            return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+           )
         ])
       .brushOn(false)
       .render()
@@ -226,7 +227,8 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
        .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-       .y(d3.scale.linear().domain([0,120]))
+       .y(d3.scale.linear())
+       .xUnits(d3.time.days)
        .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
        .elasticY(true)
        .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
@@ -240,12 +242,11 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
              .valueAccessor((p) ->
                return p.value.pct
                )
- #            .dashStyle([2,2])
              .xyTipsOn(true)
              .renderDataPoints(false)
              .title((d) ->
-               return d.key.toDateString() + ": " + d.value.pct*100 +"%"
-             ),
+               return 'Week: '+ moment(d.key).isoWeek() + ": " + Math.round(d.value.pct*100) + '%'
+              ),
            dc.lineChart(composite)
              .dimension(dim4b)
              .colors(colorScale(1))
@@ -253,11 +254,10 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
              .valueAccessor((p) ->
                return p.value.pct
                )
- #            .dashStyle([5,5])
              .xyTipsOn(true)
              .renderDataPoints(false)
              .title((d) ->
-               return d.key.toDateString() + ": " + d.value.pct*100 +"%"
+               return 'Week: '+ moment(d.key).isoWeek() + ": " + Math.round(d.value.pct*100) + '%'
              )
        ])
        .brushOn(false)
@@ -372,7 +372,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim4)
            .group(grp4, "Not followed up")
-#            .colors(colorScale(getRandomInt(0,19)))
            .colors(colorScale(0))
            .centerBar(true)
            .gap(1)
@@ -382,7 +381,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim3)
            .group(grp3, "Over 72 hrs")
-#           .colors(colorScale(getRandomInt(0,19)))
            .colors(colorScale(1))
            .centerBar(true)
            .gap(1)
@@ -392,7 +390,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim2)
            .group(grp2, "25 to 72 hrs")
-#           .colors(colorScale(getRandomInt(0,19)))
            .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
@@ -402,7 +399,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grp1, "Within 24hrs")
-#           .colors(colorScale(getRandomInt(0,19)))
            .colors(colorScale(3))
            .centerBar(true)
            .gap(1)
@@ -416,10 +412,10 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  Graphs.positivityCases = (dataForGraph, composite, options) ->
   
    data1 = _.filter(dataForGraph, (d) ->
-     return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+     return d['Number Positive Cases Including Index'] >= 1
    )
    data2 = _.filter(dataForGraph, (d) ->
-     return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+     return d['Number Positive Cases Including Index'] >= 1
    )
 
    ndx1 = crossfilter(data1)
@@ -466,8 +462,5 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      ])
      .brushOn(false)
      .render()
-    
-  getRandomInt = (min,max) ->
-    return Math.floor(Math.random()*(max-min + 1)) + min
     
 module.exports = Graphs
