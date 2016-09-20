@@ -7,7 +7,12 @@ d3-scale = require 'd3-scale'
 crossfilter = require 'crossfilter'
 
 class Graphs
-colorScale = d3.scale.category20()
+colorScale = d3.scale.category10()
+colorScale.domain([0,1,2,3,4,5,6,7,8,9])
+# Example to set customizecolors
+# colorScale2 = d3.scale.ordinal()
+#   .domain(['banana','cherry','blueberry'])
+#   .range(['#eeff00','#ff0022','#2200ff'])
 
 Graphs.chartResize = (chart, container, options) ->
   width = $(".#{container}").width() - options.adjustX
@@ -49,7 +54,7 @@ Graphs.incidents = (dataForGraph, chart, options) ->
     .renderHorizontalGridLines(true)
     .renderArea(true)
     .dimension(dim)
-    .colors('red')
+    .colors(colorScale(3))
     .group(grp)
     .xyTipsOn(true)
     .xUnits(d3.time.weeks)
@@ -95,7 +100,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
     .compose([
       dc.lineChart(composite)
         .dimension(dim1)
-        .colors('red')
+        .colors(colorScale(0))
         .group(grpGTE5, "Age 5+")
         .xyTipsOn(true)
         .renderDataPoints(false)
@@ -104,7 +109,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
         ),
       dc.lineChart(composite)
         .dimension(dim2)
-        .colors('blue')
+        .colors(colorScale(1))
         .group(grpLT5, "Age < 5")
         .xyTipsOn(true)
         .renderDataPoints(false)
@@ -150,7 +155,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .compose([
         dc.lineChart(composite2)
           .dimension(dim3a)
-          .colors(colorScale(5))
+          .colors(colorScale(0))
           .group(grpGTE5_2, "Age >= 5")
           .xyTipsOn(true)
           .renderDataPoints(false)
@@ -159,7 +164,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
           ),
         dc.lineChart(composite2)
           .dimension(dim3b)
-          .colors(colorScale(7))
+          .colors(colorScale(1))
           .group(grpLT5_2, "Age < 5")
           .xyTipsOn(true)
           .renderDataPoints(false)
@@ -293,7 +298,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grpGTE5, "Winthin 24hrs")
-           .colors(colorScale(1))
+           .colors(colorScale(0))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -302,7 +307,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim2)
            .group(grpLT5, "25 to 72 hrs")
-           .colors(colorScale(2))
+           .colors(colorScale(1))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -323,9 +328,14 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
     data3 = _.filter(dataForGraph, (d) ->
       return (d['threshold'] > 3)
     )
+    data4 = _.filter(dataForGraph, (d) ->
+      return (d['Complete Household Visit'] is false)
+    )
+    
     ndx1 = crossfilter(data1)
     ndx2 = crossfilter(data2)
     ndx3 = crossfilter(data3)
+    ndx4 = crossfilter(data4)
     
     dim1 = ndx1.dimension((d) ->
       return  d.dateICD
@@ -336,9 +346,14 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
     dim3 = ndx3.dimension((d) ->
       return  d.dateICD
     )
+    dim4 = ndx4.dimension((d) ->
+      return  d.dateICD
+    )
+    
     grp1 = dim1.group()
     grp2 = dim2.group()
     grp3 = dim3.group()
+    grp4 = dim4.group()
 
     composite
        .width($('.chart_container').width() - options.adjustX)
@@ -346,7 +361,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
        .y(d3.scale.linear())
        .yAxisLabel("Number of Cases")
-       .xAxisLabel("Weeks")
+       .xAxisLabel("Time")
        .elasticY(true)
        .elasticX(true)
        .xUnits(d3.time.days)
@@ -355,10 +370,20 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .shareTitle(false)
        .compose([
          dc.barChart(composite)
-           .dimension(dim1)
-           .group(grp1, "Within 24hrs")
+           .dimension(dim4)
+           .group(grp4, "Not followed up")
+#            .colors(colorScale(getRandomInt(0,19)))
+           .colors(colorScale(0))
+           .centerBar(true)
+           .gap(1)
+           .title((d) ->
+             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+            ),
+         dc.barChart(composite)
+           .dimension(dim3)
+           .group(grp3, "Over 72 hrs")
 #           .colors(colorScale(getRandomInt(0,19)))
-           .colors(colorScale(5))
+           .colors(colorScale(1))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -368,17 +393,17 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .dimension(dim2)
            .group(grp2, "25 to 72 hrs")
 #           .colors(colorScale(getRandomInt(0,19)))
-           .colors(colorScale(6))
+           .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
            .title((d) ->
              return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
              ),
          dc.barChart(composite)
-           .dimension(dim3)
-           .group(grp3, "Over 72 hrs")
+           .dimension(dim1)
+           .group(grp1, "Within 24hrs")
 #           .colors(colorScale(getRandomInt(0,19)))
-           .colors(colorScale(7))
+           .colors(colorScale(3))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -388,6 +413,60 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .brushOn(false)
        .render()
 
+ Graphs.positivityCases = (dataForGraph, composite, options) ->
+  
+   data1 = _.filter(dataForGraph, (d) ->
+     return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+   )
+   data2 = _.filter(dataForGraph, (d) ->
+     return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+   )
+
+   ndx1 = crossfilter(data1)
+   ndx2 = crossfilter(data2)
+
+   dim1 = ndx1.dimension((d) ->
+     return d.dateICD
+   )
+   dim2 = ndx2.dimension((d) ->
+     return d.dateICD
+   )
+   grpGTE5 = dim1.group()
+   grpLT5 = dim2.group()
+
+   composite
+     .width($('.chart_container').width()-options.adjustX)
+     .height($('.chart_container').height()-options.adjustY)
+     .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+     .y(d3.scale.linear().domain([0,120]))
+     .yAxisLabel("Number of Positive Cases")
+     .elasticY(true)
+     .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+     .renderHorizontalGridLines(true)
+     .shareTitle(false)
+     .compose([
+       dc.lineChart(composite)
+         .dimension(dim1)
+         .colors('red')
+         .group(grpGTE5, "Age 5+")
+         .xyTipsOn(true)
+         .renderDataPoints(false)
+         .title((d) ->
+           return d.key.toDateString() + ": " + d.value
+         ),
+       dc.lineChart(composite)
+         .dimension(dim2)
+         .colors('blue')
+         .group(grpLT5, "Age < 5")
+         .xyTipsOn(true)
+         .renderDataPoints(false)
+         .title((d) ->
+           return d.key.toDateString() + ": " + d.value
+         )
+     ])
+     .brushOn(false)
+     .render()
+    
   getRandomInt = (min,max) ->
     return Math.floor(Math.random()*(max-min + 1)) + min
     
