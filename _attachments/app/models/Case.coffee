@@ -216,7 +216,7 @@ class Case
     @questionStatus()["Household Members"] is true
 
   hasCompleteFacility: =>
-    @.Facility?.complete is "true"
+    @.Facility?.complete is "true" or @.Facility?.complete is true
 
   notCompleteFacilityAfter24Hours: =>
     @moreThan24HoursSinceFacilityNotifed() and not @hasCompleteFacility()
