@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
 Question = require './Question'
+Dhis2 = require './Dhis2'
 bcrypt = require('bcryptjs')
 CONST = require "../Constants"
 humanize = require 'underscore.string/humanize'
@@ -221,7 +222,6 @@ class Case
   notCompleteFacilityAfter24Hours: =>
     @moreThan24HoursSinceFacilityNotifed() and not @hasCompleteFacility()
 
-
   notFollowedUpAfter48Hours: =>
     @moreThan48HoursSinceFacilityNotifed() and not @followedUp()
 
@@ -263,6 +263,10 @@ class Case
 
   completeHouseholdVisit: =>
     @.Household?.complete is "true" or @.Facility?.Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility is "Yes"
+
+  dateHouseholdVisitCompleted: =>
+    if @completeHouseholdVisit()
+      @.Household.lastModifiedAt
 
   followedUp: =>
     @completeHouseholdVisit()
@@ -487,14 +491,18 @@ class Case
     _.each @allResultsByQuestion, (results, question) ->
       console.log _.sort(results, "createdAt")
 
-  daysBetweenPositiveResultAndNotification: =>
 
-    dateOfPositiveResults = if @["Facility"]?.DateofPositiveResults?
+  dateOfPositiveResults: ->
+    if @["Facility"]?.DateofPositiveResults?
       date = @["Facility"].DateofPositiveResults
       if date.match(/^20\d\d/)
         moment(@["Facility"].DateofPositiveResults).format("YYYY-MM-DD")
       else
         moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
+
+  daysBetweenPositiveResultAndNotification: =>
+
+    dateOfPositiveResults = @dateOfPositiveResults()
 
     notificationDate = if @["USSD Notification"]?
       @["USSD Notification"].date
@@ -502,6 +510,24 @@ class Case
     if dateOfPositiveResults? and notificationDate?
       Math.abs(moment(dateOfPositiveResults).diff(notificationDate, 'days'))
     
+  daysBetweenPositiveResultAndCompleteHousehold: =>
+    dateOfPositiveResults = @dateOfPositiveResults()
+    completeHouseholdVisit = @dateHouseholdVisitCompleted()
+
+    if dateOfPositiveResults and completeHouseholdVisit
+      Math.abs(moment(dateOfPositiveResults).diff(completeHouseholdVisit, 'days'))
+
+  lessThanOneDayBetweenPositiveResultAndCompleteHousehold: =>
+    @daysBetweenPositiveResultAndCompleteHousehold() <= 1
+
+  oneToTwoDaysBetweenPositiveResultAndCompleteHousehold: =>
+    @daysBetweenPositiveResultAndCompleteHousehold() <= 2
+
+  twoToThreeDaysBetweenPositiveResultAndCompleteHousehold: =>
+    @daysBetweenPositiveResultAndCompleteHousehold() <= 3
+
+  moreThanThreeDaysBetweenPositiveResultAndCompleteHousehold: =>
+    @daysBetweenPositiveResultAndCompleteHousehold() > 3
 
   timeFacilityNotified: =>
     if @["USSD Notification"]?
@@ -553,6 +579,18 @@ class Case
   daysFromSMSToCompleteHousehold: =>
     if @["Household"]?.complete is "true" and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
+
+  createOrUpdateOnDhis2: (options) =>
+    dhis2 = new Dhis2
+      dhis2Url: "http://dhis2.zanzibar.ictedge.org"
+      username: "admin"
+      password: "district"
+      programId: "mVnfEjYjUbo"
+      malariaCaseEntity: "yz2ckz83dsm"
+      caseIdAttributeId: "MP19ZON9fdL"
+      ageAttributeId: "FilMzDIkqNK"
+
+    dhis2.createOrUpdateMalariaCase(@)
 
   spreadsheetRow: (question) =>
     console.error "Must call loadSpreadsheetHeader at least once before calling spreadsheetRow" unless Coconut.spreadsheetHeader?
@@ -800,6 +838,11 @@ class Case
     daysFromSMSToCompleteHousehold:
       propertyName: "Days between SMS Sent to DMSO to Having Complete Household"
 
+    daysBetweenPositiveResultAndCompleteHousehold: {}
+    lessThanOneDayBetweenPositiveResultAndCompleteHousehold: {}
+    oneToTwoDaysBetweenPositiveResultAndCompleteHousehold: {}
+    twoToThreeDaysBetweenPositiveResultAndCompleteHousehold: {}
+    moreThanThreeDaysBetweenPositiveResultAndCompleteHousehold: {}
 
     "USSD Notification: Created At":
       otherPropertyNames: ["createdAt"]
