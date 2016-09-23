@@ -239,7 +239,6 @@ class CaseFollowupView extends Backbone.View
                   facilityClass = 'incomplete'
             else
               facilityClass = ''
-            console.log(malariaCase.caseID, malariaCase.hasCompleteFacility(), facilityClass)
                
             $("table.summary tbody").append ").
               <tr id='case-#{malariaCase.caseID}'>

@@ -46,7 +46,7 @@ class TimeToCompleteGraphView extends Backbone.View
           UssdDate = moment(d['Ussd Notification: Date']?.substring(0,10))
           CaseNotify = moment(d['Case Notification: Created At']?.substring(0,10))
           d.threshold = CaseNotify.diff(UssdDate,'days')
-          d.dateICD = new Date(d['Index Case Diagnosis Date'])
+          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
         )
         
         composite = dc.compositeChart("#chart")
