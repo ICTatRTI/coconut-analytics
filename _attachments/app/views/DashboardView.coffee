@@ -117,14 +117,14 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
-                   <div class='chart-title'>Attendance Graph</div>                
+                   <div class='chart-title'>Attendance</div>                
                    <div id='chart_3' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_4' class='chart_container f-left' data-graph-id = 'TestRateGraph'>
-                  <div class='chart-title'>Test Rate Graph</div>              
+                  <div class='chart-title'>Test Rate</div>              
                   <div id='chart_4' class='chart'></div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
@@ -267,7 +267,7 @@ class DashboardView extends Backbone.View
         _.each(result, (d) ->
           Coconut.statistics.notified += d["Has Notification"]
           Coconut.statistics.notfollowed += (d["Has Notification"] - d["Followed Up"])
-          Coconut.statistics.imported += d["Number Index Cases Suspected To Be Imported"]
+          Coconut.statistics.imported += d["Number Index And Household Cases Suspected To Be Imported"]
           Coconut.statistics.hsat += d["Number Of Positive Cases At Index Household"]
           Coconut.statistics.fsat += d["Number Positive Cases From Mass Screen"] if d["Number Positive Cases From Mass Screen"]?
           Coconut.statistics.hsattested += d["Number Household Members Tested"]

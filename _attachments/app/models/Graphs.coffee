@@ -48,7 +48,7 @@ Graphs.incidents = (dataForGraph, chart, options) ->
     .height($('.chart_container').height()-options.adjustY)
     .x(d3.scale.linear())
     .y(d3.scale.linear())
-    .yAxisLabel("Number of Incidents")
+    .yAxisLabel("Number of Cases")
     .xAxisLabel("Weeks")
     .elasticY(true)
     .renderHorizontalGridLines(true)
@@ -296,18 +296,18 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .shareTitle(false)
        .compose([
          dc.barChart(composite)
-           .dimension(dim1)
-           .group(grpGTE5, "Winthin 24hrs")
-           .colors(colorScale(0))
+           .dimension(dim2)
+           .group(grpLT5, "25 to 72 hrs")
+           .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
            .title((d) ->
              return d.key.toDateString() + ": " + d.value
            ),
          dc.barChart(composite)
-           .dimension(dim2)
-           .group(grpLT5, "25 to 72 hrs")
-           .colors(colorScale(1))
+           .dimension(dim1)
+           .group(grpGTE5, "Within 24 hrs")
+           .colors(colorScale(3))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -361,7 +361,6 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
        .y(d3.scale.linear())
        .yAxisLabel("Number of Cases")
-       .xAxisLabel("Time")
        .elasticY(true)
        .elasticX(true)
        .xUnits(d3.time.days)
@@ -398,7 +397,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
              ),
          dc.barChart(composite)
            .dimension(dim1)
-           .group(grp1, "Within 24hrs")
+           .group(grp1, "Within 24 hrs")
            .colors(colorScale(3))
            .centerBar(true)
            .gap(1)
