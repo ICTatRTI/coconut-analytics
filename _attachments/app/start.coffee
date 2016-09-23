@@ -55,6 +55,7 @@ Config.getConfig
   success: ->
     Config.getLogoUrl()
     .catch (error) ->
+      console.error "Logo Url not setup"
       console.error error
     .then (url) ->
       Coconut.logoUrl = url
