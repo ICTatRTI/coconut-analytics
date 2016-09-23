@@ -35,10 +35,10 @@ Backbone.sync = BackbonePouch.sync
   fetch: 'query'
 
 QuestionCollection = require './models/QuestionCollection'
-DHISHierarchy = require './models/DHISHierarchy'
+DhisOrganisationUnits = require './models/DhisOrganisationUnits'
 GeoHierarchyClass = require './models/GeoHierarchy'
-dhisHierarchy = new DHISHierarchy()
-dhisHierarchy.loadExtendExport
+dhisOrganisationUnits = new DhisOrganisationUnits()
+dhisOrganisationUnits.loadExtendExport
   dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
   error: (error) -> console.error error
   success: (result) ->
