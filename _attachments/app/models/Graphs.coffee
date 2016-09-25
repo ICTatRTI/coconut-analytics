@@ -318,20 +318,20 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .render()
 
  Graphs.timeToComplete = (dataForGraph, composite, options) ->
-    
+
     data1 = _.filter(dataForGraph, (d) ->
-      return (d['threshold'] >= 0 && d['threshold'] <= 1)
+      return (d.key[1] is "Less Than One Day Between Positive Result And Complete Household") and d.value is 1
     )
     data2 = _.filter(dataForGraph, (d) ->
-      return (d['threshold'] > 1 && d['threshold'] <= 3)
+      return (d.key[1] is "One To Two Days Between Positive Result And Complete Household") and d.value is 1
     )
     data3 = _.filter(dataForGraph, (d) ->
-      return (d['threshold'] > 3)
+      return (d.key[1] is  "Two To Three Days Between Positive Result And Complete Household") and d.value is 1
     )
     data4 = _.filter(dataForGraph, (d) ->
-      return (d['Complete Household Visit'] is false)
+      return (d.key[1] is "More Than Three Days Between Positive Result And Complete Household") and d.value is 1
     )
-    
+   
     ndx1 = crossfilter(data1)
     ndx2 = crossfilter(data2)
     ndx3 = crossfilter(data3)
@@ -340,16 +340,17 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
     dim1 = ndx1.dimension((d) ->
       return  d.dateICD
     )
+
     dim2 = ndx2.dimension((d) ->
       return  d.dateICD
     )
+
     dim3 = ndx3.dimension((d) ->
       return  d.dateICD
     )
     dim4 = ndx4.dimension((d) ->
       return  d.dateICD
     )
-    
     grp1 = dim1.group()
     grp2 = dim2.group()
     grp3 = dim3.group()
@@ -370,7 +371,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .compose([
          dc.barChart(composite)
            .dimension(dim4)
-           .group(grp4, "Not followed up")
+           .group(grp4, "More than 72 hrs")
            .colors(colorScale(0))
            .centerBar(true)
            .gap(1)
@@ -379,7 +380,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
             ),
          dc.barChart(composite)
            .dimension(dim3)
-           .group(grp3, "Over 72 hrs")
+           .group(grp3, "48 to 72 hrs")
            .colors(colorScale(1))
            .centerBar(true)
            .gap(1)
@@ -388,7 +389,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
              ),
          dc.barChart(composite)
            .dimension(dim2)
-           .group(grp2, "25 to 72 hrs")
+           .group(grp2, "24 to 48 hrs")
            .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
