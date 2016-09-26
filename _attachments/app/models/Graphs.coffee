@@ -41,8 +41,9 @@ Graphs.incidents = (dataForGraph, chart, options) ->
   dim = ndx.dimension((d) ->
     return d['Index Case Diagnosis Date Iso Week']
   )
+
   grp = dim.group()
-    
+ 
   chart
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
@@ -123,54 +124,64 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
 
 Graphs.attendance = (dataForGraph, composite2, options) ->
     data3a = _.filter(dataForGraph, (d) ->
-      return !d['Is Index Case Under 5']
-    )
-    data3b = _.filter(dataForGraph, (d) ->
-      return d['Is Index Case Under 5']
+      return d.key[3] is 'All OPD >= 5'
     )
 
+    data3b = _.filter(dataForGraph, (d) ->
+      return d.key[3] is 'All OPD < 5'
+    )
+    
     ndx3a = crossfilter(data3a)
     ndx3b = crossfilter(data3b)
     
     dim3a = ndx3a.dimension((d) ->
-      return d.dateICD 
+      return d.dateWeek
     )
-    dim3b = ndx3b.dimension((d) ->
-      return d.dateICD
-    )
-    grpGTE5_2 = dim3a.group()
-    grpLT5_2 = dim3b.group()
-    
 
+    dim3b = ndx3b.dimension((d) ->
+      return d.dateWeek
+    )
+
+    grp1 = dim3a.group().reduceSum((d) ->
+      return d.value
+     )
+
+    grp2 = dim3b.group().reduceSum((d) ->
+      return d.value
+     )
+    
     composite2
       .width($('.chart_container').width()-options.adjustX)
       .height($('.chart_container').height()-options.adjustY)
-      .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+      .x(d3.time.scale())
+#      .x(d3.scale.linear())
       .y(d3.scale.linear())
-      .yAxisLabel("Number of Positive Cases")
+      .yAxisLabel("Number of OPD Cases")
+      .elasticX(true)
       .elasticY(true)
       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
       .renderHorizontalGridLines(true)
       .shareTitle(false)
-      .xUnits(d3.time.days)
+#      .xUnits(d3.time.weeks)
+      .xUnits(d3.time.week)
       .compose([
         dc.lineChart(composite2)
           .dimension(dim3a)
           .colors(colorScale(0))
-          .group(grpGTE5_2, "Age >= 5")
+          .group(grp1, "Age >= 5")
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
-            return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+            return 'Week: '+ (d.key).isoWeek() + ": " + d.value
            ),
         dc.lineChart(composite2)
           .dimension(dim3b)
           .colors(colorScale(1))
-          .group(grpLT5_2, "Age < 5")
+          .group(grp2, "Age < 5")
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
-            return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+            return 'Week: '+ (d.key).isoWeek()+ ": " + d.value
            )
         ])
       .brushOn(false)
@@ -320,16 +331,16 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  Graphs.timeToComplete = (dataForGraph, composite, options) ->
 
     data1 = _.filter(dataForGraph, (d) ->
-      return (d.key[1] is "Less Than One Day Between Positive Result And Complete Household") and d.value is 1
+      return (d.key[1] is "Less Than One Day Between Positive Result And Complete Household" and d.value is 1)
     )
     data2 = _.filter(dataForGraph, (d) ->
-      return (d.key[1] is "One To Two Days Between Positive Result And Complete Household") and d.value is 1
+      return (d.key[1] is "One To Two Days Between Positive Result And Complete Household" and d.value is 1)
     )
     data3 = _.filter(dataForGraph, (d) ->
-      return (d.key[1] is  "Two To Three Days Between Positive Result And Complete Household") and d.value is 1
+      return (d.key[1] is  "Two To Three Days Between Positive Result And Complete Household" and d.value is 1)
     )
     data4 = _.filter(dataForGraph, (d) ->
-      return (d.key[1] is "More Than Three Days Between Positive Result And Complete Household") and d.value is 1
+      return (d.key[1] is "More Than Three Days Between Positive Result And Complete Household" and d.value is 1)
     )
    
     ndx1 = crossfilter(data1)
@@ -412,14 +423,19 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  Graphs.positivityCases = (dataForGraph, composite, options) ->
   
    data1 = _.filter(dataForGraph, (d) ->
-     return d['Number Positive Cases Including Index'] >= 1
+     return (d.key[1] is "Has Notification" and d.value is 1)
    )
    data2 = _.filter(dataForGraph, (d) ->
-     return d['Number Positive Cases Including Index'] >= 1
+     return (d.key[1] is "Number Household Members Tested Positive" and d.value > 0)
    )
 
+   data3 = _.filter(dataForGraph, (d) ->
+     return (d.key[1] is "Number Household Members Tested" and d.value > 0)
+   )
+   
    ndx1 = crossfilter(data1)
    ndx2 = crossfilter(data2)
+   ndx3 = crossfilter(data3)
 
    dim1 = ndx1.dimension((d) ->
      return d.dateICD
@@ -427,15 +443,24 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
    dim2 = ndx2.dimension((d) ->
      return d.dateICD
    )
-   grpGTE5 = dim1.group()
-   grpLT5 = dim2.group()
+   dim3 = ndx3.dimension((d) ->
+     return d.dateICD
+   )
+   grp1 = dim1.group()
+
+   grp2 = dim2.group().reduceSum((d) ->
+       return d.value
+     )
+   grp3 = dim3.group().reduceSum((d) ->
+       return d.value
+     )
 
    composite
      .width($('.chart_container').width()-options.adjustX)
      .height($('.chart_container').height()-options.adjustY)
      .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-     .y(d3.scale.linear().domain([0,120]))
-     .yAxisLabel("Number of Positive Cases")
+     .y(d3.scale.linear())
+     .yAxisLabel("Number of Cases")
      .elasticY(true)
      .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
      .renderHorizontalGridLines(true)
@@ -443,17 +468,26 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .compose([
        dc.lineChart(composite)
          .dimension(dim1)
-         .colors('red')
-         .group(grpGTE5, "Age 5+")
+         .colors(colorScale(0))
+         .group(grp1, "Cases Has Notifcation")
          .xyTipsOn(true)
          .renderDataPoints(false)
          .title((d) ->
            return d.key.toDateString() + ": " + d.value
-         ),
+         )
        dc.lineChart(composite)
          .dimension(dim2)
-         .colors('blue')
-         .group(grpLT5, "Age < 5")
+         .colors(colorScale(1))
+         .group(grp2, "Positive Hse Member")
+         .xyTipsOn(true)
+         .renderDataPoints(false)
+         .title((d) ->
+           return d.key.toDateString() + ": " + d.value
+         )
+       dc.lineChart(composite)
+         .dimension(dim3)
+         .colors(colorScale(2))
+         .group(grp3, "Tested Hse Member")
          .xyTipsOn(true)
          .renderDataPoints(false)
          .title((d) ->

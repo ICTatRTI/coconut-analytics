@@ -20,6 +20,7 @@ class AttendanceGraphView extends Backbone.View
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
+             <div id='errMsg'></div>
              <div id='chart'></div>
            </div>
          </div>
@@ -29,21 +30,24 @@ class AttendanceGraphView extends Backbone.View
     $('#analysis-spinner').show()
     options.adjustX = 10
     options.adjustY = 40
-    startDate = options.startDate
-    endDate = options.endDate
-    Coconut.database.query "caseCountIncludingSecondary",
-      startkey: [startDate]
-      endkey: [endDate]
-      reduce: false
-      include_docs: true
+    startYear = moment(options.startDate).isoWeekYear().toString()
+    startWeek = moment(options.startDate).isoWeek().toString()
+    endYear = moment(options.endDate).isoWeekYear().toString()
+    endWeek = moment(options.endDate).isoWeek().toString()
+    Coconut.database.query "weeklyDataCounter",
+      start_key: [startYear, startWeek]
+      end_key: [endYear,endWeek,{}]
+      reduce: true
+      include_docs: false
+      group: true
     .then (result) =>
-      dataForGraph = _.pluck(result.rows, 'doc')
+      dataForGraph = result.rows
       if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
         $(".chart_container").html HTMLHelpers.noRecordFound()
         $('#analysis-spinner').hide()
       else
         dataForGraph.forEach((d) ->
-          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
         )
         composite = dc.compositeChart("#chart")
         Graphs.attendance(dataForGraph, composite, options)
@@ -55,6 +59,7 @@ class AttendanceGraphView extends Backbone.View
                     
     .catch (error) ->
       console.error error
+      $('#errMsg').html("Sorry. Unable to complete due to an error: </br>"+error)
       $('#analysis-spinner').hide()
     
 module.exports = AttendanceGraphView
