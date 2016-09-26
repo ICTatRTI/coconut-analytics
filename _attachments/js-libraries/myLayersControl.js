@@ -129,7 +129,7 @@ var myLayersControl =  L.Control.extend({
 //            </a>
 //          </div>'
         var form = this._form = L.DomUtil.create('form', 'demo-card-square mdl-card mdl-shadow--2dp');
-        
+        form.id = "layerControlForm"
 		if (this.options.collapsed) {
 			if (!L.Browser.android) {
 				L.DomEvent

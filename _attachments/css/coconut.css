@@ -1022,6 +1022,10 @@ a {
 }
 */
 
+#layerControlForm {
+  background-color: aliceblue;
+}
+
 .axis {
   fill: gray;
   -webkit-user-select: none;
