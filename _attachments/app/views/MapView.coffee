@@ -76,18 +76,19 @@ setUpLegend = () ->
     console.log "SetUpLegendCaseStyle: " + caseStyle
     
     theDiv = L.DomUtil.get('mapLegend')
-    theDiv.innerHTML = ""
-    if caseStyle == 'numberCases'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#FFA000; border: 1px solid #000"></i><div class="legendLable">Single Case</div><br>'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#D32F2F; border: 1px solid #000"></i><div class="legendLable">Multiple Cases</div>'
-    if caseStyle == 'travelCases'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">No Travel</div><br>'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">Recent Travel</div>'
-    if caseStyle == 'llinCases'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN < Sleeping Spaces</div><br>'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN >= Sleeping Spaces</div>'
-    #    while i < categories.length
-    #        $("#mapLegend").innerHTML += '<i class="caseCircle" style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
+    if theDiv
+        theDiv.innerHTML = ""
+        if caseStyle == 'numberCases'
+            theDiv.innerHTML += '<i class="smallCircle" style="background:#FFA000; border: 1px solid #000"></i><div class="legendLable">Single Case</div><br>'
+            theDiv.innerHTML += '<i class="largeCircle" style="background:#D32F2F; border: 1px solid #000"></i><div class="legendLable">Multiple Cases</div>'
+        if caseStyle == 'travelCases'
+            theDiv.innerHTML += '<i class="smallCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">No Travel</div><br>'
+            theDiv.innerHTML += '<i class="largeCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">Recent Travel</div>'
+        if caseStyle == 'llinCases'
+            theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN < Sleeping Spaces</div><br>'
+            theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN >= Sleeping Spaces</div>'
+        #    while i < categories.length
+        #        $("#mapLegend").innerHTML += '<i class="caseCircle" style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
       
 
 getColor = (d) ->
@@ -897,7 +898,8 @@ class MapView extends Backbone.View
     L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
     streets = L.mapbox.tileLayer('mapbox.streets')
     outdoors = L.mapbox.tileLayer('mapbox.outdoors')
-    satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
+    satellite = L.mapbox.tileLayer('mapbox.satellite')
+#    satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
     
     
     #Check map for url settings. 
