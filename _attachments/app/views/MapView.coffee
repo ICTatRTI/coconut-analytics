@@ -492,7 +492,7 @@ class MapView extends Backbone.View
             coords = [
               feature.geometry.coordinates[1]
               feature.geometry.coordinates[0]
-              5000/data.features.length#adjust with slider
+              100#adjust with slider
             ]
             
             heatMapCoords.push coords
@@ -551,7 +551,6 @@ class MapView extends Backbone.View
             L.circleMarker latlng, getCaseStyle(feature)
           )
         if data.features.length > 0 && layerTollBooth.heatLayerOn == false
-          console.log("Mapview.Coffee addCasesLayer line:549")
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
         
         heatMap = getURLValue 'heatMap'
@@ -589,10 +588,11 @@ class MapView extends Backbone.View
         coords = [
           feature.geometry.coordinates[1]
           feature.geometry.coordinates[0]
-          15000/casesGeoJSON.features.length   #adjust with slider
+          100   #adjust with slider
         ]
         heatMapCoordsTime.push coords
     
+    #console.log("timeFeatures.length: " + timeFeatures.length)
     timeCasesGeoJSON.features = timeFeatures
     if layerTollBooth.heatLayerOn
 #        console.log 'heatmapcontrolOn'
@@ -705,7 +705,6 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    console.log "AAAA"
     Coconut.database.query "caseIDsByDate",
       startkey: startDate
       endkey: endDate
@@ -1000,7 +999,6 @@ class MapView extends Backbone.View
     legend = L.control(position: 'bottomleft')
 
     legend.onAdd = (map) ->
-      console.log("legendOnAdd")
       div = L.DomUtil.create('div', 'info legend')
       div.id = "mapLegend"
 #      grades = [
