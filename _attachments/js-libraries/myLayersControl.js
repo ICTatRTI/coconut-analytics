@@ -129,7 +129,7 @@ var myLayersControl =  L.Control.extend({
 //            </a>
 //          </div>'
         var form = this._form = L.DomUtil.create('form', 'demo-card-square mdl-card mdl-shadow--2dp');
-        
+        form.id = "layerControlForm"
 		if (this.options.collapsed) {
 			if (!L.Browser.android) {
 				L.DomEvent
@@ -237,9 +237,9 @@ var myLayersControl =  L.Control.extend({
 		    i, obj;
 
 		for (i in this._layers) {
-			console.log('this._layers[i].id: '+this._layers[i].id)
-			console.log('this._layers[i].name: '+this._layers[i].name)
-			console.log('this._layers[i].layer: '+this._layers[i].layer)
+//			console.log('this._layers[i].id: '+this._layers[i].id)
+//			console.log('this._layers[i].name: '+this._layers[i].name)
+//			console.log('this._layers[i].layer: '+this._layers[i].layer)
             obj = this._layers[i];
 //            console.log('update obj: '+obj)
 //			console.log('update obj.name: '+obj.name)
@@ -253,9 +253,9 @@ var myLayersControl =  L.Control.extend({
 		this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
 	},
     _onLayerChange: function (e) {
-        console.log("L.stamp(e.layer): " + L.stamp(e.layer))
+        //console.log("L.stamp(e.layer): " + L.stamp(e.layer))
         var obj = this._layers[L.stamp(e.layer)];
-    	console.log("this._layers[i].name" + this._layers[L.stamp(e.layer)])
+    	//console.log("this._layers[i].name" + this._layers[L.stamp(e.layer)])
         if (!obj || typeof(obj.name)!=undefined) { return; }
     	if (!this._handlingClick && obj.name != "Cases") {
 			console.log("onLayerChange update")
@@ -408,20 +408,40 @@ var myLayersControl =  L.Control.extend({
 //		}
 //	},
     
-    _onInputClick: function () {
+    _onInputClick: function (e) {
         var i, input, obj,
 		    inputs = this._form.getElementsByTagName('input'),
 		    inputsLen = inputs.length;
         this._handlingClick = true;
+//        console.log("inputClicked");
+//        console.log("inputClicked e: " +JSON.stringify(e) );
 		for (i = 0; i < inputsLen; i++) {
 			input = inputs[i];
 //			console.log('input.LayerId: '+input.layerId);
             obj = this._layers[input.layerId];
 //            console.log('obj.layer: '+obj.layer);
             var event;
+            
             if (input.checked && !this._map.hasLayer(obj.layer)) {
 				this._map.addLayer(obj.layer);
                 if (obj.name == "Cases (time)" || obj.name == "Cases"){
+                    console.log("turnOnCases")
+                    //!!!!! set style to dropdown here. 
+                    var mapStyleSelector  = document.getElementById("mapStyleSelect")
+                    console.log(mapStyleSelector);
+                    //console.log(mapStyleSelector.select.options);
+                    console.log(mapStyleSelector.options[mapStyleSelector.selectedIndex].value);
+                    console.log(mapStyleSelector.selectedIndex);
+                    var newStyle = mapStyleSelector.options[mapStyleSelector.selectedIndex].value;
+                    console.log(newStyle + " " + caseStyle);
+                    //console.log("layerCaseStyle: " + layerCaseStyle);
+                        caseStyle = newStyle; 
+                        var event = new CustomEvent('caseStyleChange', { 'detail': { 
+                            caseType: newStyle 
+                            }
+                        });   
+                        window.dispatchEvent(event);
+                    
                     event = new CustomEvent('toggleLegend', { 'detail': { 
                         toState: "on" 
                         }
@@ -465,6 +485,7 @@ var myLayersControl =  L.Control.extend({
 		this._refocusOnMap();
 	},
     _onLabelButtonClick: function (e) {
+        console.log("onLabelButtonClick");
         L.DomEvent.stop(e)
 		var targetID = $("#"+e.target.id);
         var labelLayer = e.target.id.split("_")[1];
