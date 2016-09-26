@@ -35,35 +35,54 @@ Graphs.compositeResize = (composite, container, options) ->
     .rescale()
     .redraw()
   
-Graphs.incidents = (dataForGraph, chart, options) ->
+Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
 
-  ndx = crossfilter(dataForGraph)
-  dim = ndx.dimension((d) ->
+  ndx1 = crossfilter(dataForGraph1)
+  ndx2 = crossfilter(dataForGraph2)
+  dim1 = ndx1.dimension((d) ->
+    return d.dateICD
+  )
+  dim2 = ndx2.dimension((d) ->
     return d.dateICD
   )
 
-  grp = dim.group()
- 
-  chart
+  grp1 = dim1.group()
+  grp2 = dim2.group()
+  
+  composite
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
-    .x(d3.time.scale())
+    .x(d3.scale.linear())
     .y(d3.scale.linear())
+#    .xUnits(d3.time.weeks)
     .yAxisLabel("Number of Cases")
     .xAxisLabel("Weeks")
     .elasticY(true)
-    .renderHorizontalGridLines(true)
-    .renderArea(true)
-    .dimension(dim)
-    .colors(colorScale(3))
-    .group(grp)
-    .xyTipsOn(true)
-    .xUnits(d3.time.weeks)
     .elasticX(true)
-    .renderDataPoints(false)
-    .title((d) ->
-      return 'Week: '+ (d.key).isoWeek() + ": " + d.value
-    )
+    .renderHorizontalGridLines(true)
+    .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .compose([
+      dc.lineChart(composite)
+        .dimension(dim1)
+        .colors(colorScale(0))
+        .group(grp1, "Current")
+        .xyTipsOn(true)
+        .renderArea(true)
+        .renderDataPoints(false)
+        .title((d) ->
+          return 'Week: '+ (d.key) + ": " + d.value
+        ),
+      dc.lineChart(composite)
+        .dimension(dim2)
+        .colors(colorScale(1))
+        .group(grp2, "Last Year")
+        .xyTipsOn(true)
+        .renderArea(true)        
+        .renderDataPoints(false)
+        .title((d) ->
+          return 'Week: '+ (d.key) + ": " + d.value
+        )
+    ])
     .brushOn(false)
     .render()
   
@@ -171,7 +190,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
         dc.lineChart(composite2)
           .dimension(dim3a)
           .colors(colorScale(0))
-          .group(grp1, "Age >= 5")
+          .group(grp1, "Age 5+")
           .xyTipsOn(true)
           .renderDataPoints(false)
           .title((d) ->
@@ -192,15 +211,14 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  
  
  Graphs.testRate = (dataForGraph, composite, options) ->
+   
      data4a = _.filter(dataForGraph, (d) ->
-       return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+       return d.key[3] is "Mal POS >= 5" or d.key[3] is "Mal NEG >= 5" or d.key[3] is "All OPD >= 5"
      )
      data4b = _.filter(dataForGraph, (d) ->
-       return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+       return d.key[3] is "Mal POS < 5" or d.key[3] is "Mal NEG < 5" or d.key[3] is "All OPD < 5"
      )
-     total_cases1 = data4a.length
-     total_cases2 = data4b.length
-
+     
      ndx4a = crossfilter(data4a)
      ndx4b = crossfilter(data4b)
   
@@ -210,7 +228,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      dim4b = ndx4b.dimension((d) ->
        return d.dateICD
      )
-    
+
      grpGTE5_3 = dim4a.group().reduce(
        (p,v) ->
          ++p.count
@@ -385,7 +403,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .compose([
          dc.barChart(composite)
            .dimension(dim4)
-           .group(grp4, "More than 72 hrs")
+           .group(grp4, "72+ hrs")
            .colors(colorScale(0))
            .centerBar(true)
            .gap(1)
@@ -426,12 +444,12 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  Graphs.positivityCases = (dataForGraph, composite, options) ->
   
    data1 = _.filter(dataForGraph, (d) ->
-     return (d.key[1] is "Has Notification" and d.value is 1)
+     return (d.key[1] is "Has Notification" and d.value > 0)
    )
+
    data2 = _.filter(dataForGraph, (d) ->
      return (d.key[1] is "Number Household Members Tested Positive" and d.value > 0)
    )
-
    data3 = _.filter(dataForGraph, (d) ->
      return (d.key[1] is "Number Household Members Tested" and d.value > 0)
    )
@@ -449,8 +467,9 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
    dim3 = ndx3.dimension((d) ->
      return d.dateICD
    )
-   grp1 = dim1.group()
-
+   grp1 = dim1.group().reduceSum((d) ->
+       return d.value
+   )
    grp2 = dim2.group().reduceSum((d) ->
        return d.value
      )
@@ -476,7 +495,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          .xyTipsOn(true)
          .renderDataPoints(false)
          .title((d) ->
-           return d.key.toDateString() + ": " + d.value
+           return (d.key).format("YYYY-MM-DD") + ": " + d.value
          )
        dc.lineChart(composite)
          .dimension(dim2)
@@ -485,7 +504,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          .xyTipsOn(true)
          .renderDataPoints(false)
          .title((d) ->
-           return d.key.toDateString() + ": " + d.value
+           return (d.key).format("YYYY-MM-DD") + ": " + d.value
          )
        dc.lineChart(composite)
          .dimension(dim3)
@@ -494,7 +513,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          .xyTipsOn(true)
          .renderDataPoints(false)
          .title((d) ->
-           return d.key.toDateString() + ": " + d.value
+           return (d.key).format("YYYY-MM-DD") + ": " + d.value
          )
      ])
      .brushOn(false)

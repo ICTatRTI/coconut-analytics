@@ -15,6 +15,9 @@ class IncidentsGraphView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
+       <style> 
+         .y-axis-label { margin-right: 10px}
+       </style>
        <div id='dateSelector'></div>
        <div class='chart-title'>Number of Cases</div>
        <div id='chart_container_1' class='chart_container'>
@@ -31,28 +34,42 @@ class IncidentsGraphView extends Backbone.View
     options.adjustY = 40
     startDate = options.startDate
     endDate = options.endDate
+    lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
+    lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
+
     Coconut.database.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
       reduce: false
       include_docs: false
     .then (result) =>
-      dataForGraph = result.rows
-      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
+      data1 = result.rows
+      if (data1.length == 0 or _.isEmpty(data1[0]))
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
-        dataForGraph.forEach((d) ->
-          d.dateICD = moment(d.key[0])
+        data1.forEach((d) ->
+          d.dateICD = moment(d.key[0]).isoWeek()
         )
-        chart = dc.lineChart("#chart")
-        Graphs.incidents(dataForGraph, chart, options)
+        Coconut.database.query "caseCounter",
+          startkey: [lastYearStart]
+          endkey: [lastYearEnd]
+          reduce: false
+          include_docs: false
+        .then (result2) => 
+          data2 = result2.rows 
+          data2.forEach((d) ->
+            d.dateICD = moment(d.key[0]).isoWeek()
+          )
+          
+          composite = dc.compositeChart("#chart")
+          Graphs.incidents(data1,data2, composite, options)
 
-        window.onresize = () ->
-          HTMLHelpers.resizeChartContainer()
-          Graphs.chartResize(chart, 'chart_container', options)
+          window.onresize = () ->
+            HTMLHelpers.resizeChartContainer()
+            Graphs.chartResize(chart, 'chart_container', options)
                   
-        $('#analysis-spinner').hide()
+          $('#analysis-spinner').hide()
     .catch (error) ->
       console.error error
       $('#analysis-spinner').hide()
