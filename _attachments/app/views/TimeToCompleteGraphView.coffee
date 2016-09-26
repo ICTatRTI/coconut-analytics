@@ -20,6 +20,7 @@ class TimeToCompleteGraphView extends Backbone.View
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
+             <div id='errMsg'></div>
              <div id='chart'></div>
            </div>
          </div>
@@ -31,24 +32,20 @@ class TimeToCompleteGraphView extends Backbone.View
     options.adjustY = 40
     startDate = options.startDate
     endDate = options.endDate
-    Coconut.database.query "caseCountIncludingSecondary",
+    Coconut.database.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
       reduce: false
-      include_docs: true
+      include_docs: false
     .then (result) =>
-      dataForGraph = _.pluck(result.rows, 'doc')
+      dataForGraph = result.rows
       if (dataForGraph.length == 0  or _.isEmpty(dataForGraph[0]))
         $(".chart_container").html HTMLHelpers.noRecordFound()
         $('#analysis-spinner').hide()
       else
         dataForGraph.forEach((d) ->
-          UssdDate = moment(d['Ussd Notification: Date']?.substring(0,10))
-          CaseNotify = moment(d['Case Notification: Created At']?.substring(0,10))
-          d.threshold = CaseNotify.diff(UssdDate,'days')
-          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+          d.dateICD = new Date(d.key[0]+' ') # extra space at end cause it to use UTC format.
         )
-        
         composite = dc.compositeChart("#chart")
         Graphs.timeToComplete(dataForGraph, composite, options)
 
@@ -60,6 +57,7 @@ class TimeToCompleteGraphView extends Backbone.View
         
     .catch (error) ->
       console.error error
+      $('#errMsg').html("Sorry. Unable to complete due to an error: </br>"+error)
       $('#analysis-spinner').hide()
     
        

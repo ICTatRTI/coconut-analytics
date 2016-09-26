@@ -21,7 +21,7 @@ Config = require './models/Config'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 GeoHierarchyClass = require './models/GeoHierarchy'
-DHISHierarchy = require './models/DHISHierarchy'
+DhisOrganisationUnits = require './models/DhisOrganisationUnits'
 QuestionCollection = require './models/QuestionCollection'
 
 # Coconut is just a global object useful for keeping things in one scope
@@ -30,7 +30,7 @@ global.Coconut =
   database: pouchdb
   router: new Router()
   currentlogin: Cookies.get('current_user') || null
-  reportDates: 
+  reportDates:
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
   
@@ -55,6 +55,7 @@ Config.getConfig
   success: ->
     Config.getLogoUrl()
     .catch (error) ->
+      console.error "Logo Url not setup"
       console.error error
     .then (url) ->
       Coconut.logoUrl = url
@@ -67,8 +68,8 @@ Config.getConfig
           Coconut[docId] = result
 
 
-    dhisHierarchy = new DHISHierarchy()
-    dhisHierarchy.loadExtendExport
+    dhisOrganisationUnits = new DhisOrganisationUnits()
+    dhisOrganisationUnits.loadExtendExport
       dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
       error: (error) -> console.error error
       success: (result) ->

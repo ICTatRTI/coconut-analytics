@@ -1,7 +1,7 @@
 _ = require 'underscore'
 chance = require('chance').Chance()
 
-class DHISHierarchy
+class DhisOrganisationUnits
 
   loadExtendExport: (options) =>
     @loadDHISHierarchy
@@ -209,4 +209,4 @@ class DHISHierarchy
 
     return dataForExport
 
-module.exports = DHISHierarchy
+module.exports = DhisOrganisationUnits
