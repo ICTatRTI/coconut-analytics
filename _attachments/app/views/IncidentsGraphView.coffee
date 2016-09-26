@@ -49,7 +49,7 @@ class IncidentsGraphView extends Backbone.View
          $('#analysis-spinner').hide()
       else
         data1.forEach((d) ->
-          d.dateICD = moment(d.key[0]).isoWeek()
+          d.dateWeek = moment(d.key[0]).isoWeek()
         )
         Coconut.database.query "caseCounter",
           startkey: [lastYearStart]
@@ -59,7 +59,7 @@ class IncidentsGraphView extends Backbone.View
         .then (result2) => 
           data2 = result2.rows 
           data2.forEach((d) ->
-            d.dateICD = moment(d.key[0]).isoWeek()
+            d.dateWeek = moment(d.key[0]).isoWeek()
           )
           
           composite = dc.compositeChart("#chart")
