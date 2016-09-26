@@ -31,19 +31,19 @@ class IncidentsGraphView extends Backbone.View
     options.adjustY = 40
     startDate = options.startDate
     endDate = options.endDate
-    Coconut.database.query "caseCountIncludingSecondary",
+    Coconut.database.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
       reduce: false
-      include_docs: true
+      include_docs: false
     .then (result) =>
-      dataForGraph = _.pluck(result.rows, 'doc')
+      dataForGraph = result.rows
       if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
         dataForGraph.forEach((d) ->
-          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+          d.dateICD = moment(d.key[0])
         )
         chart = dc.lineChart("#chart")
         Graphs.incidents(dataForGraph, chart, options)
