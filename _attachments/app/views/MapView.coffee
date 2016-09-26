@@ -100,7 +100,7 @@ getColor = (d) ->
 setCaseStyle = (styleType, feature) ->
     console.log(styleType)
     if styleType == 'travelCases'
-      if feature.feature.properties.RecentTravel == 'No'
+      if feature.feature.properties.RecentTravel == false
         feature.setStyle
           fillColor: '#303F9F'
           color: '#000'
@@ -135,7 +135,8 @@ setCaseStyle = (styleType, feature) ->
         
 getCaseStyle = (feature) -> 
     if caseStyle == 'travelCases'
-      if feature.properties.RecentTravel == 'No'
+      console.log("feature.properties.RecentTravel: " + feature.properties.RecentTravel)
+      if feature.properties.RecentTravel == false
         return noTravelCaseStyle
       else
         return travelCaseStyle
@@ -437,6 +438,7 @@ class MapView extends Backbone.View
   reportResults = (results) ->
         casesGeoJSON.features =  _(results.rows).chain().map (result) ->
           caseSummary = result.doc
+#          console.log("caseSummary: " + JSON.stringify(caseSummary));
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
           if caseSummary["Household Location Latitude"] and caseSummary["Household Location Accuracy"] <= Coconut.config.location_accuracy_threshold
             
@@ -446,11 +448,11 @@ class MapView extends Backbone.View
                 MalariaCaseID: caseSummary["Malaria Case ID"]
                 hasAdditionalPositiveCasesAtIndexHousehold: caseSummary["Number Positive Cases At Index Household"] > 0
                 numberOfCasesInHousehold: caseSummary["Number Positive Cases At Index Household"]
-                NumberofLLIN: caseSummary["Number of Llin"]
-                SleepingSpaces: caseSummary["Number of Sleeping Places (beds/mattresses)"]
+                NumberofLLIN: caseSummary["Number Of Llin"]
+                SleepingSpaces: caseSummary["Number Of Sleeping Places (beds/mattresses)"]
                 RecentTravel: caseSummary["Index Case Has Travel History"]
                 date: caseSummary["Index Case Diagnosis Date"]
-                dateIRS: caseSummary["Last Date of Irs"]
+                dateIRS: caseSummary["Last Date Of Irs"]
               geometry:
                 type: 'Point'
                 coordinates: [
