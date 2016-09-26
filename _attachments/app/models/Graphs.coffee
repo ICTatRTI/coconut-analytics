@@ -31,7 +31,7 @@ Graphs.compositeResize = (composite, container, options) ->
     .y(d3.scale.linear().domain([0,120]))
     .width(width)
     .height(height)
-    .legend(dc.legend().x($(".#{container}").width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .legend(dc.legend().x($(".#{container}").width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
     .rescale()
     .redraw()
   
@@ -39,7 +39,7 @@ Graphs.incidents = (dataForGraph, chart, options) ->
 
   ndx = crossfilter(dataForGraph)
   dim = ndx.dimension((d) ->
-    return d['Index Case Diagnosis Date Iso Week']
+    return d.dateICD
   )
 
   grp = dim.group()
@@ -47,7 +47,7 @@ Graphs.incidents = (dataForGraph, chart, options) ->
   chart
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
-    .x(d3.scale.linear())
+    .x(d3.time.scale())
     .y(d3.scale.linear())
     .yAxisLabel("Number of Cases")
     .xAxisLabel("Weeks")
@@ -62,7 +62,7 @@ Graphs.incidents = (dataForGraph, chart, options) ->
     .elasticX(true)
     .renderDataPoints(false)
     .title((d) ->
-      return 'Week: '+ d.key + ": " + d.value
+      return 'Week: '+ (d.key).isoWeek() + ": " + d.value
     )
     .brushOn(false)
     .render()
@@ -70,10 +70,11 @@ Graphs.incidents = (dataForGraph, chart, options) ->
 Graphs.positiveCases = (dataForGraph, composite, options) ->
   
   data1 = _.filter(dataForGraph, (d) ->
-    return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+    return d.key[1] is "Over 5" and d.value is 1
   )
+
   data2 = _.filter(dataForGraph, (d) ->
-    return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+    return d.key[1] is "Under 5" and d.value is 1
   )
 
   ndx1 = crossfilter(data1)
@@ -85,8 +86,12 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
   dim2 = ndx2.dimension((d) ->
     return d.dateICD
   )
-  grpGTE5 = dim1.group()
-  grpLT5 = dim2.group()
+  grpGTE5 = dim1.group().reduceSum((d) ->
+      return d.value
+     )
+  grpLT5 = dim2.group().reduceSum((d) ->
+      return d.value
+     )
 
   composite
     .width($('.chart_container').width()-options.adjustX)
@@ -95,7 +100,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
     .y(d3.scale.linear().domain([0,120]))
     .yAxisLabel("Number of Positive Cases")
     .elasticY(true)
-    .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
     .renderHorizontalGridLines(true)
     .shareTitle(false)
     .compose([
@@ -106,7 +111,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
         .xyTipsOn(true)
         .renderDataPoints(false)
         .title((d) ->
-          return d.key.toDateString() + ": " + d.value
+          return d.key.format("YYYY-MM-DD") + ": " + d.value
         ),
       dc.lineChart(composite)
         .dimension(dim2)
@@ -115,7 +120,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
         .xyTipsOn(true)
         .renderDataPoints(false)
         .title((d) ->
-          return d.key.toDateString() + ": " + d.value
+          return d.key.format("YYYY-MM-DD") + ": " + d.value
         )
     ])
     .brushOn(false)
@@ -154,15 +159,13 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .width($('.chart_container').width()-options.adjustX)
       .height($('.chart_container').height()-options.adjustY)
       .x(d3.time.scale())
-#      .x(d3.scale.linear())
       .y(d3.scale.linear())
       .yAxisLabel("Number of OPD Cases")
       .elasticX(true)
       .elasticY(true)
-      .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+      .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
       .renderHorizontalGridLines(true)
       .shareTitle(false)
-#      .xUnits(d3.time.weeks)
       .xUnits(d3.time.week)
       .compose([
         dc.lineChart(composite2)
@@ -242,7 +245,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .xUnits(d3.time.days)
        .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
        .elasticY(true)
-       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .compose([
@@ -302,7 +305,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .yAxisLabel("Number of Cases")
        .elasticY(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .compose([
@@ -376,7 +379,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .elasticY(true)
        .elasticX(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .compose([
@@ -462,7 +465,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .y(d3.scale.linear())
      .yAxisLabel("Number of Cases")
      .elasticY(true)
-     .legend(dc.legend().x($('.chart_container').width()-120).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+     .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .compose([
