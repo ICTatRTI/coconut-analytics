@@ -145,11 +145,12 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-admin'>
         #{
           adminLinks = {
+            dhis2: "DHIS2"
             facilities: "Facilities"
             rainfall_station: "Rainfall Station"
             geo_hierarchy: "Regions, Districts & Shehias"
-            "shehias_received_irs": "Shehias Received IRS"
-            "shehias_high_risk": "Shehias High Risk"
+            shehias_received_irs: "Shehias Received IRS"
+            shehias_high_risk: "Shehias High Risk"
             system_settings: "System Settings"
             users: "Users"
           }

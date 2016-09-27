@@ -212,7 +212,16 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  
  
  Graphs.testRate = (dataForGraph, composite, options) ->
-   
+
+  groupedByDate = {}
+  _(dataForGraph).each (value, key) ->
+    groupedByDate[key[0]+key[1]] = {} unless groupedByDate[key[0]+key[1]]
+    groupedByDate[key[0]+key[1]][key[3]] = key
+  
+
+  _(groupedByDate).each (indicatorAndValue, date) ->
+    groupedByDate[date]["Test Rate < 5"] = (groupedByDate[date]["Mal NEG < 5"] + groupedByDate[date]["Mal POS < 5"]) / groupedByDate[date]["All OPD < 5"]
+
      data4a = _.filter(dataForGraph, (d) ->
        return d.key[3] is "Mal POS >= 5"
      )

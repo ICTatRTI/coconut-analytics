@@ -39,7 +39,7 @@ class Dhis2
       dataType: "json"
       data:
         orgUnit: options.organisationUnit
-        trackedEntity: @malariaCaseEntity
+        trackedEntity: @malariaCaseEntityId
       error: (error) -> console.log error
       success: (result) ->
         options.success(result.reference)
@@ -67,7 +67,7 @@ class Dhis2
       dataType: "json"
       data:
         orgUnit: options.organisationUnit
-        trackedEntity: @malariaCaseEntity
+        trackedEntity: @malariaCaseEntityId
         attributes: [
           {attribute: @ageAttributeId, value: options.age}
           {attribute: @caseIdAttributeId, value: options.caseId}
