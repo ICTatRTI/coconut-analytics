@@ -64,12 +64,13 @@ class IncidentsGraphView extends Backbone.View
           
           composite = dc.compositeChart("#chart")
           Graphs.incidents(data1,data2, composite, options)
-
+          $('#analysis-spinner').hide()
+          
           window.onresize = () ->
             HTMLHelpers.resizeChartContainer()
-            Graphs.chartResize(chart, 'chart_container', options)
-                  
-          $('#analysis-spinner').hide()
+            Graphs.compositeResize(composite, 'chart_container', options)
+    
+          
     .catch (error) ->
       console.error error
       $('#analysis-spinner').hide()
