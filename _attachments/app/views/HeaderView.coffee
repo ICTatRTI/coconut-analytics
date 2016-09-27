@@ -49,7 +49,6 @@ class HeaderView extends Backbone.View
 		    </button>	
 		    <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='menu-top-right'>
     		  <li class='mdl-menu__item'><a id='help' class='mdl-color-text--blue-grey-400'><i class='material-icons'>help</i> Help</a></li>
-          <li class='mdl-menu__item'><a id='changes' class='mdl-color-text--blue-grey-400'><i class='material-icons'>done_all</i> Change Log</a></li>
           <li class='mdl-menu__item'><a id='about' class='mdl-color-text--blue-grey-400'><i class='material-icons'>info</i> About</a></li>
     		  <li class='mdl-menu__item'><a id='logout' href='#login' class='mdl-color-text--blue-grey-400'><i class='material-icons'>exit_to_app</i> Logout</a></li>
     		  <li class='mdl-menu__item login' ><a id='login' href='#' class='mdl-color-text--blue-grey-400'><i class='material-icons'>exit_to_app</i> Login</a></li>
