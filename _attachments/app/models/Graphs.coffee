@@ -31,7 +31,7 @@ Graphs.compositeResize = (composite, container, options) ->
     .y(d3.scale.linear().domain([0,120]))
     .width(width)
     .height(height)
-    .legend(dc.legend().x($(".#{container}").width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .legend(dc.legend().x($(".#{container}").width()-150).y(20).gap(5).legendWidth(140))
     .rescale()
     .redraw()
   
@@ -61,7 +61,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
     .elasticX(true)
     .shareTitle(false)
     .renderHorizontalGridLines(true)
-    .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
     .compose([
       dc.lineChart(composite)
         .dimension(dim1)
@@ -120,7 +120,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
     .y(d3.scale.linear().domain([0,120]))
     .yAxisLabel("Number of Positive Cases")
     .elasticY(true)
-    .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+    .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
     .renderHorizontalGridLines(true)
     .shareTitle(false)
     .compose([
@@ -183,7 +183,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .yAxisLabel("Number of OPD Cases")
       .elasticX(true)
       .elasticY(true)
-      .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+      .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
       .renderHorizontalGridLines(true)
       .shareTitle(false)
       .xUnits(d3.time.week)
@@ -250,7 +250,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
      .elasticY(true)
      .elasticX(true)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+     .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .compose([
@@ -278,14 +278,22 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
 
  Graphs.timeToNotify = (dataForGraph, composite, options) ->
      data1 = _.filter(dataForGraph, (d) ->
-       return !d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+       return (d.key[1] is "Less Than One Day Between Positive Result And Case Notification" and d.value is 1)
      )
      data2 = _.filter(dataForGraph, (d) ->
-       return d['Is Index Case Under 5'] && d['Number Positive Cases Including Index'] >= 1
+       return (d.key[1] is "One To Two Days Between Positive Result And Case Notification" and d.value is 1)
      )
-
+     data3 = _.filter(dataForGraph, (d) ->
+       return (d.key[1] is  "Two To Three Days Between Positive Result And Case Notification" and d.value is 1)
+     )
+     data4 = _.filter(dataForGraph, (d) ->
+       return (d.key[1] is "More Than Three Days Between Positive Result And Case Notification" and d.value is 1)
+     )
+     console.log(data1)
      ndx1 = crossfilter(data1)
      ndx2 = crossfilter(data2)
+     ndx3 = crossfilter(data3)
+     ndx4 = crossfilter(data4)
 
      dim1 = ndx1.dimension((d) ->
        return d.dateICD
@@ -293,9 +301,17 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      dim2 = ndx2.dimension((d) ->
        return d.dateICD
      )
-     grpGTE5 = dim1.group()
-     grpLT5 = dim2.group()
-       
+     dim3 = ndx3.dimension((d) ->
+       return d.dateICD
+     )
+     dim4 = ndx4.dimension((d) ->
+       return d.dateICD
+     )
+     grp1 = dim1.group()
+     grp2 = dim2.group()
+     grp3 = dim3.group()
+     grp4 = dim4.group()
+
      composite
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
@@ -304,28 +320,46 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .yAxisLabel("Number of Cases")
        .elasticY(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .compose([
          dc.barChart(composite)
+           .dimension(dim4)
+           .group(grp4, "72+ hrs")
+           .colors(colorScale(0))
+           .centerBar(true)
+           .gap(1)
+           .title((d) ->
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+            ),
+         dc.barChart(composite)
+           .dimension(dim3)
+           .group(grp3, "48 to 72 hrs")
+           .colors(colorScale(1))
+           .centerBar(true)
+           .gap(1)
+           .title((d) ->
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+             ),
+         dc.barChart(composite)
            .dimension(dim2)
-           .group(grpLT5, "25 to 72 hrs")
+           .group(grp2, "24 to 48 hrs")
            .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
            .title((d) ->
-             return d.key.toDateString() + ": " + d.value
-           ),
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+             ),
          dc.barChart(composite)
            .dimension(dim1)
-           .group(grpGTE5, "Within 24 hrs")
+           .group(grp1, "Within 24 hrs")
            .colors(colorScale(3))
            .centerBar(true)
            .gap(1)
            .title((d) ->
-             return d.key.toDateString() + ": " + d.value
-           )
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+             )
        ])
        .brushOn(false)
        .render()
@@ -378,7 +412,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .elasticY(true)
        .elasticX(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .compose([
@@ -389,7 +423,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .centerBar(true)
            .gap(1)
            .title((d) ->
-             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
             ),
          dc.barChart(composite)
            .dimension(dim3)
@@ -398,7 +432,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .centerBar(true)
            .gap(1)
            .title((d) ->
-             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              ),
          dc.barChart(composite)
            .dimension(dim2)
@@ -407,7 +441,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .centerBar(true)
            .gap(1)
            .title((d) ->
-             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              ),
          dc.barChart(composite)
            .dimension(dim1)
@@ -416,7 +450,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
            .centerBar(true)
            .gap(1)
            .title((d) ->
-             return 'Week: '+ moment(d.key).isoWeek() + ": " + d.value
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              )
        ])
        .brushOn(false)
@@ -465,7 +499,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .y(d3.scale.linear())
      .yAxisLabel("Number of Cases")
      .elasticY(true)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+     .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .compose([
