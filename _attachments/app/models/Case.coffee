@@ -509,6 +509,20 @@ class Case
 
     if dateOfPositiveResults? and notificationDate?
       Math.abs(moment(dateOfPositiveResults).diff(notificationDate, 'days'))
+
+
+  lessThanOneDayBetweenPositiveResultAndNotification: =>
+    @daysBetweenPositiveResultAndNotification() <= 1
+
+  oneToTwoDaysBetweenPositiveResultAndNotification: =>
+    @daysBetweenPositiveResultAndNotification() <= 2
+
+  twoToThreeDaysBetweenPositiveResultAndNotification: =>
+    @daysBetweenPositiveResultAndNotification() <= 3
+
+  moreThanThreeDaysBetweenPositiveResultAndNotification: =>
+    @daysBetweenPositiveResultAndNotification() > 3
+
     
   daysBetweenPositiveResultAndCompleteHousehold: =>
     dateOfPositiveResults = @dateOfPositiveResults()
@@ -837,6 +851,11 @@ class Case
     daysFromCaseNotificationToCompleteFacility: {}
     daysFromSMSToCompleteHousehold:
       propertyName: "Days between SMS Sent to DMSO to Having Complete Household"
+    daysBetweenPositiveResultAndNotification: {}
+    lessThanOneDayBetweenPositiveResultAndNotification: {}
+    oneToTwoDaysBetweenPositiveResultAndNotification: {}
+    twoToThreeDaysBetweenPositiveResultAndNotification: {}
+    moreThanThreeDaysBetweenPositiveResultAndNotification: {}
 
     daysBetweenPositiveResultAndCompleteHousehold: {}
     lessThanOneDayBetweenPositiveResultAndCompleteHousehold: {}
