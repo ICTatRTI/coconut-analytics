@@ -265,8 +265,8 @@ class DashboardView extends Backbone.View
       start_key: [startYear, startWeek]
       end_key: [endYear,endWeek,{}]
       reduce: true
-      include_docs: false
       group: true
+      include_docs: false
     .then (result) =>
       dataForGraph = result.rows
       if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))

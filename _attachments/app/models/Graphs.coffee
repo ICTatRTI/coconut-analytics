@@ -213,117 +213,68 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  
  Graphs.testRate = (dataForGraph, composite, options) ->
 
-  groupedByDate = {}
-  _(dataForGraph).each (value, key) ->
-    groupedByDate[key[0]+key[1]] = {} unless groupedByDate[key[0]+key[1]]
-    groupedByDate[key[0]+key[1]][key[3]] = key
-  
+    groupedByDate = {}
+    _(dataForGraph).each (v, index) ->
+      groupedByDate[v.key[0]+v.key[1]] = {} unless groupedByDate[v.key[0]+v.key[1]]
+      groupedByDate[v.key[0]+v.key[1]][v.key[3]] = v.value
+      groupedByDate[v.key[0]+v.key[1]]['dateWeek'] = v.dateWeek
 
-  _(groupedByDate).each (indicatorAndValue, date) ->
-    groupedByDate[date]["Test Rate < 5"] = (groupedByDate[date]["Mal NEG < 5"] + groupedByDate[date]["Mal POS < 5"]) / groupedByDate[date]["All OPD < 5"]
+    _(groupedByDate).each (indicatorAndValue, date) ->
+      groupedByDate[date]["Test Rate < 5"] = Math.round(((groupedByDate[date]["Mal NEG < 5"] + groupedByDate[date]["Mal POS < 5"]) / groupedByDate[date]["All OPD < 5"])*100)
+      groupedByDate[date]["Test Rate >= 5"] = Math.round(((groupedByDate[date]["Mal NEG >= 5"] + groupedByDate[date]["Mal POS >= 5"]) / groupedByDate[date]["All OPD >= 5"])*100)
 
-     data4a = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "Mal POS >= 5"
-     )
-     data4b = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "Mal NEG >= 5" 
-     )
-     data4c = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "All OPD >= 5"
-     )
-     data4d = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "Mal POS < 5" 
-     )
-     data4e = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "Mal NEG < 5" 
-     )
-     data4f = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "All OPD < 5"
-     )
-     console.log(data4a.length + data4b.length + data4c.length + data4d.length + data4e.length + data4f.length)
-     console.log(data4a)
+    # convert to array
+    graphData = _.map(groupedByDate, (value, index) ->
+       return value
+    )
      
-     
-     
-     # data4b = _.filter(dataForGraph, (d) ->
-     #   return d.key[3] is "Mal POS < 5" or d.key[3] is "Mal NEG < 5" or d.key[3] is "All OPD < 5"
-     # )
-     # ndx4a = crossfilter(data4a)
-#      ndx4b = crossfilter(data4b)
-     ndx = crossfilter(dataForGraph)
-     dim = ndx.dimension((d) ->
-       return d.dateWeek
-     )
-     # dim4b = ndx4b.dimension((d) ->
-     #   return d.dateWeek
-     # )
-     console.log(dim.top(10))
-     grpGTE5_3 = dim.group().reduceSum((d) ->
-        return d.pctGTE5
-      )
-     grpLT5_3 = dim.group().reduceSum((d) ->
-        return d.pctLT5
-      )
+    ndx = crossfilter(graphData)
+    dim = ndx.dimension((d) ->
+      return d.dateWeek
+    )
 
-     # grpGTE5_3 = dim4a.group().reduce(
-    #    (p,v) ->
-    #      ++p.count
-    #      p.pctGTE5 = (v.pctGTE5 / p.count).toFixed(2)
-    #      return p
-    #    , (p,v) ->
-    #      --p.count
-    #      p.pctGTE5 = (v.pctGTE5 / p.count).toFixed(2)
-    #      return p
-    #    , () ->
-    #      return {count:0, pct: 0}
-    #  )
-    #
-    #  grpLT5_3 = dim4b.group().reduce(
-    #    (p,v) ->
-    #      ++p.count
-    #      p.pctLT5 = (v.pctLT5 / p.count).toFixed(2)
-    #      return p
-    #    , (p,v) ->
-    #      --p.count
-    #      p.pctLT5 = (v.pctLT5 / p.count).toFixed(2)
-    #      return p
-    #    , () ->
-    #      return {count:0, pct: 0}
-    #  )
+    grpGTE5_3 = dim.group().reduceSum((d) ->
+      return d['Test Rate >= 5']
+    )
 
-     composite
-       .width($('.chart_container').width() - options.adjustX)
-       .height($('.chart_container').height() - options.adjustY)
-       .x(d3.scale.linear())
-       .y(d3.scale.linear())
-       .xUnits(d3.time.weeks)
-       .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
-       .elasticY(true)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
-       .renderHorizontalGridLines(true)
-       .shareTitle(false)
-       .compose([
-           dc.lineChart(composite)
-             .dimension(dim)
-             .colors(colorScale(0))
-             .group(grpGTE5_3, "Test rate [5+]")
-             .xyTipsOn(true)
-             .renderDataPoints(false)
-             .title((d) ->
-               return 'Week: '+ (d.key).isoWeek() + ": " + Math.round(d.pctGTE5_3*100) + '%'
-              ),
-           dc.lineChart(composite)
-             .dimension(dim)
-             .colors(colorScale(1))
-             .group(grpLT5_3, "Test rate [< 5]")
-             .xyTipsOn(true)
-             .renderDataPoints(false)
-             .title((d) ->
-               return 'Week: '+ (d.key).isoWeek() + ": " + Math.round(d.pctLT5_3*100) + '%'
-             )
-       ])
-       .brushOn(false)
-       .render()
+    grpLT5_3 = dim.group().reduceSum((d) ->
+      return d['Test Rate < 5']
+    )
+
+    composite
+     .width($('.chart_container').width() - options.adjustX)
+     .height($('.chart_container').height() - options.adjustY)
+     .x(d3.time.scale())
+     .y(d3.scale.linear())
+     .xUnits(d3.time.week)
+     .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
+     .elasticY(true)
+     .elasticX(true)
+     .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
+     .renderHorizontalGridLines(true)
+     .shareTitle(false)
+     .compose([
+         dc.lineChart(composite)  
+           .dimension(dim)
+           .colors(colorScale(0))
+           .group(grpGTE5_3, "Test rate [5+]")
+           .xyTipsOn(true)
+           .renderDataPoints(false)
+           .title((d) ->
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value + '%'
+            ),
+         dc.lineChart(composite)
+           .dimension(dim)
+           .colors(colorScale(1))
+           .group(grpLT5_3, "Test rate [< 5]")
+           .xyTipsOn(true)
+           .renderDataPoints(false)
+           .title((d) ->
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value + '%'
+           )
+     ])
+     .brushOn(false)
+     .render()
 
  Graphs.timeToNotify = (dataForGraph, composite, options) ->
      data1 = _.filter(dataForGraph, (d) ->

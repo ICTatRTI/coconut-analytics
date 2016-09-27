@@ -16,7 +16,7 @@ class TestRateGraphView extends Backbone.View
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <div id='dateSelector'></div>
-       <div class='chart-title'>T e s t &nbsp; R a t e</div>
+       <div class='chart-title'>Test Rate</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
@@ -29,22 +29,24 @@ class TestRateGraphView extends Backbone.View
     $('#analysis-spinner').show()
     options.adjustX = 10
     options.adjustY = 40
-    startDate = moment(options.startDate).format('YYYY-MM-DD')
-    endDate = moment(options.endDate).format('YYYY-MM-DD')
-    Coconut.database.query "caseCountIncludingSecondary",
-      startkey: [startDate]
-      endkey: [endDate]
-      reduce: false
-      include_docs: true
+    startYear = moment(options.startDate).isoWeekYear().toString()
+    startWeek = moment(options.startDate).isoWeek().toString()
+    endYear = moment(options.endDate).isoWeekYear().toString()
+    endWeek = moment(options.endDate).isoWeek().toString()
+    Coconut.database.query "weeklyDataCounter",
+      startkey: [startYear,startWeek]
+      endkey: [endYear,endWeek,{}]
+      reduce: true
+      group: true
+      include_docs: false
     .then (result) =>
-      dataForGraph = _.pluck(result.rows, 'doc')
+      dataForGraph = result.rows
       if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
-        console.log(dataForGraph)
         dataForGraph.forEach((d) ->
-          d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
+          d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
         )
         composite = dc.compositeChart("#chart")
         Graphs.testRate(dataForGraph, composite, options)

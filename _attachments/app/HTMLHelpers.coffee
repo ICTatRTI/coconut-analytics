@@ -77,5 +77,8 @@ class HTMLHelpers
     
   @noRecordFound: () ->
     "<div id='noRecordFound'>No Record Found For Date Range</div>"
-    
+  
+  @roundToTwo: (num) ->    
+     +(Math.round(num + "e+2")  + "e-2")
+
 module.exports = HTMLHelpers
