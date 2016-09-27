@@ -20,6 +20,7 @@ MapView = require './views/MapView'
 FacilityHierarchyView = require './views/FacilityHierarchyView'
 RainfallStationView = require './views/RainfallStationView'
 GeoHierarchyView = require './views/GeoHierarchyView'
+Dhis2View = require './views/Dhis2View'
 SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
 ChangePasswordView = require './views/ChangePasswordView'
@@ -79,6 +80,7 @@ class Router extends Backbone.Router
     "logout": "logout"
     "reset_password/:token": "reset_password"
     "reset_password": "reset_password"
+    "admin/dhis2": "dhis2"
     "admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/facilities": "FacilityHierarchy"
@@ -322,6 +324,14 @@ class Router extends Backbone.Router
       success: ->
         @usersView = new UsersView() unless @usersView
         @usersView.render()
+      error: =>
+        @notAdmin()
+
+  dhis2: () =>
+    @adminLoggedIn
+      success: ->
+        @dhis2View = new Dhis2View() unless @dhis2View
+        @dhis2View.render()
       error: =>
         @notAdmin()
 

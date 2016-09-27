@@ -586,7 +586,7 @@ class Case
       username: "admin"
       password: "district"
       programId: "mVnfEjYjUbo"
-      malariaCaseEntity: "yz2ckz83dsm"
+      malariaCaseEntityId: "yz2ckz83dsm"
       caseIdAttributeId: "MP19ZON9fdL"
       ageAttributeId: "FilMzDIkqNK"
 
