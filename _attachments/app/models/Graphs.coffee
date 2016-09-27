@@ -59,6 +59,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
     .xAxisLabel("Weeks")
     .elasticY(true)
     .elasticX(true)
+    .shareTitle(false)
     .renderHorizontalGridLines(true)
     .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
     .compose([
@@ -70,7 +71,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
         .renderArea(true)
         .renderDataPoints(false)
         .title((d) ->
-          return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+          return 'Week: ' +d.key + ": " + d.value
         ),
       dc.lineChart(composite)
         .dimension(dim2)
@@ -80,7 +81,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
         .renderArea(true)        
         .renderDataPoints(false)
         .title((d) ->
-          return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+          return 'Week: ' +d.key + ": " + d.value
         )
     ])
     .brushOn(false)
@@ -213,54 +214,80 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
  Graphs.testRate = (dataForGraph, composite, options) ->
    
      data4a = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "Mal POS >= 5" or d.key[3] is "Mal NEG >= 5" or d.key[3] is "All OPD >= 5"
+       return d.key[3] is "Mal POS >= 5"
      )
      data4b = _.filter(dataForGraph, (d) ->
-       return d.key[3] is "Mal POS < 5" or d.key[3] is "Mal NEG < 5" or d.key[3] is "All OPD < 5"
+       return d.key[3] is "Mal NEG >= 5" 
      )
+     data4c = _.filter(dataForGraph, (d) ->
+       return d.key[3] is "All OPD >= 5"
+     )
+     data4d = _.filter(dataForGraph, (d) ->
+       return d.key[3] is "Mal POS < 5" 
+     )
+     data4e = _.filter(dataForGraph, (d) ->
+       return d.key[3] is "Mal NEG < 5" 
+     )
+     data4f = _.filter(dataForGraph, (d) ->
+       return d.key[3] is "All OPD < 5"
+     )
+     console.log(data4a.length + data4b.length + data4c.length + data4d.length + data4e.length + data4f.length)
+     console.log(data4a)
      
-     ndx4a = crossfilter(data4a)
-     ndx4b = crossfilter(data4b)
-  
-     dim4a = ndx4a.dimension((d) ->
-       return d.dateICD
+     
+     
+     # data4b = _.filter(dataForGraph, (d) ->
+     #   return d.key[3] is "Mal POS < 5" or d.key[3] is "Mal NEG < 5" or d.key[3] is "All OPD < 5"
+     # )
+     # ndx4a = crossfilter(data4a)
+#      ndx4b = crossfilter(data4b)
+     ndx = crossfilter(dataForGraph)
+     dim = ndx.dimension((d) ->
+       return d.dateWeek
      )
-     dim4b = ndx4b.dimension((d) ->
-       return d.dateICD
-     )
+     # dim4b = ndx4b.dimension((d) ->
+     #   return d.dateWeek
+     # )
+     console.log(dim.top(10))
+     grpGTE5_3 = dim.group().reduceSum((d) ->
+        return d.pctGTE5
+      )
+     grpLT5_3 = dim.group().reduceSum((d) ->
+        return d.pctLT5
+      )
 
-     grpGTE5_3 = dim4a.group().reduce(
-       (p,v) ->
-         ++p.count
-         p.pct = (p.count / total_cases1).toFixed(2)
-         return p
-       , (p,v) ->
-         --p.count
-         p.pct = (p.count / total_cases1).toFixed(2)
-         return p
-       , () ->
-         return {count:0, pct: 0}
-     )
-  
-     grpLT5_3 = dim4b.group().reduce(
-       (p,v) ->
-         ++p.count
-         p.pct = (p.count / total_cases2).toFixed(2)
-         return p
-       , (p,v) ->
-         --p.count
-         p.pct = (p.count / total_cases2).toFixed(2)
-         return p
-       , () ->
-         return {count:0, pct: 0}
-     )
+     # grpGTE5_3 = dim4a.group().reduce(
+    #    (p,v) ->
+    #      ++p.count
+    #      p.pctGTE5 = (v.pctGTE5 / p.count).toFixed(2)
+    #      return p
+    #    , (p,v) ->
+    #      --p.count
+    #      p.pctGTE5 = (v.pctGTE5 / p.count).toFixed(2)
+    #      return p
+    #    , () ->
+    #      return {count:0, pct: 0}
+    #  )
+    #
+    #  grpLT5_3 = dim4b.group().reduce(
+    #    (p,v) ->
+    #      ++p.count
+    #      p.pctLT5 = (v.pctLT5 / p.count).toFixed(2)
+    #      return p
+    #    , (p,v) ->
+    #      --p.count
+    #      p.pctLT5 = (v.pctLT5 / p.count).toFixed(2)
+    #      return p
+    #    , () ->
+    #      return {count:0, pct: 0}
+    #  )
 
      composite
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
-       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+       .x(d3.scale.linear())
        .y(d3.scale.linear())
-       .xUnits(d3.time.days)
+       .xUnits(d3.time.weeks)
        .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
        .elasticY(true)
        .legend(dc.legend().x($('.chart_container').width()-150).y(20).itemHeight(20).gap(5).legendWidth(140).itemWidth(70))
@@ -268,28 +295,22 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .shareTitle(false)
        .compose([
            dc.lineChart(composite)
-             .dimension(dim4a)
+             .dimension(dim)
              .colors(colorScale(0))
              .group(grpGTE5_3, "Test rate [5+]")
-             .valueAccessor((p) ->
-               return p.value.pct
-               )
              .xyTipsOn(true)
              .renderDataPoints(false)
              .title((d) ->
-               return 'Week: '+ moment(d.key).isoWeek() + ": " + Math.round(d.value.pct*100) + '%'
+               return 'Week: '+ (d.key).isoWeek() + ": " + Math.round(d.pctGTE5_3*100) + '%'
               ),
            dc.lineChart(composite)
-             .dimension(dim4b)
+             .dimension(dim)
              .colors(colorScale(1))
              .group(grpLT5_3, "Test rate [< 5]")
-             .valueAccessor((p) ->
-               return p.value.pct
-               )
              .xyTipsOn(true)
              .renderDataPoints(false)
              .title((d) ->
-               return 'Week: '+ moment(d.key).isoWeek() + ": " + Math.round(d.value.pct*100) + '%'
+               return 'Week: '+ (d.key).isoWeek() + ": " + Math.round(d.pctLT5_3*100) + '%'
              )
        ])
        .brushOn(false)
