@@ -101,10 +101,9 @@ class MenuView extends Backbone.View
            graphLinks = {
              IncidentsGraph: "Number of Cases"
              PositiveCasesGraph: "Number of Positive Malaria Cases by Age"
-             YearlyTrends: "Yearly Trends by Week"
              AttendanceGraph: "Attendance"
              TestRateGraph: "Test Rate"
-             # graph_positivity: "Positivity"
+             PositivityGraph: "Number of Persons Tested and Number Positive"
              # positivity_with_rainfall: "Positivity With Rainfall"
              # positivity_by_year: "Positivity Cases By Year"
              TimeToComplete: "Time to Complete"

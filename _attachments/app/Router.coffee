@@ -63,6 +63,7 @@ graphsViews = {
   TestRateGraph: require './views/TestRateGraphView'
   TimeToNotify: require './views/TimeToNotifyGraphView'
   TimeToComplete: require './views/TimeToCompleteGraphView'
+  Positivity: require './views/PositivityGraphView'
 }
   
 class Router extends Backbone.Router

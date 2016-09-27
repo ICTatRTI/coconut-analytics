@@ -76,18 +76,19 @@ setUpLegend = () ->
     console.log "SetUpLegendCaseStyle: " + caseStyle
     
     theDiv = L.DomUtil.get('mapLegend')
-    theDiv.innerHTML = ""
-    if caseStyle == 'numberCases'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#FFA000; border: 1px solid #000"></i><div class="legendLable">Single Case</div><br>'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#D32F2F; border: 1px solid #000"></i><div class="legendLable">Multiple Cases</div>'
-    if caseStyle == 'travelCases'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">No Travel</div><br>'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">Recent Travel</div>'
-    if caseStyle == 'llinCases'
-        theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN < Sleeping Spaces</div><br>'
-        theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN >= Sleeping Spaces</div>'
-    #    while i < categories.length
-    #        $("#mapLegend").innerHTML += '<i class="caseCircle" style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
+    if theDiv
+        theDiv.innerHTML = ""
+        if caseStyle == 'numberCases'
+            theDiv.innerHTML += '<i class="smallCircle" style="background:#FFA000; border: 1px solid #000"></i><div class="legendLable">Single Case</div><br>'
+            theDiv.innerHTML += '<i class="largeCircle" style="background:#D32F2F; border: 1px solid #000"></i><div class="legendLable">Multiple Cases</div>'
+        if caseStyle == 'travelCases'
+            theDiv.innerHTML += '<i class="smallCircle" style="background:#303F9F; border: 1px solid #000"></i><div class="legendLable">No Travel</div><br>'
+            theDiv.innerHTML += '<i class="largeCircle" style="background:#CDDC39; border: 1px solid #D32F2F"></i><div class="legendLable">Recent Travel</div>'
+        if caseStyle == 'llinCases'
+            theDiv.innerHTML += '<i class="largeCircle" style="background:#512DA8; border: 1px solid #FFA000"></i><div class="legendLable">LLIN < Sleeping Spaces</div><br>'
+            theDiv.innerHTML += '<i class="smallCircle" style="background:#FF4081; border: 1px solid #000"></i><div class="legendLable">LLIN >= Sleeping Spaces</div>'
+        #    while i < categories.length
+        #        $("#mapLegend").innerHTML += '<i class="caseCircle" style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
       
 
 getColor = (d) ->
@@ -99,7 +100,7 @@ getColor = (d) ->
 setCaseStyle = (styleType, feature) ->
     console.log(styleType)
     if styleType == 'travelCases'
-      if feature.feature.properties.RecentTravel == 'No'
+      if feature.feature.properties.RecentTravel == false
         feature.setStyle
           fillColor: '#303F9F'
           color: '#000'
@@ -134,7 +135,8 @@ setCaseStyle = (styleType, feature) ->
         
 getCaseStyle = (feature) -> 
     if caseStyle == 'travelCases'
-      if feature.properties.RecentTravel == 'No'
+      console.log("feature.properties.RecentTravel: " + feature.properties.RecentTravel)
+      if feature.properties.RecentTravel == false
         return noTravelCaseStyle
       else
         return travelCaseStyle
@@ -436,6 +438,7 @@ class MapView extends Backbone.View
   reportResults = (results) ->
         casesGeoJSON.features =  _(results.rows).chain().map (result) ->
           caseSummary = result.doc
+#          console.log("caseSummary: " + JSON.stringify(caseSummary));
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
           if caseSummary["Household Location Latitude"] and caseSummary["Household Location Accuracy"] <= Coconut.config.location_accuracy_threshold
             
@@ -445,11 +448,11 @@ class MapView extends Backbone.View
                 MalariaCaseID: caseSummary["Malaria Case ID"]
                 hasAdditionalPositiveCasesAtIndexHousehold: caseSummary["Number Positive Cases At Index Household"] > 0
                 numberOfCasesInHousehold: caseSummary["Number Positive Cases At Index Household"]
-                NumberofLLIN: caseSummary["Number of Llin"]
-                SleepingSpaces: caseSummary["Number of Sleeping Places (beds/mattresses)"]
+                NumberofLLIN: caseSummary["Number Of Llin"]
+                SleepingSpaces: caseSummary["Number Of Sleeping Places (beds/mattresses)"]
                 RecentTravel: caseSummary["Index Case Has Travel History"]
                 date: caseSummary["Index Case Diagnosis Date"]
-                dateIRS: caseSummary["Last Date of Irs"]
+                dateIRS: caseSummary["Last Date Of Irs"]
               geometry:
                 type: 'Point'
                 coordinates: [
@@ -491,7 +494,7 @@ class MapView extends Backbone.View
             coords = [
               feature.geometry.coordinates[1]
               feature.geometry.coordinates[0]
-              5000/data.features.length#adjust with slider
+              100#adjust with slider
             ]
             
             heatMapCoords.push coords
@@ -550,7 +553,6 @@ class MapView extends Backbone.View
             L.circleMarker latlng, getCaseStyle(feature)
           )
         if data.features.length > 0 && layerTollBooth.heatLayerOn == false
-          console.log("Mapview.Coffee addCasesLayer line:549")
           materialLayersControl.addQueriedLayer casesLayer, 'Cases'
         
         heatMap = getURLValue 'heatMap'
@@ -588,10 +590,11 @@ class MapView extends Backbone.View
         coords = [
           feature.geometry.coordinates[1]
           feature.geometry.coordinates[0]
-          15000/casesGeoJSON.features.length   #adjust with slider
+          100   #adjust with slider
         ]
         heatMapCoordsTime.push coords
     
+    #console.log("timeFeatures.length: " + timeFeatures.length)
     timeCasesGeoJSON.features = timeFeatures
     if layerTollBooth.heatLayerOn
 #        console.log 'heatmapcontrolOn'
@@ -704,7 +707,6 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    console.log "AAAA"
     Coconut.database.query "caseIDsByDate",
       startkey: startDate
       endkey: endDate
@@ -895,11 +897,20 @@ class MapView extends Backbone.View
     #working
     @snapshot = document.getElementById('snapshot') 
     L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
-    streets = L.mapbox.tileLayer('mapbox.streets')
-    outdoors = L.mapbox.tileLayer('mapbox.outdoors')
-    satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
     
-    
+    #streets = L.mapbox.tileLayer('mapbox.streets')
+    #google streets option below
+    streets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
+    #mapBox Terrain below
+    #outdoors = L.mapbox.tileLayer('mapbox.outdoors')
+    #google Terrain below
+    outdoors = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']});
+    #mapBox Satellite below
+    #satellite = L.mapbox.tileLayer('mapbox.satellite')
+    #mapBox hybrid satellite below
+    #satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
+    #Google Hybrid Satellite Below
+    satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
     #Check map for url settings. 
     zoom = getURLValue 'mapZoom'
     if zoom == undefined then zoom = 9
@@ -990,7 +1001,6 @@ class MapView extends Backbone.View
     legend = L.control(position: 'bottomleft')
 
     legend.onAdd = (map) ->
-      console.log("legendOnAdd")
       div = L.DomUtil.create('div', 'info legend')
       div.id = "mapLegend"
 #      grades = [
