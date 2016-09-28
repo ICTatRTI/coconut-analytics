@@ -44,7 +44,8 @@ class TimeToCompleteGraphView extends Backbone.View
         $('#analysis-spinner').hide()
       else
         dataForGraph.forEach((d) ->
-          d.dateICD = new Date(d.key[0]+' ') # extra space at end cause it to use UTC format.
+          d.dateICD = moment(d.key[0])
+#          d.dateICD = new Date(d.key[0]+' ') # extra space at end cause it to use UTC format.
         )
         composite = dc.compositeChart("#chart")
         Graphs.timeToComplete(dataForGraph, composite, options)

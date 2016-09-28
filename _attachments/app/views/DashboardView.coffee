@@ -169,7 +169,6 @@ class DashboardView extends Backbone.View
     startDate = options.startDate
     endDate = options.endDate
 
-
     Coconut.database.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
@@ -217,6 +216,7 @@ class DashboardView extends Backbone.View
     composite5 = dc.compositeChart("#chart_6")
     composite6 = dc.compositeChart("#chart_7")
 
+    # Graphs using caseCounter query
     dataForGraph.forEach((d) ->
       d.dateICD = moment(d.key[0])
       d.dateWeek = moment(d.key[0]).isoWeek()
@@ -226,6 +226,7 @@ class DashboardView extends Backbone.View
     dataForGraph1 = dataForGraph 
     lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
     lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
+    # Gathering previous year data
     Coconut.database.query "caseCounter",
       startkey: [lastYearStart]
       endkey: [lastYearEnd]
@@ -243,33 +244,6 @@ class DashboardView extends Backbone.View
     Graphs.positiveCases(dataForGraph, composite1, options)
     $('div#container_2 div.mdl-spinner').hide()
 
-    # Attendance Graph
-    startYear = moment(options.startDate).isoWeekYear().toString()
-    startWeek = moment(options.startDate).isoWeek().toString()
-    endYear = moment(options.endDate).isoWeekYear().toString()
-    endWeek = moment(options.endDate).isoWeek().toString()
-    Coconut.database.query "weeklyDataCounter",
-      start_key: [startYear, startWeek]
-      end_key: [endYear,endWeek,{}]
-      reduce: true
-      include_docs: false
-      group: true
-    .then (result) =>
-      dataForGraph = result.rows
-      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
-        $(".chart_container").html HTMLHelpers.noRecordFound()
-        $('#analysis-spinner').hide()
-      else
-        dataForGraph.forEach((d) ->
-           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
-        )
-        Graphs.attendance(dataForGraph, composite2, options)
-        $('div#container_3 div.mdl-spinner').hide()
-
-    # TestRate Graph 
-    Graphs.testRate(dataForGraph, composite3, options)
-    $('div#container_4 div.mdl-spinner').hide()
-    
     # TimeToComplete Graph 
     Graphs.timeToComplete(dataForGraph, composite4, options)
     $('div#container_5 div.mdl-spinner').hide()
@@ -281,7 +255,35 @@ class DashboardView extends Backbone.View
     #Positivity Graph
     Graphs.positivityCases(dataForGraph, composite6, options)
     $('div#container_7 div.mdl-spinner').hide()
-    
+
+    # Graphs using weeklyDataCounter query
+    startYear = moment(options.startDate).isoWeekYear().toString()
+    startWeek = moment(options.startDate).isoWeek().toString()
+    endYear = moment(options.endDate).isoWeekYear().toString()
+    endWeek = moment(options.endDate).isoWeek().toString()
+    Coconut.database.query "weeklyDataCounter",
+      start_key: [startYear, startWeek]
+      end_key: [endYear,endWeek,{}]
+      reduce: true
+      group: true
+      include_docs: false
+    .then (result) =>
+      dataForGraph = result.rows
+      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
+        $(".chart_container").html HTMLHelpers.noRecordFound()
+        $('#analysis-spinner').hide()
+      else
+        dataForGraph.forEach((d) ->
+           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
+        )
+         # Attendance Graph
+        Graphs.attendance(dataForGraph, composite2, options)
+        $('div#container_3 div.mdl-spinner').hide()
+
+        #TestRate Graph 
+        Graphs.testRate(dataForGraph, composite3, options)
+        $('div#container_4 div.mdl-spinner').hide()
+        
     window.onresize = () ->
       adjustButtonSize()
       new_height = 0.45 *  $(".chart_container").width()
@@ -291,6 +293,9 @@ class DashboardView extends Backbone.View
       Graphs.compositeResize(composite1, 'chart_container', options)
       Graphs.compositeResize(composite2, 'chart_container', options)
       Graphs.compositeResize(composite3, 'chart_container', options)
+      Graphs.compositeResize(composite4, 'chart_container', options)
+      Graphs.compositeResize(composite5, 'chart_container', options)
+      Graphs.compositeResize(composite6, 'chart_container', options)
 
     
   showStats = () ->
