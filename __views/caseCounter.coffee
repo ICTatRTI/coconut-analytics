@@ -14,10 +14,10 @@
       emit [doc["Index Case Diagnosis Date"], "Number Positive Cases From Mass Screen"], doc["Number Positive Cases At Index Household"] if doc["Mass Screen Case"] is true
       emit [doc["Index Case Diagnosis Date"], "Number Index And Household Cases Suspected To Be Imported"], doc["Number Suspected Imported Cases Including Household Members"]
 
-      emit [doc["Index Case Diagnosis Date"], "Less Than One Day Between Positive Result And Case Notification"], if doc["Less Than One Day Between Positive Result And Case Notification"] is true then 1 else 0
-      emit [doc["Index Case Diagnosis Date"], "One To Two Days Between Positive Result And Case Notification"], if doc["One To Two Days Between Positive Result And Case Notification"] is true then 1 else 0
-      emit [doc["Index Case Diagnosis Date"], "Two To Three Days Between Positive Result And Case Notification"], if doc["Two To Three Days Between Positive Result And Case Notification"] is true then 1 else 0
-      emit [doc["Index Case Diagnosis Date"], "More Than Three Days Between Positive Result And Case Notification"], if doc["More Than Three Days Between Positive Result And Case Notification"] is true then 1 else 0
+      emit [doc["Index Case Diagnosis Date"], "Less Than One Day Between Positive Result And Notification From Facility"], if doc["Less Than One Day Between Positive Result And Notification From Facility"] is true then 1 else 0
+      emit [doc["Index Case Diagnosis Date"], "One To Two Days Between Positive Result And Notification From Facility"], if doc["One To Two Days Between Positive Result And Notification From Facility"] is true then 1 else 0
+      emit [doc["Index Case Diagnosis Date"], "Two To Three Days Between Positive Result And Notification From Facility"], if doc["Two To Three Days Between Positive Result And Notification From Facility"] is true then 1 else 0
+      emit [doc["Index Case Diagnosis Date"], "More Than Three Days Between Positive Result And Notification From Facility"], if doc["More Than Three Days Between Positive Result And Notification From Facility"] is true then 1 else 0
 
       emit [doc["Index Case Diagnosis Date"], "Less Than One Day Between Positive Result And Complete Household"], if doc["Less Than One Day Between Positive Result And Complete Household"] is true then 1 else 0
       emit [doc["Index Case Diagnosis Date"], "One To Two Days Between Positive Result And Complete Household"], if doc["One To Two Days Between Positive Result And Complete Household"] is true then 1 else 0

@@ -500,7 +500,7 @@ class Case
       else
         moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
 
-  daysBetweenPositiveResultAndNotification: =>
+  daysBetweenPositiveResultAndNotificationFromFacility: =>
 
     dateOfPositiveResults = @dateOfPositiveResults()
 
@@ -511,17 +511,17 @@ class Case
       Math.abs(moment(dateOfPositiveResults).diff(notificationDate, 'days'))
 
 
-  lessThanOneDayBetweenPositiveResultAndNotification: =>
-    @daysBetweenPositiveResultAndNotification() <= 1
+  lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() <= 1
 
-  oneToTwoDaysBetweenPositiveResultAndNotification: =>
-    @daysBetweenPositiveResultAndNotification() <= 2
+  oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() <= 2
 
-  twoToThreeDaysBetweenPositiveResultAndNotification: =>
-    @daysBetweenPositiveResultAndNotification() <= 3
+  twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() <= 3
 
-  moreThanThreeDaysBetweenPositiveResultAndNotification: =>
-    @daysBetweenPositiveResultAndNotification() > 3
+  moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() > 3
 
     
   daysBetweenPositiveResultAndCompleteHousehold: =>
@@ -846,16 +846,15 @@ class Case
     ShehaMjumbe: {}
     TotalNumberofResidentsintheHousehold: {}
 
-    daysBetweenPositiveResultAndNotification:
-      propertyName: "Days Between Positive Result at Facility and Case Notification"
     daysFromCaseNotificationToCompleteFacility: {}
     daysFromSMSToCompleteHousehold:
       propertyName: "Days between SMS Sent to DMSO to Having Complete Household"
-    daysBetweenPositiveResultAndNotification: {}
-    lessThanOneDayBetweenPositiveResultAndNotification: {}
-    oneToTwoDaysBetweenPositiveResultAndNotification: {}
-    twoToThreeDaysBetweenPositiveResultAndNotification: {}
-    moreThanThreeDaysBetweenPositiveResultAndNotification: {}
+
+    daysBetweenPositiveResultAndNotificationFromFacility: {}
+    lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: {}
+    oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
 
     daysBetweenPositiveResultAndCompleteHousehold: {}
     lessThanOneDayBetweenPositiveResultAndCompleteHousehold: {}
