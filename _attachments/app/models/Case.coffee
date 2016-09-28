@@ -595,16 +595,7 @@ class Case
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
   createOrUpdateOnDhis2: (options) =>
-    dhis2 = new Dhis2
-      dhis2Url: "http://dhis2.zanzibar.ictedge.org"
-      username: "admin"
-      password: "district"
-      programId: "mVnfEjYjUbo"
-      malariaCaseEntityId: "yz2ckz83dsm"
-      caseIdAttributeId: "MP19ZON9fdL"
-      ageAttributeId: "FilMzDIkqNK"
-
-    dhis2.createOrUpdateMalariaCase(@)
+    Coconut.dhis2.createOrUpdateMalariaCase(@)
 
   spreadsheetRow: (question) =>
     console.error "Must call loadSpreadsheetHeader at least once before calling spreadsheetRow" unless Coconut.spreadsheetHeader?

@@ -3,6 +3,15 @@ chance = require('chance').Chance()
 
 class DhisOrganisationUnits
 
+  # Use this if @rawData has already been set
+  extendExport: (options) =>
+    @loadDataToExtendWith
+      error: (error) ->
+        console.error "Error loading data to extend DHIS hierarchy:"
+        console.error error
+      success: =>
+        options.success(@extend())
+
   loadExtendExport: (options) =>
     @loadDHISHierarchy
       dhisDocumentName: options.dhisDocumentName
@@ -10,12 +19,7 @@ class DhisOrganisationUnits
         console.error "Error loading DHIS hierarchy:"
         console.error error
       success: =>
-        @loadDataToExtendWith
-          error: (error) ->
-            console.error "Error loading data to extend DHIS hierarchy:"
-            console.error error
-          success: =>
-            options.success(@extend())
+        @extendExport(options)
 
   loadDHISHierarchy: (options) =>
     Coconut.database.get options.dhisDocumentName

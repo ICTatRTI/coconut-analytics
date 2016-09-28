@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 
 Dialog = require './Dialog'
+Dhis2 = require '../models/Dhis2'
 
 class Dhis2View extends Backbone.View
   el: "#content"
@@ -18,7 +19,6 @@ class Dhis2View extends Backbone.View
       dhis2Url: "Dhis2 URL"
       dhis2username: "Dhis2 Username"
       dhis2password: "Dhis2 Password"
-      dhis2prog: "Dhis2 Program Id"
       programId: "Program Id"
       malariaCaseEntityId: "Malaria Case Entity Id"
       caseIdAttributeId: "Case Id Attribute Id"
@@ -60,10 +60,15 @@ class Dhis2View extends Backbone.View
     .catch (error) ->
   
   test: =>
-    dhis2 = new Dhis2()
-
-
-
+    dhis2 = new Dhis2
+      dhis2Url: $("#dhis2Url").val()
+      username: $("#dhis2username").val()
+      password: $("#dhis2password").val()
+      programId: $("#programId").val()
+      malariaCaseEntityId: $("#malariaCaseEntityId").val()
+      caseIdAttributeId: $("#caseIdAttributeId").val()
+      ageAttributeId: $("#ageAttributeId").val()
+    dhis2.test()
 
   update: =>
     @dhis2Doc = {_id: "dhis2", isApplicationDoc: true} unless @dhis2Doc
@@ -72,9 +77,9 @@ class Dhis2View extends Backbone.View
 
     Coconut.database.put @dhis2Doc
     .then (result) ->
+      Coconut.dhis2 = new Dhis2()
+      Coconut.dhis2.loadFromDatabase()
       Dialog.createDialogWrap()
       Dialog.confirm("Dhis2 Configuration has been saved.", 'System Settings',['Ok'])
-      dialog.addEventListener 'close', ->
-        location.reload(true)
 
 module.exports = Dhis2View
