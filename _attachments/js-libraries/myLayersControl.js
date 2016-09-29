@@ -415,11 +415,13 @@ var myLayersControl =  L.Control.extend({
         this._handlingClick = true;
 //        console.log("inputClicked");
 //        console.log("inputClicked e: " +JSON.stringify(e) );
-		for (i = 0; i < inputsLen; i++) {
+		var onLayers = []
+        for (i = 0; i < inputsLen; i++) {
 			input = inputs[i];
 //			console.log('input.LayerId: '+input.layerId);
             obj = this._layers[input.layerId];
 //            console.log('obj.layer: '+obj.layer);
+            
             var event;
             
             if (input.checked && !this._map.hasLayer(obj.layer)) {
@@ -459,6 +461,15 @@ var myLayersControl =  L.Control.extend({
                     window.dispatchEvent(event);
                 }
 			}
+            if (this._map.hasLayer(obj.layer)&&obj.overlay){
+                onLayers.push(obj.name);
+            }
+//            else if (this._map.hasLayer(obj.layer)){
+//                console.log("turnOnAndOffLayer: " + obj.name);
+//                   this._map.removeLayer(obj.layer);
+//                    this._map.addLayer(obj.layer);
+//                
+//            }
             
 //            if(obj.name != "Cases"){    
 //                if (input.checked && !this._map.hasLayer(obj.layer)) {
@@ -479,7 +490,24 @@ var myLayersControl =  L.Control.extend({
 //                }
 //            }
 		}
-
+        console.log("onLayers: " + onLayers);
+        for (i = 0; i < inputsLen; i++) {
+			input = inputs[i];
+//			console.log('input.LayerId: '+input.layerId);
+            obj = this._layers[input.layerId];
+            if(onLayers.indexOf(obj.name)>-1){
+                this._map.removeLayer(obj.layer);
+            }
+        }
+        for (i = 0; i < inputsLen; i++) {
+            input = inputs[i];
+//			console.log('input.LayerId: '+input.layerId);
+            obj = this._layers[input.layerId];
+            if(onLayers.indexOf(obj.name)>-1){
+                this._map.addLayer(obj.layer);
+            }
+        }
+        
 		this._handlingClick = false;
 
 		this._refocusOnMap();
