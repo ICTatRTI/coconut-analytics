@@ -504,7 +504,7 @@ class MapView extends Backbone.View
             layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
             clustersLayer.addLayer layer
             layer.on 'click', (e) ->
-              console.log 'Click Cases';
+              layer.openPopup()
               console.log("map.getPanes: " + JSON.stringify(map.getPanes()));
               return
             
@@ -519,7 +519,12 @@ class MapView extends Backbone.View
             L.circleMarker latlng, getCaseStyle(feature)
           )
         casesLayer.addTo(map)
-        
+        casesLayer.on 'mouseover', ->
+          console.log 'casesLayer'
+          return
+#        casesLayer.on 'click', ->
+#          casesLayer.openPopup()
+#          console.log 'casesLaeyr Click'
 #        if heatMapCoords.length == 0
 #          $('.heatMapButton button').toggleClass 'mdl-button--disabled', true
 #          $('.clusterButton button').toggleClass 'mdl-button--disabled', true
@@ -895,7 +900,7 @@ class MapView extends Backbone.View
     "
     #working
     @snapshot = document.getElementById('snapshot') 
-    L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
+#    L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
     
     #streets = L.mapbox.tileLayer('mapbox.streets')
     #google streets option below
@@ -1182,6 +1187,7 @@ class MapView extends Backbone.View
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'Shehia: ' + feature.properties.Shehia         
           layer.on 'click', (e) ->
+              console.log 'Click Shehias';
               return
             
           return
@@ -1198,6 +1204,7 @@ class MapView extends Backbone.View
           #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
           layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N     
           layer.on 'click', (e) ->
+              console.log 'Click Villages';
               return
           return
       )
