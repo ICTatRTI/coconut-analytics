@@ -3,6 +3,42 @@ class Dhis2
     _(options).each (value, name) =>
       @[name] = value
 
+  loadFromDatabase: (options) =>
+    Coconut.database.get "dhis2"
+    .then (result) =>
+      @dhis2Doc = result
+
+      fields = [
+        "dhis2Url"
+        "dhis2username"
+        "dhis2password"
+        "programId"
+        "malariaCaseEntityId"
+        "caseIdAttributeId"
+        "ageAttributeId"
+      ]
+
+      _(fields).each (field) =>
+        if result[field]
+          @[field] = result[field]
+
+      options.success()
+
+    .catch (error) -> options.error(error)
+
+  test: =>
+    console.log "Reachable?"
+    @request
+      api: "programs"
+      error: (error) -> console.error error
+      success: (result) ->
+        console.log result
+        console.log "Program exists?"
+        @request
+          api: "program"
+          error: (error) -> console.error error
+          success: (result) ->
+
   request: (options) =>
     options.data = JSON.stringify(options.data) if options.method is "POST"
     $.ajax
@@ -39,7 +75,7 @@ class Dhis2
       dataType: "json"
       data:
         orgUnit: options.organisationUnit
-        trackedEntity: @malariaCaseEntity
+        trackedEntity: @malariaCaseEntityId
       error: (error) -> console.log error
       success: (result) ->
         options.success(result.reference)
@@ -67,7 +103,7 @@ class Dhis2
       dataType: "json"
       data:
         orgUnit: options.organisationUnit
-        trackedEntity: @malariaCaseEntity
+        trackedEntity: @malariaCaseEntityId
         attributes: [
           {attribute: @ageAttributeId, value: options.age}
           {attribute: @caseIdAttributeId, value: options.caseId}

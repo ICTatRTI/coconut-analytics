@@ -500,7 +500,7 @@ class Case
       else
         moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
 
-  daysBetweenPositiveResultAndNotification: =>
+  daysBetweenPositiveResultAndNotificationFromFacility: =>
 
     dateOfPositiveResults = @dateOfPositiveResults()
 
@@ -509,6 +509,20 @@ class Case
 
     if dateOfPositiveResults? and notificationDate?
       Math.abs(moment(dateOfPositiveResults).diff(notificationDate, 'days'))
+
+
+  lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() <= 1
+
+  oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() <= 2
+
+  twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() <= 3
+
+  moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
+    @daysBetweenPositiveResultAndNotificationFromFacility() > 3
+
     
   daysBetweenPositiveResultAndCompleteHousehold: =>
     dateOfPositiveResults = @dateOfPositiveResults()
@@ -581,16 +595,7 @@ class Case
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
   createOrUpdateOnDhis2: (options) =>
-    dhis2 = new Dhis2
-      dhis2Url: "http://dhis2.zanzibar.ictedge.org"
-      username: "admin"
-      password: "district"
-      programId: "mVnfEjYjUbo"
-      malariaCaseEntity: "yz2ckz83dsm"
-      caseIdAttributeId: "MP19ZON9fdL"
-      ageAttributeId: "FilMzDIkqNK"
-
-    dhis2.createOrUpdateMalariaCase(@)
+    Coconut.dhis2.createOrUpdateMalariaCase(@)
 
   spreadsheetRow: (question) =>
     console.error "Must call loadSpreadsheetHeader at least once before calling spreadsheetRow" unless Coconut.spreadsheetHeader?
@@ -832,11 +837,15 @@ class Case
     ShehaMjumbe: {}
     TotalNumberofResidentsintheHousehold: {}
 
-    daysBetweenPositiveResultAndNotification:
-      propertyName: "Days Between Positive Result at Facility and Case Notification"
     daysFromCaseNotificationToCompleteFacility: {}
     daysFromSMSToCompleteHousehold:
       propertyName: "Days between SMS Sent to DMSO to Having Complete Household"
+
+    daysBetweenPositiveResultAndNotificationFromFacility: {}
+    lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: {}
+    oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
 
     daysBetweenPositiveResultAndCompleteHousehold: {}
     lessThanOneDayBetweenPositiveResultAndCompleteHousehold: {}

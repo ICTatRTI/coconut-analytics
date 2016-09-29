@@ -101,10 +101,9 @@ class MenuView extends Backbone.View
            graphLinks = {
              IncidentsGraph: "Number of Cases"
              PositiveCasesGraph: "Number of Positive Malaria Cases by Age"
-             YearlyTrends: "Yearly Trends by Week"
              AttendanceGraph: "Attendance"
              TestRateGraph: "Test Rate"
-             # graph_positivity: "Positivity"
+             PositivityGraph: "Number of Persons Tested and Number Positive"
              # positivity_with_rainfall: "Positivity With Rainfall"
              # positivity_by_year: "Positivity Cases By Year"
              TimeToComplete: "Time to Complete"
@@ -146,11 +145,12 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-admin'>
         #{
           adminLinks = {
+            dhis2: "DHIS2"
             facilities: "Facilities"
             rainfall_station: "Rainfall Station"
             geo_hierarchy: "Regions, Districts & Shehias"
-            "shehias_received_irs": "Shehias Received IRS"
-            "shehias_high_risk": "Shehias High Risk"
+            shehias_received_irs: "Shehias Received IRS"
+            shehias_high_risk: "Shehias High Risk"
             system_settings: "System Settings"
             users: "Users"
           }

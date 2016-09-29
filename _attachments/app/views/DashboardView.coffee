@@ -147,6 +147,18 @@ class DashboardView extends Backbone.View
             </div>
           </div>
         </div>
+          <div class='mdl-grid'>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+                <div id='container_7' class='chart_container f-left' data-graph-id = 'Positivity'>
+                   <div class='chart-title'>Number of Persons Tested and Number Positive</div>                
+                   <div id='chart_7' class='chart'></div>
+                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                </div>
+            </div>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            </div>
+          </div>
+        </div>
     "
     adjustButtonSize()
     
@@ -157,14 +169,14 @@ class DashboardView extends Backbone.View
     startDate = options.startDate
     endDate = options.endDate
 
-
-    Coconut.database.query "caseCountIncludingSecondary",
+    Coconut.database.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
       reduce: false
-      include_docs: true
+      include_docs: false
     .then (result) =>
         if (result.rows.length < 2 or _.isEmpty(result.rows[0]))
+          #No result for date range, and so using default date for the current year
           Coconut.router.reportViewOptions.endDate = endDate = moment().format('YYYY-MM-DD')
           Coconut.router.reportViewOptions.startDate = startDate = moment().dayOfYear(1).format('YYYY-MM-DD')
           Coconut.dateSelectorView.startDate = startDate
@@ -172,17 +184,17 @@ class DashboardView extends Backbone.View
           Coconut.dateSelectorView.render()
           displayError()
           options = $.extend({},Coconut.router.reportViewOptions)
-          Coconut.database.query "caseCountIncludingSecondary",
+          Coconut.database.query "caseCounter",
             startkey: [startDate]
             endkey: [endDate]
             reduce: false
-            include_docs: true
+            include_docs: false
           .then (result) =>
-            dataForGraph = _.pluck(result.rows, 'doc')
+            dataForGraph = result.rows
             showStats()    
             @showGraphs(dataForGraph,options)
         else
-          dataForGraph = _.pluck(result.rows, 'doc')
+          dataForGraph = result.rows
           showStats()    
           @showGraphs(dataForGraph,options)
     .catch (error) ->
@@ -196,53 +208,94 @@ class DashboardView extends Backbone.View
     options.adjustX = 15
     options.adjustY = 40
     
-    dataForGraph.forEach((d) ->
-      UssdDate = moment(d['Ussd Notification: Date']?.substring(0,10))
-      CaseNotify = moment(d['Case Notification: Created At']?.substring(0,10))
-      d.threshold = CaseNotify.diff(UssdDate,'days')
-      d.dateICD = new Date(d['Index Case Diagnosis Date']+' ') # extra space at end cause it to use UTC format.
-    )
-    chart1 = dc.lineChart("#chart_1")
+    composite0 = dc.compositeChart("#chart_1")
     composite1 = dc.compositeChart("#chart_2")
     composite2 = dc.compositeChart("#chart_3")
     composite3 = dc.compositeChart("#chart_4")
     composite4 = dc.compositeChart("#chart_5")
     composite5 = dc.compositeChart("#chart_6")
+    composite6 = dc.compositeChart("#chart_7")
+
+    # Graphs using caseCounter query
+    dataForGraph.forEach((d) ->
+      d.dateICD = moment(d.key[0])
+      d.dateWeek = moment(d.key[0]).isoWeek()
+    )
     
     # Incident Graph - Number of Cases
-    Graphs.incidents(dataForGraph, chart1, options)
-    $('div#container_1 div.mdl-spinner').hide()
+    dataForGraph1 = dataForGraph 
+    lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
+    lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
+    # Gathering previous year data
+    Coconut.database.query "caseCounter",
+      startkey: [lastYearStart]
+      endkey: [lastYearEnd]
+      reduce: false
+      include_docs: false
+    .then (result2) => 
+      dataForGraph2 = result2.rows 
+      dataForGraph2.forEach((d) ->
+        d.dateWeek= moment(d.key[0]).isoWeek()
+      )
+      Graphs.incidents(dataForGraph1, dataForGraph2, composite0, options)
+      $('div#container_1 div.mdl-spinner').hide()
     
     # PositiveCases Graph
     Graphs.positiveCases(dataForGraph, composite1, options)
     $('div#container_2 div.mdl-spinner').hide()
 
-    # Attendance Graph
-    Graphs.attendance(dataForGraph, composite2, options)
-    $('div#container_3 div.mdl-spinner').hide()
-
-    # TestRate Graph 
-    Graphs.testRate(dataForGraph, composite3, options)
-    $('div#container_4 div.mdl-spinner').hide()
-    
     # TimeToComplete Graph 
     Graphs.timeToComplete(dataForGraph, composite4, options)
     $('div#container_5 div.mdl-spinner').hide()
     
-    # TimeToNotify Graph 
+    #TimeToNotify Graph
     Graphs.timeToNotify(dataForGraph, composite5, options)
     $('div#container_6 div.mdl-spinner').hide()
           
+    #Positivity Graph
+    Graphs.positivityCases(dataForGraph, composite6, options)
+    $('div#container_7 div.mdl-spinner').hide()
 
+    # Graphs using weeklyDataCounter query
+    startYear = moment(options.startDate).isoWeekYear().toString()
+    startWeek = moment(options.startDate).isoWeek().toString()
+    endYear = moment(options.endDate).isoWeekYear().toString()
+    endWeek = moment(options.endDate).isoWeek().toString()
+    Coconut.database.query "weeklyDataCounter",
+      start_key: [startYear, startWeek]
+      end_key: [endYear,endWeek,{}]
+      reduce: true
+      group: true
+      include_docs: false
+    .then (result) =>
+      dataForGraph = result.rows
+      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
+        $(".chart_container").html HTMLHelpers.noRecordFound()
+        $('#analysis-spinner').hide()
+      else
+        dataForGraph.forEach((d) ->
+           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
+        )
+         # Attendance Graph
+        Graphs.attendance(dataForGraph, composite2, options)
+        $('div#container_3 div.mdl-spinner').hide()
+
+        #TestRate Graph 
+        Graphs.testRate(dataForGraph, composite3, options)
+        $('div#container_4 div.mdl-spinner').hide()
+        
     window.onresize = () ->
       adjustButtonSize()
       new_height = 0.45 *  $(".chart_container").width()
 #      $(".chart_container").css('height',new_height)
       #$(".chart_container").height(0.44 * $(".chart_container").width())
-      Graphs.chartResize(chart1, 'chart_container', options)
+      Graphs.compositeResize(composite0, 'chart_container', options)
       Graphs.compositeResize(composite1, 'chart_container', options)
       Graphs.compositeResize(composite2, 'chart_container', options)
       Graphs.compositeResize(composite3, 'chart_container', options)
+      Graphs.compositeResize(composite4, 'chart_container', options)
+      Graphs.compositeResize(composite5, 'chart_container', options)
+      Graphs.compositeResize(composite6, 'chart_container', options)
 
     
   showStats = () ->
