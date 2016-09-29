@@ -278,16 +278,16 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
 
  Graphs.timeToNotify = (dataForGraph, composite, options) ->
      data1 = _.filter(dataForGraph, (d) ->
-       return (d.key[1] is "Less Than One Day Between Positive Result And Case Notification" and d.value is 1)
+       return (d.key[1] is "Less Than One Day Between Positive Result And Notification From Facility" and d.value is 1)
      )
      data2 = _.filter(dataForGraph, (d) ->
-       return (d.key[1] is "One To Two Days Between Positive Result And Case Notification" and d.value is 1)
+       return (d.key[1] is "One To Two Days Between Positive Result And Notification From Facility" and d.value is 1)
      )
      data3 = _.filter(dataForGraph, (d) ->
-       return (d.key[1] is  "Two To Three Days Between Positive Result And Case Notification" and d.value is 1)
+       return (d.key[1] is  "Two To Three Days Between Positive Result And Notification From Facility" and d.value is 1)
      )
      data4 = _.filter(dataForGraph, (d) ->
-       return (d.key[1] is "More Than Three Days Between Positive Result And Case Notification" and d.value is 1)
+       return (d.key[1] is "More Than Three Days Between Positive Result And Notification From Facility" and d.value is 1)
      )
      console.log(data1)
      ndx1 = crossfilter(data1)
