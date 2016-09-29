@@ -135,7 +135,6 @@ setCaseStyle = (styleType, feature) ->
         
 getCaseStyle = (feature) -> 
     if caseStyle == 'travelCases'
-      console.log("feature.properties.RecentTravel: " + feature.properties.RecentTravel)
       if feature.properties.RecentTravel == false
         return noTravelCaseStyle
       else
@@ -537,7 +536,7 @@ class MapView extends Backbone.View
               <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
               #{feature.properties.MalariaCaseID}</button>
             "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS
+            layer.bindPopup "<b>caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS
             layer.on 'click', (e) ->
               return   
             #clustersLayer.addLayer layer
