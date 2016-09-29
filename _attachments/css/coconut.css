@@ -688,28 +688,33 @@ a.chip {
 		cursor: pointer;
 }
 
-.summary1, .summary5 {
-  background-color: #ff5722;
+.summary1, .summary2, .summary3, .summary4, .summary5, .summary6, .summary7, .summary8  {
 	background-repeat: no-repeat;
   background-position:right center;
 }
-
-.summary2, .summary6 {
-  background-color: #05bcd4;
-	background-repeat: no-repeat;
-  background-position:right center;
+.summary1  {
+  background-color: #ff4081;
 }
-
-.summary3, .summary7 {
-  background-color: #3f51b5;
-	background-repeat: no-repeat;
-  background-position:right center;
+.summary2  {
+  background-color: #ffc107;
 }
-
-.summary4, .summary8 {
-  background-color: #059688;
-	background-repeat: no-repeat;
-  background-position:right center;
+.summary3  {
+  background-color: #1976d2;
+}
+.summary4  {
+  background-color: #ff9800;
+}
+.summary5  {
+  background-color: #bdbdbd;
+}
+.summary6  {
+  background-color: #2196f3;
+}
+.summary7  {
+  background-color: #4caf50;
+}
+.summary8  {
+  background-color: #757575;
 }
 
 .stats {
