@@ -232,7 +232,9 @@ class Router extends Backbone.Router
             Coconut.caseView.render(docID)
           error: (error) ->
             alert "Could not display case: #{error}"
-
+      error: =>
+        @loginFailed()
+        
   dashboard: (startDate,endDate) =>
     @userLoggedIn
       success:  =>
@@ -350,7 +352,9 @@ class Router extends Backbone.Router
         Coconut.issueView ?= new IssueView()
         Coconut.issueView.issue = null
         Coconut.issueView.render()
-
+      error: =>
+        @loginFailed()
+        
   showIssue: (issueID) ->
     @userLoggedIn
       success: ->
@@ -365,7 +369,9 @@ class Router extends Backbone.Router
           else
             Dialog.createDialogWrap()
             Dialog.confirm("Issue not found: <br />#{issueID}", "Database Error",["Ok"])
-
+      error: =>
+        @loginFailed()
+        
   userLoggedIn: (callback) =>
     User.isAuthenticated
       success: (user) =>
