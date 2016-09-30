@@ -160,9 +160,6 @@ class MenuView extends Backbone.View
         }
         </div>	
       </nav>
-    <div>
-    <div id='footer'>
-      Powered by Coconut Surveillance
     </div>
     "
 

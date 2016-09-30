@@ -95,7 +95,7 @@ class CaseFollowupView extends Backbone.View
                     <td>Household incomplete.</td>
                  </tr>
                  <tr>
-                   <td><span style='color:#3F51B5;font-weight:bold'>SHEHIA</span></td>
+                   <td><span style='color:rgb(255,64,129);font-weight:bold'>SHEHIA</span></td>
                    <td>a shehia classified as high risk based on previous data.</td>
                    <td class='legend_gap'> </td>
                    <td>

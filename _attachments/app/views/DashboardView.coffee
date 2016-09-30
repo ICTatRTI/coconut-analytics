@@ -300,14 +300,16 @@ class DashboardView extends Backbone.View
     
   showStats = () ->
     Coconut.statistics.alerts = 0
-    Coconut.statistics.cases = 0
+    Coconut.statistics.alarms = 0
     Coconut.statistics.notified = 0
     Coconut.statistics.notfollowed = 0
     Coconut.statistics.hsat = 0
     Coconut.statistics.hsattested = 0
     Coconut.statistics.fsat = 0
     Coconut.statistics.imported = 0
-
+    
+    alertAlarmCounter()
+    
     #Grouped by ISO Year Week
     # groupCaseCounterResult "GGGG-WW",
     #   success: (result) ->
@@ -321,13 +323,12 @@ class DashboardView extends Backbone.View
           Coconut.statistics.notified += d["Has Notification"]
           Coconut.statistics.notfollowed += (d["Has Notification"] - d["Followed Up"])
           Coconut.statistics.imported += d["Number Index And Household Cases Suspected To Be Imported"]
-          Coconut.statistics.hsat += d["Number Of Positive Cases At Index Household"]
+          Coconut.statistics.hsat += d["Number Household Members Tested Positive"]
           Coconut.statistics.fsat += d["Number Positive Cases From Mass Screen"] if d["Number Positive Cases From Mass Screen"]?
           Coconut.statistics.hsattested += d["Number Household Members Tested"]
         )
-        displayStatistics()
-  
-  
+        displayStatistics()  
+
   adjustButtonSize = () ->
     noButtons = 8
     summaryWidth = $('#dashboard-summary').width()
@@ -335,8 +336,6 @@ class DashboardView extends Backbone.View
     $('.chip').width(buttonWidth-2)
   
   displayStatistics = () ->
-    $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?
-    $('#alarmStat').html(Coconut.statistics.cases) if Coconut.statistics.cases?
     $('#notifiedStat').html(Coconut.statistics.notified) if Coconut.statistics.notified?
     $('#notfollowStat').html(Coconut.statistics.notfollowed) if Coconut.statistics.notfollowed?
     $('#hsatStat').html(Coconut.statistics.hsat) if Coconut.statistics.hsat?
@@ -370,5 +369,20 @@ class DashboardView extends Backbone.View
       
     .catch (error) ->
       console.error error
-      
+  
+  alertAlarmCounter = () ->
+   options = $.extend({},Coconut.router.reportViewOptions)
+   Coconut.database.query "alertAlarmCounter",
+     startkey: [options.startDate,{}]
+     endkey: [options.endDate,{}]
+     reduce: true
+     group: true
+   .then (result) ->
+     _(result.rows).each (result) ->
+       Coconut.statistics.alerts += result.value if result.key[1] is "Alert" 
+       Coconut.statistics.alarms += result.value if result.key[1] is "Alarm" 
+
+     $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?
+     $('#alarmStat').html(Coconut.statistics.alarms) if Coconut.statistics.alarms?
+             
 module.exports = DashboardView

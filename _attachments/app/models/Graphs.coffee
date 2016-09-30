@@ -289,7 +289,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      data4 = _.filter(dataForGraph, (d) ->
        return (d.key[1] is "More Than Three Days Between Positive Result And Notification From Facility" and d.value is 1)
      )
-     console.log(data1)
+
      ndx1 = crossfilter(data1)
      ndx2 = crossfilter(data2)
      ndx3 = crossfilter(data3)
