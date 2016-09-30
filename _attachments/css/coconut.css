@@ -661,7 +661,7 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
   display: inline-block;
   width: 100%;
   padding: 5px 7px;
-  background: #e0e0e0;
+ /* background: #e0e0e0; */
 }
 
 .summary {
@@ -1263,14 +1263,39 @@ svg {
   padding-top: 5px;
   margin-bottom: 25px;
 }
-
+/*
 div#footer {
   position: absolute;
-  bottom: 0;
   font-size: 11px;
-  width: 100%;
-  margin-bottom: 5px;
+  top: 0;
+  left: 0;
+   width: 100%;
+  margin-bottom: 5px; 
   text-align: center;
+  -webkit-transform: rotate(-90deg);
+      -moz-transform: rotate(-90deg);
+      -o-transform: rotate(-90deg);
+      -ms-transform: rotate(-90deg);
+      transform: rotate(-90deg);
+}
+*/
+div#footer {
+	position: absolute;
+	left: 3px;
+	bottom: 10px;
+	font-size: 11px;
+	transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+  	-moz-transform: rotate(270deg);
+  	-webkit-transform: rotate(270deg);
+  	-o-transform: rotate(270deg);
+  	line-height: 15px;
+  	height: 15px;
+  	width: 15px;
+  	overflow: visible;
+  	white-space: nowrap;
+    color: black;
+    font-family: arial;
 }
 
 .white {
