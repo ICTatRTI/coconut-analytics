@@ -78,6 +78,7 @@ class WeeklyReportsView extends Backbone.View
         console.error error
       success: (results) =>
         @$el.append "
+          <div class='scroll-div'>
             <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='weeklyReports'>
               <thead>
                 <th class='mdl-data-table__cell--non-numeric'>#{@aggregationPeriod}</th>
@@ -142,6 +143,7 @@ class WeeklyReportsView extends Backbone.View
                 }
               </tbody>
             </table>
+          </div>
         "
         $("#weeklyReports").dataTable
           aaSorting: [[0,"desc"],[1,"asc"],[2,"desc"]]

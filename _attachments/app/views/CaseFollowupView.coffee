@@ -197,7 +197,7 @@ class CaseFollowupView extends Backbone.View
              </table>
           </div>
       </div>
-      <div id='results' class='result'>
+      <div id='results' class='result scroll-div'>
         <table class='summary mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='casefollowup' width='100%'>
           <thead><tr></tr></thead>
           <tbody>

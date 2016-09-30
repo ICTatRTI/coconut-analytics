@@ -79,7 +79,7 @@ table.tablesorter thead tr {
 table.tablesorter thead tr .header {
 	background-image: url(../images/bg.gif);
 	background-repeat: no-repeat;
-	background-position: center right;
+	background-position: 1% 90%;
 	cursor: pointer;
 	font-weight:bold;
 }
@@ -97,6 +97,9 @@ table.tablesorter tbody tr {
 table.tablesorter tbody tr {
 	vertical-align: middle;
 	line-height: 20pt;
+}
+.tablesorter-header-inner {
+  padding-left: 15px;
 }
 
 /*
@@ -141,6 +144,11 @@ table.tablesorter tbody tr.odd.followed-up-false td {
 
 table#alertsTable td.data{
 	display: none;
+}
+
+table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc, table.dataTable thead .sorting_asc_disabled, table.dataTable thead .sorting_desc_disabled {
+    background-repeat: no-repeat;
+    background-position: 0% 80%;
 }
 
 .dataTables_wrapper .dataTables_filter {
@@ -1317,4 +1325,8 @@ div.overlay {
   position: absolute;
   top: 0px;
   right: 0px;
+}
+
+.scroll-div {
+  overflow-x: scroll;
 }

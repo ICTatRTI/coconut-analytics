@@ -420,7 +420,8 @@ class AnalysisView extends Backbone.View
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
       <div id='#{id}' class='analysis-report dropdown-section'>
-		<div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>
+      <div class='scroll-div'>
+       <div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>      
         <table #{if id? then "id=#{id}" else ""} class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead>
             <tr>
@@ -435,7 +436,8 @@ class AnalysisView extends Backbone.View
             #{rows}
           </tbody>
         </table>
-      </div>	
+       </div>
+      </div>
     "
 
 module.exports = AnalysisView
