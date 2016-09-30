@@ -203,7 +203,7 @@ window.addEventListener 'labelsOnOff', ((e) ->
 ), false
 
 require 'mapbox.js'
-require 'leaflet'
+#require 'leaflet'
 materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
@@ -1043,8 +1043,6 @@ class MapView extends Backbone.View
         onEachFeature: (feature, layer) ->
           layer.bindPopup 'District: ' + feature.properties.District_N
           layer.on 'click', (e) ->
-              console.log 'Click Districts';
-              console.log("map.getPanes: " + JSON.stringify(map.getPanes()));
               return
           return
       ).addTo map
@@ -1185,11 +1183,9 @@ class MapView extends Backbone.View
       shehiasLayer = L.geoJson(shehiasData,
         style: admin2PolyOptions
         onEachFeature: (feature, layer) ->
-          layer.bindPopup 'Shehia: ' + feature.properties.Shehia         
+          layer.bindPopup 'District: ' + feature.properties.District_N + '<br />\n Shehia: ' + feature.properties.Shehia         
           layer.on 'click', (e) ->
-              console.log 'Click Shehias';
               return
-            
           return
       )
       materialLayersControl.addOverlay(shehiasLayer, 'Shehias')
@@ -1202,7 +1198,7 @@ class MapView extends Backbone.View
         style: admin3PolyOptions
         onEachFeature: (feature, layer) ->
           #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
-          layer.bindPopup 'Village: ' + feature.properties.Vil_Mtaa_N     
+          layer.bindPopup 'District: ' + feature.properties.District_N + '<br />\n Shehia: ' + feature.properties.Ward_Name+'<br />\n Village: ' + feature.properties.Vil_Mtaa_N     
           layer.on 'click', (e) ->
               console.log 'Click Villages';
               return
@@ -1307,10 +1303,14 @@ class MapView extends Backbone.View
           left: 50
         svgWidth = winWidth - (svgMargin.left) - (svgMargin.right) - 100
         svgHeight = 80 - (svgMargin.bottom) - (svgMargin.top)
+        timeOutDate = new Date(startDate);
+        timeOutDate.setDate timeOutDate.getDate() + 14 
         inputStartDate = new Date(startDate)
         inputStartDate.setDate inputStartDate.getDate() + 1
         inputEndDate = new Date(endDate)
         inputEndDate.setDate inputEndDate.getDate() + 1
+        if timeOutDate > inputEndDate
+            timeOutDate = inputEndDate
         timeScale = d3.time.scale().domain([
           inputStartDate
           inputEndDate
@@ -1319,9 +1319,13 @@ class MapView extends Backbone.View
           svgWidth
         ]).clamp(true)
         startValue = timeScale(inputStartDate)
+        console.log("inputStartDate: " + inputStartDate);
+        console.log("startValue: " + startValue);
         startingValue = inputStartDate
-        endValue = timeScale(inputEndDate)
+        endValue = timeScale(inputEndDate);
         endingValue = inputEndDate
+        console.log("endingValue: " + endingValue);
+        console.log("timeOutDate: " + timeOutDate);
         d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
         d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
         d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
@@ -1333,14 +1337,23 @@ class MapView extends Backbone.View
         d3.select('.brush').each((d) ->
           d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).extent([
             startingValue
-            endingValue
+            timeOutDate
           ]).on('brush', brushed)
           return
         ).selectAll('rect').attr('y', 10).attr('height', 16)
-        d3.select('.texte').text(formatDate(endingValue))
-        d3.select('.textw').text(formatDate(startingValue))
+        d3.select('texte').text formatDate(timeOutDate)
+        d3.select('textw').text formatDate(startingValue)
+#        textE = d3.select('#resizee').append('text').attr('class', 'texte')
+#        textE.id = 'texte'
+#        textW = d3.select('#resizew').append('text').attr('class', 'textw').attr('transform', 'translate(-48,0)')
+#        textW.id = 'textw'
+#        textE.text("test")
+#        textW.text("test")
+        
+#        rectE = d3.select('#resizee rect').attr('class', 'recte').style('visibility','visible').attr('width', 3)
+#        rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
         outFormat = d3.time.format("%Y-%m-%d")
-        dateRange = [outFormat(startingValue), outFormat(endingValue)]
+        dateRange = [outFormat(startingValue), outFormat(timeOutDate)]
     
     $('#play').on 'click', ->
       duration = 300
@@ -1428,6 +1441,11 @@ class MapView extends Backbone.View
     textW.id = 'textw'
     rectE = d3.select('#resizee rect').attr('class', 'recte').style('visibility','visible').attr('width', 3)
     rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
+    brushStartDate = timeScale.brush.extent()[0]
+    brushEndDate = timeScale.brush.extent()[1]
+    dayMoFormat = d3.time.format("%b %d")
+    textE.text(dayMoFormat(brushEndDate));
+    textW.text(dayMoFormat(brushStartDate));
     rects = _brush.selectAll('rect')
     rects3 = rects[0][3]
    
