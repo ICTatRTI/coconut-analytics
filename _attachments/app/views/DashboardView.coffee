@@ -223,7 +223,12 @@ class DashboardView extends Backbone.View
     )
     
     # Incident Graph - Number of Cases
-    dataForGraph1 = dataForGraph 
+    dataForGraph1 = dataForGraph
+    #hack to speed up graph display by display in 2 phases for the 2 years comparison
+    dataForGraph2 = []
+    Graphs.incidents(dataForGraph1, dataForGraph2, composite0, options)
+    $('div#container_1 div.mdl-spinner').hide()
+    #processing data for second graph
     lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
     lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
     # Gathering previous year data
@@ -232,8 +237,8 @@ class DashboardView extends Backbone.View
       endkey: [lastYearEnd]
       reduce: false
       include_docs: false
-    .then (result2) => 
-      dataForGraph2 = result2.rows 
+    .then (result2) =>
+      dataForGraph2 = result2.rows
       dataForGraph2.forEach((d) ->
         d.dateWeek= moment(d.key[0]).isoWeek()
       )
