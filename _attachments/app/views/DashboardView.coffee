@@ -80,13 +80,14 @@ class DashboardView extends Backbone.View
                 <div class='stats-title'>HSAT Tested</div>
               </a>
             </div>
-            <div class='stat_summary'> 
+<!--            <div class='stat_summary'> 
               <a class='chip summary7'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='fsatStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>FSAT</div>
               </a>
             </div>
+-->
             <div class='stat_summary'> 
               <a class='chip summary8'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
@@ -345,7 +346,7 @@ class DashboardView extends Backbone.View
     $('#notfollowStat').html(Coconut.statistics.notfollowed) if Coconut.statistics.notfollowed?
     $('#hsatStat').html(Coconut.statistics.hsat) if Coconut.statistics.hsat?
     $('#hsattestStat').html(Coconut.statistics.hsattested) if Coconut.statistics.hsattested?
-    $('#fsatStat').html(Coconut.statistics.fsat) if Coconut.statistics.fsat?
+#    $('#fsatStat').html(Coconut.statistics.fsat) if Coconut.statistics.fsat?
     $('#importedStat').html(Coconut.statistics.imported) if Coconut.statistics.imported?
     
   displayError = () ->
