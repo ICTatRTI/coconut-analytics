@@ -122,7 +122,8 @@ class MenuView extends Backbone.View
         <a class='mdl-navigation__link drawer__link' href='#export' id='export' data-title='Data Export' data-category='menuLink'>  
           <i class='mdl-color-text--blue-grey-400 material-icons'>cloud_download</i>
             <span class='link-title'>Data Export</span>
-        </a>		
+        </a>
+<!--
         <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>  
           <i class='mdl-color-text--blue-grey-400 material-icons'>settings</i>
             User Settings
@@ -138,6 +139,7 @@ class MenuView extends Backbone.View
              .join ""
            }
         </div>
+-->
         <span class='mdl-navigation__link drawer__subtitle' id='admin-main' data-title='Admin' data-category='menuHeader'>  
           <i class='mdl-color-text--blue-grey-400 material-icons'>build</i>
            Admin
