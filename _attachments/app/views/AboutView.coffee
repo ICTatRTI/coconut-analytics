@@ -38,12 +38,13 @@ class AboutView extends Backbone.View
           <div>Unless required by applicable law or agreed to in writing, software<br />
           distributed under the License is distributed on an 'AS IS' BASIS,<br />
           WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        </div>
+        </div><br />
         <div>See the License for the specific language governing permissions and<br />
           limitations under the License.
         </div>
         <div id='acknowledgements'>Acknowledgements and Credits</div>
-        <div>Bla, bla, bla.......</div>
+        <div>The development of Coconut Surveillance has been funded by RTI International and the U.S. President’s
+Malaria Initiative. Coconut Surveillance has been developed in close collaboration with the the Zanzibar Malaria Elimination Programme.</div>
         <div id='dialogActions'>
              <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' ><i class='material-icons'>done</i> Ok</button>
         </div> 

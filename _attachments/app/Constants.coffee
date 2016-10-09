@@ -2,7 +2,7 @@
 # Keeping all constants used in App in a single place
 module.exports =
   SaltRounds: 10
-  Version: "2.0 alpha"
+  Version: "2.0"
   dateFormats: ['DD-MM-YYYY', 'MM-DD-YYYY', 'YYYY-MM-DD']
   graphColorSchemes: ['spectrum14', 'colorwheel', 'cool', 'spectrum2000', 'spectrum2001', 'classic9','munin']  
   Countries: 
