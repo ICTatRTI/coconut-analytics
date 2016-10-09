@@ -111,7 +111,7 @@ class WeeklyReportsView extends Backbone.View
                           #{
                           _.map results.fields, (field) =>
                             if field is "Facility Followed-Up Positive Cases"
-                              "<td>#{HTMLHelpers.createDisaggregatableCaseGroup data[field]}</td>"
+                              "<td>#{if data[field] then HTMLHelpers.createDisaggregatableCaseGroup data[field] else ''}</td>"
                             else
                               "<td>#{if data[field]? then data[field] else "-"}</td>"
                           .join("")
