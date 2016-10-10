@@ -16,7 +16,7 @@ var zoomControl = L.Control.extend({
     zoomHomeTitle: 'Zoom home'
   },
   onAdd: function(map) {
-    console.log('zoom.options: ' + JSON.stringify(this.options))
+//    console.log('zoom.options: ' + JSON.stringify(this.options))
     var container, controlName, options;
     controlName = 'gin-control-zoom';
     container = L.DomUtil.create('div', 'leaflet-control-zoom-mdl leaflet-bar-mdl');

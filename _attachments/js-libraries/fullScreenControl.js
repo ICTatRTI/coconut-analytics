@@ -26,10 +26,10 @@ var fullScreenControl = L.Control.Fullscreen.extend({
       
     this._materialButton.title = this.options.title[this._map.isFullscreen()];
     this._materialIcon.innerHTML = fullScreenIcon[this._map.isFullscreen()];
-    console.log ("this._materialButton.title: " + this._materialButton.title);
-    console.log ("fullSCreenIcon: " + JSON.stringify(fullScreenIcon));
+//    console.log ("this._materialButton.title: " + this._materialButton.title);
+//    console.log ("fullSCreenIcon: " + JSON.stringify(fullScreenIcon));
     var screenState = this._materialButton.title == "Exit Fullscreen" ? "Fullscreen" : "Screen";    
-    console.log("screenState: "+screenState);
+//    console.log("screenState: "+screenState);
     var event = new CustomEvent('fullScreenChange', { 'detail': { 
             screenState: screenState 
         }
