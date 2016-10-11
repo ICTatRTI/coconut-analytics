@@ -43,13 +43,16 @@ QuestionCollection = require './models/QuestionCollection'
 DhisOrganisationUnits = require './models/DhisOrganisationUnits'
 GeoHierarchyClass = require './models/GeoHierarchy'
 dhisOrganisationUnits = new DhisOrganisationUnits()
+console.log "Loading dhis2"
 dhisOrganisationUnits.loadExtendExport
   dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
   error: (error) -> console.error error
   success: (result) ->
+    console.log "Loading GeoHierarchy"
     global.GeoHierarchy = new GeoHierarchyClass(result)
     global.FacilityHierarchy = GeoHierarchy # These have been combined
     Coconut.questions = new QuestionCollection()
+    console.log "Loading questions"
     Coconut.questions.fetch
       error: (error) -> console.error error
       success: ->

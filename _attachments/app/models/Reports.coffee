@@ -895,7 +895,7 @@ class Reports
         startkey: "#{prefix}-#{startDate}"
         endkey: "#{prefix}-#{endDate}-\ufff0"
         include_docs: true
-      .catch (error) -> 
+      .catch (error) ->
         options.error(error)
       .then (result) =>
           issues = issues.concat _(result.rows).pluck "doc"

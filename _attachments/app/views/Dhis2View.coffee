@@ -12,6 +12,7 @@ class Dhis2View extends Backbone.View
   events:
     "click button#updateBtn": "update"
     "click button#test": "test"
+    "click button#send": "send"
     
   render: =>
 
@@ -39,8 +40,9 @@ class Dhis2View extends Backbone.View
         .join ""
       }
       <div id='dialogActions'>
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='send' type='button'><i class='material-icons'>sync</i>Send Cases For Past 30 Days</button> &nbsp;
        <button class='mdl-button mdl-js-button mdl-button--primary' id='test' type='button'><i class='material-icons'>test</i> Test</button> &nbsp;
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button'><i class='material-icons'>sync</i> Update</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button'><i class='material-icons'>save</i> Update</button> &nbsp;
       </div>
     "
     @load()
@@ -68,7 +70,13 @@ class Dhis2View extends Backbone.View
       malariaCaseEntityId: $("#malariaCaseEntityId").val()
       caseIdAttributeId: $("#caseIdAttributeId").val()
       ageAttributeId: $("#ageAttributeId").val()
-    dhis2.test()
+    dhis2.test
+      error: (error) ->
+        Dialog.createDialogWrap()
+        Dialog.confirm("Test Error: #{JSON.stringify error}", 'Test DHIS Connection',['Ok'])
+      success: ->
+        Dialog.createDialogWrap()
+        Dialog.confirm("Test Succeeded", 'Test DHIS Connection',['Ok'])
 
   update: =>
     @dhis2Doc = {_id: "dhis2", isApplicationDoc: true} unless @dhis2Doc
@@ -81,5 +89,45 @@ class Dhis2View extends Backbone.View
       Coconut.dhis2.loadFromDatabase()
       Dialog.createDialogWrap()
       Dialog.confirm("Dhis2 Configuration has been saved.", 'System Settings',['Ok'])
+
+  send: =>
+    Coconut.database.query "caseIDsByDate",
+      # Note that these seem reversed due to descending order
+      startkey: moment().subtract(1,"month").format("YYYY-MM-DD")
+      endkey: moment().format("YYYY-MM-DD")
+      include_docs: false
+    .catch (error) -> console.error error
+    .then (result) ->
+      Case.getCases
+        caseIDs: _.unique(_.pluck result.rows, "value")
+        error: (error) -> console.error error
+        success: (cases) ->
+          numberCasesToSend = cases.length
+          console.log "Sending: #{numberCasesToSend} cases"
+          numberCasesSent = 0
+          numberCasesNotSent = 0
+          casesNotSentErrors = ""
+          processCasesSynchronously = ->
+            console.log cases.length
+            if cases.length > 0
+              malariaCase = cases.pop()
+              malariaCase.createOrUpdateOnDhis2
+                error: (error) ->
+                  console.error "Error processing case #{malariaCase.caseId()}, proceeding to next case: #{error}"
+                  numberCasesNotSent += 1
+                  casesNotSentErrors += error + "<br/>"
+                  processCasesSynchronously()
+                success: ->
+                  numberCasesSent += 1
+                  processCasesSynchronously()
+            else
+              Dialog.createDialogWrap()
+              message = "#{numberCasesSent} cases sent to DHIS2<br/>"
+              if numberCasesNotSent > 0
+                message +="#{numberCasesNotSent} cases that were unable to be sent:<br/>#{casesNotSentErrors}"
+              Dialog.confirm(message, 'Send Complete',['Ok'])
+
+          processCasesSynchronously()
+
 
 module.exports = Dhis2View

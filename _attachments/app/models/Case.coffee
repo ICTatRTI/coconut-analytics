@@ -120,10 +120,13 @@ class Case
     userId = @.Household?.user || @.Facility?.user || @["Case Notification"]?.user
   
   facility: ->
-    @["Case Notification"]?.FacilityName or @["USSD Notification"]?.hf
+    @["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase()
 
   facilityType: =>
     FacilityHierarchy.facilityType(@facility())
+
+  facilityDhis2OrganisationUnitId: =>
+    GeoHierarchy.findFirst(@facility(), "FACILITY")?.id
 
   isShehiaValid: =>
     if @validShehia() then true else false
@@ -257,7 +260,6 @@ class Case
     result +=1 if @indexCaseSuspectedImportedCase()
     # Check household cases
     _(@["Household Members"]).each (householdMember) ->
-      console.log personTravelledInLast3Weeks(householdMember)
       result +=1 if personTravelledInLast3Weeks(householdMember)
     return result
 
@@ -594,8 +596,9 @@ class Case
     if @["Household"]?.complete is "true" and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
-  createOrUpdateOnDhis2: (options) =>
-    Coconut.dhis2.createOrUpdateMalariaCase(@)
+  createOrUpdateOnDhis2: (options = {}) =>
+    options.malariaCase = @
+    Coconut.dhis2.createOrUpdateMalariaCase(options)
 
   spreadsheetRow: (question) =>
     console.error "Must call loadSpreadsheetHeader at least once before calling spreadsheetRow" unless Coconut.spreadsheetHeader?
@@ -1002,7 +1005,7 @@ Case.updateSpreadsheetForCases = (options) ->
         .then (result) -> saveRowDoc(result)
 
 Case.getCases = (options) ->
-  Coconut.database.query "#{Coconut.config.design_doc_name}/cases",
+  Coconut.database.query "cases",
     keys: options.caseIDs
     include_docs: true
   .catch (error) ->
@@ -1126,7 +1129,7 @@ Case.updateCaseSummaryDocs = (options) ->
         caseSummaryData.lastChangeSequenceProcessed = lastChangeSequenceProcessed
         Coconut.database.put caseSummaryData
         .then (result) ->
-          console.log numberCasesChanged
+          console.log "Number of cases changed: #{numberCasesChanged}"
           Case.getLatestChange
             error: -> console.error error
             success: (latestChange) ->
@@ -1145,7 +1148,13 @@ Case.updateCaseSummaryDocs = (options) ->
     update(0,{_id: "CaseSummaryData"})
   .then (caseSummaryData) ->
     console.log caseSummaryData
-    update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
+    Coconut.database.changes
+      since: "now"
+      include_docs: false
+      limit: 1
+    .then (result) ->
+      console.log result
+      update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
 
 Case.updateCaseSummaryDocsSince = (options) ->
     limit = options.maximumNumberChangesToProcess
@@ -1178,6 +1187,22 @@ Case.updateCaseSummaryDocsSince = (options) ->
       options.error?(error)
 
 
+Case.getCasesByCaseIds = (options) ->
+  Coconut.database.query "cases",
+    keys: options.caseIDs
+    include_docs: true
+  .catch (error) -> console.error error
+  .then (result) =>
+    groupedResults = _.chain(result.rows)
+      .groupBy (row) =>
+        row.key
+      .map (resultsByCaseID) =>
+        new Case
+          results: _.pluck resultsByCaseID, "doc"
+      .compact()
+      .value()
+    options.success groupedResults
+
 Case.updateSummaryForCases = (options) ->
   docsToSave = []
   options.success() if options.caseIDs.length is 0
@@ -1198,6 +1223,7 @@ Case.updateSummaryForCases = (options) ->
       error: (error) ->
         console.error "ERROR fetching case: #{caseID}"
         console.error error
+        finished()
       success: ->
         docId = "case_summary_#{caseID}"
         caseSummaryDoc = {_id: docId}
