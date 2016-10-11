@@ -243,7 +243,7 @@ class CaseFollowupView extends Backbone.View
             $("table.summary tbody").append ").
               <tr id='case-#{malariaCase.caseID}'>
                 <td class='CaseID mdl-data-table__cell--non-numeric'>
-                    <button id= '#{malariaCase.caseID}' class='btn btn-small caseBtn #{if malariaCase.notFollowedUpAfter48Hours() then "mdl-button--primary" } caseid'>#{malariaCase.caseID}</button>
+                    <button id= '#{malariaCase.caseID}' class='btn btn-small caseBtnLg #{if malariaCase.notFollowedUpAfter48Hours() then "mdl-button--primary" else "" } caseid'>#{malariaCase.caseID}</button>
                 </td>
                 <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
                   #{malariaCase.indexCaseDiagnosisDate()}

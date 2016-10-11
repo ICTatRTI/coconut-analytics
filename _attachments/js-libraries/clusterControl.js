@@ -8,7 +8,7 @@ var clusterControl =  L.Control.extend({
     var container, controlName, options;
     container = L.DomUtil.create('div', 'clusterButton leaflet-control-zoom-mdl leaflet-bar-mdl');
     options = this.options;
-    console.log(JSON.stringify(options))
+//    console.log(JSON.stringify(options))
       this._zoomHomeButton = this._createMaterialButton('leaflet-zoom-in-mdl ', '<i class="material-icons">bubble_chart</i>', "turn on point clusters", container); 
       
     return container;

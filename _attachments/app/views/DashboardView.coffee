@@ -40,16 +40,16 @@ class DashboardView extends Backbone.View
           <div class='sub-header-color relative clear'>
             <div class='stat_summary'> 
               <a class='chip summary1'>
-                <div class='summary_icon'><i class='material-icons white'>notifications_none</i></div>
-                <div class='stats' id='alertStat'><div class='loading'>Loading...</div></div>
-                <div class='stats-title'>Alerts</div>
+                <div class='summary_icon'><i class='material-icons white'>notifications_active</i></div>
+                <div class='stats' id='alarmStat'><div class='loading'>Loading...</div></div>
+                <div class='stats-title'>Alarms</div>
               </a>
             </div>
             <div class='stat_summary'> 
               <a class='chip summary2'>
-                <div class='summary_icon'><i class='material-icons white'>notifications_active</i></div>
-                <div class='stats' id='alarmStat'><div class='loading'>Loading...</div></div>
-                <div class='stats-title'>Alarms</div>
+                <div class='summary_icon'><i class='material-icons white'>notifications_none</i></div>
+                <div class='stats' id='alertStat'><div class='loading'>Loading...</div></div>
+                <div class='stats-title'>Alerts</div>
               </a>
             </div>
             <div class='stat_summary'> 
@@ -80,13 +80,14 @@ class DashboardView extends Backbone.View
                 <div class='stats-title'>HSAT Tested</div>
               </a>
             </div>
-            <div class='stat_summary'> 
+<!--            <div class='stat_summary'> 
               <a class='chip summary7'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='fsatStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>FSAT</div>
               </a>
             </div>
+-->
             <div class='stat_summary'> 
               <a class='chip summary8'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
@@ -132,17 +133,17 @@ class DashboardView extends Backbone.View
           </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
-                <div id='container_5' class='chart_container f-left' data-graph-id = 'TimeToComplete'>
-                   <div class='chart-title'>Time To Complete</div>                
-                   <div id='chart_5' class='chart'></div>
-                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
-                </div>
-            </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_6' class='chart_container f-left' data-graph-id = 'TimeToNotify'>
                   <div class='chart-title'>Time To Notify</div>              
                   <div id='chart_6' class='chart'></div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                </div>
+            </div>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+                <div id='container_5' class='chart_container f-left' data-graph-id = 'TimeToComplete'>
+                   <div class='chart-title'>Time To Complete</div>                
+                   <div id='chart_5' class='chart'></div>
+                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
           </div>
@@ -345,7 +346,7 @@ class DashboardView extends Backbone.View
     $('#notfollowStat').html(Coconut.statistics.notfollowed) if Coconut.statistics.notfollowed?
     $('#hsatStat').html(Coconut.statistics.hsat) if Coconut.statistics.hsat?
     $('#hsattestStat').html(Coconut.statistics.hsattested) if Coconut.statistics.hsattested?
-    $('#fsatStat').html(Coconut.statistics.fsat) if Coconut.statistics.fsat?
+#    $('#fsatStat').html(Coconut.statistics.fsat) if Coconut.statistics.fsat?
     $('#importedStat').html(Coconut.statistics.imported) if Coconut.statistics.imported?
     
   displayError = () ->

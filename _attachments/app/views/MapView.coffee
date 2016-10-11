@@ -73,7 +73,7 @@ getRadius = (d) ->
     6
    
 setUpLegend = () ->
-    console.log "SetUpLegendCaseStyle: " + caseStyle
+#    console.log "SetUpLegendCaseStyle: " + caseStyle
     
     theDiv = L.DomUtil.get('mapLegend')
     if theDiv
@@ -93,12 +93,12 @@ setUpLegend = () ->
 
 getColor = (d) ->
 #  TODO: Create the marker classes here for each
-  console.log('d: ' + d)
+#  console.log('d: ' + d)
     
 
 
 setCaseStyle = (styleType, feature) ->
-    console.log(styleType)
+#    console.log(styleType)
     if styleType == 'travelCases'
       if feature.feature.properties.RecentTravel == false
         feature.setStyle
@@ -393,7 +393,7 @@ class MapView extends Backbone.View
         clearInterval timer
       materialLayersControl.removeLayer casesTimeLayer
       if !layerTollBooth.heatLayerOn 
-        console.log("mapView.coffee addTimeLayer line:395")
+#        console.log("mapView.coffee addTimeLayer line:395")
         materialLayersControl.addTimeLayer casesLayer, 'Cases'    
 #      console.log('timeToggle casesTimeLayer: ' + casesTimeLayer)
       layerTollBooth.handleTime(map, heatLayer, heatTimeLayer, casesLayer, casesTimeLayer, materialLayersControl)
@@ -505,7 +505,7 @@ class MapView extends Backbone.View
             clustersLayer.addLayer layer
             layer.on 'click', (e) ->
               layer.openPopup()
-              console.log("map.getPanes: " + JSON.stringify(map.getPanes()));
+#              console.log("map.getPanes: " + JSON.stringify(map.getPanes()));
               return
             
             return
@@ -520,7 +520,7 @@ class MapView extends Backbone.View
           )
         casesLayer.addTo(map)
         casesLayer.on 'mouseover', ->
-          console.log 'casesLayer'
+#          console.log 'casesLayer'
           return
 #        casesLayer.on 'click', ->
 #          casesLayer.openPopup()
@@ -633,7 +633,7 @@ class MapView extends Backbone.View
                 layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS      
                 clustersTimeLayer.addLayer layer 
                 layer.on 'click', (e) ->
-                  console.log 'Click CaseTime2'
+#                  console.log 'Click CaseTime2'
                   return
                 return
               pointToLayer: (feature, latlng) =>
@@ -1200,7 +1200,7 @@ class MapView extends Backbone.View
           #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
           layer.bindPopup 'District: ' + feature.properties.District_N + '<br />\n Shehia: ' + feature.properties.Ward_Name+'<br />\n Village: ' + feature.properties.Vil_Mtaa_N     
           layer.on 'click', (e) ->
-              console.log 'Click Villages';
+#              console.log 'Click Villages';
               return
           return
       )
@@ -1319,13 +1319,13 @@ class MapView extends Backbone.View
           svgWidth
         ]).clamp(true)
         startValue = timeScale(inputStartDate)
-        console.log("inputStartDate: " + inputStartDate);
-        console.log("startValue: " + startValue);
+#        console.log("inputStartDate: " + inputStartDate);
+#        console.log("startValue: " + startValue);
         startingValue = inputStartDate
         endValue = timeScale(inputEndDate);
         endingValue = inputEndDate
-        console.log("endingValue: " + endingValue);
-        console.log("timeOutDate: " + timeOutDate);
+#        console.log("endingValue: " + endingValue);
+#        console.log("timeOutDate: " + timeOutDate);
         d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
         d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
         d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->

@@ -189,7 +189,7 @@ var myLayersControl =  L.Control.extend({
         
     _addLayer: function (layer, name, overlay, queried, time) {
     var id = L.stamp(layer);
-    console.log("id: " + id)
+//    console.log("id: " + id)
 	this._layers[id] = {
 		layer: layer,
 		name: name,
@@ -201,7 +201,7 @@ var myLayersControl =  L.Control.extend({
         this._lastZIndex++;
 		layer.setZIndex(this._lastZIndex);
 	}
-    console.log('this._layers[id]: '+JSON.stringify(this._layers[id].name))
+//    console.log('this._layers[id]: '+JSON.stringify(this._layers[id].name))
 			    
 //    console.log('this._layers[id]: '+this._layers[id].layer+ ' ' + this._layers[id].name + ' ' + this._layers[id].overlay)
 //	console.log('this.options.autoZIndex: '+this.options.autoZIndex)
@@ -258,7 +258,7 @@ var myLayersControl =  L.Control.extend({
     	//console.log("this._layers[i].name" + this._layers[L.stamp(e.layer)])
         if (!obj || typeof(obj.name)!=undefined) { return; }
     	if (!this._handlingClick && obj.name != "Cases") {
-			console.log("onLayerChange update")
+//			console.log("onLayerChange update")
             this._update();
 		}
 
@@ -328,14 +328,14 @@ var myLayersControl =  L.Control.extend({
         
 //        if(obj.queried && !$( "#mapStyleSelect" )[ 0 ]){
         if(obj.queried){
-            console.log('obj.querried = true')
+//            console.log('obj.querried = true')
             select = document.createElement('select');
             select.id = 'mapStyleSelect';
             select.className = 'mdl-select__input';
             select.options[select.options.length] = new Option('One and More Cases', 'numberCases');
             select.options[select.options.length] = new Option('Travel History', 'travelCases');
             select.options[select.options.length] = new Option('# of LLIN < Sleeping Places', 'llinCases');
-            console.log("this.caseStyle: " + caseStyle)
+//            console.log("this.caseStyle: " + caseStyle)
             select.value = caseStyle;
             L.DomEvent.on(select, 'change', function () {
 //                console.log(select.options[select.selectedIndex].value);

@@ -13,14 +13,15 @@ class HTMLHelpers
         iconText: iconText
         buttonText: buttonText
         iconOnly: true
+        caseBtn: 'caseBtnLg'
     else ""
 
   @createCaseLink = (options) ->
     options.buttonText ?= options.caseID
-    buttonText = if(options.iconOnly) then "" else options.buttonText    
-    "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary caseBtn' id='#{options.caseID}' data-anchor='#{if options.docId? then options.docId else ""}'>
+    buttonText = if(options.iconOnly) then "" else options.buttonText
+    "<button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary #{options.caseBtn}' id='#{options.caseID}' data-anchor='#{if options.docId? then options.docId else ""}'>
       <i class=\"mdi #{options.iconText} #{options.buttonClass}\"></i>
-      #{if(options.buttonClass == 'incomplete') then "<div class='overlay'>&nbsp;</div>"}
+      #{if(options.iconOnly && options.buttonClass is 'incomplete') then "<div class='overlay'>&nbsp;</div>" else ""}
       #{buttonText}</button>"
       
 
@@ -31,6 +32,9 @@ class HTMLHelpers
       @createCaseLink 
         caseID: caseID
         iconOnly: false
+        buttonClass: ''
+        iconText: ''
+        caseBtn: 'caseBtn'
     ).join("")
 
   @createDisaggregatableCaseGroup = (cases, text) ->
