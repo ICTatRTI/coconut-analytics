@@ -290,7 +290,7 @@ class CaseFollowupView extends Backbone.View
                       unless householdMember.complete?
                         unless householdMember.complete
                            buttonClass = "mdl-button--accent"
-  #                        buttonText = buttonText.replace(".png","Incomplete.png")
+#                          buttonText = buttonText.replace(".png","Incomplete.png")
                       HTMLHelpers.createCaseLink
                         caseID: malariaCase.caseID
                         docId: householdMember._id
@@ -298,6 +298,7 @@ class CaseFollowupView extends Backbone.View
                         iconText: iconText
                         buttonClass: buttonClass
                         buttonText: ""
+                        caseBtn: 'caseBtnLg'
                     ).join("")
                   }
                 </td>
