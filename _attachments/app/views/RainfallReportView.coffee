@@ -15,6 +15,9 @@ class RainfallReportView extends Backbone.View
     options = $.extend({},Coconut.router.reportViewOptions)
     $('#analysis-spinner').show()
     @$el.html "
+      <style>
+        .tbl_col { width: 75px}
+      </style>
       <div id='dateSelector'></div>
       <div id='messages'></div>
     "
@@ -31,9 +34,9 @@ class RainfallReportView extends Backbone.View
         <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='rainfallReports'>
           <thead>
             <th class='mdl-data-table__cell--non-numeric'>Station</th>
-            <th>Year</th>
-            <th>Week</th>
-            <th>Amount</th>
+            <th class='mdl-data-table__cell--non-numeric'>Year</th>
+            <th class='mdl-data-table__cell--non-numeric'>Week</th>
+            <th class='tbl_col'>Amount</th>
           </thead>
           <tbody>
           #{
@@ -44,9 +47,9 @@ class RainfallReportView extends Backbone.View
                  "
                   <tr>
                     <td class='mdl-data-table__cell--non-numeric'>#{row.value[0]}</td>
-                      <td>#{row.key[0]}</td>
-                      <td>#{row.key[1]}</td>
-                      <td>#{row.value[1]}</td>
+                      <td class='mdl-data-table__cell--non-numeric'>#{row.key[0]}</td>
+                      <td class='mdl-data-table__cell--non-numeric'>#{row.key[1]}</td>
+                      <td class='tbl_col'>#{row.value[1]}</td>
                   </tr>
                 "
                 .join("")
