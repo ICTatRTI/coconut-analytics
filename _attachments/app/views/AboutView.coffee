@@ -21,6 +21,7 @@ class AboutView extends Backbone.View
     @$el.html "
       <style>
         #acknowledgements { margin-top: 20px; font-weight: bold}
+        a:active { outline: none;}
       </style>
       <dialog id='aboutDialog'>
         <div class='m-b-40'>
@@ -34,7 +35,7 @@ class AboutView extends Backbone.View
           <div>Licensed under the Apache License, Version 2.0 (the 'License');<br />
           you may not use this file except in compliance with the License.<br />
           You may obtain a copy of the License at</div><br />
-          <div>http://www.apache.org/licenses/LICENSE-2.0</div><br />
+          <div><a target='_blank' href='http://www.apache.org/licenses/LICENSE-2.0'>http://www.apache.org/licenses/LICENSE-2.0</a></div><br />
           <div>Unless required by applicable law or agreed to in writing, software<br />
           distributed under the License is distributed on an 'AS IS' BASIS,<br />
           WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,13 +45,14 @@ class AboutView extends Backbone.View
         </div>
         <div id='acknowledgements'>Acknowledgements and Credits</div>
         <div>The development of Coconut Surveillance has been funded by RTI International and the U.S. President’s
-Malaria Initiative. Coconut Surveillance has been developed in close collaboration with the the Zanzibar Malaria Elimination Programme.</div>
+Malaria Initiative. Coconut Surveillance has been developed in close collaboration with the Zanzibar Malaria Elimination Programme.</div>
         <div id='dialogActions'>
              <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' ><i class='material-icons'>done</i> Ok</button>
         </div> 
       </dialog>
     "
     dialogPolyfill.registerDialog(aboutDialog)
+    $('button#OkBtn').focus()
     
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
