@@ -16,10 +16,8 @@ class TimeToCompleteGraphView extends Backbone.View
     console.log(Coconut.config)
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
-       <style>div#target_container { width: 93%; color: #ccc; overflow: auto}</style>
        <div id='dateSelector'></div>
-       <div class='chart-title'>Time To Complete</div>
-       <div id='target_container'><span class='f-right'>Notification target: #{Coconut.config.case_notification} hours &nbsp; : &nbsp; Followup target: #{Coconut.config.case_followup} hours</span></div>
+       <div class='chart-title'>Time To Follow-up (#{Coconut.config.case_followup} hours)</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>

@@ -106,8 +106,8 @@ class MenuView extends Backbone.View
              PositivityGraph: "Number of Persons Tested and Number Positive"
              # positivity_with_rainfall: "Positivity With Rainfall"
              # positivity_by_year: "Positivity Cases By Year"
-             TimeToComplete: "Time to Complete"
              TimeToNotify: "Time to Notify"
+             TimeToComplete: "Time to Follow-up"
              
            }
            _(graphLinks).map (linkText, linkUrl) ->

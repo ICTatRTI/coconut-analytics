@@ -16,7 +16,7 @@ class TimeToNotifyGraphView extends Backbone.View
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <div id='dateSelector'></div>
-       <div class='chart-title'>Time To Notify</div>
+       <div class='chart-title'>Time To Notify (#{Coconut.config.case_notification} hours)</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>

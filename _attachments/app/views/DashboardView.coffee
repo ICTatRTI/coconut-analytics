@@ -134,14 +134,14 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_6' class='chart_container f-left' data-graph-id = 'TimeToNotify'>
-                  <div class='chart-title'>Time To Notify</div>              
+                  <div class='chart-title'>Time To Notify (#{Coconut.config.case_notification} hours)</div>              
                   <div id='chart_6' class='chart'></div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_5' class='chart_container f-left' data-graph-id = 'TimeToComplete'>
-                   <div class='chart-title'>Time To Complete</div>                
+                   <div class='chart-title'>Time To Follow-up (#{Coconut.config.case_followup} hours)</div>                
                    <div id='chart_5' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>

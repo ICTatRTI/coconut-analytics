@@ -37,7 +37,7 @@ class SystemSettingsView extends Backbone.View
     Coconut.database.get(Coconut.config._id)
     .then (doc) ->
       fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud',
-        'cloud_credentials','design_doc_name','role_types','case_notification','case_followup','location_accuracy_threshold']
+        'cloud_credentials','design_doc_name','role_types','case_notification','case_followup','case_focus_investigation','location_accuracy_threshold']
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
       getFile = $('#logoImage')[0].files[0]
@@ -185,6 +185,10 @@ class SystemSettingsView extends Backbone.View
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
               <input class='mdl-textfield__input' type='text' id='case_followup' value='#{Coconut.config.case_followup}'>
               <label class='mdl-textfield__label' for='cloud_database_name'>Follow-up</label>
+            </div>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
+              <input class='mdl-textfield__input' type='text' id='case_focus_investigation' value='#{Coconut.config.case_focus_investigation || 0}'>
+              <label class='mdl-textfield__label' for='cloud_database_name'>Focus Investigation</label>
             </div>
           </div>
         </div> 

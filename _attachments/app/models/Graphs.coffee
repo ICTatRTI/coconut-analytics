@@ -10,9 +10,9 @@ class Graphs
 colorScale = d3.scale.category10()
 colorScale.domain([0,1,2,3,4,5,6,7,8,9])
 # Example to set customizecolors
-# colorScale2 = d3.scale.ordinal()
-#   .domain(['banana','cherry','blueberry'])
-#   .range(['#eeff00','#ff0022','#2200ff'])
+colorScale2 = d3.scale.ordinal()
+  .domain(['green','orange','yellow','red','blue','purple'])
+  .range(['#2ca02c','#ff9900','#ffff00', '#dc3912','#1f77b4','#9467bd'])
 
 Graphs.chartResize = (chart, container, options) ->
   width = $(".#{container}").width() - options.adjustX
@@ -327,7 +327,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim4)
            .group(grp4, "72+ hrs")
-           .colors(colorScale(0))
+           .colors(colorScale2('red'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -336,7 +336,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim3)
            .group(grp3, "48 to 72 hrs")
-           .colors(colorScale(1))
+           .colors(colorScale2('orange'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -345,7 +345,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim2)
            .group(grp2, "24 to 48 hrs")
-           .colors(colorScale(2))
+           .colors(colorScale2('yellow'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -354,7 +354,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grp1, "Within 24 hrs")
-           .colors(colorScale(3))
+           .colors(colorScale2('green'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -419,7 +419,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim4)
            .group(grp4, "72+ hrs")
-           .colors(colorScale(3))
+           .colors(colorScale2('red'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -428,7 +428,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim3)
            .group(grp3, "48 to 72 hrs")
-           .colors(colorScale(0))
+           .colors(colorScale2('orange'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -437,7 +437,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim2)
            .group(grp2, "24 to 48 hrs")
-           .colors(colorScale(1))
+           .colors(colorScale2('yellow'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -446,7 +446,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grp1, "Within 24 hrs")
-           .colors(colorScale(2))
+           .colors(colorScale2('green'))
            .centerBar(true)
            .gap(1)
            .title((d) ->
