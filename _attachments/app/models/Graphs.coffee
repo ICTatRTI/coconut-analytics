@@ -419,7 +419,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim4)
            .group(grp4, "72+ hrs")
-           .colors(colorScale(0))
+           .colors(colorScale(3))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -428,7 +428,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim3)
            .group(grp3, "48 to 72 hrs")
-           .colors(colorScale(1))
+           .colors(colorScale(0))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -437,7 +437,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim2)
            .group(grp2, "24 to 48 hrs")
-           .colors(colorScale(2))
+           .colors(colorScale(1))
            .centerBar(true)
            .gap(1)
            .title((d) ->
@@ -446,7 +446,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
          dc.barChart(composite)
            .dimension(dim1)
            .group(grp1, "Within 24 hrs")
-           .colors(colorScale(3))
+           .colors(colorScale(2))
            .centerBar(true)
            .gap(1)
            .title((d) ->
