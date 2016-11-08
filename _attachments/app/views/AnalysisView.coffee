@@ -18,6 +18,7 @@ class AnalysisView extends Backbone.View
     "click #switch-unknown": "toggleGenderUnknown"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
+    "change [name=aggregationType]": "updateAnalysis"
 
   toggleDetails: (e)->
     $(".details").toggle()
@@ -43,6 +44,10 @@ class AnalysisView extends Backbone.View
 
   closeDialog: () ->
     caseDialog.close() if caseDialog.open
+
+  updateAnalysis: (e) ->
+    Coconut.router.reportViewOptions.aggregationLevel = $("[name=aggregationType]:checked").val()
+    @render()
     
   render: =>
     $('#analysis-spinner').show()
@@ -185,7 +190,7 @@ class AnalysisView extends Backbone.View
 		  </div>
         "
         $("#analysis").append @createTable """
-          District
+          #{options.aggregationLevel}
           No. of cases followed up
           No. of additional index household members tested
           No. of additional index household members tested positive
@@ -225,7 +230,7 @@ class AnalysisView extends Backbone.View
 		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></div>
           </div>
         "
-        $("#analysis").append @createTable "District, Total, <5, %, 5<15, %, 15<25, %, >=25, %, Unknown, %".split(/, */), "
+        $("#analysis").append @createTable "#{options.aggregationLevel}, Total, <5, %, 5<15, %, 15<25, %, >=25, %, Unknown, %".split(/, */), "
           #{
             _.map(data.ages, (values,location) =>
               "
@@ -258,7 +263,7 @@ class AnalysisView extends Backbone.View
 		  	</div>
 		  </div>
         "
-        $("#analysis").append @createTable "District, Total, Male, %, Female, %, Unknown, %".split(/, */), "
+        $("#analysis").append @createTable "#{options.aggregationLevel}, Total, Male, %, Female, %, Unknown, %".split(/, */), "
           #{
             _.map(data.gender, (values,location) =>
               "
@@ -296,7 +301,7 @@ class AnalysisView extends Backbone.View
 		  	</div>
 		  </div>
         "
-        $("#analysis").append @createTable "District, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
+        $("#analysis").append @createTable "#{options.aggregationLevel}, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
           #{
             _.map(data.netsAndIRS, (values,location) =>
               "
