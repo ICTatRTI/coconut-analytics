@@ -101,7 +101,7 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
-                   <div class='chart-title'>Number of Cases</div>
+                   <div class='chart-title'>Number of Cases: Current vs Last Year</div>
                    <div id='chart_1' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                 </div>
@@ -223,15 +223,34 @@ class DashboardView extends Backbone.View
       d.dateWeek = moment(d.key[0]).isoWeek()
     )
     
-    # Incident Graph - Number of Cases
-    dataForGraph1 = dataForGraph
+    # Incident Graph - Number of Cases for current and last year
+    startDate = moment().year()+'-01-01'
+    endDate = moment().year()+'-12-31'
+    lastYearStart = moment(startDate).subtract(1,'year').year()+'-01-01'
+    lastYearEnd = moment(endDate).subtract(1,'year').year()+'-12-31'
+    
+    dataForGraph1 = []
+    Coconut.database.query "caseCounter",
+      startkey: [startDate]
+      endkey: [endDate]
+      reduce: false
+      include_docs: false
+    .then (result) =>
+      dataForGraph1 = result.rows
+      dataForGraph1.forEach((d) ->
+        d.dateICD = moment(d.key[0])
+        d.dateWeek = moment(d.key[0]).isoWeek()
+      )
+    .catch (error) ->
+      console.error error
+      $('div.mdl-spinner').hide()
+         
     #hack to speed up graph display by display in 2 phases for the 2 years comparison
     dataForGraph2 = []
     Graphs.incidents(dataForGraph1, dataForGraph2, composite0, options)
     $('div#container_1 div.mdl-spinner').hide()
+
     #processing data for second graph
-    lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
-    lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
     # Gathering previous year data
     Coconut.database.query "caseCounter",
       startkey: [lastYearStart]
@@ -246,6 +265,7 @@ class DashboardView extends Backbone.View
       Graphs.incidents(dataForGraph1, dataForGraph2, composite0, options)
       $('div#container_1 div.mdl-spinner').hide()
     
+      
     # PositiveCases Graph
     Graphs.positiveCases(dataForGraph, composite1, options)
     $('div#container_2 div.mdl-spinner').hide()

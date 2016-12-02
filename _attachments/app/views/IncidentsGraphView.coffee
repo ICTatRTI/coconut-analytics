@@ -18,8 +18,7 @@ class IncidentsGraphView extends Backbone.View
        <style> 
          .y-axis-label { margin-right: 10px}
        </style>
-       <div id='dateSelector'></div>
-       <div class='chart-title'>Number of Cases</div>
+       <div class='chart-title'>Number of Cases for Current and Last Year</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
@@ -32,10 +31,15 @@ class IncidentsGraphView extends Backbone.View
     $('#analysis-spinner').show()
     options.adjustX = 10
     options.adjustY = 40
-    startDate = options.startDate
-    endDate = options.endDate
-    lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
-    lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
+#    startDate = options.startDate
+#    endDate = options.endDate
+#    lastYearStart = moment(options.startDate).subtract(1,'year').format('YYYY-MM-DD')
+#    lastYearEnd = moment(options.endDate).subtract(1,'year').format('YYYY-MM-DD')
+    startDate = (moment().year()+'-01-01')
+    endDate = (moment().year()+'-12-31')
+    lastYearStart = moment(startDate).subtract(1,'year').format('YYYY-MM-DD')
+    lastYearEnd = moment(endDate).subtract(1,'year').format('YYYY-MM-DD')
+
 
     Coconut.database.query "caseCounter",
       startkey: [startDate]
