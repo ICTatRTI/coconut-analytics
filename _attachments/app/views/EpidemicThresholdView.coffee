@@ -190,7 +190,6 @@ class EpidemicThresholdView extends Backbone.View
                             <td>
                               #{
                                 _(thresholdsByDistrictAndWeek[district]?[week]).map (threshold) ->
-                                  console.log(threshold)
                                   if threshold.ThresholdType is 'Alarm'
                                     notifyIcon = "<i class='material-icons alert'>notifications_active</i>"
                                     numAlarms += 1 
@@ -231,14 +230,15 @@ class EpidemicThresholdView extends Backbone.View
                                     </div>
                                     </a>
                                   </button>
-                                  "    
+                                  " 
                               }
                             </td>
                             "
-                          .join("")
+                          .join('')
                         }
                       </tr>
                     "
+                  .join('')  
                 }
               </tbody>
           </table>
