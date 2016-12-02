@@ -13,10 +13,15 @@ class ChromeView extends Backbone.View
 
   events: 
     "click button#OkBtn": "OkClicked"
+    "click button#DownloadBtn": "DownloadClicked"
   
   OkClicked: ->
      aboutDialog.close()
  
+  DownloadClicked: ->
+     aboutDialog.close()
+     window.open("https://www.google.com/chrome/browser/")
+     
   render: =>
     @$el.html "
       <style>
@@ -25,15 +30,13 @@ class ChromeView extends Backbone.View
       </style>
       <dialog id='aboutDialog'>
         <div class='m-b-40'>
-          <div id='dialog-title'>Browser Check</div>
+          <div id='dialog-title'>Optimized for Chrome</div>
         </div>
         <div id='recommendation'>
-          <p> We detected that you are not using the Chrome browser. <br />
-          This software was designed and optimized for the Chrome browser. Hence we recommend that you use 
-          Chrome for a better user experience. You can download Chrome at this link:</p> 
-          <div><a target='_blank' href='https://www.google.com/chrome/browser/'>Download Chrome</a></div><br />
+          <p> This software was designed and optimized for the Chrome browser. We cannot guarantee that it will work as well on other web browsers. Please consider downloading and installing Chrome for the best user experience.</p> 
         </div><br />
         <div id='dialogActions'>
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='DownloadBtn'><i class='material-icons'>cloud_download</i> Download Chrome</button>
              <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' ><i class='material-icons'>done</i> Continue</button>
         </div> 
       </dialog>
