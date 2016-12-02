@@ -1,6 +1,6 @@
 [![Stories in Ready](https://badge.waffle.io/ICTatRTI/coconut-analytics.svg?label=ready&title=Ready)](http://waffle.io/ICTatRTI/coconut-analytics)
 
-Reports for Coconut
+A responsive web monitoring, alerting, analytics, and reporting application for Coconut Surveillance™ for malaria elimination.
 
 *How to use*
 
