@@ -754,13 +754,13 @@ a.chip {
   box-sizing: border-box;
   position: absolute;
   right: 20px;
-  /* margin-top: -63px; */
+  top: 0px;
 }
 
 #logged-in{
     position: absolute;
     right: 80px;
-    margin-top: 12px;
+    top: 12px;
 }
 
 /* margins setting */
