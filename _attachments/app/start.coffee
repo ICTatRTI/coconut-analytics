@@ -24,6 +24,7 @@ GeoHierarchyClass = require './models/GeoHierarchy'
 DhisOrganisationUnits = require './models/DhisOrganisationUnits'
 QuestionCollection = require './models/QuestionCollection'
 Dhis2 = require './models/Dhis2'
+ChromeView = require './views/ChromeView'
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
@@ -36,7 +37,8 @@ global.Coconut =
     endDate: moment().format("YYYY-MM-DD")
   
 global.Env = {
-  is_chrome: /chrome/i.test(navigator.userAgent)
+#  is_chrome: /chrome/i.test(navigator.userAgent)
+  is_chrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
 }
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
@@ -46,10 +48,18 @@ Backbone.sync = BackbonePouch.sync
 
 Backbone.Model.prototype.idAttribute = '_id'
 
+checkBrowser = (callback) ->
+  if !Env.is_chrome
+    chromeView = new ChromeView()
+    chromeView.render()
+    callback.success()
+  else
+    callback.success()  
+
 # Render headerView here instead of below with MenuView, otherwise the hamburger menu will be missing in smaller screen
 Coconut.headerView = new HeaderView
-Coconut.headerView.render()
-    
+Coconut.headerView.render() 
+        
 Config.getConfig
   error: ->
     console.log("Error Retrieving Config")
@@ -61,6 +71,7 @@ Config.getConfig
     .then (url) ->
       Coconut.logoUrl = url
       Coconut.menuView = new MenuView
+      
       Coconut.menuView.render()
       _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
         Coconut.database.get docId
@@ -85,6 +96,8 @@ Config.getConfig
               error: (error) -> console.error error
               success: ->
                 Backbone.history.start()
-    
+                checkBrowser()
+
     global.Issues = require './models/Issues'
+
 
