@@ -70,7 +70,7 @@ class MenuView extends Backbone.View
             Rainfallreport: "Rainfall Submission"
             Usersreport: "Users Report - How Fast are Follow-ups Occurring"
             Weeklyreports: "Weekly Facility Reports"
-            Weeklysummary: "Weekly Trends Compared To Previous 3 Weeks"
+            #Weeklysummary: "Weekly Trends Compared To Previous 3 Weeks"
           }
           _(reportLinks).map (linkText, linkUrl) ->
             "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
