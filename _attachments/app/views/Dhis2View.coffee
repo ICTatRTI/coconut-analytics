@@ -40,9 +40,9 @@ class Dhis2View extends Backbone.View
         .join ""
       }
       <div id='dialogActions'>
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='send' type='button'><i class='material-icons'>sync</i>Send Cases For Past 30 Days</button> &nbsp;
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='test' type='button'><i class='material-icons'>test</i> Test</button> &nbsp;
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button'><i class='material-icons'>save</i> Update</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button'><i class='material-icons'>save</i> Update Settings</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='test' type='button'><i class='material-icons'>cloud_done</i> Test Settings</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='send' type='button'><i class='material-icons'>sync</i>Send Cases For Last 30 Days</button> &nbsp;
       </div>
     "
     @load()
