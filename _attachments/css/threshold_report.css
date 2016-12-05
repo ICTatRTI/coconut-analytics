@@ -170,8 +170,8 @@ button.mdl-card__media:hover small a{
 }
 
 #epi-key,
-#district.mdl-card--expand,
-#facility.mdl-card--expand, 
+#districtStat.mdl-card--expand,
+#facilityStat.mdl-card--expand, 
 #yourcases.mdl-card--expand {
   display: inline-block;
 }
@@ -192,10 +192,10 @@ button.mdl-card__media:hover small a{
 }
 
 #summary.mdl-card--expand,
-#district.mdl-card--expand,
-#facility.mdl-card--expand,
-#shehia.mdl-card--expand,
-#village.mdl-card--expand,
+#districtStat.mdl-card--expand,
+#facilityStat.mdl-card--expand,
+#shehiaStat.mdl-card--expand,
+#villageStat.mdl-card--expand,
 #yourcases.mdl-card-expand {
   width: 25%;
    border: 1px solid #ccc;
@@ -266,18 +266,18 @@ img.epi-summary {
   margin-right: 5px;
 }
 
-#shehia,
-#facility,
-#district,
-#village,
+#shehiaStat,
+#facilityStat,
+#districtStat,
+#villageStat,
 #summary {
   background-color: #ccc;
 }
 
-#shehia span,
-#facility span,
-#village span,
-#district span {
+#shehiaStat span,
+#facilityStat span,
+#villageStat span,
+#districtStat span {
   color: #666;
   margin-left: 6px;
   margin-right: 10px;
