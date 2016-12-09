@@ -50,7 +50,7 @@ class AttendanceGraphView extends Backbone.View
            d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
         )
         composite = dc.compositeChart("#chart")
-        Graphs.attendance(dataForGraph, composite, options)
+        Graphs.attendance(dataForGraph, composite, 'chart_container_1', options)
         $('#analysis-spinner').hide()
         
         window.onresize = () ->

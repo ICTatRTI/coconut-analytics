@@ -36,10 +36,10 @@ class WeeklySummaryView extends Backbone.View
       previousPreviousPreviousOptions.startDate = moment().day(1-7-7-7).format(Coconut.config.dateFormat)
       previousPreviousPreviousOptions.endDate = moment().day(0+7-7-7-7).format(Coconut.config.dateFormat)
 
-      options.optionsArray = [previousPreviousPreviousOptions, previousPreviousOptions, previousOptions, currentOptions]
+      @reportOptions.optionsArray = [previousPreviousPreviousOptions, previousPreviousOptions, previousOptions, currentOptions]
       $("#row-start").hide()
       $("#row-end").hide()
-      @["Period Trends compared to previous 3 periods"](options)
+      @["Period Trends compared to previous 3 periods"](@reportOptions)
 
 
 module.exports = WeeklySummaryView

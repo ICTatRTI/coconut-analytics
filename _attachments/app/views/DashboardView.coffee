@@ -247,7 +247,7 @@ class DashboardView extends Backbone.View
          
     #hack to speed up graph display by display in 2 phases for the 2 years comparison
     dataForGraph2 = []
-    Graphs.incidents(dataForGraph1, dataForGraph2, composite0, options)
+    Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
     $('div#container_1 div.mdl-spinner').hide()
 
     #processing data for second graph
@@ -262,24 +262,24 @@ class DashboardView extends Backbone.View
       dataForGraph2.forEach((d) ->
         d.dateWeek= moment(d.key[0]).isoWeek()
       )
-      Graphs.incidents(dataForGraph1, dataForGraph2, composite0, options)
+      Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
       $('div#container_1 div.mdl-spinner').hide()
     
       
     # PositiveCases Graph
-    Graphs.positiveCases(dataForGraph, composite1, options)
+    Graphs.positiveCases(dataForGraph, composite1, 'container_2', options)
     $('div#container_2 div.mdl-spinner').hide()
 
     # TimeToComplete Graph 
-    Graphs.timeToComplete(dataForGraph, composite4, options)
+    Graphs.timeToComplete(dataForGraph, composite4, 'container_5', options)
     $('div#container_5 div.mdl-spinner').hide()
     
     #TimeToNotify Graph
-    Graphs.timeToNotify(dataForGraph, composite5, options)
+    Graphs.timeToNotify(dataForGraph, composite5, 'container_6', options)
     $('div#container_6 div.mdl-spinner').hide()
           
     #Positivity Graph
-    Graphs.positivityCases(dataForGraph, composite6, options)
+    Graphs.positivityCases(dataForGraph, composite6, 'container_7', options)
     $('div#container_7 div.mdl-spinner').hide()
 
     # Graphs using weeklyDataCounter query
@@ -303,11 +303,11 @@ class DashboardView extends Backbone.View
            d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
         )
          # Attendance Graph
-        Graphs.attendance(dataForGraph, composite2, options)
+        Graphs.attendance(dataForGraph, composite2, 'container_3', options)
         $('div#container_3 div.mdl-spinner').hide()
 
         #TestRate Graph 
-        Graphs.testRate(dataForGraph, composite3, options)
+        Graphs.testRate(dataForGraph, composite3, 'container_4', options)
         $('div#container_4 div.mdl-spinner').hide()
         
     window.onresize = () ->

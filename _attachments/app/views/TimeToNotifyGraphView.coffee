@@ -47,11 +47,11 @@ class TimeToNotifyGraphView extends Backbone.View
           d.dateICD = moment(d.key[0])
         )
         composite = dc.compositeChart("#chart")
-        Graphs.timeToNotify(dataForGraph, composite, options)
+        Graphs.timeToNotify(dataForGraph, composite, 'chart_container_1', options)
 
         window.onresize = () ->
           HTMLHelpers.resizeChartContainer()
-          Graphs.compositeResize(composite, 'chart_container', options)
+          Graphs.compositeResize(composite, 'chart_container',options)
           
         $('#analysis-spinner').hide()
         

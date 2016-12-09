@@ -49,7 +49,7 @@ class TimeToCompleteGraphView extends Backbone.View
 #          d.dateICD = new Date(d.key[0]+' ') # extra space at end cause it to use UTC format.
         )
         composite = dc.compositeChart("#chart")
-        Graphs.timeToComplete(dataForGraph, composite, options)
+        Graphs.timeToComplete(dataForGraph, composite, 'chart_container_1',options)
 
         window.onresize = () ->
           HTMLHelpers.resizeChartContainer()

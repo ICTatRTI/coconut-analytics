@@ -16,7 +16,7 @@ class IncidentsGraphView extends Backbone.View
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <style> 
-         .y-axis-label { margin-right: 10px}
+         .y-axis-label { margin-right: 20px}
        </style>
        <div class='chart-title'>Number of Cases for Current and Last Year</div>
        <div id='chart_container_1' class='chart_container'>
@@ -67,7 +67,7 @@ class IncidentsGraphView extends Backbone.View
           )
           
           composite = dc.compositeChart("#chart")
-          Graphs.incidents(data1,data2, composite, options)
+          Graphs.incidents(data1,data2, composite, 'chart_container_1', options)
           $('#analysis-spinner').hide()
           
           window.onresize = () ->

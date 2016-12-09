@@ -112,23 +112,23 @@ class EpidemicThresholdView extends Backbone.View
         </div>
         <!--<button class='btn' style='margin-top: 10px; float: right;'>Reset Table</button>-->
         <div class='epi-summary'>
-            <div id='district' class='mdl-card--expand'>
+            <div id='districtStat' class='mdl-card--expand'>
               <h5>DISTRICTS:</h5>
               <i class='material-icons alert'>notifications_none</i><span id='districtAlert'>0</span>
               <i class='material-icons alarm'>notifications_active</i><span id='districtAlarm'>0</span>
             </div>
-            <div id='facility' class='mdl-card--expand'>
+            <div id='facilityStat' class='mdl-card--expand'>
               <h5>FACILITIES:</h5>
               <i class='material-icons alert'>notifications_none</i><span id='facilityAlert'>0</span>
               <i class='material-icons alarm'>notifications_active</i><span id='facilityAlarm'>0</span>
             </div>
             
-            <div id='shehia' class='mdl-card--expand'>
+            <div id='shehiaStat' class='mdl-card--expand'>
               <h5>SHEHIAS:</h5>
               <i class='material-icons alert'>notifications_none</i><span id='shehiasAlert'>0</span>
               <i class='material-icons alarm'>notifications_active</i><span id='shehiasAlarm'>0</span>
             </div>
-            <div id='village' class='mdl-card--expand'>
+            <div id='villageStat' class='mdl-card--expand'>
               <h5>VILLAGES:</h5>
               <i class='material-icons alert'>notifications_none</i><span id='villageAlert'>0</span>
               <i class='material-icons alarm'>notifications_active</i><span id='villageAlarm'>0</span>

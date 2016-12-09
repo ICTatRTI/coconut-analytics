@@ -46,7 +46,7 @@ class PositiveCasesGraphView extends Backbone.View
           d.dateICD = moment(d.key[0])
         )
         composite = dc.compositeChart("#chart")
-        Graphs.positiveCases(dataForGraph, composite, options)
+        Graphs.positiveCases(dataForGraph, composite, 'chart_container_1', options)
 
         window.onresize = () ->
           HTMLHelpers.resizeChartContainer()

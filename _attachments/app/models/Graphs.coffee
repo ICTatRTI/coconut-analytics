@@ -22,6 +22,17 @@ Graphs.chartResize = (chart, container, options) ->
     .height(height)
     .rescale()
     .redraw()
+
+Graphs.axis_adjust = (chart, container) ->
+  xAxis = d3.transform(d3.select("##{container} g.x.axis").attr("transform"))
+  xAxis_x = xAxis.translate[0]
+  xAxis_y = xAxis.translate[1]
+  yAxis = d3.transform(d3.select("##{container} g.y.axis").attr("transform"))
+  yAxis_x = yAxis.translate[0]
+  yAxis_y = yAxis.translate[1]
+  chart.select('.x.axis').attr("transform","translate(55,#{xAxis_y})")
+  chart.select('.y.axis').attr("transform","translate(55,#{yAxis_y})")
+  chart.selectAll('.chart-body').attr("transform","translate(55,#{yAxis_y})")
   
 Graphs.compositeResize = (composite, container, options) ->
   width = $(".#{container}").width() - options.adjustX
@@ -35,7 +46,7 @@ Graphs.compositeResize = (composite, container, options) ->
     .rescale()
     .redraw()
   
-Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
+Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options) ->
 
   ndx1 = crossfilter(dataForGraph1)
   ndx2 = crossfilter(dataForGraph2)
@@ -59,9 +70,13 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
     .xAxisLabel("Weeks")
     .elasticY(true)
     .elasticX(true)
+    .yAxisPadding(100)
     .shareTitle(false)
     .renderHorizontalGridLines(true)
     .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+    .renderlet((chart) ->
+      Graphs.axis_adjust(chart, container)
+    )
     .compose([
       dc.lineChart(composite)
         .dimension(dim1)
@@ -86,8 +101,9 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, options) ->
     ])
     .brushOn(false)
     .render()
+
   
-Graphs.positiveCases = (dataForGraph, composite, options) ->
+Graphs.positiveCases = (dataForGraph, composite, container, options) ->
   
   data1 = _.filter(dataForGraph, (d) ->
     return d.key[1] is "Over 5" and d.value is 1
@@ -123,6 +139,9 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
     .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
     .renderHorizontalGridLines(true)
     .shareTitle(false)
+    .renderlet((chart) ->
+      Graphs.axis_adjust(chart, container)
+    )
     .compose([
       dc.lineChart(composite)
         .dimension(dim1)
@@ -147,7 +166,7 @@ Graphs.positiveCases = (dataForGraph, composite, options) ->
     .render()
   
 
-Graphs.attendance = (dataForGraph, composite2, options) ->
+Graphs.attendance = (dataForGraph, composite2, container, options) ->
     data3a = _.filter(dataForGraph, (d) ->
       return d.key[3] is 'All OPD >= 5'
     )
@@ -187,6 +206,9 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .renderHorizontalGridLines(true)
       .shareTitle(false)
       .xUnits(d3.time.week)
+      .renderlet((chart) ->
+        Graphs.axis_adjust(chart, container)
+       )
       .compose([
         dc.lineChart(composite2)
           .dimension(dim3a)
@@ -210,8 +232,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
       .brushOn(false)
       .render()
  
- 
- Graphs.testRate = (dataForGraph, composite, options) ->
+ Graphs.testRate = (dataForGraph, composite, container, options) ->
 
     groupedByDate = {}
     _(dataForGraph).each (v, index) ->
@@ -253,6 +274,9 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
+     .renderlet((chart) ->
+       Graphs.axis_adjust(chart, container)
+     )
      .compose([
          dc.lineChart(composite)  
            .dimension(dim)
@@ -276,7 +300,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .brushOn(false)
      .render()
 
- Graphs.timeToNotify = (dataForGraph, composite, options) ->
+ Graphs.timeToNotify = (dataForGraph, composite, container, options) ->
      data1 = _.filter(dataForGraph, (d) ->
        return (d.key[1] is "Less Than One Day Between Positive Result And Notification From Facility" and d.value is 1)
      )
@@ -323,6 +347,9 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
+       .renderlet((chart) ->
+         Graphs.axis_adjust(chart, container)
+       )
        .compose([
          dc.barChart(composite)
            .dimension(dim4)
@@ -364,7 +391,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .brushOn(false)
        .render()
 
- Graphs.timeToComplete = (dataForGraph, composite, options) ->
+ Graphs.timeToComplete = (dataForGraph, composite, container, options) ->
 
     data1 = _.filter(dataForGraph, (d) ->
       return (d.key[1] is "Less Than One Day Between Positive Result And Complete Household" and d.value is 1)
@@ -415,6 +442,9 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
+       .renderlet((chart) ->
+         Graphs.axis_adjust(chart, container)
+       )
        .compose([
          dc.barChart(composite)
            .dimension(dim4)
@@ -456,7 +486,7 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
        .brushOn(false)
        .render()
 
- Graphs.positivityCases = (dataForGraph, composite, options) ->
+ Graphs.positivityCases = (dataForGraph, composite, container, options) ->
   
    data1 = _.filter(dataForGraph, (d) ->
      return (d.key[1] is "Has Notification" and d.value > 0)
@@ -502,6 +532,9 @@ Graphs.attendance = (dataForGraph, composite2, options) ->
      .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
+     .renderlet((chart) ->
+       Graphs.axis_adjust(chart, container)
+     )
      .compose([
        dc.lineChart(composite)
          .dimension(dim1)
