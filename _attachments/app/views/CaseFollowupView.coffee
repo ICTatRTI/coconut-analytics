@@ -86,7 +86,7 @@ class CaseFollowupView extends Backbone.View
                     <td>
                       <button class='btn btn-small mdl-button--primary caseid'>caseid</button>&nbsp;
                     </td>
-                    <td>Case not followed up after 48 hours.</td>
+                    <td>Case not followed up after #{Coconut.config.case_followup} hours.</td>
                     <td class='legend_gap'> </td>
                     <td>
                        <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>

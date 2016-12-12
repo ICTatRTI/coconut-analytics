@@ -231,6 +231,12 @@ class Case
   followedUpWithin48Hours: =>
     not @notFollowedUpAfter48Hours()
 
+  notFollowedUpAfterXHours: =>
+    @moreThanXHoursSinceFacilityNotifed() and not @followedUp()
+    
+  followedUpWithinXHours: =>
+    not @notFollowedUpAfterXHours()
+
   # Includes any kind of travel including only within Zanzibar
   indexCaseHasTravelHistory: =>
     @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/)? or false
@@ -570,6 +576,9 @@ class Case
 
    moreThan48HoursSinceFacilityNotifed: =>
      @hoursSinceFacilityNotified() > 48
+   
+   moreThanXHoursSinceFacilityNotifed: =>
+     @hoursSinceFacilityNotified() > parseInt(Coconut.config.case_followup)
 
   timeFromSMSToCaseNotification: =>
     if @["Case Notification"]? and @["USSD Notification"]?
@@ -759,6 +768,7 @@ class Case
     hasCompleteFacility: {}
     notCompleteFacilityAfter24Hours: {}
     notFollowedUpAfter48Hours: {}
+    notFollowedUpAfterXHours: {}
     followedUpWithin48Hours: {}
     indexCaseHasTravelHistory: {}
     indexCaseHasNoTravelHistory: {}
