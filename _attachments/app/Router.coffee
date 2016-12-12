@@ -63,7 +63,7 @@ graphsViews = {
   TestRateGraph: require './views/TestRateGraphView'
   TimeToNotify: require './views/TimeToNotifyGraphView'
   TimeToComplete: require './views/TimeToCompleteGraphView'
-  Positivity: require './views/PositivityGraphView'
+  PositivityGraph: require './views/PositivityGraphView'
 }
   
 class Router extends Backbone.Router
@@ -74,7 +74,7 @@ class Router extends Backbone.Router
   reportViewOptions: {}
   activityViewOptions: {}
   dateSelectorOptions: {}
-  
+      
   routes:
     "": "dashboard"
     "login": "login"
@@ -103,6 +103,10 @@ class Router extends Backbone.Router
     "activities": "activities"
     "activities/*options": "activities" 
     "*noMatch": "noMatch"
+  
+  initialize: (appView) ->
+    @appView = appView
+
 
   noMatch: =>
     console.error "Invalid URL, no matching route: "
@@ -168,8 +172,8 @@ class Router extends Backbone.Router
           @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
         type = @reportViewOptions["type"]
         @views[type] = new reportViews[type]() unless @views[type]
-        @views[type].setElement "#content"
-        @views[type].render()
+        #@views[type].render()
+        @appView.showView(@views[type])
         @reportType = 'reports'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
       error: =>
@@ -191,8 +195,8 @@ class Router extends Backbone.Router
 
         type = @reportViewOptions["type"]
         @views[type] = new activityViews[type]() unless @views[type]
-        @views[type].setElement "#content"
-        @views[type].render()
+        #@views[type].render()
+        @appView.showView(@views[type])
         @reportType = 'activities'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
       error: =>
@@ -212,9 +216,10 @@ class Router extends Backbone.Router
           @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
 
         type = @reportViewOptions["type"]
+
         @views[type] = new graphsViews[type]() unless @views[type]
-        @views[type].setElement "#content"
-        @views[type].render()
+#        @views[type].render()
+        @appView.showView(@views[type])
         @reportType = 'graphs'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
       error: =>
@@ -250,7 +255,8 @@ class Router extends Backbone.Router
     Coconut.router.reportViewOptions['startDate'] = startDate
     Coconut.router.reportViewOptions['endDate'] = endDate
     @reportType = 'dashboard'
-    Coconut.dashboardView.render()
+    #Coconut.dashboardView.render()
+    @appView.showView(Coconut.dashboardView)
     @showDateFilter(startDate, endDate, Coconut.dashboardView, @reportType)
     
     
@@ -261,7 +267,8 @@ class Router extends Backbone.Router
         @dataExportView = new DataExportView unless @dataExportView
         @dataExportView.startDate = startDate
         @dataExportView.endDate = endDate
-        @dataExportView.render()
+        #@dataExportView.render()
+        @appView.showView(@dataExportView)
         @reportType = 'export'
         @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
       error: =>
@@ -283,7 +290,8 @@ class Router extends Backbone.Router
           @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
         type = @reportViewOptions["type"]
         @mapView = new MapView unless @mapView
-        @mapView.render()
+        #@mapView.render()
+        @appView.showView(@mapView)
         @reportType = 'maps'
         @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @mapView, @reportType)
       error: =>
@@ -291,73 +299,81 @@ class Router extends Backbone.Router
 
   FacilityHierarchy: =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @facilityHierarchyView = new FacilityHierarchyView unless @facilityHierarchyView
-        @facilityHierarchyView.render()
+        #@facilityHierarchyView.render()
+        @appView.showView(@facilityHierarchyView)
       error: =>
         @notAdmin()
         
 
   rainfallStation: =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @rainfallStationView = new RainfallStationView unless @rainfallStationView
-        @rainfallStationView.render()
+        #@rainfallStationView.render()
+        @appView.showView(@rainfallStationView)
       error: =>
         @notAdmin()
 
   geoHierarchy: =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @geoHierarchyView = new GeoHierarchyView unless @geoHierarchyView
-        @geoHierarchyView.render()
+        #@geoHierarchyView.render()
+        @appView.showView(@geoHierarchyView)
       error: =>
         @notAdmin()
 
   shehiasHighRisk: =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @shehiasHighRiskView = new ShehiasHighRiskView unless  @shehiasHighRiskView
-        @shehiasHighRiskView.render()
+        #@shehiasHighRiskView.render()
+        @appView.showView(@shehiasHighRiskView)
       error: =>
         @notAdmin()
 
   users: () =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @usersView = new UsersView() unless @usersView
-        @usersView.render()
+        #@usersView.render()
+        @appView.showView(@usersView)
       error: =>
         @notAdmin()
 
   dhis2: () =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @dhis2View = new Dhis2View() unless @dhis2View
-        @dhis2View.render()
+        #@dhis2View.render()
+        @appView.showView(@dhis2View)
       error: =>
         @notAdmin()
 
   systemSettings: () =>
     @adminLoggedIn
-      success: ->
+      success: =>
         @systemSettingsView = new SystemSettingsView unless @systemSettingsView
-        @systemSettingsView.render()
+        #@systemSettingsView.render()
+        @appView.showView(@systemSettingsView)
       error: =>
         @notAdmin()
 
   newIssue: (issueID) ->
     @userLoggedIn
-      success: ->
+      success: =>
         Coconut.issueView ?= new IssueView()
         Coconut.issueView.issue = null
-        Coconut.issueView.render()
+        #Coconut.issueView.render()
+        @appView.showView(Coconut.issueView)
       error: =>
         @loginFailed()
         
   showIssue: (issueID) ->
     @userLoggedIn
-      success: ->
+      success: =>
         Coconut.issueView ?= new IssueView()
         Coconut.database.get issueID
         .catch (error) -> 
@@ -365,7 +381,8 @@ class Router extends Backbone.Router
         .then (result) ->
           if(result)
             Coconut.issueView.issue = result
-            Coconut.issueView.render()
+            #Coconut.issueView.render()
+            @appView.showView(Coconut.issueView)
           else
             Dialog.createDialogWrap()
             Dialog.confirm("Issue not found: <br />#{issueID}", "Database Error",["Ok"])
@@ -382,7 +399,7 @@ class Router extends Backbone.Router
 
   adminLoggedIn: (callback) ->
     @userLoggedIn
-      success: (user) ->
+      success: (user) =>
         if user.isAdmin()
           callback.success(user)
         else
@@ -393,7 +410,7 @@ class Router extends Backbone.Router
              </dialog>
           "
           Dialog.confirm("You do not have admin privileges", "Warning",["Ok"])
-      error: ->
+      error: =>
         callback.error()
 
   setStartEndDateIfMissing: (startDate,endDate) =>

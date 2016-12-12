@@ -150,7 +150,7 @@ class DashboardView extends Backbone.View
         </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
-                <div id='container_7' class='chart_container f-left' data-graph-id = 'Positivity'>
+                <div id='container_7' class='chart_container f-left' data-graph-id = 'PositivityGraph'>
                    <div class='chart-title'>Number of Persons Tested and Number Positive</div>                
                    <div id='chart_7' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>

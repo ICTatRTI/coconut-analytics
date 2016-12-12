@@ -13,6 +13,7 @@ moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
 global.pouchdb = new PouchDB("http://localhost:5984/zanzibar")
+AppView = require './AppView'
 
 # These are local .coffee files
 Router = require './Router'
@@ -28,9 +29,10 @@ ChromeView = require './views/ChromeView'
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
+
 global.Coconut =
   database: pouchdb
-  router: new Router()
+  router: new Router(AppView)
   currentlogin: Cookies.get('current_user') || null
   reportDates:
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
