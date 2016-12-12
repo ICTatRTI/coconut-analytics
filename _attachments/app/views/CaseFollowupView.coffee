@@ -10,6 +10,8 @@ Case = require '../models/Case'
 DataTables = require( 'datatables.net' )()
 
 class CaseFollowupView extends Backbone.View
+  el: "#content"
+    
   events:
     "click .rpt-suboptions": "showDropDown"
     "click button.caseBtn": "showCaseDialog"

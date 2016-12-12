@@ -6,7 +6,8 @@ Backbone.$  = $
 Reports = require '../models/Reports'
 
 class AlertsView extends Backbone.View
-
+  el: "#content"
+  
   renderAlertStructure: (alerts_to_check)  =>
     $("#content").html "
       <h3>Alerts</h3>
