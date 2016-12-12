@@ -260,7 +260,7 @@ class Router extends Backbone.Router
     @showDateFilter(startDate, endDate, Coconut.dashboardView, @reportType)
     
     
-  dataExport: ->
+  dataExport: =>
     @userLoggedIn
       success:  =>
         [startDate,endDate] = @setStartEndDateIfMissing()
@@ -274,7 +274,7 @@ class Router extends Backbone.Router
       error: =>
         @loginFailed()
 
-  maps: (options) ->
+  maps: (options) =>
     @userLoggedIn
       success:  =>
         options = _(options?.split(/\//)).map (option) -> unescape(option)
@@ -361,7 +361,7 @@ class Router extends Backbone.Router
       error: =>
         @notAdmin()
 
-  newIssue: (issueID) ->
+  newIssue: (issueID) =>
     @userLoggedIn
       success: =>
         Coconut.issueView ?= new IssueView()
@@ -371,14 +371,14 @@ class Router extends Backbone.Router
       error: =>
         @loginFailed()
         
-  showIssue: (issueID) ->
+  showIssue: (issueID) =>
     @userLoggedIn
       success: =>
         Coconut.issueView ?= new IssueView()
         Coconut.database.get issueID
         .catch (error) -> 
           console.error error
-        .then (result) ->
+        .then (result) =>
           if(result)
             Coconut.issueView.issue = result
             #Coconut.issueView.render()
