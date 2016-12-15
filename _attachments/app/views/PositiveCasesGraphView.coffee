@@ -42,9 +42,6 @@ class PositiveCasesGraphView extends Backbone.View
         $(".chart_container").html HTMLHelpers.noRecordFound()
         $('#analysis-spinner').hide()
       else
-        dataForGraph.forEach((d) ->
-          d.dateICD = moment(d.key[0])
-        )
         composite = dc.compositeChart("#chart")
         Graphs.positiveCases(dataForGraph, composite, 'chart_container_1', options)
 

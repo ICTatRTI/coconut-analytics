@@ -122,10 +122,10 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
   ndx2 = crossfilter(data2)
 
   dim1 = ndx1.dimension((d) ->
-    return d.dateICD
+    return moment(d.key[0])
   )
   dim2 = ndx2.dimension((d) ->
-    return d.dateICD
+    return moment(d.key[0])
   )
   grpGTE5 = dim1.group().reduceSum((d) ->
       return d.value
@@ -184,11 +184,11 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     ndx3b = crossfilter(data3b)
     
     dim3a = ndx3a.dimension((d) ->
-      return d.dateWeek
+      return moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
     )
 
     dim3b = ndx3b.dimension((d) ->
-      return d.dateWeek
+      return moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
     )
 
     grp1 = dim3a.group().reduceSum((d) ->
@@ -325,16 +325,16 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      ndx4 = crossfilter(data4)
 
      dim1 = ndx1.dimension((d) ->
-       return d.dateICD
+       return moment(d.key[0])
      )
      dim2 = ndx2.dimension((d) ->
-       return d.dateICD
+       return moment(d.key[0])
      )
      dim3 = ndx3.dimension((d) ->
-       return d.dateICD
+       return moment(d.key[0])
      )
      dim4 = ndx4.dimension((d) ->
-       return d.dateICD
+       return moment(d.key[0])
      )
      grp1 = dim1.group()
      grp2 = dim2.group()
@@ -417,18 +417,18 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     ndx4 = crossfilter(data4)
     
     dim1 = ndx1.dimension((d) ->
-      return  d.dateICD
+      return  moment(d.key[0])
     )
 
     dim2 = ndx2.dimension((d) ->
-      return  d.dateICD
+      return  moment(d.key[0])
     )
 
     dim3 = ndx3.dimension((d) ->
-      return  d.dateICD
+      return  moment(d.key[0])
     )
     dim4 = ndx4.dimension((d) ->
-      return  d.dateICD
+      return  moment(d.key[0])
     )
     grp1 = dim1.group()
     grp2 = dim2.group()
@@ -509,13 +509,13 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
    ndx3 = crossfilter(data3)
 
    dim1 = ndx1.dimension((d) ->
-     return d.dateICD
+     return moment(d.key[0])
    )
    dim2 = ndx2.dimension((d) ->
-     return d.dateICD
+     return moment(d.key[0])
    )
    dim3 = ndx3.dimension((d) ->
-     return d.dateICD
+     return moment(d.key[0])
    )
    grp1 = dim1.group().reduceSum((d) ->
        return d.value

@@ -47,7 +47,7 @@ class TestRateGraphView extends Backbone.View
       else
         dataForGraph.forEach((d) ->
           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
-        )
+       )
         composite = dc.compositeChart("#chart")
         Graphs.testRate(dataForGraph, composite, 'chart_container_1', options)
 

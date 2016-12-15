@@ -46,9 +46,6 @@ class AttendanceGraphView extends Backbone.View
         $(".chart_container").html HTMLHelpers.noRecordFound()
         $('#analysis-spinner').hide()
       else
-        dataForGraph.forEach((d) ->
-           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
-        )
         composite = dc.compositeChart("#chart")
         Graphs.attendance(dataForGraph, composite, 'chart_container_1', options)
         $('#analysis-spinner').hide()

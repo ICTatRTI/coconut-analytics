@@ -216,12 +216,6 @@ class DashboardView extends Backbone.View
     composite4 = dc.compositeChart("#chart_5")
     composite5 = dc.compositeChart("#chart_6")
     composite6 = dc.compositeChart("#chart_7")
-
-    # Graphs using caseCounter query
-    dataForGraph.forEach((d) ->
-      d.dateICD = moment(d.key[0])
-      d.dateWeek = moment(d.key[0]).isoWeek()
-    )
     
     # Incident Graph - Number of Cases for current and last year
     startDate = moment().year()+'-01-01'
@@ -240,10 +234,6 @@ class DashboardView extends Backbone.View
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()
-         
-    #hack to speed up graph display by display in 2 phases for the 2 years comparison
-    # dataForGraph2 = []
-    # Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
 
     # Gathering previous year data and processing data for second graph
     Coconut.database.query "caseCounter",
