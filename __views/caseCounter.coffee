@@ -8,6 +8,7 @@
       emit [doc["Index Case Diagnosis Date"], "Under 5"], under5
       emit [doc["Index Case Diagnosis Date"], "Has Notification"], 1
       emit [doc["Index Case Diagnosis Date"], "Followed Up"], if doc["Complete Household Visit"] then 1 else 0
+      emit [doc["Index Case Diagnosis Date"], "Number Positive Cases Including Index"], doc["Number Positive Cases Including Index"]
       emit [doc["Index Case Diagnosis Date"], "Number Household Members Tested Positive"], doc["Number Positive Cases At Index Household"]
       emit [doc["Index Case Diagnosis Date"], "Number Household Members Tested"], doc["Number Household Members Tested"]
       emit [doc["Index Case Diagnosis Date"], "Number Household Members Tested and Untested"], doc["Number Household Members Tested And Untested"] or 0

@@ -1213,7 +1213,7 @@ button.caseBtn {
   left: 40px;
 	padding: 10px 0 0 5px;
 	background: #fff;
-	height: 290px;
+	/* height: 290px; */
 	vertical-align: bottom;
 	display: table-cell;
 }
@@ -1263,19 +1263,12 @@ button.caseBtn {
   background-color: transparent;
 }
 
-.rickshaw_graph .detail {
-  top: 15px;
-}
-
-.rickshaw_graph .detail .dot {
-  margin-left: 1px;
-}
-
+/*
 svg {
   padding-top: 5px;
   margin-bottom: 25px;
 }
-
+*/
 div.footer {
   position: absolute;
   font-size: 11px;

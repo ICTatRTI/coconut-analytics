@@ -18,7 +18,7 @@ class IncidentsGraphView extends Backbone.View
        <style> 
          .y-axis-label { margin-right: 20px}
        </style>
-       <div class='chart-title'>Number of Cases for Current and Last Year</div>
+       <div class='chart-title'>Number of Positive Cases for Current and Last Year</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
@@ -52,9 +52,6 @@ class IncidentsGraphView extends Backbone.View
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
-        data1.forEach((d) ->
-          d.dateWeek = moment(d.key[0]).isoWeek()
-        )
         Coconut.database.query "caseCounter",
           startkey: [lastYearStart]
           endkey: [lastYearEnd]
@@ -62,10 +59,6 @@ class IncidentsGraphView extends Backbone.View
           include_docs: false
         .then (result2) => 
           data2 = result2.rows 
-          data2.forEach((d) ->
-            d.dateWeek = moment(d.key[0]).isoWeek()
-          )
-          
           composite = dc.compositeChart("#chart")
           Graphs.incidents(data1,data2, composite, 'chart_container_1', options)
           $('#analysis-spinner').hide()

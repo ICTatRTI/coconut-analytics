@@ -101,17 +101,17 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
-                   <div class='chart-title'>Number of Cases: Current vs Last Year</div>
-                   <div id='chart_1' class='chart'></div>
+                   <div class='chart-title'>Number of Positive Cases: Current vs Last Year</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                   <div id='chart_1' class='chart'></div>
                 </div>
                 
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'> 
                 <div id='container_2' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
                    <div class='chart-title'>Number of Positive Cases by Age Group</div>
-                   <div id='chart_2' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                   <div id='chart_2' class='chart'></div>
                 </div>
             </div>
           </div>
@@ -119,31 +119,31 @@ class DashboardView extends Backbone.View
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
                    <div class='chart-title'>Attendance</div>                
-                   <div id='chart_3' class='chart'></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                   <div id='chart_3' class='chart'></div>
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_4' class='chart_container f-left' data-graph-id = 'TestRateGraph'>
-                  <div class='chart-title'>Test Rate</div>              
-                  <div id='chart_4' class='chart'></div>
+                  <div class='chart-title'>Test Rate</div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                  <div id='chart_4' class='chart'></div>
                 </div>
             </div>
           </div>
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_6' class='chart_container f-left' data-graph-id = 'TimeToNotify'>
-                  <div class='chart-title'>Time To Notify (#{Coconut.config.case_notification} hours)</div>              
-                  <div id='chart_6' class='chart'></div>
+                  <div class='chart-title'>Time To Notify (#{Coconut.config.case_notification} hours)</div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                  <div id='chart_6' class='chart'></div>
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_5' class='chart_container f-left' data-graph-id = 'TimeToComplete'>
-                   <div class='chart-title'>Time To Follow-up (#{Coconut.config.case_followup} hours)</div>                
-                   <div id='chart_5' class='chart'></div>
+                   <div class='chart-title'>Time To Follow-up (#{Coconut.config.case_followup} hours)</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                   <div id='chart_5' class='chart'></div>
                 </div>
             </div>
           </div>
@@ -151,9 +151,9 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_7' class='chart_container f-left' data-graph-id = 'PositivityGraph'>
-                   <div class='chart-title'>Number of Persons Tested and Number Positive</div>                
-                   <div id='chart_7' class='chart'></div>
+                   <div class='chart-title'>Number of Persons Tested and Number Positive</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
+                   <div id='chart_7' class='chart'></div>
                 </div>
             </div>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
@@ -237,21 +237,15 @@ class DashboardView extends Backbone.View
       include_docs: false
     .then (result) =>
       dataForGraph1 = result.rows
-      dataForGraph1.forEach((d) ->
-        d.dateICD = moment(d.key[0])
-        d.dateWeek = moment(d.key[0]).isoWeek()
-      )
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()
          
     #hack to speed up graph display by display in 2 phases for the 2 years comparison
-    dataForGraph2 = []
-    Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
-    $('div#container_1 div.mdl-spinner').hide()
+    # dataForGraph2 = []
+    # Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
 
-    #processing data for second graph
-    # Gathering previous year data
+    # Gathering previous year data and processing data for second graph
     Coconut.database.query "caseCounter",
       startkey: [lastYearStart]
       endkey: [lastYearEnd]
@@ -259,13 +253,10 @@ class DashboardView extends Backbone.View
       include_docs: false
     .then (result2) =>
       dataForGraph2 = result2.rows
-      dataForGraph2.forEach((d) ->
-        d.dateWeek= moment(d.key[0]).isoWeek()
-      )
       Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
       $('div#container_1 div.mdl-spinner').hide()
     
-      
+
     # PositiveCases Graph
     Graphs.positiveCases(dataForGraph, composite1, 'container_2', options)
     $('div#container_2 div.mdl-spinner').hide()

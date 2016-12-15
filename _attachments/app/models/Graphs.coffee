@@ -47,47 +47,42 @@ Graphs.compositeResize = (composite, container, options) ->
     .redraw()
   
 Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options) ->
+  data1 = _.filter(dataForGraph1, (d) ->
+    return d.key[1] is "Number Positive Cases Including Index"
+  )
+  data2 = _.filter(dataForGraph2, (d) ->
+    return d.key[1] is "Number Positive Cases Including Index"
+  )
 
-  ndx1 = crossfilter(dataForGraph1)
-  ndx2 = crossfilter(dataForGraph2)
+  ndx1 = crossfilter(data1)
+  ndx2 = crossfilter(data2)
   dim1 = ndx1.dimension((d) ->
-    return d.dateWeek
+    return moment(d.key[0]).isoWeek()
   )
   dim2 = ndx2.dimension((d) ->
-    return d.dateWeek
+    return moment(d.key[0]).isoWeek()
   )
 
   grp1 = dim1.group()
   grp2 = dim2.group()
-
+  
   composite
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
     .x(d3.scale.linear())
-    .y(d3.scale.linear())
+    .y(d3.scale.linear().domain([0,120]))
     .xUnits(d3.time.weeks)
     .yAxisLabel("Number of Cases")
     .xAxisLabel("Weeks")
     .elasticY(true)
     .elasticX(true)
-    .yAxisPadding(100)
     .shareTitle(false)
     .renderHorizontalGridLines(true)
-    .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+    .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
     .renderlet((chart) ->
       Graphs.axis_adjust(chart, container)
     )
     .compose([
-      dc.lineChart(composite)
-        .dimension(dim1)
-        .colors(colorScale(0))
-        .group(grp1, "Current")
-        .xyTipsOn(true)
-        .renderArea(true)
-        .renderDataPoints(false)
-        .title((d) ->
-          return 'Week: ' +d.key + ": " + d.value
-        ),
       dc.lineChart(composite)
         .dimension(dim2)
         .colors(colorScale(1))
@@ -97,11 +92,21 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options)
         .renderDataPoints(false)
         .title((d) ->
           return 'Week: ' +d.key + ": " + d.value
+        ),
+      dc.lineChart(composite)
+        .dimension(dim1)
+        .colors(colorScale(0))
+        .group(grp1, "Current")
+        .xyTipsOn(true)
+        .renderArea(true)
+        .renderDataPoints(false)
+        .title((d) ->
+          return 'Week: ' +d.key + ": " + d.value
         )
+
     ])
     .brushOn(false)
     .render()
-
   
 Graphs.positiveCases = (dataForGraph, composite, container, options) ->
   
@@ -136,7 +141,7 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     .y(d3.scale.linear().domain([0,120]))
     .yAxisLabel("Number of Positive Cases")
     .elasticY(true)
-    .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+    .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
     .renderHorizontalGridLines(true)
     .shareTitle(false)
     .renderlet((chart) ->
@@ -202,7 +207,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
       .yAxisLabel("Number of OPD Cases")
       .elasticX(true)
       .elasticY(true)
-      .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+      .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
       .renderHorizontalGridLines(true)
       .shareTitle(false)
       .xUnits(d3.time.week)
@@ -271,7 +276,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
      .elasticY(true)
      .elasticX(true)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .renderlet((chart) ->
@@ -344,7 +349,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        .yAxisLabel("Number of Cases")
        .elasticY(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .renderlet((chart) ->
@@ -439,7 +444,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        .elasticY(true)
        .elasticX(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+       .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
        .renderHorizontalGridLines(true)
        .shareTitle(false)
        .renderlet((chart) ->
@@ -529,7 +534,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .y(d3.scale.linear())
      .yAxisLabel("Number of Cases")
      .elasticY(true)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(20).gap(5).legendWidth(140))
+     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .renderlet((chart) ->
