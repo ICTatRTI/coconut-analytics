@@ -24,15 +24,18 @@ Graphs.chartResize = (chart, container, options) ->
     .redraw()
 
 Graphs.axis_adjust = (chart, container) ->
-  xAxis = d3.transform(d3.select("##{container} g.x.axis").attr("transform"))
-  xAxis_x = xAxis.translate[0]
-  xAxis_y = xAxis.translate[1]
-  yAxis = d3.transform(d3.select("##{container} g.y.axis").attr("transform"))
-  yAxis_x = yAxis.translate[0]
-  yAxis_y = yAxis.translate[1]
-  chart.select('.x.axis').attr("transform","translate(55,#{xAxis_y})")
-  chart.select('.y.axis').attr("transform","translate(55,#{yAxis_y})")
-  chart.selectAll('.chart-body').attr("transform","translate(55,#{yAxis_y})")
+  #this adjust the y-axis title to prevent title overlapping on ticks
+  #unless there is data for date range, there will not be a chart inside container, and hence a null.
+  unless d3.select("##{container} g.x.axis")[0][0] is null
+    xAxis = d3.transform(d3.select("##{container} g.x.axis").attr("transform"))
+    xAxis_x = xAxis.translate[0]
+    xAxis_y = xAxis.translate[1]
+    yAxis = d3.transform(d3.select("##{container} g.y.axis").attr("transform"))
+    yAxis_x = yAxis.translate[0]
+    yAxis_y = yAxis.translate[1]
+    chart.select('.x.axis').attr("transform","translate(55,#{xAxis_y})")
+    chart.select('.y.axis').attr("transform","translate(55,#{yAxis_y})")
+    chart.selectAll('.chart-body').attr("transform","translate(55,#{yAxis_y})")
   
 Graphs.compositeResize = (composite, container, options) ->
   width = $(".#{container}").width() - options.adjustX
@@ -79,7 +82,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options)
     .shareTitle(false)
     .renderHorizontalGridLines(true)
     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
-    .renderlet((chart) ->
+    .on('renderlet',(chart) =>
       Graphs.axis_adjust(chart, container)
     )
     .compose([
