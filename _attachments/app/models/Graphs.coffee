@@ -139,7 +139,7 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     .height($('.chart_container').height()-options.adjustY)
     .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
     .y(d3.scale.linear().domain([0,120]))
-    .yAxisLabel("Number of Positive Cases")
+    .yAxisLabel("Number of Cases")
     .elasticY(true)
     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
     .renderHorizontalGridLines(true)

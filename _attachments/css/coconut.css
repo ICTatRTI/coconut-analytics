@@ -1143,6 +1143,11 @@ dialog {
 	float: right;
 }
 
+#dialogActions-left {
+	margin-top: 5px;
+	float: left;
+}
+
 #dialog + .backdrop {
   position: fixed;
   top: 0;
