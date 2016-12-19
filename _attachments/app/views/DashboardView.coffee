@@ -99,17 +99,16 @@ class DashboardView extends Backbone.View
         </div> 
         <div class='page-content'>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
-                <div id='container_1' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
-                   <div class='chart-title'>Number of Positive Cases: Current vs Last Year</div>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'> 
+                <div id='container_1' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
+                   <div class='chart-title'>Number of Positive Cases by Age Group</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_1' class='chart'></div>
                 </div>
-                
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'> 
-                <div id='container_2' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
-                   <div class='chart-title'>Number of Positive Cases by Age Group</div>
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+                <div id='container_2' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
+                   <div class='chart-title'>Number of Positive Cases: Current vs Last Year</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_2' class='chart'></div>
                 </div>
@@ -236,16 +235,16 @@ class DashboardView extends Backbone.View
       dataForGraph2 = _.filter(data, (d) ->
         return d.key[1] is "Number Positive Cases Including Index" and d.key[0] < startDate
       )
-      Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options,() ->
-        $('div#container_1 div.mdl-spinner').hide()
+      Graphs.incidents(dataForGraph1, dataForGraph2, composite1, 'container_2', options,() ->
+        $('div#container_2 div.mdl-spinner').hide()
       )
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()
 
     # PositiveCases Graph
-    Graphs.positiveCases(dataForGraph, composite1, 'container_2', options)
-    $('div#container_2 div.mdl-spinner').hide()
+    Graphs.positiveCases(dataForGraph, composite0, 'container_1', options)
+    $('div#container_1 div.mdl-spinner').hide()
 
     # TimeToComplete Graph 
     Graphs.timeToComplete(dataForGraph, composite4, 'container_5', options)
