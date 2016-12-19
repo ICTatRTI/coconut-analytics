@@ -319,7 +319,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      data5 = _.filter(dataForGraph, (d) ->
        return (d.key[1] is "Has Notification" and d.value is 0)
      )
-
+     
      ndx1 = crossfilter(data1)
      ndx2 = crossfilter(data2)
      ndx3 = crossfilter(data3)
@@ -400,7 +400,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
              )
           dc.barChart(composite)
             .dimension(dim5)
-            .group(grp1, "No notification")
+            .group(grp5, "No notification")
             .colors(colorScale2('blue'))
             .centerBar(true)
             .gap(1)
@@ -512,7 +512,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
              )
           dc.barChart(composite)
             .dimension(dim5)
-            .group(grp1, "Not followed up")
+            .group(grp5, "Not followed up")
             .colors(colorScale2('blue'))
             .centerBar(true)
             .gap(1)

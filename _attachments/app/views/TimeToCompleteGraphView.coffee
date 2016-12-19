@@ -13,7 +13,6 @@ class TimeToCompleteGraphView extends Backbone.View
   el: "#content"
 
   render: =>
-    console.log(Coconut.config)
     options = $.extend({},Coconut.router.reportViewOptions)
     @$el.html "
        <div id='dateSelector'></div>
