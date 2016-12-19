@@ -223,29 +223,25 @@ class DashboardView extends Backbone.View
     lastYearStart = moment(startDate).subtract(1,'year').year()+'-01-01'
     lastYearEnd = moment(endDate).subtract(1,'year').year()+'-12-31'
     
-    dataForGraph1 = []
     Coconut.database.query "caseCounter",
-      startkey: [startDate]
+      startkey: [lastYearStart]
       endkey: [endDate]
       reduce: false
       include_docs: false
     .then (result) =>
-      dataForGraph1 = result.rows
+      data = result.rows
+      dataForGraph1 = _.filter(data, (d) ->
+        return d.key[1] is "Number Positive Cases Including Index" and d.key[0] >= startDate
+      )
+      dataForGraph2 = _.filter(data, (d) ->
+        return d.key[1] is "Number Positive Cases Including Index" and d.key[0] < startDate
+      )
+      Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options,() ->
+        $('div#container_1 div.mdl-spinner').hide()
+      )
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()
-
-    # Gathering previous year data and processing data for second graph
-    Coconut.database.query "caseCounter",
-      startkey: [lastYearStart]
-      endkey: [lastYearEnd]
-      reduce: false
-      include_docs: false
-    .then (result2) =>
-      dataForGraph2 = result2.rows
-      Graphs.incidents(dataForGraph1, dataForGraph2, composite0, 'container_1', options)
-      $('div#container_1 div.mdl-spinner').hide()
-    
 
     # PositiveCases Graph
     Graphs.positiveCases(dataForGraph, composite1, 'container_2', options)

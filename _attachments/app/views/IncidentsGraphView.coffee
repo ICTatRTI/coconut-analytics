@@ -42,31 +42,30 @@ class IncidentsGraphView extends Backbone.View
 
 
     Coconut.database.query "caseCounter",
-      startkey: [startDate]
+      startkey: [lastYearStart]
       endkey: [endDate]
       reduce: false
       include_docs: false
     .then (result) =>
-      data1 = result.rows
-      if (data1.length == 0 or _.isEmpty(data1[0]))
+      data = result.rows
+      if (data.length == 0 or _.isEmpty(data[0]))
          $(".chart_container").html HTMLHelpers.noRecordFound()
          $('#analysis-spinner').hide()
       else
-        Coconut.database.query "caseCounter",
-          startkey: [lastYearStart]
-          endkey: [lastYearEnd]
-          reduce: false
-          include_docs: false
-        .then (result2) => 
-          data2 = result2.rows 
-          composite = dc.compositeChart("#chart")
-          Graphs.incidents(data1,data2, composite, 'chart_container_1', options)
+        dataForGraph1 = _.filter(data, (d) ->
+          return d.key[1] is "Number Positive Cases Including Index" and d.key[0] >= startDate
+        )
+        dataForGraph2 = _.filter(data, (d) ->
+          return d.key[1] is "Number Positive Cases Including Index" and d.key[0] < startDate
+        )
+        composite = dc.compositeChart("#chart")
+        Graphs.incidents(dataForGraph1, dataForGraph2, composite, 'container_1', options, () ->
           $('#analysis-spinner').hide()
-          
-          window.onresize = () ->
-            HTMLHelpers.resizeChartContainer()
-            Graphs.compositeResize(composite, 'chart_container', options)
-    
+        )
+
+        window.onresize = () ->
+          HTMLHelpers.resizeChartContainer()
+          Graphs.compositeResize(composite, 'chart_container', options)
           
     .catch (error) ->
       console.error error

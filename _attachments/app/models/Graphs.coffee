@@ -49,16 +49,9 @@ Graphs.compositeResize = (composite, container, options) ->
     .rescale()
     .redraw()
   
-Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options) ->
-  data1 = _.filter(dataForGraph1, (d) ->
-    return d.key[1] is "Number Positive Cases Including Index"
-  )
-  data2 = _.filter(dataForGraph2, (d) ->
-    return d.key[1] is "Number Positive Cases Including Index"
-  )
-
-  ndx1 = crossfilter(data1)
-  ndx2 = crossfilter(data2)
+Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,callback) ->
+  ndx1 = crossfilter(dataForGraph1)
+  ndx2 = crossfilter(dataForGraph2)
   dim1 = ndx1.dimension((d) ->
     return moment(d.key[0]).isoWeek()
   )
@@ -110,6 +103,8 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options)
     ])
     .brushOn(false)
     .render()
+    
+  callback(true)
   
 Graphs.positiveCases = (dataForGraph, composite, container, options) ->
   
