@@ -316,11 +316,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      data4 = _.filter(dataForGraph, (d) ->
        return (d.key[1] is "More Than Three Days Between Positive Result And Notification From Facility" and d.value is 1)
      )
+     data5 = _.filter(dataForGraph, (d) ->
+       return (d.key[1] is "Has Notification" and d.value is 0)
+     )
 
      ndx1 = crossfilter(data1)
      ndx2 = crossfilter(data2)
      ndx3 = crossfilter(data3)
      ndx4 = crossfilter(data4)
+     ndx5 = crossfilter(data5)
 
      dim1 = ndx1.dimension((d) ->
        return moment(d.key[0])
@@ -334,10 +338,14 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      dim4 = ndx4.dimension((d) ->
        return moment(d.key[0])
      )
+     dim5 = ndx5.dimension((d) ->
+       return moment(d.key[0])
+     )
      grp1 = dim1.group()
      grp2 = dim2.group()
      grp3 = dim3.group()
      grp4 = dim4.group()
+     grp5 = dim5.group()
 
      composite
        .width($('.chart_container').width() - options.adjustX)
@@ -390,6 +398,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
            .title((d) ->
              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              )
+          dc.barChart(composite)
+            .dimension(dim5)
+            .group(grp1, "No notification")
+            .colors(colorScale2('blue'))
+            .centerBar(true)
+            .gap(1)
+            .title((d) ->
+              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+              )
        ])
        .brushOn(false)
        .render()
@@ -408,11 +425,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     data4 = _.filter(dataForGraph, (d) ->
       return (d.key[1] is "More Than Three Days Between Positive Result And Complete Household" and d.value is 1)
     )
+    data5 = _.filter(dataForGraph, (d) ->
+      return (d.key[1] is "Followed Up" and d.value is 0)
+    )
    
     ndx1 = crossfilter(data1)
     ndx2 = crossfilter(data2)
     ndx3 = crossfilter(data3)
     ndx4 = crossfilter(data4)
+    ndx5 = crossfilter(data5)
     
     dim1 = ndx1.dimension((d) ->
       return  moment(d.key[0])
@@ -428,11 +449,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     dim4 = ndx4.dimension((d) ->
       return  moment(d.key[0])
     )
+    dim5 = ndx5.dimension((d) ->
+      return  moment(d.key[0])
+    )
     grp1 = dim1.group()
     grp2 = dim2.group()
     grp3 = dim3.group()
     grp4 = dim4.group()
-
+    grp5 = dim5.group()
+    
     composite
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
@@ -485,6 +510,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
            .title((d) ->
              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              )
+          dc.barChart(composite)
+            .dimension(dim5)
+            .group(grp1, "Not followed up")
+            .colors(colorScale2('blue'))
+            .centerBar(true)
+            .gap(1)
+            .title((d) ->
+              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+              )
        ])
        .brushOn(false)
        .render()
@@ -492,7 +526,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
  Graphs.positivityCases = (dataForGraph, composite, container, options) ->
   
    data1 = _.filter(dataForGraph, (d) ->
-     return (d.key[1] is "Has Notification" and d.value > 0)
+     return (d.key[1] is "Has Notification" and d.value is 1)
    )
 
    data2 = _.filter(dataForGraph, (d) ->
