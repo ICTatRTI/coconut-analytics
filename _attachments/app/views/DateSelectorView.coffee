@@ -24,8 +24,8 @@ class DateSelectorView extends Backbone.View
     @endDate = picker.endDate
     Coconut.router.reportViewOptions['startDate'] = @startDate.format("YYYY-MM-DD")
     Coconut.router.reportViewOptions['endDate'] = @endDate.format("YYYY-MM-DD")
-    if Coconut.dateSelectorView.reportType == 'dashboard'
-      url = "#{Coconut.dateSelectorView.reportType}/#{Coconut.router.dateSelectorOptions['startDate']}/#{Coconut.router.dateSelectorOptions['endDate']}"
+    if Coconut.dateSelectorView.reportType is 'dashboard'
+      url = "#{Coconut.dateSelectorView.reportType}/#{Coconut.router.reportViewOptions['startDate']}/#{Coconut.router.reportViewOptions['endDate']}"
     else  
       url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
     Coconut.router.navigate(url,{trigger: true})
