@@ -260,15 +260,16 @@ class DashboardView extends Backbone.View
 
     # Graphs using weeklyDataCounter query
     startYear = moment(options.startDate).isoWeekYear().toString()
-    startWeek = moment(options.startDate).isoWeek().toString()
+    startWeek = ("00" + moment(options.startDate).isoWeek().toString()).slice(-2)
     endYear = moment(options.endDate).isoWeekYear().toString()
-    endWeek = moment(options.endDate).isoWeek().toString()
+    endWeek = ("00" + moment(options.endDate).isoWeek().toString()).slice(-2)
+    console.log startYear, startWeek, endYear, endWeek
     Coconut.database.query "weeklyDataCounter",
       start_key: [startYear, startWeek]
       end_key: [endYear,endWeek,{}]
       reduce: true
-      group: true
       include_docs: false
+      group: true
     .then (result) =>
       dataForGraph = result.rows
       if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
@@ -285,6 +286,9 @@ class DashboardView extends Backbone.View
         #TestRate Graph 
         Graphs.testRate(dataForGraph, composite3, 'container_4', options)
         $('div#container_4 div.mdl-spinner').hide()
+    .catch (error) ->
+      console.error error
+      $('div.mdl-spinner').hide()
         
     window.onresize = () ->
       adjustButtonSize()
