@@ -45,8 +45,6 @@ Graphs.compositeResize = (composite, container, options) ->
   width = $(".#{container}").width() - options.adjustX
   height = $(".#{container}").height() - options.adjustY
   composite
-    .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-    .y(d3.scale.linear().domain([0,120]))
     .width(width)
     .height(height)
     .legend(dc.legend().x($(".#{container}").width()-150).y(20).gap(5).legendWidth(140))
@@ -438,7 +436,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     data5 = _.filter(dataForGraph, (d) ->
       return (d.key[1] is "Followed Up" and d.value is 0)
     )
-   
+    
     ndx1 = crossfilter(data1)
     ndx2 = crossfilter(data2)
     ndx3 = crossfilter(data3)
@@ -462,12 +460,13 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     dim5 = ndx5.dimension((d) ->
       return  moment(d.key[0])
     )
+
     grp1 = dim1.group()
     grp2 = dim2.group()
     grp3 = dim3.group()
     grp4 = dim4.group()
     grp5 = dim5.group()
-    
+
     composite
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
