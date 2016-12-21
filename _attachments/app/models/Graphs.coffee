@@ -11,8 +11,8 @@ colorScale = d3.scale.category10()
 colorScale.domain([0,1,2,3,4,5,6,7,8,9])
 # Example to set customizecolors
 colorScale2 = d3.scale.ordinal()
-  .domain(['green','orange','yellow','red','blue','purple'])
-  .range(['#2ca02c','#ff9900','#ffff00', '#dc3912','#1f77b4','#9467bd'])
+  .domain(['green','orange','yellow','red','blue','purple', 'grey'])
+  .range(['#2ca02c','#ff9900','#ffff00', '#dc3912','#1f77b4','#9467bd', '#808080'])
 
 Graphs.chartResize = (chart, container, options) ->
   width = $(".#{container}").width() - options.adjustX
@@ -26,6 +26,7 @@ Graphs.chartResize = (chart, container, options) ->
 Graphs.axis_adjust = (chart, container) ->
   #this adjust the y-axis title to prevent title overlapping on ticks
   #unless there is data for date range, there will not be a chart inside container, and hence a null.
+  newHeight = chart.height()+10
   unless d3.select("##{container} g.x.axis")[0][0] is null
     xAxis = d3.transform(d3.select("##{container} g.x.axis").attr("transform"))
     xAxis_x = xAxis.translate[0]
@@ -36,7 +37,10 @@ Graphs.axis_adjust = (chart, container) ->
     chart.select('.x.axis').attr("transform","translate(55,#{xAxis_y})")
     chart.select('.y.axis').attr("transform","translate(55,#{yAxis_y})")
     chart.selectAll('.chart-body').attr("transform","translate(55,#{yAxis_y})")
-  
+    chart.select('svg').attr('height', newHeight)
+    chart.selectAll('g.x text')
+      .attr('transform', 'translate(-10,10) rotate(315)')
+
 Graphs.compositeResize = (composite, container, options) ->
   width = $(".#{container}").width() - options.adjustX
   height = $(".#{container}").height() - options.adjustY
@@ -48,6 +52,9 @@ Graphs.compositeResize = (composite, container, options) ->
     .legend(dc.legend().x($(".#{container}").width()-150).y(20).gap(5).legendWidth(140))
     .rescale()
     .redraw()
+    .on('renderlet',(chart) =>
+      Graphs.axis_adjust(chart, container)
+    )
   
 Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,callback) ->
   ndx1 = crossfilter(dataForGraph1)
@@ -77,6 +84,8 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
     .on('renderlet',(chart) =>
       Graphs.axis_adjust(chart, container)
+      chart.selectAll('g.x text')
+        .attr('transform', 'translate(0,0) rotate(0)')
     )
     .compose([
       dc.lineChart(composite)
@@ -144,6 +153,7 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     .shareTitle(false)
     .renderlet((chart) ->
       Graphs.axis_adjust(chart, container)
+      
     )
     .compose([
       dc.lineChart(composite)
@@ -363,6 +373,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        )
        .compose([
          dc.barChart(composite)
+           .dimension(dim5)
+           .group(grp5, "No notification")
+           .colors(colorScale2('grey'))
+           .centerBar(true)
+           .gap(1)
+           .title((d) ->
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+             ),
+         dc.barChart(composite)
            .dimension(dim4)
            .group(grp4, "72+ hrs")
            .colors(colorScale2('red'))
@@ -398,15 +417,6 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
            .title((d) ->
              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              )
-          dc.barChart(composite)
-            .dimension(dim5)
-            .group(grp5, "No notification")
-            .colors(colorScale2('blue'))
-            .centerBar(true)
-            .gap(1)
-            .title((d) ->
-              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
-              )
        ])
        .brushOn(false)
        .render()
@@ -475,6 +485,15 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        )
        .compose([
          dc.barChart(composite)
+           .dimension(dim5)
+           .group(grp5, "Not followed up")
+           .colors(colorScale2('grey'))
+           .centerBar(true)
+           .gap(1)
+           .title((d) ->
+             return 'Week: '+ (d.key).isoWeek() + ": " + d.value
+            ),
+         dc.barChart(composite)
            .dimension(dim4)
            .group(grp4, "72+ hrs")
            .colors(colorScale2('red'))
@@ -510,15 +529,6 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
            .title((d) ->
              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
              )
-          dc.barChart(composite)
-            .dimension(dim5)
-            .group(grp5, "Not followed up")
-            .colors(colorScale2('blue'))
-            .centerBar(true)
-            .gap(1)
-            .title((d) ->
-              return 'Week: '+ (d.key).isoWeek() + ": " + d.value
-              )
        ])
        .brushOn(false)
        .render()
