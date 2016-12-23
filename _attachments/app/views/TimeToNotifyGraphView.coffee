@@ -43,12 +43,12 @@ class TimeToNotifyGraphView extends Backbone.View
         $(".chart_container").html HTMLHelpers.noRecordFound()
         $('#analysis-spinner').hide()
       else
-        composite = dc.compositeChart("#chart")
-        Graphs.timeToNotify(dataForGraph, composite, 'chart_container_1', options)
+        chart = dc.barChart("#chart")
+        Graphs.timeToNotify(dataForGraph, chart, 'chart_container_1', options)
 
         window.onresize = () ->
           HTMLHelpers.resizeChartContainer()
-          Graphs.compositeResize(composite, 'chart_container',options)
+          Graphs.chartResize(chart, 'chart_container',options)
           
         $('#analysis-spinner').hide()
         

@@ -213,7 +213,7 @@ class DashboardView extends Backbone.View
     composite2 = dc.compositeChart("#chart_3")
     composite3 = dc.compositeChart("#chart_4")
     composite4 = dc.compositeChart("#chart_5")
-    composite5 = dc.compositeChart("#chart_6")
+    chart5 = dc.barChart("#chart_6")
     composite6 = dc.compositeChart("#chart_7")
     
     # Incident Graph - Number of Cases for current and last year
@@ -251,7 +251,7 @@ class DashboardView extends Backbone.View
     $('div#container_5 div.mdl-spinner').hide()
     
     #TimeToNotify Graph
-    Graphs.timeToNotify(dataForGraph, composite5, 'container_6', options)
+    Graphs.timeToNotify(dataForGraph, chart5, 'container_6', options)
     $('div#container_6 div.mdl-spinner').hide()
           
     #Positivity Graph
