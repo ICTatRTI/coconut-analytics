@@ -212,7 +212,7 @@ class DashboardView extends Backbone.View
     composite1 = dc.compositeChart("#chart_2")
     composite2 = dc.compositeChart("#chart_3")
     composite3 = dc.compositeChart("#chart_4")
-    composite4 = dc.compositeChart("#chart_5")
+    chart4 = dc.barChart("#chart_5")
     chart5 = dc.barChart("#chart_6")
     composite6 = dc.compositeChart("#chart_7")
     
@@ -247,7 +247,7 @@ class DashboardView extends Backbone.View
     $('div#container_1 div.mdl-spinner').hide()
 
     # TimeToComplete Graph 
-    Graphs.timeToComplete(dataForGraph, composite4, 'container_5', options)
+    Graphs.timeToComplete(dataForGraph, chart4, 'container_5', options)
     $('div#container_5 div.mdl-spinner').hide()
     
     #TimeToNotify Graph
@@ -299,8 +299,8 @@ class DashboardView extends Backbone.View
       Graphs.compositeResize(composite1, 'chart_container', options)
       Graphs.compositeResize(composite2, 'chart_container', options)
       Graphs.compositeResize(composite3, 'chart_container', options)
-      Graphs.compositeResize(composite4, 'chart_container', options)
-      Graphs.compositeResize(composite5, 'chart_container', options)
+      Graphs.chartResize(chart4, 'chart_container', options)
+      Graphs.chartResize(chart5, 'chart_container', options)
       Graphs.compositeResize(composite6, 'chart_container', options)
 
     
