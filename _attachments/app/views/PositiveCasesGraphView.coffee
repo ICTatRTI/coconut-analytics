@@ -38,18 +38,14 @@ class PositiveCasesGraphView extends Backbone.View
       include_docs: false
     .then (result) =>
       dataForGraph = result.rows
-      if (dataForGraph.length == 0  or _.isEmpty(dataForGraph[0]))
-        $(".chart_container").html HTMLHelpers.noRecordFound()
-        $('#analysis-spinner').hide()
-      else
-        composite = dc.compositeChart("#chart")
-        Graphs.positiveCases(dataForGraph, composite, 'chart_container_1', options)
+      composite = dc.compositeChart("#chart")
+      Graphs.positiveCases(dataForGraph, composite, 'chart_container_1', options)
 
-        window.onresize = () ->
-          HTMLHelpers.resizeChartContainer()
-          Graphs.compositeResize(composite, 'chart_container', options)
-                    
-        $('#analysis-spinner').hide()
+      window.onresize = () ->
+        HTMLHelpers.resizeChartContainer()
+        Graphs.compositeResize(composite, 'chart_container', options)
+                  
+      $('#analysis-spinner').hide()
     .catch (error) ->
       console.error error
       $('#analysis-spinner').hide()

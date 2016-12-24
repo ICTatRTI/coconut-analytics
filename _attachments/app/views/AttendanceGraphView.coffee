@@ -42,17 +42,13 @@ class AttendanceGraphView extends Backbone.View
       include_docs: false
     .then (result) =>
       dataForGraph = result.rows
-      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
-        $(".chart_container").html HTMLHelpers.noRecordFound()
-        $('#analysis-spinner').hide()
-      else
-        composite = dc.compositeChart("#chart")
-        Graphs.attendance(dataForGraph, composite, 'chart_container_1', options)
-        $('#analysis-spinner').hide()
-        
-        window.onresize = () ->
-          HTMLHelpers.resizeChartContainer()
-          Graphs.compositeResize(composite, 'chart_container', options)
+      composite = dc.compositeChart("#chart")
+      Graphs.attendance(dataForGraph, composite, 'chart_container_1', options)
+      $('#analysis-spinner').hide()
+      
+      window.onresize = () ->
+        HTMLHelpers.resizeChartContainer()
+        Graphs.compositeResize(composite, 'chart_container', options)
                     
     .catch (error) ->
       console.error error

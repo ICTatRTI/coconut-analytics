@@ -48,24 +48,20 @@ class IncidentsGraphView extends Backbone.View
       include_docs: false
     .then (result) =>
       data = result.rows
-      if (data.length == 0 or _.isEmpty(data[0]))
-         $(".chart_container").html HTMLHelpers.noRecordFound()
-         $('#analysis-spinner').hide()
-      else
-        dataForGraph1 = _.filter(data, (d) ->
-          return d.key[1] is "Number Positive Cases Including Index" and d.key[0] >= startDate
-        )
-        dataForGraph2 = _.filter(data, (d) ->
-          return d.key[1] is "Number Positive Cases Including Index" and d.key[0] < startDate
-        )
-        composite = dc.compositeChart("#chart")
-        Graphs.incidents(dataForGraph1, dataForGraph2, composite, 'container_1', options, () ->
-          $('#analysis-spinner').hide()
-        )
+      dataForGraph1 = _.filter(data, (d) ->
+        return d.key[1] is "Number Positive Cases Including Index" and d.key[0] >= startDate
+      )
+      dataForGraph2 = _.filter(data, (d) ->
+        return d.key[1] is "Number Positive Cases Including Index" and d.key[0] < startDate
+      )
+      composite = dc.compositeChart("#chart")
+      Graphs.incidents(dataForGraph1, dataForGraph2, composite, 'container_1', options, () ->
+        $('#analysis-spinner').hide()
+      )
 
-        window.onresize = () ->
-          HTMLHelpers.resizeChartContainer()
-          Graphs.compositeResize(composite, 'chart_container', options)
+      window.onresize = () ->
+        HTMLHelpers.resizeChartContainer()
+        Graphs.compositeResize(composite, 'chart_container', options)
           
     .catch (error) ->
       console.error error
