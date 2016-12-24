@@ -315,9 +315,9 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      dataForGraph = _.filter(dataGraph, (d) ->
         return ((d.key[1].match( /Between Positive Result And Notification From Facility/) and d.value is 1) or (d.key[1] is "Has Notification" and d.value is 0))
      )
+
      legendLabel = ["Within 24 hrs","24 to 48 hrs","48 to 72 hrs", "72+ hrs",  "No notification"]
      dataForGraph.forEach((d) ->
-       d.value = 1 if d.key[1] is "Has Notification"
        switch d.key[1]
          when "Less Than One Day Between Positive Result And Notification From Facility" then return d.series = legendLabel[0]
          when "One To Two Days Between Positive Result And Notification From Facility" then return d.series = legendLabel[1]
@@ -332,16 +332,29 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      )
 
      sumGroup = dateDimension.group().reduce((p,v) ->
-       p[v.series] = (p[v.series] || 0) + v.value
+       p.total = (p.total || 0) + 1
+       p[v.series] = (p[v.series] || 0) + 1
        return p
      ,(p,v) ->
-       p[v.series] = (p[v.series] || 0) - v.value
+       p.total = (p.total || 0) - 1
+       p[v.series] = (p[v.series] || 0) - 1
        return p
      ,() ->
        #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show. 
        return {"Within 24 hrs":0, "24 to 48 hrs":0, "48 to 72 hrs":0, "72+ hrs":0, "No notification":0}
      )
-
+     
+     if (options.pct100)
+       sumGroup.all().forEach((d) ->
+          d.value['Within 24 hrs'] = +(((d.value['Within 24 hrs'] / d.value['total']) *100).toFixed(2))
+          d.value['24 to 48 hrs'] = +(((d.value['24 to 48 hrs'] / d.value['total']) *100).toFixed(2))
+          d.value['48 to 72 hrs'] = +(((d.value['48 to 72 hrs'] / d.value['total']) *100).toFixed(2))
+          d.value['72+ hrs'] = +(((d.value['72+ hrs'] / d.value['total']) *100).toFixed(2))
+          d.value['No notification'] = +(((d.value['No notification'] / d.value['total']) *100).toFixed(2))
+       )
+     
+     yAxis_label =  if(options.pct100) then "Proportion of Malaria Cases %" else "Number of Cases"
+       
      @sel_stack = (i) ->
        return (d) ->
            return d.value[i]
@@ -350,8 +363,8 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
        .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-       .y(d3.scale.linear())
-       .yAxisLabel("Number of Cases")
+       .y(d3.scale.linear().domain([0,100]))
+       .yAxisLabel(yAxis_label)
        .elasticY(true)
        .xUnits(d3.time.days)
        .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
@@ -375,69 +388,81 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      Graphs.axis_adjust(chart, container)
 
  Graphs.timeToComplete = (dataGraph, chart, container, options) ->
-     dataForGraph = _.filter(dataGraph, (d) ->
-        return ((d.key[1].match( /Between Positive Result And Complete Household/) and d.value is 1) or (d.key[1] is "Followed Up" and d.value is 0))
-     )
-     legendLabel = ["Within 24 hrs","24 to 48 hrs","48 to 72 hrs", "72+ hrs",  "Not followed up"]
-     dataForGraph.forEach((d) ->
-       # change to value 1 for count as previous 0 is boolean false.
-       d.value = 1 if d.key[1] is "Followed Up"
-       switch d.key[1]
-         when "Less Than One Day Between Positive Result And Complete Household" then return d.series = legendLabel[0]
-         when "One To Two Days Between Positive Result And Complete Household" then return d.series = legendLabel[1]
-         when "Two To Three Days Between Positive Result And Complete Household" then return d.series = legendLabel[2]
-         when "More Than Three Days Between Positive Result And Complete Household" then return d.series = legendLabel[3]
-         when "Followed Up" then return d.series = legendLabel[4]
-     )
-     
-     ndx = crossfilter(dataForGraph)
-     dateDimension = ndx.dimension((d) ->
-       moment(d.key[0])
-     )
+   dataChart = _.filter(dataGraph, (d) ->
+     return ((d.key[1].match( /Between Positive Result And Complete Household/) and d.value is 1) or (d.key[1] is "Followed Up" and d.value is 0))
+   )
 
-     sumGroup = dateDimension.group().reduce((p,v) ->
-       p[v.series] = (p[v.series] || 0) + v.value
-       return p
-     ,(p,v) ->
-       p[v.series] = (p[v.series] || 0) - v.value
-       return p
-     ,() ->
-       #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show.
-       return {'Not followed up': 0, 'Within 24 hrs': 0, '72+ hrs': 0, '24 to 48 hrs': 0, '48 to 72 hrs': 0}
-     )
-     
-     @sel_stack = (i) ->
-       return (d) ->
-           return d.value[i]
-     
-     chart
-       .width($('.chart_container').width() - options.adjustX)
-       .height($('.chart_container').height() - options.adjustY)
-       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-       .y(d3.scale.linear())
-       .yAxisLabel("Number of Cases")
-       .elasticY(true)
-       .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
-       .brushOn(false)
-       .clipPadding(20)
-       .renderLabel(false)
-       .dimension(dateDimension)
-       .group(sumGroup,legendLabel[0], @sel_stack(legendLabel[0]))
-       .centerBar(true)
-       .gap(1)
-       .title((d) ->
-         return (d.key).format("MMM-DD") + ' : ' + d.value[this.layer]
-         )
-        .ordinalColors(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd']) 
-     dc.override(chart, 'legendables', () ->
-       items = chart._legendables()
-       return items.reverse()
-     )
-     chart.stack(sumGroup, legendLabel[i-1], @sel_stack(legendLabel[i-1])) for i in [2..5]
-     chart.render()
-     Graphs.axis_adjust(chart, container)
+   legendLabel = ["Within 24 hrs","24 to 48 hrs","48 to 72 hrs", "72+ hrs", "Not followed up"]
+   dataChart.forEach((d) ->
+     switch d.key[1]
+       when "Less Than One Day Between Positive Result And Complete Household" then return d.series = legendLabel[0]
+       when "One To Two Days Between Positive Result And Complete Household" then return d.series = legendLabel[1]
+       when "Two To Three Days Between Positive Result And Complete Household" then return d.series = legendLabel[2]
+       when "More Than Three Days Between Positive Result And Complete Household" then return d.series = legendLabel[3]
+       when "Followed Up" then return d.series = legendLabel[4]
+   )
 
+   ndx = crossfilter(dataChart)
+   dateDimension = ndx.dimension((d) ->
+     moment(d.key[0])
+   )
+
+   sumGroup = dateDimension.group().reduce((p,v) ->
+     p.total = (p.total || 0) + 1
+     p[v.series] = (p[v.series] || 0) + 1
+     return p
+   ,(p,v) ->
+     p.total = (p.total || 0) - 1
+     p[v.series] = (p[v.series] || 0) - 1
+     return p
+   ,(p,v) ->
+     #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show.
+     return {'Not followed up': 0, 'Within 24 hrs': 0, '72+ hrs': 0, '24 to 48 hrs': 0, '48 to 72 hrs': 0}
+   )
+
+   if (options.pct100)
+     sumGroup.all().forEach((d) ->
+       d.value['Within 24 hrs'] = +(((d.value['Within 24 hrs'] / d.value['total']) *100).toFixed(2))
+       d.value['24 to 48 hrs'] = +(((d.value['24 to 48 hrs'] / d.value['total']) *100).toFixed(2))
+       d.value['48 to 72 hrs'] = +(((d.value['48 to 72 hrs'] / d.value['total']) *100).toFixed(2))
+       d.value['72+ hrs'] = +(((d.value['72+ hrs'] / d.value['total']) *100).toFixed(2))
+       d.value['Not followed up'] = +(((d.value['Not followed up'] / d.value['total']) *100).toFixed(2))
+     )
+   
+   yAxis_label =  if(options.pct100) then "Proportion of Malaria Cases %" else "Number of Cases"
+   
+   @sel_stack = (i) ->
+     return (d) ->
+         return d.value[i]
+   
+   chart
+     .width($('.chart_container').width() - options.adjustX)
+     .height($('.chart_container').height() - options.adjustY)
+     .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
+     .y(d3.scale.linear())
+     .yAxisLabel(yAxis_label)
+     .elasticY(true)
+     .xUnits(d3.time.days)
+     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+     .brushOn(false)
+     .clipPadding(20)
+     .renderLabel(false)
+     .dimension(dateDimension)
+     .group(sumGroup,legendLabel[0], @sel_stack(legendLabel[0]))
+     .centerBar(true)
+     .gap(1)
+     .title((d) ->
+       return (d.key).format("MMM-DD") + ' : ' + d.value[this.layer]
+       )
+      .ordinalColors(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd']) 
+   dc.override(chart, 'legendables', () ->
+     items = chart._legendables()
+     return items.reverse()
+   )
+   chart.stack(sumGroup, legendLabel[i-1], @sel_stack(legendLabel[i-1])) for i in [2..5]
+   chart.render()
+   Graphs.axis_adjust(chart, container)
+   
  Graphs.positivityCases = (dataForGraph, composite, container, options) ->
   
    data1 = _.filter(dataForGraph, (d) ->

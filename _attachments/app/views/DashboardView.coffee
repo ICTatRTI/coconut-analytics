@@ -246,11 +246,13 @@ class DashboardView extends Backbone.View
     Graphs.positiveCases(dataForGraph, composite0, 'container_1', options)
     $('div#container_1 div.mdl-spinner').hide()
 
-    # TimeToComplete Graph 
+    # TimeToComplete Graph
+    options.pct100 = false   #Do not show the Percentage chart
     Graphs.timeToComplete(dataForGraph, chart4, 'container_5', options)
     $('div#container_5 div.mdl-spinner').hide()
     
     #TimeToNotify Graph
+    options.pct100 = false   #Do not show the Percentage chart
     Graphs.timeToNotify(dataForGraph, chart5, 'container_6', options)
     $('div#container_6 div.mdl-spinner').hide()
           
@@ -263,7 +265,7 @@ class DashboardView extends Backbone.View
     startWeek = ("00" + moment(options.startDate).isoWeek().toString()).slice(-2)
     endYear = moment(options.endDate).isoWeekYear().toString()
     endWeek = ("00" + moment(options.endDate).isoWeek().toString()).slice(-2)
-    console.log startYear, startWeek, endYear, endWeek
+
     Coconut.database.query "weeklyDataCounter",
       start_key: [startYear, startWeek]
       end_key: [endYear,endWeek,{}]
@@ -272,20 +274,16 @@ class DashboardView extends Backbone.View
       group: true
     .then (result) =>
       dataForGraph = result.rows
-      if (dataForGraph.length == 0 or _.isEmpty(dataForGraph[0]))
-        $(".chart_container").html HTMLHelpers.noRecordFound()
-        $('#analysis-spinner').hide()
-      else
-        dataForGraph.forEach((d) ->
-           d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
-        )
-         # Attendance Graph
-        Graphs.attendance(dataForGraph, composite2, 'container_3', options)
-        $('div#container_3 div.mdl-spinner').hide()
+      dataForGraph.forEach((d) ->
+         d.dateWeek = moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
+      )
+       # Attendance Graph
+      Graphs.attendance(dataForGraph, composite2, 'container_3', options)
+      $('div#container_3 div.mdl-spinner').hide()
 
-        #TestRate Graph 
-        Graphs.testRate(dataForGraph, composite3, 'container_4', options)
-        $('div#container_4 div.mdl-spinner').hide()
+      #TestRate Graph 
+      Graphs.testRate(dataForGraph, composite3, 'container_4', options)
+      $('div#container_4 div.mdl-spinner').hide()
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()

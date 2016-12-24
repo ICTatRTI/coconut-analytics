@@ -25,6 +25,14 @@ class TimeToCompleteGraphView extends Backbone.View
            </div>
          </div>
        </div>
+       <div id='chart_container_2' class='chart_container'>
+         <div class='mdl-grid'>
+           <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
+             <div id='errMsg'></div>
+             <div id='chart2'></div>
+           </div>
+         </div>
+       </div>
     "
     HTMLHelpers.resizeChartContainer()
     $('#analysis-spinner').show()
@@ -39,26 +47,22 @@ class TimeToCompleteGraphView extends Backbone.View
       include_docs: false
     .then (result) =>
       dataForGraph = result.rows
-      if (dataForGraph.length == 0  or _.isEmpty(dataForGraph[0]))
-        $(".chart_container").html HTMLHelpers.noRecordFound()
-        $('#analysis-spinner').hide()
-      else
-        dataForGraph.forEach((d) ->
-          d.dateICD = moment(d.key[0])
-        )
-        chart = dc.barChart("#chart")
-        Graphs.timeToComplete(dataForGraph, chart, 'chart_container_1',options)
-
-        window.onresize = () ->
-          HTMLHelpers.resizeChartContainer()
-          Graphs.chartResize(chart, 'chart_container', options)
-          
-        $('#analysis-spinner').hide()
+      chart = dc.barChart("#chart")
+      options.pct100 = false
+      Graphs.timeToComplete(dataForGraph, chart, 'chart_container_1',options)
+      chart2 = dc.barChart("#chart2")
+      options.pct100 = true
+      Graphs.timeToComplete(dataForGraph, chart2, 'chart_container_2',options)
+      window.onresize = () ->
+        HTMLHelpers.resizeChartContainer()
+        Graphs.chartResize(chart, 'chart_container', options)
+        Graphs.chartResize(chart2, 'chart_container', options)
+        
+      $('#analysis-spinner').hide()
         
     .catch (error) ->
       console.error error
       $('#errMsg').html("Sorry. Unable to complete due to an error: </br>"+error)
       $('#analysis-spinner').hide()
-    
        
 module.exports = TimeToCompleteGraphView
