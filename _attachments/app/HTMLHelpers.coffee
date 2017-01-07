@@ -76,7 +76,7 @@ class HTMLHelpers
      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   
   @resizeChartContainer: () ->
-    $(".chart_container").height(0.80 * $('#content').height())
+    $(".chart_container").height(0.8 * $('#content').height())
     $(".chart_container").width(0.95 * $('#content').width())
     
   @noRecordFound: () ->

@@ -9,24 +9,29 @@ crossfilter = require 'crossfilter'
 class Graphs
 colorScale = d3.scale.category10()
 colorScale.domain([0,1,2,3,4,5,6,7,8,9])
+
 # Example to set customizecolors
 colorScale2 = d3.scale.ordinal()
   .domain(['green','orange','yellow','red','grey','blue','purple'])
   .range(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd'])
 
 Graphs.chartResize = (chart, container, options) ->
-  width = $(".#{container}").width() - options.adjustX
-  height = $(".#{container}").height() - options.adjustY
+  containerHeight = $(".#{container}").height()- options.adjustY
+  containerWidth = $(".#{container}").width()-options.adjustX
+
   chart
-    .width(width)
-    .height(height)
+    .width(containerWidth)
+    .height(containerHeight)
+    .legend(dc.legend().x(50).y(containerHeight+15).horizontal(true).gap(25).autoItemWidth(true))
     .rescale()
     .redraw()
-
+  newHeight = containerHeight+50
+  chart.select('svg').attr('height', newHeight)
+  
 Graphs.axis_adjust = (chart, container) ->
   #this adjust the y-axis title to prevent title overlapping on ticks
   #unless there is data for date range, there will not be a chart inside container, and hence a null.
-  newHeight = chart.height()+10
+  newHeight = chart.height()+50
   unless d3.select("##{container} g.x.axis")[0][0] is null
     xAxis = d3.transform(d3.select("##{container} g.x.axis").attr("transform"))
     xAxis_x = xAxis.translate[0]
@@ -34,6 +39,7 @@ Graphs.axis_adjust = (chart, container) ->
     yAxis = d3.transform(d3.select("##{container} g.y.axis").attr("transform"))
     yAxis_x = yAxis.translate[0]
     yAxis_y = yAxis.translate[1]
+    chart.legend(dc.legend().x(50).y($("##{container}").height()+15).horizontal(true).gap(25).autoItemWidth(true))
     chart.select('.x.axis').attr("transform","translate(55,#{xAxis_y})")
     chart.select('.y.axis').attr("transform","translate(55,#{yAxis_y})")
     chart.selectAll('.chart-body').attr("transform","translate(55,#{yAxis_y})")
@@ -42,17 +48,19 @@ Graphs.axis_adjust = (chart, container) ->
       .attr('transform', 'translate(-10,10) rotate(315)')
 
 Graphs.compositeResize = (composite, container, options) ->
-  width = $(".#{container}").width() - options.adjustX
-  height = $(".#{container}").height() - options.adjustY
+  containerWidth = $(".#{container}").width() - options.adjustX
+  containerHeight = $(".#{container}").height() - options.adjustY
   composite
-    .width(width)
-    .height(height)
-    .legend(dc.legend().x($(".#{container}").width()-150).y(20).gap(5).legendWidth(140))
+    .width(containerWidth)
+    .height(containerHeight)
+    .legend(dc.legend().x(70).y(containerHeight+10).horizontal(true).gap(25).autoItemWidth(true))
     .rescale()
     .redraw()
     .on('renderlet',(chart) =>
       Graphs.axis_adjust(chart, container)
     )
+  newHeight = containerHeight+50
+  composite.select('svg').attr('height', newHeight)
   
 Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,callback) ->
   ndx1 = crossfilter(dataForGraph1)
@@ -71,7 +79,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
     .x(d3.scale.linear())
-    .y(d3.scale.linear().domain([0,120]))
+    .y(d3.scale.linear())
     .xUnits(d3.time.weeks)
     .yAxisLabel("Number of Cases")
     .xAxisLabel("Weeks")
@@ -79,7 +87,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
     .elasticX(true)
     .shareTitle(false)
     .renderHorizontalGridLines(true)
-    .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+    .legend(dc.legend().x(70).y($('.chart_container').height()).horizontal(true).gap(25).autoItemWidth(true))
     .on('renderlet',(chart) =>
       Graphs.axis_adjust(chart, container)
       chart.selectAll('g.x text')
@@ -111,6 +119,8 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
     .brushOn(false)
     .render()
     
+  Graphs.compositeResize(composite, 'chart_container', options)
+  
   callback(true)
   
 Graphs.positiveCases = (dataForGraph, composite, container, options) ->
@@ -146,12 +156,11 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     .y(d3.scale.linear().domain([0,120]))
     .yAxisLabel("Number of Cases")
     .elasticY(true)
-    .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+    .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
     .renderHorizontalGridLines(true)
     .shareTitle(false)
     .renderlet((chart) ->
       Graphs.axis_adjust(chart, container)
-      
     )
     .compose([
       dc.lineChart(composite)
@@ -213,7 +222,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
       .yAxisLabel("Number of OPD Cases")
       .elasticX(true)
       .elasticY(true)
-      .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+      .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
       .renderHorizontalGridLines(true)
       .shareTitle(false)
       .xUnits(d3.time.week)
@@ -282,7 +291,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
      .elasticY(true)
      .elasticX(true)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .renderlet((chart) ->
@@ -358,7 +367,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      @sel_stack = (i) ->
        return (d) ->
            return d.value[i]
-     
+      
      chart
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
@@ -367,7 +376,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        .yAxisLabel(yAxis_label)
        .elasticY(true)
        .xUnits(d3.time.days)
-       .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+       .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
        .brushOn(false)
        .clipPadding(20)
        .renderLabel(false)
@@ -443,7 +452,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .yAxisLabel(yAxis_label)
      .elasticY(true)
      .xUnits(d3.time.days)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
      .brushOn(false)
      .clipPadding(20)
      .renderLabel(false)
@@ -506,7 +515,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .y(d3.scale.linear())
      .yAxisLabel("Number of Cases")
      .elasticY(true)
-     .legend(dc.legend().x($('.chart_container').width()-150).y(0).gap(5).legendWidth(140))
+     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
      .renderlet((chart) ->

@@ -25,6 +25,8 @@ class TimeToNotifyGraphView extends Backbone.View
            </div>
          </div>
        </div>
+       <br />
+       <hr />
        <div id='chart_container_2' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
