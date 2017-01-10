@@ -85,4 +85,9 @@ class HTMLHelpers
   @roundToTwo: (num) ->    
      +(Math.round(num + "e+2")  + "e-2")
 
+  #show the background (header and drawer menu) if user is authenticated.
+  @showBackground: ->
+    $('header.coconut-header').show()
+    $('div.coconut-drawer').show()
+
 module.exports = HTMLHelpers

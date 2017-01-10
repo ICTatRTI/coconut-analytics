@@ -14,6 +14,7 @@ require 'material-design-lite'
 Cookies = require 'js-cookie'
 global.pouchdb = new PouchDB("http://localhost:5984/zanzibar")
 AppView = require './AppView'
+global.HTMLHelpers = require './HTMLHelpers'
 
 # These are local .coffee files
 Router = require './Router'
@@ -57,6 +58,13 @@ checkBrowser = (callback) ->
     callback.success()
   else
     callback.success()  
+
+User.isAuthenticated
+  success: ->
+    $('header.coconut-header').show()
+    $('div.coconut-drawer').show()
+  error: (err) ->
+    console.log(err)
 
 # Render headerView here instead of below with MenuView, otherwise the hamburger menu will be missing in smaller screen
 Coconut.headerView = new HeaderView

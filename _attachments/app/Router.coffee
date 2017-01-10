@@ -27,7 +27,7 @@ ChangePasswordView = require './views/ChangePasswordView'
 User = require './models/User'
 Dialog = require './views/Dialog'
 MessagingView = require './views/MessagingView'
-global.HTMLHelpers = require './HTMLHelpers'
+
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
 # /reports/Analysis will lead to:
@@ -116,6 +116,7 @@ class Router extends Backbone.Router
     Coconut.loginView = new LoginView() if !Coconut.loginView
     Coconut.loginView.render()
     @listenTo(Coconut.loginView, "success", ->
+      HTMLHelpers.showBackground('show')
       Coconut.router.navigate("#dashboard", {trigger: true})
     )
     
