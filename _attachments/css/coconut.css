@@ -331,7 +331,7 @@ input.datepicker {
 .mdl-layout__drawer .mdl-navigation .drawer__link, .mdl-layout__drawer .mdl-navigation .graph__link {
 	padding: 5px 10px 5px 10px;
 	min-width: 160px;
-	font-size: 14px;
+	font-size: 14px; 
 }
 
 .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
@@ -403,8 +403,22 @@ i.material-icons{
 }
 
 .mdl-navigation__link.drawer__subtitle, .mdl-navigation__link.drawer__link {
-   font-size: 1.1em;
+   font-size: 1.2em;
    
+}
+
+.mdl-navigation__link.drawer__subtitle:hover, .mdl-navigation__link.drawer__link:hover, 
+a#maps.mdl-navigation__link.drawer__link:hover, a#export.mdl-navigation__link.drawer__link:hover{
+   font-size: 1.4em;
+   
+}
+
+a#dashboard.mdl-navigation__link.drawer__subtitle, a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__link {
+   text-decoration: none;
+}
+
+a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__link {
+   font-size: 1.2em;
 }
 
 .drawer__subtitle i.material-icons{
