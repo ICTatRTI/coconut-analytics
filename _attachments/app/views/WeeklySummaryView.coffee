@@ -10,6 +10,7 @@ class WeeklySummaryView extends Backbone.View
   el: "#content"
 
   render: =>
+      HTMLHelpers.ChangeTitle("Reports: Weekly Summary")
       @reportOptions = $.extend({},Coconut.router.reportViewOptions)
       $('#analysis-spinner').show()
       @$el.html "

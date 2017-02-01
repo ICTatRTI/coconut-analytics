@@ -70,7 +70,7 @@ class SystemSettingsView extends Backbone.View
     timezones = _.pluck(CONST.Timezones,'DisplayName')
     dateFormats = CONST.dateFormats
     colorSchemes = CONST.graphColorSchemes
-
+    HTMLHelpers.ChangeTitle("Admin: System Settings")
     @$el.html "
       <form id='system_settings'>
       <div class='mdl-grid'>

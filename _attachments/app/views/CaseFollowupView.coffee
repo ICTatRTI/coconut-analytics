@@ -52,7 +52,7 @@ class CaseFollowupView extends Backbone.View
     @endDate = @reportOptions.endDate || moment(new Date).format("YYYY-MM-DD")
 
     $('#analysis-spinner').show()
-
+    HTMLHelpers.ChangeTitle("Reports: Case Follow-ups Status")
     @$el.html "
       <style>
         td.CaseID.mdl-data-table__cell--non-numeric { padding-top: 6px !important;}

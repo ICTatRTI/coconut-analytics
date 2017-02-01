@@ -51,6 +51,7 @@ class AnalysisView extends Backbone.View
     
   render: =>
     $('#analysis-spinner').show()
+    HTMLHelpers.ChangeTitle("Reports: Analysis")
     @$el.html "
       <style>
         td button.same-cell-disaggregatable{ float:right;}

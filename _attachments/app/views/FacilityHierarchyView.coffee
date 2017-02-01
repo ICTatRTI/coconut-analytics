@@ -95,6 +95,7 @@ class FacilityHierarchyView extends Backbone.View
 
   render: ->
     options = $.extend({},Coconut.router.reportViewOptions)
+    HTMLHelpers.ChangeTitle("Admin: Facilities")
     @fields = "Region,District,Facility Name,Aliases,Phone Numbers,Type".split(/,/)
     @document_id = "Facility Hierarchy"
     
@@ -118,7 +119,7 @@ class FacilityHierarchyView extends Backbone.View
       </form>
     "
     $('#analysis-spinner').show()
-
+   
     @$el.html "
       <style>
         fieldset { padding:0; border:0; margin-top:25px; }

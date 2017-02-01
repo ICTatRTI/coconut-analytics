@@ -90,4 +90,8 @@ class HTMLHelpers
     $('header.coconut-header').show()
     $('div.coconut-drawer').show()
 
+  #Change Header Title
+  @ChangeTitle: (title) ->
+    $('#layout-title').html(title)
+    
 module.exports = HTMLHelpers

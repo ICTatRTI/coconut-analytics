@@ -13,6 +13,7 @@ class YearlyTrendsView extends Backbone.View
 
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
+    HTMLHelpers.ChangeTitle("Reports: Yearly Trends")
     @$el.html "
        <div id='dateSelector'></div>
        <div class='mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet'>

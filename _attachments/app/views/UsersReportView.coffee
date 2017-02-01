@@ -36,6 +36,7 @@ class UsersReportView extends Backbone.View
     caseDialog.close() if caseDialog.open
     
   render: =>
+    HTMLHelpers.ChangeTitle("Reports: Users Report - How Fast are Follow-ups Occuring")
     @$el.html "
        <dialog id='caseDialog'></dialog>
        <div id='dateSelector'></div>

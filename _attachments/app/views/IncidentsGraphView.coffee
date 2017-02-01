@@ -15,7 +15,7 @@ class IncidentsGraphView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     title= "Number of Positive Cases for Current and Last Year"
-    $('#layout-title').html("Graphs: " + title)
+    HTMLHelpers.ChangeTitle("Graphs: " + title)
     @$el.html "
        <style> 
          .y-axis-label { margin-right: 20px}

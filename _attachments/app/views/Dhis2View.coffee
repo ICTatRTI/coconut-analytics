@@ -25,7 +25,7 @@ class Dhis2View extends Backbone.View
       caseIdAttributeId: "Case Id Attribute Id"
       ageAttributeId: "Age Attribute Id"
     }
-
+    HTMLHelpers.ChangeTitle("Admin: DHIS2")
     @$el.html "
       <form id='system_settings'>
       <h4>DHIS2</h4>

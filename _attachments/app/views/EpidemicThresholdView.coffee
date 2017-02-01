@@ -17,7 +17,7 @@ class EpidemicThresholdView extends Backbone.View
     @startDate = Coconut.router.reportViewOptions.startDate
     @endDate = Coconut.router.reportViewOptions.endDate
     $("#row-region").hide()
-
+    HTMLHelpers.ChangeTitle("Reports: Epidemic Thresholds")
     @$el.html "
         <style>
           .mdl-data-table { table-layout: auto}

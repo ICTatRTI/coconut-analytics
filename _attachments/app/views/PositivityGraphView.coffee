@@ -15,7 +15,7 @@ class PositivityGraphView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     title= "Number of Persons Tested and Number Positive"
-    $('#layout-title').html("Graphs: " + title)
+    HTMLHelpers.ChangeTitle("Graphs: " + title)
     @$el.html "
        <div id='dateSelector'></div>
        <div class='chart-title'>#{title}</div>

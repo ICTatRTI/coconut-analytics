@@ -117,6 +117,7 @@ class IssuesView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     $('#analysis-spinner').show()
+    HTMLHelpers.ChangeTitle("Activities: Issues")
     @$el.html "
       <style>
         .errorMsg { color: red; display: none }

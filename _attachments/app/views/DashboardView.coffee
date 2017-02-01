@@ -25,6 +25,7 @@ class DashboardView extends Backbone.View
   render: =>
     Coconut.statistics = Coconut.statistics || {}
     # $('#analysis-spinner').show()
+    HTMLHelpers.ChangeTitle("Dashboard")
     @$el.html "
         <style>
           .page-content {margin: 0}

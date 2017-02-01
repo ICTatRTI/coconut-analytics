@@ -14,6 +14,7 @@ class RainfallReportView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     $('#analysis-spinner').show()
+    HTMLHelpers.ChangeTitle("Reports: Rainfall Submission")
     @$el.html "
       <style>
         .tbl_col { width: 75px}

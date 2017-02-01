@@ -35,6 +35,7 @@ class WeeklyReportsView extends Backbone.View
         
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
+    HTMLHelpers.ChangeTitle("Reports: Weekly Facility Reports")
     @startDate = options.startDate
     @endDate = options.endDate
     @aggregationPeriod = options.aggregationPeriod or "Month"

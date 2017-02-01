@@ -36,6 +36,7 @@ class ExportDataView extends Backbone.View
 
       
   render: =>
+     HTMLHelpers.ChangeTitle("Data Export")
      @$el.html "
         <style>
           #downloadMsg { font-size: 1.2em}

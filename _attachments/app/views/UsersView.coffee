@@ -177,6 +177,7 @@ class UsersView extends Backbone.View
       return false
 
     render: =>
+      HTMLHelpers.ChangeTitle("Admin: Users")
       Coconut.database.query "users",
         include_docs: true
       .catch (error) -> console.error error

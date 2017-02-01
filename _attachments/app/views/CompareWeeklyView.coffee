@@ -232,6 +232,7 @@ class CompareWeeklyView extends Backbone.View
     @aggregationPeriod = @options.aggregationPeriod or "Month"
     @aggregationArea = @options.aggregationArea or "Zone"
     @facilityType = @options.facilityType or "All"
+    HTMLHelpers.ChangeTitle("Reports: Compare Weekly Facility Reports With Case Follow-ups")
     @$el.html "
         <style>
           td.number{

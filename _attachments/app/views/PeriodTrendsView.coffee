@@ -38,6 +38,7 @@ class PeriodTrendsView extends Backbone.View
 
   render: =>
     @reportOptions = $.extend({},Coconut.router.reportViewOptions)
+    HTMLHelpers.ChangeTitle("Reports: Period Trends Compared To Previous 3 Weeks")
     district = @reportOptions.district || "ALL"
 
     @reportOptions.startDate = @reportOptions.startDate || moment(new Date).subtract(7,'days').format("YYYY-MM-DD")

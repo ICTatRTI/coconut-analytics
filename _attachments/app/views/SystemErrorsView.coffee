@@ -10,6 +10,7 @@ class SystemErrorsView extends Backbone.View
   el: "#content"
 
   render: =>
+    HTMLHelpers.ChangeTitle("Reports: Errors Detected By System")
     @$el.html "
         <div id='dateSelector'></div>
         <div id='resultMsg'><h6>The following system errors have occurred in the date range specified:</h6></div>

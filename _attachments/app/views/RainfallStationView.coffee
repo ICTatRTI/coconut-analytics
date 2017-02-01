@@ -74,6 +74,7 @@ class RainfallStationView extends Backbone.View
 			
   render: ->
     options = $.extend({},Coconut.router.reportViewOptions)
+    HTMLHelpers.ChangeTitle("Admin: Rainfall Station")
     @fields = "Region,District,Name,Phone Numbers".split(/,/)
     @document_id = "Rainfall Stations"
     @dialogEdit = "

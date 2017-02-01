@@ -15,7 +15,7 @@ class PositiveCasesGraphView extends Backbone.View
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
     title= "Number of Positive Cases by Age Group"
-    $('#layout-title').html("Graphs: " + title)
+    HTMLHelpers.ChangeTitle("Graphs: " + title)
     @$el.html "
        <div id='dateSelector'></div>
        <div class='chart-title'>#{title}</div>

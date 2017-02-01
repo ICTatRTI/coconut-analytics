@@ -57,6 +57,7 @@ class MessagingView extends Backbone.View
   render: =>
     fields =  "_id,district,name,inactive".split(",")
     messageFields =  "date,to,text".split(",")
+    HTMLHelpers.ChangeTitle("Activities: Send SMS To Users")
     @$el.html "
       <h5>Select Recipients</h5>
       <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id= 'recipients'>
