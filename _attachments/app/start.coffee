@@ -106,6 +106,11 @@ Config.getConfig
               error: (error) -> console.error error
               success: ->
                 Backbone.history.start()
+                #hack to restore Dashboard title when browser back button is pressed
+                Backbone.history.on('route', () ->
+                  if ($.camelCase("-" + Backbone.history.getFragment().split("/")[0]) == 'Dashboard')
+                     $('#layout-title').html("Dashboard") 
+                )
                 checkBrowser()
 
     global.Issues = require './models/Issues'

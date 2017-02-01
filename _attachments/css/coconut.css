@@ -447,6 +447,10 @@ a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__
 	transform: translateX(-50%) translateY(-50%);
 }
 
+span.link-title {
+   margin-left: 5px;  
+}
+
 #admin-main {
   display: none;
 }

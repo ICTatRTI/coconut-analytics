@@ -14,9 +14,11 @@ class TimeToCompleteGraphView extends Backbone.View
 
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
+    title= "Time To Follow-up"
+    $('#layout-title').html("Graphs: " + title)
     @$el.html "
        <div id='dateSelector'></div>
-       <div class='chart-title'>Time To Follow-up (#{Coconut.config.case_followup} hours)</div>
+       <div class='chart-title'>#{title} (#{Coconut.config.case_followup} hours)</div>
        <div id='chart_container_1' class='chart_container'>
          <div class='mdl-grid'>
            <div class='mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--4-col-phone'>
