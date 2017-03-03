@@ -12,7 +12,7 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB("http://localhost:5984/zanzibar")
+global.pouchdb = new PouchDB('https://cococloud.co/coconut-surveillance-zanzibar')
 AppView = require './AppView'
 global.HTMLHelpers = require './HTMLHelpers'
 

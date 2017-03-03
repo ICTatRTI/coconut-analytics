@@ -3,7 +3,10 @@ require 'rubygems'
 require 'couchrest'
 require 'json'
 
-@db = CouchRest.new(ARGV[0]).database!(ARGV[1])
+couchdb_server = ARGV[0] || "http://localhost:5984"
+database = ARGV[1] || "coconut-surveillance-zanzibar"
+
+@db = CouchRest.new(couchdb_server).database!(database)
 
 #Get all .coffee files
 Dir.glob("*.coffee").each do |view|

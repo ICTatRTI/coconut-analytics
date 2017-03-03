@@ -2,7 +2,7 @@ request = require 'request'
 glob = require 'glob'
 _ = require 'underscore'
 
-database = process.argv.pop()
+database = process.argv.pop() || "http://localhost:5984/coconut-surveillance-zanzibar"
 
 glob "**/*.coffee", (er, files) ->
   _(files).each (view) ->

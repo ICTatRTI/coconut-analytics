@@ -1,14 +1,23 @@
 #!/bin/bash
-TARGET=$1
-PUSHTARGET=$2
-if [ $# -lt 2 ]
+TARGETWITHPASSWORD=$1
+if [ $# -lt 1 ]
   then
-    printf "Must specify the URL as well as a URL with username/password, e.g.\\n  ./deploy.sh https://cococloud.co/zanzibar https://admin:password@cococloud.co/zanzibar\\n"
+    printf "Must specify the URL with username/password, e.g.\\n  ./deploy.sh https://admin:password@cococloud.co/zanzibar\\n"
     exit
 fi
-echo "Replacing http://localhost:5984/zanzibar in app/start/coffee to use $TARGET"
-sed "s#http://localhost:5984/zanzibar#$TARGET#" app/start.coffee > /tmp/start.coffee; cp /tmp/start.coffee app/start.coffee
+
+CREDENTIALS=$(echo $TARGETWITHPASSWORD | cut -f1 -d@ | cut -f 3 -d/)
+TARGETNOCREDENTIALS=$(echo $TARGETWITHPASSWORD | sed "s/$CREDENTIALS@//")
+DATABASE=$(echo $TARGETWITHPASSWORD | rev | cut -f1 -d/ | rev)
+TARGETNODATABASE=$(echo $TARGETWITHPASSWORD | sed "s/$DATABASE//")
+
+./setDeploymentTarget.sh $TARGETNOCREDENTIALS
 echo 'Browserifying and uglifying'
 ./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | ./node_modules/uglifyjs/bin/uglifyjs > bundle.js
-echo 'Couchapp pushing'
-couchapp push $PUSHTARGET
+echo "Couchapp pushing to $TARGETWITHPASSWORD"
+couchapp push $TARGETWITHPASSWORD
+echo 'Pushing all required views'
+cd ../__views
+ruby ./pushViews.rb $TARGETNODATABASE $DATABASE
+echo 'Executing (caching) all required views'
+coffee executeViews.coffee $TARGETNOCREDENTIALS
