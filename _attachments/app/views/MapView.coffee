@@ -439,7 +439,7 @@ class MapView extends Backbone.View
           caseSummary = result.doc
 #          console.log("caseSummary: " + JSON.stringify(caseSummary));
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
-          if caseSummary["Household Location Latitude"] and caseSummary["Household Location Accuracy"] <= Coconut.config.location_accuracy_threshold
+          if caseSummary["Household Location Latitude"] and parseInt(caseSummary["Household Location Accuracy"]) <= parseInt(Coconut.config.location_accuracy_threshold)
             
             {
               type: 'Feature'
