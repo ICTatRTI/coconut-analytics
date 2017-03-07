@@ -27,7 +27,7 @@ Graphs.chartResize = (chart, container, options) ->
     .redraw()
   newHeight = containerHeight+50
   chart.select('svg').attr('height', newHeight)
-  
+
 Graphs.axis_adjust = (chart, container) ->
   #this adjust the y-axis title to prevent title overlapping on ticks
   #unless there is data for date range, there will not be a chart inside container, and hence a null.
@@ -61,7 +61,7 @@ Graphs.compositeResize = (composite, container, options) ->
     )
   newHeight = containerHeight+50
   composite.select('svg').attr('height', newHeight)
-  
+
 Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,callback) ->
   ndx1 = crossfilter(dataForGraph1)
   ndx2 = crossfilter(dataForGraph2)
@@ -74,7 +74,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
 
   grp1 = dim1.group()
   grp2 = dim2.group()
-  
+
   composite
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
@@ -99,7 +99,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
         .colors(colorScale(1))
         .group(grp2, "Last Year")
         .xyTipsOn(true)
-        .renderArea(true)        
+        .renderArea(true)
         .renderDataPoints(false)
         .title((d) ->
           return 'Week: ' +d.key + ": " + d.value
@@ -118,13 +118,13 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
     ])
     .brushOn(false)
     .render()
-    
+
   Graphs.compositeResize(composite, 'chart_container', options)
-  
+
   callback(true)
-  
+
 Graphs.positiveCases = (dataForGraph, composite, container, options) ->
-  
+
   data1 = _.filter(dataForGraph, (d) ->
     return d.key[1] is "Over 5" and d.value is 1
   )
@@ -184,7 +184,7 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     ])
     .brushOn(false)
     .render()
-  
+
 
 Graphs.attendance = (dataForGraph, composite2, container, options) ->
     data3a = _.filter(dataForGraph, (d) ->
@@ -194,10 +194,10 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     data3b = _.filter(dataForGraph, (d) ->
       return d.key[3] is 'All OPD < 5'
     )
-    
+
     ndx3a = crossfilter(data3a)
     ndx3b = crossfilter(data3b)
-    
+
     dim3a = ndx3a.dimension((d) ->
       return moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
     )
@@ -213,7 +213,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     grp2 = dim3b.group().reduceSum((d) ->
       return d.value
      )
-    
+
     composite2
       .width($('.chart_container').width()-options.adjustX)
       .height($('.chart_container').height()-options.adjustY)
@@ -251,7 +251,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
         ])
       .brushOn(false)
       .render()
- 
+
  Graphs.testRate = (dataForGraph, composite, container, options) ->
 
     groupedByDate = {}
@@ -268,7 +268,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
     graphData = _.map(groupedByDate, (value, index) ->
        return value
     )
-     
+
     ndx = crossfilter(graphData)
     dim = ndx.dimension((d) ->
       return d.dateWeek
@@ -298,7 +298,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        Graphs.axis_adjust(chart, container)
      )
      .compose([
-         dc.lineChart(composite)  
+         dc.lineChart(composite)
            .dimension(dim)
            .colors(colorScale(0))
            .group(grpGTE5_3, "Test rate [5+]")
@@ -334,7 +334,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
          when "More Than Three Days Between Positive Result And Notification From Facility" then return d.series = legendLabel[3]
          when "Has Notification" then return d.series = legendLabel[4]
      )
-     
+
      ndx = crossfilter(dataForGraph)
      dateDimension = ndx.dimension((d) ->
        moment(d.key[0])
@@ -349,10 +349,10 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        p[v.series] = (p[v.series] || 0) - 1
        return p
      ,() ->
-       #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show. 
+       #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show.
        return {"Within 24 hrs":0, "24 to 48 hrs":0, "48 to 72 hrs":0, "72+ hrs":0, "No notification":0}
      )
-     
+
      if (options.pct100)
        sumGroup.all().forEach((d) ->
           d.value['Within 24 hrs'] = +(((d.value['Within 24 hrs'] / d.value['total']) *100).toFixed(2))
@@ -361,13 +361,13 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
           d.value['72+ hrs'] = +(((d.value['72+ hrs'] / d.value['total']) *100).toFixed(2))
           d.value['No notification'] = +(((d.value['No notification'] / d.value['total']) *100).toFixed(2))
        )
-     
+
      yAxis_label =  if(options.pct100) then "Proportion of Malaria Cases %" else "Number of Cases"
-       
+
      @sel_stack = (i) ->
        return (d) ->
            return d.value[i]
-      
+
      chart
        .width($('.chart_container').width() - options.adjustX)
        .height($('.chart_container').height() - options.adjustY)
@@ -380,6 +380,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        .brushOn(false)
        .clipPadding(20)
        .renderLabel(false)
+       .renderHorizontalGridLines(true)
        .dimension(dateDimension)
        .group(sumGroup,legendLabel[0], @sel_stack(legendLabel[0]))
        .centerBar(true)
@@ -437,13 +438,13 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
        d.value['72+ hrs'] = +(((d.value['72+ hrs'] / d.value['total']) *100).toFixed(2))
        d.value['Not followed up'] = +(((d.value['Not followed up'] / d.value['total']) *100).toFixed(2))
      )
-   
+
    yAxis_label =  if(options.pct100) then "Proportion of Malaria Cases %" else "Number of Cases"
-   
+
    @sel_stack = (i) ->
      return (d) ->
          return d.value[i]
-   
+
    chart
      .width($('.chart_container').width() - options.adjustX)
      .height($('.chart_container').height() - options.adjustY)
@@ -456,6 +457,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .brushOn(false)
      .clipPadding(20)
      .renderLabel(false)
+     .renderHorizontalGridLines(true)
      .dimension(dateDimension)
      .group(sumGroup,legendLabel[0], @sel_stack(legendLabel[0]))
      .centerBar(true)
@@ -463,7 +465,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .title((d) ->
        return (d.key).format("MMM-DD") + ' : ' + d.value[this.layer]
        )
-      .ordinalColors(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd']) 
+      .ordinalColors(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd'])
    dc.override(chart, 'legendables', () ->
      items = chart._legendables()
      return items.reverse()
@@ -471,9 +473,9 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
    chart.stack(sumGroup, legendLabel[i-1], @sel_stack(legendLabel[i-1])) for i in [2..5]
    chart.render()
    Graphs.axis_adjust(chart, container)
-   
+
  Graphs.positivityCases = (dataForGraph, composite, container, options) ->
-  
+
    data1 = _.filter(dataForGraph, (d) ->
      return (d.key[1] is "Has Notification" and d.value is 1)
    )
@@ -484,7 +486,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
    data3 = _.filter(dataForGraph, (d) ->
      return (d.key[1] is "Number Household Members Tested" and d.value > 0)
    )
-   
+
    ndx1 = crossfilter(data1)
    ndx2 = crossfilter(data2)
    ndx3 = crossfilter(data3)
@@ -552,5 +554,5 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      ])
      .brushOn(false)
      .render()
-    
+
 module.exports = Graphs
