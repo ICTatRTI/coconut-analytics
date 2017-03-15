@@ -95,7 +95,7 @@ class Reports
     Reports.getCases _.extend options,
       success: (cases) =>
         IRSThresholdInMonths = 6
-  
+
         data.followups = {}
         data.passiveCases = {}
         data.ages = {}
@@ -162,7 +162,7 @@ class Reports
           else
             data.followups[caseLocation].casesWithoutCompleteFacilityVisit.push malariaCase
             data.followups["ALL"].casesWithoutCompleteFacilityVisit.push malariaCase
-            
+
           if malariaCase.completeHouseholdVisit()
             data.followups[caseLocation].casesWithCompleteHouseholdVisit.push malariaCase
             data.followups["ALL"].casesWithCompleteHouseholdVisit.push malariaCase
@@ -225,7 +225,7 @@ class Reports
               else
                 data.ages[caseLocation].unknown.push positiveCase unless positiveCase.age
                 data.ages["ALL"].unknown.push positiveCase unless positiveCase.age
-    
+
               if positiveCase.Sex is "Male"
                 data.gender[caseLocation].male.push positiveCase
                 data.gender["ALL"].male.push positiveCase
@@ -414,7 +414,7 @@ class Reports
       timesFromFacilityToCompleteHousehold: []
       timesFromSMSToCompleteHousehold: []
     }
-    
+
     # Get the the caseids for all of the results in the data range with the user id
     Coconut.database.query "resultsByDateWithUserAndCaseId",
       startkey: options.startDate
@@ -429,11 +429,11 @@ class Reports
         dataByUser[user].cases[caseId] = {}
         total.caseIds[caseId] = true
         total.cases[caseId] = {}
-      
+
       _(dataByUser).each (userData,user) ->
         if _(dataByUser[user].cases).size() is 0
           delete dataByUser[user]
-      
+
       successWhenDone = _.after _(dataByUser).size(), ->
         options.success
           dataByUser: dataByUser
@@ -441,11 +441,11 @@ class Reports
 
       #return if no users with cases
       successWhenDone() if _.isEmpty(dataByUser)
-      
+
       _(dataByUser).each (userData,user) ->
         # Get the time differences within each case
         caseIds = _(userData.cases).map (foo, caseId) -> caseId
-        
+
         Coconut.database.query "cases",
           keys: caseIds
           include_docs: true
@@ -513,7 +513,7 @@ class Reports
                   console.error error
                   console.error "Error processing data for the following user:"
                   console.error userData
-          
+
           successWhenDone()
 
   @aggregateWeeklyReports = (options) ->
@@ -554,7 +554,7 @@ class Reports
           area = weeklyReport[aggregationArea]
           if aggregationArea is "District"
             area = GeoHierarchy.swahiliDistrictName(area)
-          
+
           if aggregationArea is "Facility" # Necessary for handling aliases (facilities with different names)
             facilityName = area
             area = FacilityHierarchy.getFacility(facilityName)
@@ -714,7 +714,7 @@ class Reports
         aggregatedData[period][area].push data
 
       options.success aggregatedData
-	
+
   @aggregateWeeklyReportsAndFacilityCases = (options) =>
     options.localSuccess = options.success
     #Note that the order of the commands below is confusing
@@ -730,7 +730,7 @@ class Reports
             data.data[period][area] = {} unless data.data[period][area]
             data.data[period][area]["Facility Followed-Up Positive Cases"] = _(positiveFacilityCaseData).pluck "CaseId"
         options.localSuccess data
-        
+
       @aggregatePositiveFacilityCases options
     @aggregateWeeklyReports options
 
@@ -748,7 +748,7 @@ class Reports
             data.data[period][area] = {} unless data.data[period][area]
 
             _([
-              "daysBetweenPositiveResultAndNotification"
+              "daysBetweenPositiveResultAndNotificationFromFacility"
               "daysFromCaseNotificationToCompleteFacility"
               "daysFromSMSToCompleteHousehold"
               "numberHouseholdOrNeighborMembers"
@@ -762,7 +762,7 @@ class Reports
               data.data[period][area][property] = caseData[property]
 
         options.localSuccess data
-        
+
       @aggregateTimelinessForCases options
     @aggregateWeeklyReports options
 
@@ -777,7 +777,7 @@ class Reports
       type: mostSpecificLocationType
       name: mostSpecificLocationValue
     }
-   
+
 
   @aggregateTimelinessForCases = (options) ->
     aggregationArea = options.aggregationArea
@@ -840,7 +840,7 @@ class Reports
             _(areaData).each (caseData,area) ->
               _(caseData.cases).each (caseId) ->
                 _([
-                  "daysBetweenPositiveResultAndNotification"
+                  "daysBetweenPositiveResultAndNotificationFromFacility"
                   "daysFromCaseNotificationToCompleteFacility"
                   "daysFromSMSToCompleteHousehold"
                 ]).each (property) ->

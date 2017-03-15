@@ -72,7 +72,7 @@ class FacilityHierarchy extends Backbone.Model
     return null
 
   FacilityHierarchy.facilities = (district) ->
-    _.pluck FacilityHierarchy.hierarchy[district], "facility"
+    _.pluck FacilityHierarchy.hierarchy[district], "facility" if FacilityHierarchy.hierarchy?
 
   FacilityHierarchy.facilitiesForDistrict = (district) ->
     FacilityHierarchy.facilities(district)
@@ -120,7 +120,7 @@ class FacilityHierarchy extends Backbone.Model
             FacilityHierarchy.load
               error: (error) -> console.error JSON.stringify error
               success: () -> options?.success()
-              
+
   FacilityHierarchy.facilityType = (facilityName) ->
     result = null
     _.each FacilityHierarchy.hierarchy, (facilities,district) ->

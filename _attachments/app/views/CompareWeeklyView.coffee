@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 FacilityHierarchy = require '../models/FacilityHierarchy'
-  
+
 class CompareWeeklyView extends Backbone.View
   el: "#content"
 
@@ -21,11 +21,11 @@ class CompareWeeklyView extends Backbone.View
     @render()
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.render()
-    
+
   toggleCSVMode: () =>
     if @csvMode then @csvMode = false else @csvMode = true
     @renderFacilityTimeliness()
-    
+
   renderFacilityTimeliness: =>
     $('table#facilityTimeliness tbody').html "
             #{
@@ -158,8 +158,8 @@ class CompareWeeklyView extends Backbone.View
                           "
                         .join ""
                       }
-                      
-                      <td>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotification"]}</td>
+
+                      <td>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotificationFromFacility"]}</td>
                       <td>#{getMedianAndQuartilesElement data["daysFromCaseNotificationToCompleteFacility"]}</td>
                       <td>
                       #{
@@ -208,10 +208,10 @@ class CompareWeeklyView extends Backbone.View
         # Check for mismatched cases
         _($("tr")).each (tr) ->
           totalPositiveElement = $(tr).find("td.total-positive")
-      
+
           if totalPositiveElement? and totalPositiveElement.text() isnt ""
             totalPositive = totalPositiveElement.text().match(/[0-9|-]+ /)[0]
-        
+
           casesNotified = $(tr).find("td.casesNotified button.sort-value").text() or 0
 
           if parseInt(totalPositive) isnt parseInt(casesNotified)
@@ -226,7 +226,7 @@ class CompareWeeklyView extends Backbone.View
       $(".dataTables_info").hide()
     else
       $(".DTTT_container").hide()
-	  
+
   render: =>
     @options = $.extend({},Coconut.router.reportViewOptions)
     @aggregationPeriod = @options.aggregationPeriod or "Month"
@@ -248,7 +248,7 @@ class CompareWeeklyView extends Backbone.View
           }
         </style>
         <div id='dateSelector'></div>
-        <h5>Compare Weekly Reports and Coconut cases aggregated by 
+        <h5>Compare Weekly Reports and Coconut cases aggregated by
         <select style='height:50px;font-size:90%' id='aggregationPeriod' class='aggregatedBy'>
           #{
             _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
@@ -317,7 +317,7 @@ class CompareWeeklyView extends Backbone.View
             <tbody> </tbody>
           </table>
         </div>
-    "	
+    "
     $('#analysis-spinner').show()
 
     Reports.aggregateWeeklyReportsAndFacilityTimeliness
@@ -326,12 +326,12 @@ class CompareWeeklyView extends Backbone.View
       aggregationArea: @aggregationArea
       aggregationPeriod: @aggregationPeriod
       facilityType: @facilityType
-      
+
       error: (error) ->
         console.error error
       success: (results) =>
         @results = results
         $('#analysis-spinner').hide()
         @renderFacilityTimeliness()
-      
+
 module.exports = CompareWeeklyView
