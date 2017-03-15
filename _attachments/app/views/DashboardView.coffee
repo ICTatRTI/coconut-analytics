@@ -16,12 +16,12 @@ class DashboardView extends Backbone.View
 
   events:
     "click div.chart_container": "zoomGraph"
-  
+
   zoomGraph: (e) ->
     graphName = $(e.currentTarget).attr "data-graph-id"
     if graphName != undefined
       Coconut.router.navigate("#graphs/type/#{graphName}", {trigger: true})
-        
+
   render: =>
     Coconut.statistics = Coconut.statistics || {}
     # $('#analysis-spinner').show()
@@ -31,7 +31,7 @@ class DashboardView extends Backbone.View
           .page-content {margin: 0}
           .chart {left: 0; padding: 5px}
           .chart_container {width: 100%}
-          
+
         </style>
         <div id='dateSelector'></div>
         <dialog id='dialog'>
@@ -39,49 +39,49 @@ class DashboardView extends Backbone.View
         </dialog>
         <div id='dashboard-summary'>
           <div class='sub-header-color relative clear'>
-            <div class='stat_summary'> 
+            <div class='stat_summary'>
               <a class='chip summary1'>
                 <div class='summary_icon'><i class='material-icons white'>notifications_active</i></div>
                 <div class='stats' id='alarmStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Alarms</div>
               </a>
             </div>
-            <div class='stat_summary'> 
+            <div class='stat_summary'>
               <a class='chip summary2'>
                 <div class='summary_icon'><i class='material-icons white'>notifications_none</i></div>
                 <div class='stats' id='alertStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Alerts</div>
               </a>
             </div>
-            <div class='stat_summary'> 
+            <div class='stat_summary'>
               <a class='chip summary3'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='notifiedStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Notified Cases</div>
               </a>
             </div>
-            <div class='stat_summary'> 
+            <div class='stat_summary'>
               <a class='chip summary4'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='notfollowStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Not Followed Up</div>
               </a>
             </div>
-            <div class='stat_summary'> 
+            <div class='stat_summary'>
               <a class='chip summary5'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='hsatStat'><div class='loading'>Loading...</div></div>
-                <div class='stats-title'>HSAT</div>
-              </a>
-            </div>
-            <div class='stat_summary'> 
-              <a class='chip summary6'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='hsattestStat'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>HSAT Tested</div>
               </a>
             </div>
-<!--            <div class='stat_summary'> 
+            <div class='stat_summary'>
+              <a class='chip summary6'>
+                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
+                <div class='stats' id='hsatStat'><div class='loading'>Loading...</div></div>
+                <div class='stats-title'>HSAT</div>
+              </a>
+            </div>
+<!--            <div class='stat_summary'>
               <a class='chip summary7'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='fsatStat'><div class='loading'>Loading...</div></div>
@@ -89,7 +89,7 @@ class DashboardView extends Backbone.View
               </a>
             </div>
 -->
-            <div class='stat_summary'> 
+            <div class='stat_summary'>
               <a class='chip summary8'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='importedStat'><div class='loading'>Loading...</div></div>
@@ -97,10 +97,10 @@ class DashboardView extends Backbone.View
               </a>
             </div>
           </div>
-        </div> 
+        </div>
         <div class='page-content'>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'> 
+            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
                    <div class='chart-title'>Number of Positive Cases by Age Group</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
@@ -118,7 +118,7 @@ class DashboardView extends Backbone.View
           <div class='mdl-grid'>
             <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
                 <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
-                   <div class='chart-title'>Attendance</div>                
+                   <div class='chart-title'>Attendance</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_3' class='chart'></div>
                 </div>
@@ -162,10 +162,10 @@ class DashboardView extends Backbone.View
         </div>
     "
     adjustButtonSize()
-    
+
     $('.graph-spinner').show()
     displayStatistics()
-        
+
     options = $.extend({},Coconut.router.reportViewOptions)
     startDate = options.startDate
     endDate = options.endDate
@@ -192,11 +192,11 @@ class DashboardView extends Backbone.View
             include_docs: false
           .then (result) =>
             dataForGraph = result.rows
-            showStats()    
+            showStats()
             @showGraphs(dataForGraph,options)
         else
           dataForGraph = result.rows
-          showStats()    
+          showStats()
           @showGraphs(dataForGraph,options)
     .catch (error) ->
       console.error error
@@ -205,10 +205,10 @@ class DashboardView extends Backbone.View
   showGraphs: (dataForGraph,options) ->
     startDate = options.startDate
     endDate = options.endDate
-    
+
     options.adjustX = 15
     options.adjustY = 40
-    
+
     composite0 = dc.compositeChart("#chart_1")
     composite1 = dc.compositeChart("#chart_2")
     composite2 = dc.compositeChart("#chart_3")
@@ -216,13 +216,13 @@ class DashboardView extends Backbone.View
     chart4 = dc.barChart("#chart_5")
     chart5 = dc.barChart("#chart_6")
     composite6 = dc.compositeChart("#chart_7")
-    
+
     # Incident Graph - Number of Cases for current and last year
     startDate = moment().year()+'-01-01'
     endDate = moment().year()+'-12-31'
     lastYearStart = moment(startDate).subtract(1,'year').year()+'-01-01'
     lastYearEnd = moment(endDate).subtract(1,'year').year()+'-12-31'
-    
+
     Coconut.database.query "caseCounter",
       startkey: [lastYearStart]
       endkey: [endDate]
@@ -251,12 +251,12 @@ class DashboardView extends Backbone.View
     options.pct100 = false   #Do not show the Percentage chart
     Graphs.timeToComplete(dataForGraph, chart4, 'container_5', options)
     $('div#container_5 div.mdl-spinner').hide()
-    
+
     #TimeToNotify Graph
     options.pct100 = false   #Do not show the Percentage chart
     Graphs.timeToNotify(dataForGraph, chart5, 'container_6', options)
     $('div#container_6 div.mdl-spinner').hide()
-          
+
     #Positivity Graph
     Graphs.positivityCases(dataForGraph, composite6, 'container_7', options)
     $('div#container_7 div.mdl-spinner').hide()
@@ -282,19 +282,19 @@ class DashboardView extends Backbone.View
       Graphs.attendance(dataForGraph, composite2, 'container_3', options)
       $('div#container_3 div.mdl-spinner').hide()
 
-      #TestRate Graph 
+      #TestRate Graph
       Graphs.testRate(dataForGraph, composite3, 'container_4', options)
       $('div#container_4 div.mdl-spinner').hide()
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()
-        
+
     window.onresize = () ->
       adjustButtonSize()
       new_height = 0.45 *  $(".chart_container").width()
       $(".chart_container").css('height',new_height)
       $(".chart_container").height(0.44 * $(".chart_container").width())
-    
+
       Graphs.compositeResize(composite0, 'chart_container', options)
       Graphs.compositeResize(composite1, 'chart_container', options)
       Graphs.compositeResize(composite2, 'chart_container', options)
@@ -303,7 +303,7 @@ class DashboardView extends Backbone.View
       Graphs.chartResize(chart5, 'chart_container', options)
       Graphs.compositeResize(composite6, 'chart_container', options)
 
-    
+
   showStats = () ->
     Coconut.statistics.alerts = 0
     Coconut.statistics.alarms = 0
@@ -313,9 +313,9 @@ class DashboardView extends Backbone.View
     Coconut.statistics.hsattested = 0
     Coconut.statistics.fsat = 0
     Coconut.statistics.imported = 0
-    
+
     alertAlarmCounter()
-    
+
     #Grouped by ISO Year Week
     # groupCaseCounterResult "GGGG-WW",
     #   success: (result) ->
@@ -333,26 +333,32 @@ class DashboardView extends Backbone.View
           Coconut.statistics.fsat += d["Number Positive Cases From Mass Screen"] if d["Number Positive Cases From Mass Screen"]?
           Coconut.statistics.hsattested += d["Number Household Members Tested"]
         )
-        displayStatistics()  
+        Coconut.statistics.notfollowed_pct = getPercentage(Coconut.statistics.notfollowed, Coconut.statistics.notified)
+        Coconut.statistics.imported_pct = getPercentage(Coconut.statistics.imported, Coconut.statistics.notified)
+        Coconut.statistics.hsat_pct = getPercentage(Coconut.statistics.hsat, Coconut.statistics.hsattested)
+        displayStatistics()
 
   adjustButtonSize = () ->
     noButtons = 8
     summaryWidth = $('#dashboard-summary').width()
     buttonWidth = (summaryWidth - 14)/noButtons
     $('.chip').width(buttonWidth-2)
-  
+
   displayStatistics = () ->
     $('#notifiedStat').html(Coconut.statistics.notified) if Coconut.statistics.notified?
-    $('#notfollowStat').html(Coconut.statistics.notfollowed) if Coconut.statistics.notfollowed?
-    $('#hsatStat').html(Coconut.statistics.hsat) if Coconut.statistics.hsat?
+    $('#notfollowStat').html(Coconut.statistics.notfollowed + Coconut.statistics.notfollowed_pct) if Coconut.statistics.notfollowed?
+    $('#hsatStat').html(Coconut.statistics.hsat + Coconut.statistics.hsat_pct) if Coconut.statistics.hsat?
     $('#hsattestStat').html(Coconut.statistics.hsattested) if Coconut.statistics.hsattested?
 #    $('#fsatStat').html(Coconut.statistics.fsat) if Coconut.statistics.fsat?
-    $('#importedStat').html(Coconut.statistics.imported) if Coconut.statistics.imported?
-    
+    $('#importedStat').html(Coconut.statistics.imported + Coconut.statistics.imported_pct) if Coconut.statistics.imported?
+
+  getPercentage = (numerator,denominator) ->
+    return ' (' + ((numerator/ denominator) * 100).toFixed(1) + '% )'
+
   displayError = () ->
-    $('div#noDataFound').show().delay(5000).fadeOut()  
-  
-  
+    $('div#noDataFound').show().delay(5000).fadeOut()
+
+
   # This function takes a date format to group with
   # So if you want to aggregate based on week, year, month
   # Pass in the format using the moment.js format http://momentjs.com/docs/#/displaying/format/
@@ -372,10 +378,10 @@ class DashboardView extends Backbone.View
         groupedResult[dateForGrouping][indicatorName] = 0 unless groupedResult[dateForGrouping][indicatorName]
         groupedResult[dateForGrouping][indicatorName] += result.value
       options.success(groupedResult)
-      
+
     .catch (error) ->
       console.error error
-  
+
   alertAlarmCounter = () ->
    options = $.extend({},Coconut.router.reportViewOptions)
    Coconut.database.query "alertAlarmCounter",
@@ -385,10 +391,10 @@ class DashboardView extends Backbone.View
      group: true
    .then (result) ->
      _(result.rows).each (result) ->
-       Coconut.statistics.alerts += result.value if result.key[1] is "Alert" 
-       Coconut.statistics.alarms += result.value if result.key[1] is "Alarm" 
+       Coconut.statistics.alerts += result.value if result.key[1] is "Alert"
+       Coconut.statistics.alarms += result.value if result.key[1] is "Alarm"
 
      $('#alertStat').html(Coconut.statistics.alerts) if Coconut.statistics.alerts?
      $('#alarmStat').html(Coconut.statistics.alarms) if Coconut.statistics.alarms?
-             
+
 module.exports = DashboardView
