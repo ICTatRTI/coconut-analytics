@@ -43,21 +43,21 @@ class LoginView extends Backbone.View
              <button class='mdl-button mdl-js-button mdl-button--primary' id='btnLogin' type='submit' ><i class='material-icons'>lock_open</i> Login</button>
              <button class='mdl-button mdl-js-button mdl-button--primary' id='resetPwd' type='submit' ><i class='material-icons'>vpn_key</i> Reset Password</button>
              <button class='mdl-button mdl-js-button mdl-button--primary' id='toLogin' type='submit' ><i class='material-icons'>lock_open</i> Back To Login</button>
-          </div> 
+          </div>
         </form>
       </dialog>
     "
     dialogPolyfill.registerDialog(loginDialog)
     componentHandler.upgradeAllRegistered()
-    
+
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        loginDialog.showModal()
     else
        loginDialog.show()
-       
+
     componentHandler.upgradeDom()
-    
+
   displayErrorMsg: (msg, icon) ->
     errMsg = @$el.find('.coconut-mdl-card__title')[0]
     $(errMsg).show()
@@ -65,7 +65,7 @@ class LoginView extends Backbone.View
 
   submitIfEnter: (event) ->
     @login() if event.which == 10 or event.which == 13
-      
+
   login: () =>
     view = @
     loginData = {
@@ -88,7 +88,7 @@ class LoginView extends Backbone.View
         view.render()
         $('#userName').val(loginData.userName)
         $('#passWord').val(loginData.passWord)
-        view.displayErrorMsg('Invalid username/password.','error_outline')
+        view.displayErrorMsg(error,'error_outline')
         Dialog.markTextfieldDirty()
         console.log("Wrong credentials")
 
@@ -101,7 +101,7 @@ class LoginView extends Backbone.View
     return false
 
   ResetPassword: () ->
-    view = @    
+    view = @
     username = $("#userName").val()
     if username is ""
       view.displayErrorMsg('Please enter your username...', 'error_outline')
@@ -109,7 +109,7 @@ class LoginView extends Backbone.View
       id = "user.#{username}"
       Coconut.database.get id,
          include_docs: true
-      .catch (error) => 
+      .catch (error) =>
         view.displayErrorMsg('Invalid username...','error_outline')
         console.error error
       .then (user) =>
@@ -123,8 +123,8 @@ class LoginView extends Backbone.View
           $('button#resetPwd').hide()
           $('button#toLogin').show()
     return false
-    
+
   ToLogin: () =>
     @render()
-    
+
   module.exports = LoginView

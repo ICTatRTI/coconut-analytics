@@ -11,16 +11,16 @@ moment = require 'moment'
 class User extends Backbone.Model
   sync: BackbonePouch.sync
      db: pouchdb
-        
+
   username: ->
     @get("_id").replace(/^user\./,"")
-    
+
   district: ->
     @get("district")
 
   hash: ->
     @get("hash")
-    
+
   districtInEnglish: ->
     GeoHierarchy.englishDistrictName @get("district")
 
@@ -30,6 +30,9 @@ class User extends Backbone.Model
   isAdmin: ->
     _(@get("roles")).include "admin"
 
+  inActive: ->
+    @get("inactive")
+
   hasRole: (role) ->
     _(@get("roles")).include role
 
@@ -38,8 +41,8 @@ class User extends Backbone.Model
 
   nameOrUsernameWithDescription: =>
     "#{@nameOrUsername()} #{if @district() then " - #{@district()}" else ""}"
-    
-    
+
+
 User.isAuthenticated = (options) ->
   username = Cookies.get('current_user')
   if username? and username isnt ""
@@ -56,32 +59,35 @@ User.isAuthenticated = (options) ->
     # No cookie. Not logged in
     options.error("User not logged in")
 
-  
+
 User.login = (options) ->
   user = new User
     _id: "user.#{options.username}"
   user.fetch
     success: ->
+      if !(user.inActive())
 # temporarily disabled during testing.
-#      hash = user.get("hash") || 'unknown'
-#      if bcrypt.compareSync(options.password, hash)
-      Coconut.currentUser = user
-      Coconut.currentlogin = user.username()
-      Cookies.set('current_user', Coconut.currentlogin)
-      Cookies.set('current_password',user.get "password")
-      $("span#username").html user.username()
-      $("a#logout").show()
-      $("a#login").hide()
-      if user.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
-      Coconut.database.post
-        collection: "login"
-        user: Coconut.currentlogin
-        date: moment(new Date()).format(Coconut.config.date_format)
-      .catch (error) -> 
-         console.error error
-      options.success()
-#      else
-#        options.error("Incorrect Password")
+#        hash = user.get("hash") || 'unknown'
+#        if bcrypt.compareSync(options.password, hash)
+          Coconut.currentUser = user
+          Coconut.currentlogin = user.username()
+          Cookies.set('current_user', Coconut.currentlogin)
+          Cookies.set('current_password',user.get "password")
+          $("span#username").html user.username()
+          $("a#logout").show()
+          $("a#login").hide()
+          if user.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
+          Coconut.database.post
+            collection: "login"
+            user: Coconut.currentlogin
+            date: moment(new Date()).format(Coconut.config.date_format)
+          .catch (error) ->
+             console.error error
+          options.success()
+#        else
+#          options.error("Invalid username/password")
+      else
+        options.error("User account disabled")
     error: ->
       options.error()
 
@@ -98,5 +104,5 @@ User.inactiveStatus = (inactive) ->
 
 User.token = () ->
   return Math.random().toString(36).substr(2).toUpperCase()
-  
+
 module.exports = User
