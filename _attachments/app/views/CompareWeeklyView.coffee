@@ -23,7 +23,13 @@ class CompareWeeklyView extends Backbone.View
     Coconut.dateSelectorView.render()
 
   toggleCSVMode: () =>
-    if @csvMode then @csvMode = false else @csvMode = true
+    @csvMode = !@csvMode
+    $('button#csv').text(if @csvMode then 'Table Mode' else 'CSV Mode')
+
+    if @csvMode
+      $('table#facilityTimeliness').css("display","none")
+    else
+      $('table#facilityTimeliness').css("display","block")
     @renderFacilityTimeliness()
 
   renderFacilityTimeliness: =>
@@ -193,39 +199,39 @@ class CompareWeeklyView extends Backbone.View
               .join("")
             }
     "
+    if !( $.fn.dataTable.isDataTable( '#facilityTimeliness' ))
+      $("#facilityTimeliness").dataTable
+        aaSorting: [[0,"desc"]]
+        iDisplayLength: 50
+        dom: 'T<"clear">lfrtip'
+        scrollX: true
+        tableTools:
+          sSwfPath: "js-libraries/copy_csv_xls.swf"
+          aButtons: [
+            "csv",
+          ]
+        fnDrawCallback: ->
+          # Check for mismatched cases
+          _($("tr")).each (tr) ->
+            totalPositiveElement = $(tr).find("td.total-positive")
 
-    $("#facilityTimeliness").dataTable
-      aaSorting: [[0,"desc"]]
-      iDisplayLength: 50
-      dom: 'T<"clear">lfrtip'
-      scrollX: true
-      tableTools:
-        sSwfPath: "js-libraries/copy_csv_xls.swf"
-        aButtons: [
-          "csv",
-        ]
-      fnDrawCallback: ->
-        # Check for mismatched cases
-        _($("tr")).each (tr) ->
-          totalPositiveElement = $(tr).find("td.total-positive")
+            if totalPositiveElement? and totalPositiveElement.text() isnt ""
+              totalPositive = totalPositiveElement.text().match(/[0-9|-]+ /)[0]
 
-          if totalPositiveElement? and totalPositiveElement.text() isnt ""
-            totalPositive = totalPositiveElement.text().match(/[0-9|-]+ /)[0]
+            casesNotified = $(tr).find("td.casesNotified button.sort-value").text() or 0
 
-          casesNotified = $(tr).find("td.casesNotified button.sort-value").text() or 0
+            if parseInt(totalPositive) isnt parseInt(casesNotified)
+              totalPositiveElement.addClass("mismatch")
+              $(tr).find("td.casesNotified button.sort-value").addClass("mismatch")
+              $(tr).find("td.casesNotified").addClass("mismatch")
 
-          if parseInt(totalPositive) isnt parseInt(casesNotified)
-            totalPositiveElement.addClass("mismatch")
-            $(tr).find("td.casesNotified button.sort-value").addClass("mismatch")
-            $(tr).find("td.casesNotified").addClass("mismatch")
-
-    if @csvMode
-      $(".dataTables_filter").hide()
-      $(".dataTables_paginate").hide()
-      $(".dataTables_length").hide()
-      $(".dataTables_info").hide()
-    else
-      $(".DTTT_container").hide()
+      if @csvMode
+        $(".dataTables_filter").hide()
+        $(".dataTables_paginate").hide()
+        $(".dataTables_length").hide()
+        $(".dataTables_info").hide()
+      else
+        $(".DTTT_container").hide()
 
   render: =>
     @options = $.extend({},Coconut.router.reportViewOptions)
