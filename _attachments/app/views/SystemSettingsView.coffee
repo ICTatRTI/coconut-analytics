@@ -15,29 +15,30 @@ class SystemSettingsView extends Backbone.View
     "click button#updateBtn": "updateConfig"
     "change #logoImage": "updateFileName"
     "click #appIcon": "showImage"
-    
+
   updateFileName: (e) =>
     #document.getElementById('appIcon').value = this.files[0].name
     filename = $(e.target)[0].files[0].name
     $('#appIcon').val(filename)
-  
+
   showImage: (e) ->
     Dialog.createDialogWrap()
     Config.getLogoUrl()
     .then (url) ->
       img = document.createElement('img')
       img.src = url
-      Dialog.confirm("", Coconut.config.appIcon,['Close']) 
+      Dialog.confirm("", Coconut.config.appIcon,['Close'])
       $('#alertText').html(img)
     .catch (error) ->
       console.error error
     return false
-    
+
   updateConfig: (e) =>
     Coconut.database.get(Coconut.config._id)
     .then (doc) ->
       fields = ['appName','appIcon','country','timezone','dateFormat','graphColorScheme','cloud_database_name','cloud',
-        'cloud_credentials','design_doc_name','role_types','case_notification','case_followup','case_focus_investigation','location_accuracy_threshold']
+        'cloud_credentials','design_doc_name','role_types','case_notification','case_followup','case_focus_investigation',
+        'location_accuracy_threshold','mobile_background_sync','mobile_background_sync_freq']
       _(fields).map (field) =>
         doc["#{field}"] = $("##{field}").val()
       getFile = $('#logoImage')[0].files[0]
@@ -48,6 +49,7 @@ class SystemSettingsView extends Backbone.View
             data: getFile
         }
       doc.facilitiesEdit = $('#facilitiesEdit').prop('checked')
+      doc.mobile_background_sync = $('#mobile_background_sync').prop('checked')
       return Coconut.database.put(doc)
         .catch (error) ->
           console.error error
@@ -55,7 +57,7 @@ class SystemSettingsView extends Backbone.View
           return false
         .then (response) ->
           Dialog.createDialogWrap()
-          Dialog.confirm("Configuration has been saved.", 'System Settings',['Ok']) 
+          Dialog.confirm("Configuration has been saved.", 'System Settings',['Ok'])
           dialog.addEventListener 'close', ->
             location.reload(true)
           return false
@@ -64,7 +66,7 @@ class SystemSettingsView extends Backbone.View
       Dialog.errorMessage(error)
       return false
 
-    
+
   render: =>
     countries = _.pluck(CONST.Countries, 'name')
     timezones = _.pluck(CONST.Timezones,'DisplayName')
@@ -80,7 +82,7 @@ class SystemSettingsView extends Backbone.View
               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
                 <input class='mdl-textfield__input' type='text' id='appName' value='#{Coconut.config.appName}'>
                 <label class='mdl-textfield__label' for='appName'>Application Title</label>
-              </div> 
+              </div>
               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--file setting_inputs'>
                 <input class='mdl-textfield__input' placeholder='Application logo' type='text' id='appIcon' value='#{Coconut.config.appIcon}' title='Click to view image' readonly/>
                 <div class='mdl-button mdl-button--primary mdl-button--icon mdl-button--file'>
@@ -88,7 +90,7 @@ class SystemSettingsView extends Backbone.View
                   <input type='file' id='logoImage'>
                 </div>
                 <label class='mdl-textfield__label' for='appName'>Application Logo (recommended size: 70 x 55 px )</label>
-              </div> 
+              </div>
               <div class='mdl-select mdl-js-select mdl-select--floating-label setting_inputs'>
                 <select class='mdl-select__input' id='country' name='country'>
                   <option value=''></option>
@@ -153,7 +155,7 @@ class SystemSettingsView extends Backbone.View
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
               <input class='mdl-textfield__input' type='text' id='cloud_database_name' value='#{Coconut.config.cloud_database_name}'>
               <label class='mdl-textfield__label' for='cloud_database_name'>Cloud Database Name</label>
-            </div> 
+            </div>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
               <input class='mdl-textfield__input' type='text' id='cloud' value='#{Coconut.config.cloud}'>
               <label class='mdl-textfield__label' for='cloud'>Cloud URL</label>
@@ -191,7 +193,7 @@ class SystemSettingsView extends Backbone.View
               <label class='mdl-textfield__label' for='cloud_database_name'>T3:Focus investigation</label>
             </div>
           </div>
-        </div> 
+        </div>
         <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
            <h4>Map Settings</h4>
            <div class='indent m-l-20'>
@@ -201,7 +203,26 @@ class SystemSettingsView extends Backbone.View
              </div>
            </div>
         </div>
-      </div>  
+      </div>
+      <div class='mdl-grid'>
+        <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
+          <h4>Coconut Mobile Settings</h4>
+          <div class='indent m-l-20'>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
+              <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='mobile_background_sync' id='switch_2'>
+                <input type='checkbox' id='mobile_background_sync' class='mdl-switch__input' #{if Coconut.config.mobile_background_sync then 'checked'}>
+                <span class='mdl-switch__label facilities_editable'>Background Sync</span>
+              </label>
+            </div>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
+              <input class='mdl-textfield__input' type='text' id='mobile_background_sync_freq' value='#{Coconut.config.mobile_background_sync_freq}'>
+              <label class='mdl-textfield__label' for='mobile_background_sync_freq'> Background Sync Frequency (in minutes)</label>
+            </div>
+          </div>
+        </div>
+        <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
+        </div>
+      </div>
       <hr />
       <div id='dialogActions-left'>
        <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button' value='save'><i class='material-icons'>save</i> Update</button> &nbsp;
@@ -211,5 +232,5 @@ class SystemSettingsView extends Backbone.View
     Dialog.markTextfieldDirty()
     # This is for MDL switch
     componentHandler.upgradeAllRegistered()
-    
+
 module.exports = SystemSettingsView
