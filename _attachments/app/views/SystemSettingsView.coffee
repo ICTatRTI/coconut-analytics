@@ -181,16 +181,19 @@ class SystemSettingsView extends Backbone.View
           <div class='indent m-l-20'>
             <h5>Response Time Target <span><small>( in hours )</small></span></h5>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' id='case_notification' value='#{Coconut.config.case_notification}'>
+              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='case_notification' value='#{Coconut.config.case_notification}'>
               <label class='mdl-textfield__label' for='case_notification'>T1:Case reporting</label>
+              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
             </div>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' id='case_followup' value='#{Coconut.config.case_followup}'>
+              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='case_followup' value='#{Coconut.config.case_followup}'>
               <label class='mdl-textfield__label' for='cloud_database_name'>T2:Case investigation</label>
+              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
             </div>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' id='case_focus_investigation' value='#{Coconut.config.case_focus_investigation || 0}'>
+              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='case_focus_investigation' value='#{Coconut.config.case_focus_investigation || 0}'>
               <label class='mdl-textfield__label' for='cloud_database_name'>T3:Focus investigation</label>
+              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
             </div>
           </div>
         </div>
@@ -198,8 +201,9 @@ class SystemSettingsView extends Backbone.View
            <h4>Map Settings</h4>
            <div class='indent m-l-20'>
              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-               <input class='mdl-textfield__input' type='text' id='location_accuracy_threshold' value='#{Coconut.config.location_accuracy_threshold}'>
+               <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='location_accuracy_threshold' value='#{Coconut.config.location_accuracy_threshold}'>
                <label class='mdl-textfield__label' for='location_accuracy_threshold'> Location Accuracy Threshold (in meters)</label>
+               <span class='mdl-textfield__error'>Only positive integer allowed.</span>
              </div>
            </div>
         </div>
@@ -215,8 +219,9 @@ class SystemSettingsView extends Backbone.View
               </label>
             </div>
             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' id='mobile_background_sync_freq' value='#{Coconut.config.mobile_background_sync_freq}'>
+              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='mobile_background_sync_freq' value='#{Coconut.config.mobile_background_sync_freq}'>
               <label class='mdl-textfield__label' for='mobile_background_sync_freq'> Background Sync Frequency (in minutes)</label>
+              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
             </div>
           </div>
         </div>
