@@ -78,7 +78,7 @@ class DashboardView extends Backbone.View
               <a class='chip summary6'>
                 <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
                 <div class='stats' id='hsatStat'><div class='loading'>Loading...</div></div>
-                <div class='stats-title'>HSAT</div>
+                <div class='stats-title'>HSAT Positive</div>
               </a>
             </div>
 <!--            <div class='stat_summary'>
