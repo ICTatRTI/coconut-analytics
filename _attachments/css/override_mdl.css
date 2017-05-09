@@ -1,4 +1,31 @@
 /* settings to override the Material Design css */
+
+@media screen and (min-width: 768px) {
+  .chart.mdl-cell--6-col {
+    width: calc(50% - 16px);
+  }
+  span#layout-title {
+    display: block;
+  }
+}
+@media screen and (min-width: 601px) and (max-width: 767px) {
+  .chart.mdl-cell--6-col {
+    width: calc(100% - 16px);
+  }
+  span#layout-title {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 300px) and (max-width: 600px) {
+  .chart.mdl-cell--2-col-phone {
+    width: calc(100% - 16px);
+	}
+  span#layout-title {
+    display: none;
+  }
+}
+
 .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
     display: inline-flex;
     vertical-align: middle;

@@ -100,14 +100,14 @@ class DashboardView extends Backbone.View
         </div>
         <div class='page-content'>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_1' class='chart_container f-left' data-graph-id = 'PositiveCasesGraph'>
                    <div class='chart-title'>Number of Positive Cases by Age Group</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_1' class='chart'></div>
                 </div>
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_2' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
                    <div class='chart-title'>Number of Positive Cases: Current vs Last Year</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
@@ -116,14 +116,14 @@ class DashboardView extends Backbone.View
             </div>
           </div>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_3' class='chart_container f-left' data-graph-id = 'AttendanceGraph'>
                    <div class='chart-title'>Attendance</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_3' class='chart'></div>
                 </div>
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_4' class='chart_container f-left' data-graph-id = 'TestRateGraph'>
                   <div class='chart-title'>Test Rate</div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
@@ -132,14 +132,14 @@ class DashboardView extends Backbone.View
             </div>
           </div>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_6' class='chart_container f-left' data-graph-id = 'TimeToNotify'>
                   <div class='chart-title'>Time To Notify (#{Coconut.config.case_notification} hours)</div>
                   <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                   <div id='chart_6' class='chart'></div>
                 </div>
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_5' class='chart_container f-left' data-graph-id = 'TimeToComplete'>
                    <div class='chart-title'>Time To Follow-up (#{Coconut.config.case_followup} hours)</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
@@ -149,14 +149,14 @@ class DashboardView extends Backbone.View
           </div>
         </div>
           <div class='mdl-grid'>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_7' class='chart_container f-left' data-graph-id = 'PositivityGraph'>
                    <div class='chart-title'>Number of Persons Tested and Number Positive</div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_7' class='chart'></div>
                 </div>
             </div>
-            <div class='mdl-cell mdl-cell--6-col mdl-cell--3-col-tablet mdl-cell--4-col-phone'>
+            <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
             </div>
           </div>
         </div>

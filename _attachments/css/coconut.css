@@ -130,7 +130,7 @@ table.tablesorter {
     font-size: 10pt;
     width: 100%;
     text-align: left;
-}	
+}
 
 /*
 table.tablesorter tbody tr.even.followed-up-false td {
@@ -160,11 +160,11 @@ table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTa
 
 .mdl-data-table {
     /*table-layout:fixed; */
-    width:99%; 
+    width:99%;
 }
 
 .mdl-data-table thead tr {
-    background-color: #eeeeee;	
+    background-color: #eeeeee;
 }
 
 /* Reports Case Followup Buttons */
@@ -174,7 +174,7 @@ i.malaria-default{
 }
 
 i.malaria-positive {
-  /* background-color: #ff5722; */	
+  /* background-color: #ff5722; */
   color: rgb(255,64,129);
   width: 28px;
   height: 25px;
@@ -220,7 +220,7 @@ button.not-followed-up-after-48-hours-false {
 	width: 48px;
 	height: 12px;
 	margin: 30px 30px 0 0;
-	
+
 }
 
 /* Case Followup Report */
@@ -240,11 +240,11 @@ button.not-followed-up-after-48-hours-false {
 
 /* Layout styling */
 .page-content {
-  margin:  0px 20px;	
+  margin:  0px 20px;
 }
 
 .report-content, .report-header, .setting-content, .activity-content, .admin-content {
-  margin:  0px 10px;	
+  margin:  0px 10px;
   background: white;
 }
 
@@ -263,7 +263,7 @@ button.not-followed-up-after-48-hours-false {
 	font-size: 20px;
 	line-height: 32px;
 	-moz-osx-font-smoothing: grayscale;
-	margin: 24px 0 16px;	
+	margin: 24px 0 16px;
 }
 
 #cases-section {
@@ -275,7 +275,7 @@ button.not-followed-up-after-48-hours-false {
 }
 
 #dateSelector {
-   margin-bottom: 20px;	
+   margin-bottom: 20px;
 }
 
 .select-by-date, .select-by-week {
@@ -326,12 +326,12 @@ input.datepicker {
 	margin: 10px 0 0 25px;
 }
 
-.mdl-layout__drawer .mdl-navigation .report__link, .mdl-layout__drawer .mdl-navigation .setting__link, 
+.mdl-layout__drawer .mdl-navigation .report__link, .mdl-layout__drawer .mdl-navigation .setting__link,
 .mdl-layout__drawer .mdl-navigation .activity__link, .mdl-layout__drawer .mdl-navigation .admin__link,
 .mdl-layout__drawer .mdl-navigation .drawer__link, .mdl-layout__drawer .mdl-navigation .graph__link {
 	padding: 5px 10px 5px 10px;
 	min-width: 160px;
-	font-size: 14px; 
+	font-size: 14px;
 }
 
 .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
@@ -388,7 +388,7 @@ input.datepicker {
 
 /* Top right menu */
 li.mdl-menu__item a {
-   text-decoration: none;	
+   text-decoration: none;
 }
 
 i.material-icons{
@@ -404,13 +404,13 @@ i.material-icons{
 
 .mdl-navigation__link.drawer__subtitle, .mdl-navigation__link.drawer__link {
    font-size: 1.2em;
-   
+
 }
 
-.mdl-navigation__link.drawer__subtitle:hover, .mdl-navigation__link.drawer__link:hover, 
+.mdl-navigation__link.drawer__subtitle:hover, .mdl-navigation__link.drawer__link:hover,
 a#maps.mdl-navigation__link.drawer__link:hover, a#export.mdl-navigation__link.drawer__link:hover{
    font-size: 1.4em;
-   
+
 }
 
 a#dashboard.mdl-navigation__link.drawer__subtitle, a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__link {
@@ -432,7 +432,7 @@ a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__
 #drawer-reports a.active, #drawer-settings a.active, #drawer-activities a.active, #drawer-admin a.active, #drawer-graphs a.active {
    color: #2096f3;
    font-weight: bold;
-   font-size: 1.1em;	
+   font-size: 1.1em;
 }
 
 /* Reports styling */
@@ -448,7 +448,7 @@ a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__
 }
 
 span.link-title {
-   margin-left: 5px;  
+   margin-left: 5px;
 }
 
 #admin-main {
@@ -478,11 +478,11 @@ span.link-title {
 }
 
 td.CaseID a{
-   text-decoration: none;	
+   text-decoration: none;
 }
 
 td.CaseID a:hover{
-   color: rgb(255,64,129);	
+   color: rgb(255,64,129);
 }
 
 .btn {
@@ -608,8 +608,8 @@ td.CaseID a:hover{
 /* Cases views */
 
 #caseDialog {
-  width: 90%; 
-  top: 15%; 
+  width: 90%;
+  top: 15%;
   padding-top: 0
 }
 
@@ -618,7 +618,7 @@ td.CaseID a:hover{
 .width65pct { width: 65%;}
 
 #closeDialog {
-  margin-top: -50px; 
+  margin-top: -50px;
   margin-right: -20px
 }
 
@@ -711,7 +711,7 @@ a.chip {
 }
 
 .summary_icon {
-  padding: 5px 0 0 5px;  
+  padding: 5px 0 0 5px;
 }
 
 .summary:hover {
@@ -765,7 +765,7 @@ a.chip {
 }
 
 .dashboard-content {
-	background: #ffffff;	
+	background: #ffffff;
 }
 
 .wrapper {
@@ -867,9 +867,9 @@ a.chip {
 	padding: 8px 8px 8px 0;
 }
 
-.login-group        { 
-  position:relative; 
-  margin-bottom:25px; 
+.login-group        {
+  position:relative;
+  margin-bottom:25px;
 }
 .login-group input#username, .login-group input#password {
   font-size:14px;
@@ -882,14 +882,14 @@ a.chip {
 .login-group input#username:focus, .login-group input#password:focus     { outline:none; }
 
 div.login-group label          {
-  color:#999; 
+  color:#999;
   font-size:14px;
   font-weight:normal;
   position:absolute;
   pointer-events:none;
   left:5px;
   top:10px;
-  transition:0.2s ease all; 
+  transition:0.2s ease all;
 }
 
 /* active state */
@@ -902,18 +902,18 @@ input#username:focus ~ label, input#username:valid ~ label , input#password:focu
 .login-bar  { position:relative; display:block; width:630px; }
 .login-bar:before, .bar:after   {
   content:'';
-  height:2px; 
+  height:2px;
   width:0;
-  bottom:1px; 
+  bottom:1px;
   position:absolute;
-  background:#5264AE; 
-  transition:0.2s ease all; 
+  background:#5264AE;
+  transition:0.2s ease all;
 }
 .login-bar:before {
   left:0%;
 }
 .login-bar:after {
-  right:70%; 
+  right:70%;
 }
 
 /* active state */
@@ -923,9 +923,9 @@ input#username:focus ~ .login-bar:before, input#username:focus ~ .login-bar:afte
 
 .login-highlight {
   position:absolute;
-  height:60%; 
-  width:100px; 
-  top:25%; 
+  height:60%;
+  width:100px;
+  top:25%;
   left:0;
   pointer-events:none;
   opacity:0.5;
@@ -948,15 +948,15 @@ div.login-group input:focus ~ .login-highlight {
 }
 
 #dateRange {
-  background: #fff; 
-  cursor: pointer; 
-  padding: 5px 10px; 
+  background: #fff;
+  cursor: pointer;
+  padding: 5px 10px;
   margin-right: 25px;
-  border: 1px solid #08c; 
+  border: 1px solid #08c;
   border-radius: 4px;
   width: 250px
   }
-        
+
 .width30 {
 	width: 30px;
 }
@@ -986,7 +986,7 @@ div#form-title, div#dialog-title {
 	margin-bottom: 10px;
 	letter-spacing: 3px;
 }
-  
+
 dialog#loginDialog div#dialog-title {
   font-size: 1.3em;
   line-height: 200%;
@@ -1014,7 +1014,7 @@ dialog#changeLogDialog {
 .graph-spinner {
    display: block;
 }
- 
+
 #alerts-drop-section, #cases-drop-section, #legend-drop-section {
 	display: none;
 }
@@ -1026,9 +1026,9 @@ dialog#changeLogDialog {
 #IssueForm {
 	margin-top: 10px;
 	padding: 10px 30px 10px 50px;
-	border-top: 1px solid #ccc; 
-	border-bottom: 1px solid #ccc; 
-	display: none 
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	display: none
 }
 
 .icon-28 {font-size: 28px}
@@ -1202,7 +1202,7 @@ form#system_settings {
 }
 
 button.caseBtn {
-  font-size: 0.65em; 
+  font-size: 0.65em;
 }
 
 /* Graphs */
@@ -1213,7 +1213,7 @@ button.caseBtn {
   width: 95%;
   min-height: 350px;
 /*  background-color: #f5f5f5;
-    border: 1px solid #999; 
+    border: 1px solid #999;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 */
 }
@@ -1276,9 +1276,9 @@ button.caseBtn {
   color: #4c4c4c;
   font-family: AdelleBold,"Helvetica Neue",sans-seri
   }
-  
+
 /* Temporarily disable graphs menu items */
-#Todos, #positivity_with_rainfall, #positivity_by_year, 
+#Todos, #positivity_with_rainfall, #positivity_by_year,
 #setting_theme, #setting_general, #setting_language, #setting_misc, #shehias_received_irs, #shehias_high_risk {
   color: rgba(0,0,0,.26) !important;
   cursor: default;
@@ -1298,7 +1298,7 @@ div.footer {
   bottom: 0;
   width: 100%;
   margin-bottom: 5px;
-  right: 10px; 
+  right: 10px;
   text-align: right;
 }
 /* Vertical footer on left
