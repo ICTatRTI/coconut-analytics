@@ -41,58 +41,82 @@ class DashboardView extends Backbone.View
           <div class='sub-header-color relative clear'>
             <div class='stat_summary'>
               <a class='chip summary1'>
-                <div class='summary_icon'><i class='material-icons white'>notifications_active</i></div>
-                <div class='stats' id='alarmStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>notifications_active</i></div>
+                  <div class='stats' id='alarmStat'></div>
+                </div>
+                <div class='stats_pct' id='alarmStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Alarms</div>
               </a>
             </div>
             <div class='stat_summary'>
               <a class='chip summary2'>
-                <div class='summary_icon'><i class='material-icons white'>notifications_none</i></div>
-                <div class='stats' id='alertStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>notifications_none</i></div>
+                  <div class='stats' id='alertStat'></div>
+                </div>
+                <div class='stats_pct' id='alertStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Alerts</div>
               </a>
             </div>
             <div class='stat_summary'>
               <a class='chip summary3'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='notifiedStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div class='stats' id='notifiedStat'></div>
+                </div>
+                <div class='stats_pct' id='notifiedStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Notified Cases</div>
               </a>
             </div>
             <div class='stat_summary'>
               <a class='chip summary4'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='notfollowStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div class='stats' id='notfollowStat'></div>
+                </div>
+                <div class='stats_pct' id='notfollowStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Not Followed Up</div>
               </a>
             </div>
             <div class='stat_summary'>
               <a class='chip summary5'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='hsattestStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div class='stats' id='hsattestStat'></div>
+                </div>
+                <div class='stats_pct' id='hsattestStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>HSAT Tested</div>
               </a>
             </div>
             <div class='stat_summary'>
               <a class='chip summary6'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='hsatStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div class='stats' id='hsatStat'></div>
+                </div>
+                <div class='stats_pct' id='hsatStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>HSAT Positive</div>
               </a>
             </div>
 <!--            <div class='stat_summary'>
               <a class='chip summary7'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='fsatStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div class='stats' id='fsatStat'></div>
+                </div>
+                <div class='stats_pct' id='fsatStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>FSAT</div>
               </a>
             </div>
 -->
             <div class='stat_summary'>
               <a class='chip summary8'>
-                <div class='summary_icon'><i class='material-icons white'>person_pin</i></div>
-                <div class='stats' id='importedStat'><div class='loading'>Loading...</div></div>
+                <div class='summary_icon'>
+                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div class='stats' id='importedStat'></div>
+                </div>
+                <div class='stats_pct' id='importedStatPct'><div class='loading'>Loading...</div></div>
                 <div class='stats-title'>Imported</div>
               </a>
             </div>
@@ -345,12 +369,23 @@ class DashboardView extends Backbone.View
     $('.chip').width(buttonWidth-2)
 
   displayStatistics = () ->
-    $('#notifiedStat').html(Coconut.statistics.notified) if Coconut.statistics.notified?
-    $('#notfollowStat').html(Coconut.statistics.notfollowed + Coconut.statistics.notfollowed_pct) if Coconut.statistics.notfollowed?
-    $('#hsatStat').html(Coconut.statistics.hsat + Coconut.statistics.hsat_pct) if Coconut.statistics.hsat?
-    $('#hsattestStat').html(Coconut.statistics.hsattested) if Coconut.statistics.hsattested?
+    $('#alertStatPct').html('')
+    $('#alarmStatPct').html('')
+    if Coconut.statistics.notified?
+      $('#notifiedStat').html(Coconut.statistics.notified)
+      $('#notifiedStatPct').html('')
+    if Coconut.statistics.notfollowed?
+      $('#notfollowStat').html(Coconut.statistics.notfollowed)
+      $('#notfollowStatPct').html(Coconut.statistics.notfollowed_pct)
+    if Coconut.statistics.hsat?
+       $('#hsatStat').html(Coconut.statistics.hsat)
+       $('#hsatStatPct').html(Coconut.statistics.hsat_pct)
+    if Coconut.statistics.hsattested?
+       $('#hsattestStat').html(Coconut.statistics.hsattested)
+       $('#hsattestStatPct').html('')
 #    $('#fsatStat').html(Coconut.statistics.fsat) if Coconut.statistics.fsat?
-    $('#importedStat').html(Coconut.statistics.imported + Coconut.statistics.imported_pct) if Coconut.statistics.imported?
+    $('#importedStat').html(Coconut.statistics.imported)
+    $('#importedStatPct').html(Coconut.statistics.imported_pct) if Coconut.statistics.imported?
 
   getPercentage = (numerator,denominator) ->
     return ' (' + ((numerator/ denominator) * 100).toFixed(1) + '% )'
