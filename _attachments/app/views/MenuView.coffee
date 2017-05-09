@@ -6,7 +6,7 @@ User = require '../models/User'
 
 class MenuView extends Backbone.View
   el: ".coconut-drawer"
-  
+
   events:
     "click a.mdl-navigation__link": "changeStatus"
     "click span.drawer__subtitle": "toggleDropdownMenu"
@@ -14,7 +14,7 @@ class MenuView extends Backbone.View
 
   goHome: (e) ->
     Coconut.router.navigate("#dashboard", {trigger: true})
-    
+
   toggleDropdownMenu: (e) =>
     e.preventDefault
     $target = $(e.target)
@@ -34,6 +34,8 @@ class MenuView extends Backbone.View
         subtitle = e.currentTarget.innerHTML
         title = title + ": " + subtitle
       $('#layout-title').html(title)
+    $(".mdl-layout__drawer").removeClass("is-visible")
+    $(".mdl-layout__obfuscator").removeClass("is-visible")
     @setActiveLink(e)
 
   setActiveLink: (e) =>
@@ -50,12 +52,12 @@ class MenuView extends Backbone.View
           <div class='f-left m-l-20'><img src=\"#{Coconut.logoUrl}\" id='cslogo_sm'></div>
           <div class='mdl-layout-title' id='drawer-title'>#{Coconut.config.appName}</div>
         </div>
-      </header>	
-      <div id='container'>	  
+      </header>
+      <div id='container'>
       <nav class='coconut_navigation mdl-navigation'>
-        <a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='#dashboard'>  
+        <a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='#dashboard'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>dashboard</i>Dashboard</a>
-        <span class='mdl-navigation__link drawer__subtitle' id='report-main' data-title='Reports' data-category='menuHeader'>  
+        <span class='mdl-navigation__link drawer__subtitle' id='report-main' data-title='Reports' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>description</i>
         Reports</span>
         <div class='m-l-20 dropdown' id='drawer-reports'>
@@ -77,7 +79,7 @@ class MenuView extends Backbone.View
           .join ""
         }
         </div>
-        <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>  
+        <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>local_activity</i>
             Activities
         </span>
@@ -92,7 +94,7 @@ class MenuView extends Backbone.View
              .join ""
         }
         </div>
-        <span class='mdl-navigation__link drawer__subtitle' id='graphs-main' data-title='Graphs' data-category='menuHeader'>  
+        <span class='mdl-navigation__link drawer__subtitle' id='graphs-main' data-title='Graphs' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>assessment</i>
             Graphs
         </span>
@@ -108,23 +110,23 @@ class MenuView extends Backbone.View
              # positivity_by_year: "Positivity Cases By Year"
              TimeToNotify: "Time to Notify"
              TimeToComplete: "Time to Follow-up"
-             
+
            }
            _(graphLinks).map (linkText, linkUrl) ->
              "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
            .join ""
-          }		   
+          }
         </div>
-        <a class='mdl-navigation__link drawer__link' href='#maps' id='maps' data-title='Maps' data-category='menuLink'>  
+        <a class='mdl-navigation__link drawer__link' href='#maps' id='maps' data-title='Maps' data-category='menuLink'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>map</i>
             <span class='link-title'>Maps</span>
         </a>
-        <a class='mdl-navigation__link drawer__link' href='#export' id='export' data-title='Data Export' data-category='menuLink'>  
+        <a class='mdl-navigation__link drawer__link' href='#export' id='export' data-title='Data Export' data-category='menuLink'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>cloud_download</i>
             <span class='link-title'>Data Export</span>
         </a>
 <!--
-        <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>  
+        <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>settings</i>
             User Settings
         </span>
@@ -140,7 +142,7 @@ class MenuView extends Backbone.View
            }
         </div>
 -->
-        <span class='mdl-navigation__link drawer__subtitle' id='admin-main' data-title='Admin' data-category='menuHeader'>  
+        <span class='mdl-navigation__link drawer__subtitle' id='admin-main' data-title='Admin' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 material-icons'>build</i>
            Admin
         </span>
@@ -160,7 +162,7 @@ class MenuView extends Backbone.View
             "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"
           .join ""
         }
-        </div>	
+        </div>
       </nav>
     </div>
     "
