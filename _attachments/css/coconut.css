@@ -711,7 +711,7 @@ a.chip {
 }
 
 .summary_icon {
-  padding: 5px 0 0 5px;
+  padding: 5px 0 5px 5px;
 }
 
 .summary:hover {
@@ -762,6 +762,7 @@ a.chip {
 
 .stat_summary {
   display: inline-block;
+	width: 13%;
 }
 
 .dashboard-content {

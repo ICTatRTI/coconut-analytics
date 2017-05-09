@@ -12,20 +12,30 @@
   .chart.mdl-cell--6-col {
     width: calc(100% - 16px);
   }
-  span#layout-title {
-    display: none;
-  }
+  span#layout-title { display: none;}
+  div.stats, div.stats-title { font-size: 10px; }
+  div.summary_icon i.material-icons { font-size: 16px;}
 }
 
 @media screen and (min-width: 300px) and (max-width: 600px) {
   .chart.mdl-cell--2-col-phone {
     width: calc(100% - 16px);
 	}
-  span#layout-title {
-    display: none;
+  span#layout-title { display: none; }
+  div.stats, div.stats-title {
+    font-size: 10px;
+    line-height: 14px;
   }
+  div.summary_icon i.material-icons { font-size: 16px; }
+  a.chip { height: 85px;}
 }
 
+@media screen and (min-width: 300px) and (max-width: 420px) {
+  div.stats, div.stats-title {
+    font-size: 9px;
+    line-height: 12px;
+  }
+}
 .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
     display: inline-flex;
     vertical-align: middle;
