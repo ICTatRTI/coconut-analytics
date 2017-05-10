@@ -13,7 +13,7 @@
     width: calc(100% - 16px);
   }
   span#layout-title { display: none;}
-  div.stats, div.stats-title { font-size: 10px; }
+  div.stats, div.stats_pct, div.stats-title { font-size: 10px; }
   div.summary_icon i.material-icons { font-size: 16px;}
 }
 
@@ -23,7 +23,7 @@
 	}
   span#layout-title { display: none; }
   div.stats, div.stats_pct, div.stats-title {
-    font-size: 10px;
+    font-size: 9px;
     line-height: 14px;
   }
   div.summary_icon i.material-icons { font-size: 16px; }

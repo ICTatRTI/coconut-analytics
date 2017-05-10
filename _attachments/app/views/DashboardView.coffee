@@ -388,7 +388,7 @@ class DashboardView extends Backbone.View
     $('#importedStatPct').html(Coconut.statistics.imported_pct) if Coconut.statistics.imported?
 
   getPercentage = (numerator,denominator) ->
-    return ' (' + ((numerator/ denominator) * 100).toFixed(1) + '% )'
+    return ' (' + ((numerator/ denominator) * 100).toFixed(1) + '%)'
 
   displayError = () ->
     $('div#noDataFound').show().delay(5000).fadeOut()
