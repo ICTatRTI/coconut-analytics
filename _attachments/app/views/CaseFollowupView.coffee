@@ -11,7 +11,7 @@ DataTables = require( 'datatables.net' )()
 
 class CaseFollowupView extends Backbone.View
   el: "#content"
-    
+
   events:
     "click .rpt-suboptions": "showDropDown"
     "click button.caseBtn": "showCaseDialog"
@@ -27,7 +27,7 @@ class CaseFollowupView extends Backbone.View
     reports.getCases
       startDate: @startDate
       endDate: @endDate
-      success: (result) -> 
+      success: (result) ->
         options.success(result)
       mostSpecificLocation: Reports.mostSpecificLocationSelected()
 
@@ -39,11 +39,11 @@ class CaseFollowupView extends Backbone.View
       success: ->
           $('html, body').animate({ scrollTop: $("##{scrollTargetID}").position()?.top }, 'slow') if scrollTargetID?
     return false
-      
+
 
   closeDialog: () ->
     caseDialog.close() if caseDialog.open
-    
+
   render: =>
     @reportOptions = $.extend({},Coconut.router.reportViewOptions)
     district = @reportOptions.district || "ALL"
@@ -64,19 +64,19 @@ class CaseFollowupView extends Backbone.View
         <div id='unhide-icons'>
 		  <!--
 		  <span id='cases-drop' class='drop-pointer rpt-suboptions'>
-		 	<button class='mdl-button mdl-js-button mdl-button--icon'> 
-		 	   <i class='material-icons'>functions</i> 
+		 	<button class='mdl-button mdl-js-button mdl-button--icon'>
+		 	   <i class='material-icons'>functions</i>
 		     </button>Summary
 		  </span>
-          -->	  
+          -->
           <span id='legend-drop' class='drop-pointer rpt-suboptions'>
-            <button class='mdl-button mdl-js-button mdl-button--icon'> 
-              <i class='material-icons'>dashboard</i> 
+            <button class='mdl-button mdl-js-button mdl-button--icon'>
+              <i class='material-icons'>dashboard</i>
             </button>
               Legend <small>( click for dropdown )</small>
           </span>
         </div>
-      </div>	
+      </div>
       <div id='dropdown-container' style='clear: both'>
            <div id='legend-drop-section'>
              <h6>Click button for more details about the case.</h6>
@@ -90,7 +90,7 @@ class CaseFollowupView extends Backbone.View
                     <td class='legend_gap'> </td>
                     <td>
                        <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>
-                          <i class='mdi mdi-home'></i>
+                          <i class='mdi mdi-home-map-marker'></i>
                           <div class='overlay'>&nbsp;</div>
                       </button>
                     </td>
@@ -102,14 +102,14 @@ class CaseFollowupView extends Backbone.View
                    <td class='legend_gap'> </td>
                    <td>
                      <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>
-                       <i class='mdi mdi-home'></i>
+                       <i class='mdi mdi-home-map-marker'></i>
                      </button>
                    </td>
                    <td>Household complete.</td>
                  </tr>
                  <tr>
                    <td>
-                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'> 
+                     <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--primary'>
                        <i class='mdi mdi-upload'></i>
                      </button>
                    </td>
@@ -117,7 +117,7 @@ class CaseFollowupView extends Backbone.View
                    <td class='legend_gap'> </td>
                    <td>
                      <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent'>
-                       <i class='mdi mdi-home'></i>
+                       <i class='mdi mdi-home-map-marker'></i>
                      </button>
                    </td>
                    <td>Index case had no travel history (probable local transmission).</td>
@@ -183,7 +183,7 @@ class CaseFollowupView extends Backbone.View
                        <i class='mdi mdi-account-star'></i>
                      </button>
                    </td>
-                    <td>Positive malaria result found at household with no travel history (probable local transmission).</td>  
+                    <td>Positive malaria result found at household with no travel history (probable local transmission).</td>
                  </tr>
                  <tr>
                    <td>
@@ -205,7 +205,7 @@ class CaseFollowupView extends Backbone.View
           <tbody>
           </tbody>
         </table>
-      </div>	
+      </div>
     "
     tableColumns = ["Case ID","Diagnosis Date","Health Facility District","Shehia","USSD Notification"]
     tableColumns = tableColumns.concat Coconut.questions.pluck("_id").sort()
@@ -215,7 +215,7 @@ class CaseFollowupView extends Backbone.View
         colTitle = if(text == 'USSD Notification') then "Case Notification Sent" else "Case Notification Received"
       else
         colTitle = text
-       
+
       $("table.summary thead tr").append "<th class='mdl-data-table__cell--non-numeric'>#{colTitle} <span id='th-#{text.replace(/\s+/g,"")}-count'></span></th>"
 
     @getCases
@@ -226,11 +226,11 @@ class CaseFollowupView extends Backbone.View
             if (malariaCase.complete())
               if (malariaCase.indexCaseHasTravelHistory())
                 householdClass = ''
-              else 
+              else
                 householdClass = 'travel-history-false'
             else
                householdClass = 'incomplete'
-               
+
             if (malariaCase.Facility?)
               if (malariaCase.hasCompleteFacility())
                 facilityClass = 'complete'
@@ -241,7 +241,7 @@ class CaseFollowupView extends Backbone.View
                   facilityClass = 'incomplete'
             else
               facilityClass = ''
-               
+
             $("table.summary tbody").append ").
               <tr id='case-#{malariaCase.caseID}'>
                 <td class='CaseID mdl-data-table__cell--non-numeric'>
@@ -273,7 +273,7 @@ class CaseFollowupView extends Backbone.View
                   #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Facility", "mdi-hospital","",facilityClass)}
                 </td>
                 <td class='Household mdl-data-table__cell--non-numeric'>
-                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "mdi-home" , "" ,householdClass)}
+                  #{HTMLHelpers.createDashboardLinkForResult(malariaCase,"Household", "mdi-home-map-marker" , "" ,householdClass)}
                 </td>
                 <td class='HouseholdMembers mdl-data-table__cell--non-numeric'>
                   #{
@@ -332,7 +332,7 @@ class CaseFollowupView extends Backbone.View
           $("#alerts").append "
           <style>
             #alerts,table.alerts{
-              font-size: 80% 
+              font-size: 80%
             }
 
           </style>
@@ -355,7 +355,7 @@ class CaseFollowupView extends Backbone.View
               </tbody>
             </table>
           "
-        
+
         casefollowuptable = $("#casefollowup").DataTable
           'order': [[1,"desc"]]
           "pagingType": "full_numbers"
@@ -366,5 +366,5 @@ class CaseFollowupView extends Backbone.View
           "buttons": [
             "csv",'excel','pdf'
             ]
-                  
+
 module.exports = CaseFollowupView
