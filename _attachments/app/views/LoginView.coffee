@@ -29,7 +29,7 @@ class LoginView extends Backbone.View
              <div id='dialog-title'>#{Coconut.config.appName}</div>
            </div>
            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-               <input class='mdl-textfield__input' type='text' id='userName' name='userName' autofocus style='text-transform:lowercase;' on keyup='javascript:this.value=this.value.toLowerCase()'>
+               <input class='mdl-textfield__input' type='text' id='userName' name='userName' autofocus'>
                <label class='mdl-textfield__label' for='userName'>Username*</label>
            </div>
 
@@ -69,7 +69,7 @@ class LoginView extends Backbone.View
   login: () =>
     view = @
     loginData = {
-      userName: $('#userName').val().toLowerCase()
+      userName: $('#userName').val()
       passWord: $('#passWord').val()
     }
     # Useful for reusing the login screen - like for database encryption
