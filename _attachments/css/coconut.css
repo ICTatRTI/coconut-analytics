@@ -282,6 +282,15 @@ button.not-followed-up-after-48-hours-false {
 	margin-top: 20px;
 }
 
+/* added because no border on mobile devices */
+select {
+	border: 1px solid;
+}
+
+button#csv {
+  float: right;
+}
+
 input.datepicker {
   font-size: 0.8em;
 /*  margin-top: 3px; */

@@ -1,5 +1,11 @@
 /* settings to override the Material Design css */
 
+@media screen and (max-width: 640px) {
+  .dataTables_wrapper .dataTables_length {
+    float: left;
+  }
+}
+
 @media screen and (min-width: 768px) {
   .chart.mdl-cell--6-col {
     width: calc(50% - 16px);

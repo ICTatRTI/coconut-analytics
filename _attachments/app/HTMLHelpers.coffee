@@ -23,13 +23,13 @@ class HTMLHelpers
       <i class=\"mdi #{options.iconText} #{options.buttonClass}\"></i>
       #{if(options.iconOnly && options.buttonClass is 'incomplete') then "<div class='overlay'>&nbsp;</div>" else ""}
       #{buttonText}</button>"
-      
+
 
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->
     _.map(cases, (malariaCase) =>
       caseID = if typeof malariaCase == 'object' then (malariaCase.caseID or malariaCase.MalariaCaseID) else malariaCase
-      @createCaseLink 
+      @createCaseLink
         caseID: caseID
         iconOnly: false
         buttonClass: ''
@@ -40,7 +40,7 @@ class HTMLHelpers
   @createDisaggregatableCaseGroup = (cases, text) ->
     text = cases.length unless text?
     "
-      <button class='sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
+      <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
       <div class='cases' style='padding:10px; display:none'>
         #{@createCasesLinks cases}
       </div>
@@ -59,7 +59,7 @@ class HTMLHelpers
 
   @createDisaggregatableDocGroup = (text,docs) ->
     "
-      <button class='sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
+      <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
       <div class='cases' style='padding:10px;text-align: left; display:none'>
         #{@createDocLinks docs}
       </div>
@@ -71,18 +71,18 @@ class HTMLHelpers
   @formattedPercent: (number) ->
     percent = (number * 100).toFixed(0)
     if isNaN(percent) then "--" else "#{percent}%"
-    
+
   @numberWithCommas: (num) ->
      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-  
+
   @resizeChartContainer: () ->
     $(".chart_container").height(0.8 * $('#content').height())
     $(".chart_container").width(0.95 * $('#content').width())
-    
+
   @noRecordFound: () ->
     "<div id='noRecordFound'>No Record Found For Date Range</div>"
-  
-  @roundToTwo: (num) ->    
+
+  @roundToTwo: (num) ->
      +(Math.round(num + "e+2")  + "e-2")
 
   #show the background (header and drawer menu) if user is authenticated.
@@ -93,5 +93,5 @@ class HTMLHelpers
   #Change Header Title
   @ChangeTitle: (title) ->
     $('#layout-title').html(title)
-    
+
 module.exports = HTMLHelpers

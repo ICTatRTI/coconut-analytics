@@ -255,7 +255,7 @@ class CompareWeeklyView extends Backbone.View
         </style>
         <div id='dateSelector'></div>
         <h5>Compare Weekly Reports and Coconut cases aggregated by
-        <select style='height:50px;font-size:90%' id='aggregationPeriod' class='aggregatedBy'>
+        <select id='aggregationPeriod' class='aggregatedBy'>
           #{
             _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
               "
@@ -266,7 +266,7 @@ class CompareWeeklyView extends Backbone.View
           }
         </select>
         and
-        <select style='height:50px;font-size:90%' id='aggregationArea' class='aggregatedBy'>
+        <select id='aggregationArea' class='aggregatedBy'>
           #{
             _("Zone,District,Facility".split(",")).map (aggregationArea) =>
               "
@@ -277,7 +277,7 @@ class CompareWeeklyView extends Backbone.View
           }
         </select>
 
-        for <select style='height:50px;font-size:90%' id='facilityType' class='aggregatedBy'>
+        for <select id='facilityType' class='aggregatedBy'>
           #{
             _("All,Private,Public".split(",")).map (facilityType) =>
               "
@@ -290,7 +290,7 @@ class CompareWeeklyView extends Backbone.View
         facilities.
         </h5>
         <div>If the total positive cases from the weekly reports don't match the number of cases notified, the <span class='mismatch'>mismatched values are colored</span>.
-        <button style='float:right' id='csv'>#{if @csvMode then "Table Mode" else "CSV Mode"}</button></div>
+        <button class='mdl-button mdl-js-button mdl-button--raised' id='csv'>#{if @csvMode then "Table Mode" else "CSV Mode"}</button></div>
         <br/><br/>
         <div class='scroll-div'>
           <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='facilityTimeliness' style='#{if @csvMode then "display:none" else ""}'>
