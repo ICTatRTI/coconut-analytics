@@ -127,7 +127,7 @@ class IssuesView extends Backbone.View
       <div id='dateSelector'></div>
       <div style='padding: 10px 0'>
         <h4>Issues <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-issue-btn'>
-              <i class='material-icons'>add</i>
+              <i class='mdi mdi-plus mdi-36px'></i>
             </button></h4>
       </div>
       <dialog id='dialog'>
@@ -193,8 +193,8 @@ class IssuesView extends Backbone.View
                  <label class='mdl-textfield__label' for='dateResolved'>Date Resolved</label>
              </div>
              <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='issueSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='issueCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='issueSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='issueCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
              </div>
           </form>
         "
@@ -229,10 +229,10 @@ class IssuesView extends Backbone.View
                    <td class='mdl-data-table__cell--non-numeric'>#{Issue['Date Resolved'] or '-'}</td>
                    <td>
                      <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                      <a href='#' class='issue-edit' data-issue-id='#{Issue._id}'><i class='material-icons icon-24'>mode_edit</i></a>
+                      <a href='#' class='issue-edit' data-issue-id='#{Issue._id}'><i class='mdi mdi-pencil mdi-24px'></i></a>
                      </button>
                      <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                     <a href='#' class='issue-delete' data-issue-id='#{Issue._id}'><i class='material-icons icon-24'>delete</i></a>
+                     <a href='#' class='issue-delete' data-issue-id='#{Issue._id}'><i class='mdi mdi-delete mdi-24px'></i></a>
                       </button>
                    </td>
                  </tr>

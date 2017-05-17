@@ -113,8 +113,8 @@ class FacilityHierarchyView extends Backbone.View
             ).join("")
           }
           <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='fhSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='fhCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='fhSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='fhCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
           </div>
       </form>
     "
@@ -129,7 +129,7 @@ class FacilityHierarchyView extends Backbone.View
         table.dataTable thead th { padding: 0 0 8px}
       </style>
       <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-facility-btn'>
-              #{ if(Coconut.config.facilitiesEdit) then "<i class='material-icons'>add</i>" else "" }
+              #{ if(Coconut.config.facilitiesEdit) then "<i class='mdi mdi-plus mdi-36px'></i>" else "" }
             </button>
       </h4>
       <dialog id='dialog'>
@@ -161,9 +161,9 @@ class FacilityHierarchyView extends Backbone.View
             <td>
             #{ if(Coconut.config.facilitiesEdit)
                 "<button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                  <a href='#' class='facility-edit' data-facility-id='#{rowIdentifier}'><i class='material-icons icon-24'>mode_edit</i></a></button>
+                  <a href='#' class='facility-edit' data-facility-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
                  <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                  <a href='#' class='facility-delete' data-facility-id='#{rowIdentifier}'><i class='material-icons icon-24'>delete</i></a></button>
+                  <a href='#' class='facility-delete' data-facility-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i></a></button>
                 "
                else ""
             }

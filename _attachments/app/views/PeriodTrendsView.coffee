@@ -18,7 +18,7 @@ class PeriodTrendsView extends Backbone.View
     "click #switch-trend": "toggleTrendData"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
-    
+
   toggleTrendData: (e) ->
     if $(".mdl-switch__input").is(":checked")
       $(".data").show()
@@ -112,7 +112,7 @@ class PeriodTrendsView extends Backbone.View
                     dataPoints = 0
                     element = _.map results, (result) ->
                       # dont include the final period in average
-                      unless (dataPoints+1) is results.length 
+                      unless (dataPoints+1) is results.length
                         dataPoints += 1
                         sum += parseInt(dataValue(result[index]))
                       "
@@ -133,7 +133,7 @@ class PeriodTrendsView extends Backbone.View
               ).join("")
             }
           </tbody>
-        </table> 
+        </table>
       "
       # This is for MDL switch
       componentHandler.upgradeAllRegistered()
@@ -151,8 +151,8 @@ class PeriodTrendsView extends Backbone.View
           dataElement = $(dataElement)
           current = extractNumber(dataElement)
           previous = extractNumber(dataElement.prev().prev())
-          dataElement.prev().html if current is previous then "-" else if current > previous then "<span class='up-arrow'><i class='material-icons'>arrow_upward</i></span>" else "<span class='down-arrow'><i class='material-icons'>arrow_downward</i></span>"
-          
+          dataElement.prev().html if current is previous then "-" else if current > previous then "<span class='up-arrow'><i class='mdi mdi-up mdi-24px'></i></span>" else "<span class='down-arrow'><i class='mdi mdi-arrow-down mdi-24px'></i></span>"
+
       _.each $(".period-0.trend"), (period0Trend) ->
         period0Trend = $(period0Trend)
         if period0Trend.prev().prev().find("span").attr("class") is period0Trend.find("span").attr("class")
@@ -160,7 +160,7 @@ class PeriodTrendsView extends Backbone.View
 
       #
       #Clean up the table
-      # 
+      #
       $(".period-0.data").show()
       $(".period-#{results.length-1}.trend").hide()
       $(".period-1.trend").attr "style", "font-size:75%"
@@ -187,7 +187,7 @@ class PeriodTrendsView extends Backbone.View
 
       #
       #End of clean up the table
-      # 
+      #
 
 
     reportIndex = 0
@@ -257,5 +257,5 @@ class PeriodTrendsView extends Backbone.View
             appendPercent : anyTravelOutsideZanzibar.length / data.totalPositiveCases[district].length
           ]
           renderTable()
-		  
+
 module.exports = PeriodTrendsView

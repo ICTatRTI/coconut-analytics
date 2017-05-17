@@ -6,8 +6,8 @@ Dialog = require './Dialog'
 
 class ExportDataView extends Backbone.View
   el: "#content"
-  
-  events: 
+
+  events:
     "click button#export": "exportData"
 
   exportData: =>
@@ -15,7 +15,7 @@ class ExportDataView extends Backbone.View
     @endDate = Coconut.dateSelectorView.endDate
     $('#downloadMsg').show()
     $('#analysis-spinner').show()
-    url = "http://spreadsheet.zmcp.org/spreadsheet_cleaned/#{@startDate}/#{@endDate}"  
+    url = "http://spreadsheet.zmcp.org/spreadsheet_cleaned/#{@startDate}/#{@endDate}"
 
     startDownload url, (err,response) ->
       if (err)
@@ -26,7 +26,7 @@ class ExportDataView extends Backbone.View
         $('#analysis-spinner').hide()
         Dialog.createDialogWrap()
         Dialog.confirm("File download successfully completed...", "Success",["Ok"])
- 
+
   startDownload = (url, callback) ->
     window.location.href = url
     # Need to find a way to detect completion of download before hidng the following message.
@@ -34,7 +34,7 @@ class ExportDataView extends Backbone.View
      callback(null, 'Download complete')
     ,10000
 
-      
+
   render: =>
      HTMLHelpers.ChangeTitle("Data Export")
      @$el.html "
@@ -43,7 +43,7 @@ class ExportDataView extends Backbone.View
         </style>
         <div id='dateSelector'></div>
         <h4>Download Spreadsheet</h4>
-        <button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' id='export'><i class='material-icons'>cloud_download</i>&nbsp; Download</button>
+        <button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' id='export'><i class='mdi mdi-cloud-download mdi-24px'></i>&nbsp; Download</button>
         <div id='downloadMsg' class='hide m-t-30'>Downloading file now. Please wait...</div>
     "
 

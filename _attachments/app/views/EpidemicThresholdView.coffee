@@ -27,27 +27,27 @@ class EpidemicThresholdView extends Backbone.View
         <div id='dateSelector'></div>
         <div id='epi-key'>
            <table id='thresholdKey' class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-              <thead> 
-                 <tr> 
+              <thead>
+                 <tr>
                     <th class='mdl-data-table__cell--non-numeric'>Status</th>
                     <th class='threshold'>Your Alerts & Alarms</th>
                     <th class='threshold'>Alerts & Alarms</th>
-                    <th class='threshold'>Facility</th> 
-                    <th class='threshold'>Shehia</th> 
-                    <th class='threshold'>Village</th> 
+                    <th class='threshold'>Facility</th>
+                    <th class='threshold'>Shehia</th>
+                    <th class='threshold'>Village</th>
                     <th class='threshold'>District</th>
-                 </tr> 
-              </thead> 
-              <tbody> 
-                 <tr> 
+                 </tr>
+              </thead>
+              <tbody>
+                 <tr>
                     <td style='background:#eee'>
-                      Alert <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent material-icons'>notifications_none</i>
-                    </td> 
+                      Alert <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px'></i>
+                    </td>
                     <td class='threshold'>
                       <button class='mdl-card__media btn_th'>
                         <div class='one'>
-                          <i class='material-icons assigned'>person_pin</i>
-                          <i class='material-icons alert'>notifications_none</i>
+                          <i class='mdi mdi-account-location mdi-24px assigned'></i>
+                          <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i>
                         </div>
                         <div class='two'>
                           <span class='alert-badge mdl-badge' style='position: relative' id='myAlerts'>0</span> Cases
@@ -58,8 +58,8 @@ class EpidemicThresholdView extends Backbone.View
                     <td class='threshold'>
                       <button class='mdl-card__media btn_th'>
                         <div class='one'>
-                          <i class='material-icons visited'>priority_high</i>
-                          <i class='material-icons alert'>notifications_none</i>
+                          <i class='mdi mdi-alert-outline mdi-24px visited'></i>
+                          <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i>
                         </div>
                         <div class='two'>
                           <span class='alert-badge mdl-badge' style='position: relative' id='numAlerts'>0</span> Cases
@@ -68,19 +68,19 @@ class EpidemicThresholdView extends Backbone.View
                       </button>
                     </td>
                     <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
-                    <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td> 
-                    <td class='threshold'>5 or more total cases within 7 days</td> 
-                    <td class='threshold' rowspan='2'>Specific for each district and week, based on 5 years of previous data</td> 
-                 </tr> 
-                 <tr> 
+                    <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
+                    <td class='threshold'>5 or more total cases within 7 days</td>
+                    <td class='threshold' rowspan='2'>Specific for each district and week, based on 5 years of previous data</td>
+                 </tr>
+                 <tr>
                     <td style='background:#eee'>
-                      <span>Alarm</span> <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent material-icons'>notifications_active</i>
-                    </td> 
+                      <span>Alarm</span> <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px'></i>
+                    </td>
                     <td class='threshold'>
                       <button class='mdl-card__media btn_th'>
                         <div class='one'>
-                          <i class='material-icons assigned'>person_pin</i>
-                          <i class='material-icons alarm'>notifications_active</i>
+                          <i class='mdi mdi-account-location mdi-24px assigned'></i>
+                          <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i>
                         </div>
                         <div class='two'>
                           <span class='alarm-badge mdl-badge' id='myAlarms'>0 Cases</span>
@@ -91,8 +91,8 @@ class EpidemicThresholdView extends Backbone.View
                       <td class='threshold'>
                         <button class='mdl-card__media btn_th'>
                           <div class='one'>
-                            <i class='material-icons visited'>priority_high</i>
-                            <i class='material-icons alert'>notifications_active</i>
+                            <i class='mdi mdi-alert-outline mdi-24px visited'></i>
+                            <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alert'></i>
                           </div>
                           <div class='two'>
                             <span class='alarm-badge mdl-badge' id='numAlarms'>0 Cases</span>
@@ -101,11 +101,11 @@ class EpidemicThresholdView extends Backbone.View
                         </button>
                       </td>
                     <td class='threshold'>10 or more under 5 cases or 20 or more total cases within 14 days</td>
-                    <td class='threshold'>10 or more under 5 cases or 20 or more total cases within 14 days</td>  
-                    <td class='threshold'>10 or more total cases within 14 days</td> 
-                    
+                    <td class='threshold'>10 or more under 5 cases or 20 or more total cases within 14 days</td>
+                    <td class='threshold'>10 or more total cases within 14 days</td>
+
                  </tr>
-                 
+
               </tbody>
            </table>
            <p>(Note that cases counted for district thresholds don't include household and neighbor cases)</p>
@@ -114,26 +114,26 @@ class EpidemicThresholdView extends Backbone.View
         <div class='epi-summary'>
             <div id='districtStat' class='mdl-card--expand'>
               <h5>DISTRICTS:</h5>
-              <i class='material-icons alert'>notifications_none</i><span id='districtAlert'>0</span>
-              <i class='material-icons alarm'>notifications_active</i><span id='districtAlarm'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i><span id='districtAlert'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i><span id='districtAlarm'>0</span>
             </div>
             <div id='facilityStat' class='mdl-card--expand'>
               <h5>FACILITIES:</h5>
-              <i class='material-icons alert'>notifications_none</i><span id='facilityAlert'>0</span>
-              <i class='material-icons alarm'>notifications_active</i><span id='facilityAlarm'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i><span id='facilityAlert'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i><span id='facilityAlarm'>0</span>
             </div>
-            
+
             <div id='shehiaStat' class='mdl-card--expand'>
               <h5>SHEHIAS:</h5>
-              <i class='material-icons alert'>notifications_none</i><span id='shehiasAlert'>0</span>
-              <i class='material-icons alarm'>notifications_active</i><span id='shehiasAlarm'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i><span id='shehiasAlert'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i><span id='shehiasAlarm'>0</span>
             </div>
             <div id='villageStat' class='mdl-card--expand'>
               <h5>VILLAGES:</h5>
-              <i class='material-icons alert'>notifications_none</i><span id='villageAlert'>0</span>
-              <i class='material-icons alarm'>notifications_active</i><span id='villageAlarm'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i><span id='villageAlert'>0</span>
+              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i><span id='villageAlarm'>0</span>
             </div>
-        </div> 
+        </div>
         <div class='clearfix'></div>
     "
     startDate = moment(Coconut.router.reportViewOptions.startDate)
@@ -167,8 +167,8 @@ class EpidemicThresholdView extends Backbone.View
       shehiasAlarms = shehiasAlerts = villageAlarms = villageAlerts = 0
       @$el.append "
          <div class='outer-div'>
-           <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'> 
-              <thead> 
+           <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
+              <thead>
                 <tr>
                   <th>District</th>
                   #{
@@ -191,28 +191,28 @@ class EpidemicThresholdView extends Backbone.View
                               #{
                                 _(thresholdsByDistrictAndWeek[district]?[week]).map (threshold) ->
                                   if threshold.ThresholdType is 'Alarm'
-                                    notifyIcon = "<i class='material-icons alert'>notifications_active</i>"
-                                    numAlarms += 1 
+                                    notifyIcon = "<i class='mdi mdi-bell-ring mdi-24px alert'></i>"
+                                    numAlarms += 1
                                     myAlarms += 1 if threshold['Assigned To']?.substring(5) is Coconut.currentlogin
                                     districtAlarms += 1 if threshold['LocationType'] is 'district'
                                     facilityAlarms += 1 if threshold['LocationType'] is 'facility'
                                     shehiasAlarms += 1 if threshold['LocationType'] is 'shehia'
                                     villageAlarms += 1 if threshold['LocationType'] is 'village'
                                   else if threshold.ThresholdType is 'Alert'
-                                    notifyIcon = "<i class='material-icons alert'>notifications_none</i>"
-                                    numAlerts += 1 
+                                    notifyIcon = "<i class='mdi mdi-bell-ring-outline mdi-24px alert'></i>"
+                                    numAlerts += 1
                                     myAlerts += 1 if threshold['Assigned To']?.substring(5) is Coconut.currentlogin
                                     districtAlerts += 1 if threshold['LocationType'] is 'district'
                                     facilityAlerts += 1 if threshold['LocationType'] is 'facility'
                                     shehiasAlerts += 1 if threshold['LocationType'] is 'shehia'
                                     villageAlerts += 1 if threshold['LocationType'] is 'village'
                                   else notifyIcon = ""
-                                  
+
                                   if threshold['Assigned To']?.substring(5) is Coconut.currentlogin
-                                    priorityIcon = "<i class='material-icons assigned'>person_pin</i>"
+                                    priorityIcon = "<i class='mdi mdi-account-location mdi-24px assigned'></i>"
                                   else
-                                    priorityIcon = "<i class='material-icons visited''>priority_high</i>"
-                                  
+                                    priorityIcon = "<i class='mdi mdi-alert-outline mdi-24px visited''></i>"
+
                                   tileTitle = threshold.Description.split(',')[0].toUpperCase()
                                   "
                                   <button class='mdl-card__media btn_th'>
@@ -230,7 +230,7 @@ class EpidemicThresholdView extends Backbone.View
                                     </div>
                                     </a>
                                   </button>
-                                  " 
+                                  "
                               }
                             </td>
                             "
@@ -238,7 +238,7 @@ class EpidemicThresholdView extends Backbone.View
                         }
                       </tr>
                     "
-                  .join('')  
+                  .join('')
                 }
               </tbody>
           </table>
@@ -256,9 +256,9 @@ class EpidemicThresholdView extends Backbone.View
       $('#shehiasAlarm').html(shehiasAlarms)
       $('#villageAlert').html(villageAlerts)
       $('#villageAlarm').html
-      
+
       $('#analysis-spinner').hide()
-      
+
       # $("#thresholdTable").dataTable
       #   aaSorting: [[0,"asc"]]
       #   iDisplayLength: 50

@@ -11,7 +11,7 @@ Case = require '../models/Case'
 
 class AnalysisView extends Backbone.View
   el: "#content"
-    
+
   events:
     "click div.analysis.dropDownBtn": "showDropDown"
     "click #switch-details": "toggleDetails"
@@ -29,11 +29,10 @@ class AnalysisView extends Backbone.View
   showDropDown: (e) =>
     $target =  $(e.target).closest('.analysis')
     $target.next(".analysis-report").slideToggle()
-    if ($target.find("i").text()== "play_arrow")
-       iconStatus = "details"	
+    if ($target.find("i").hasClass('mdi-play'))
+       $target.find("i").switchClass('mdi-play','mdi-menu-down-outline')
     else
-       iconStatus = "play_arrow"
-    $target.find("i").text(iconStatus)
+       $target.find("i").switchClass('mdi-menu-down-outline','mdi-play')
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
@@ -48,7 +47,7 @@ class AnalysisView extends Backbone.View
   updateAnalysis: (e) ->
     Coconut.router.reportViewOptions.aggregationLevel = $("[name=aggregationType]:checked").val()
     @render()
-    
+
   render: =>
     $('#analysis-spinner').show()
     HTMLHelpers.ChangeTitle("Reports: Analysis")
@@ -68,9 +67,9 @@ class AnalysisView extends Backbone.View
       <hr/>
       </div>
     "
-	
+
     options = $.extend({},Coconut.router.reportViewOptions)
-    
+
     Reports.casesAggregatedForAnalysis
       aggregationLevel:     options.aggregationLevel
       startDate:            options.startDate
@@ -99,7 +98,7 @@ class AnalysisView extends Backbone.View
 
         $("#analysis").append "
 		  <div class='analysis dropDownBtn'>
-			  <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+			  <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
 		  Cases Followed Up<small></small></div></div>
 		"
         $("#analysis").append @createTable headings, "
@@ -140,7 +139,7 @@ class AnalysisView extends Backbone.View
                 </tr>
               "
             ).join("")
-          }  
+          }
         ", "cases-followed-up"
 
         _([
@@ -150,7 +149,7 @@ class AnalysisView extends Backbone.View
           $("th:contains(#{column})").addClass "details"
         $(".details").hide()
 
-        
+
         _.delay ->
 
           $("table.tablesorter").each (index,table) ->
@@ -186,7 +185,7 @@ class AnalysisView extends Backbone.View
           </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i  class='mdi mdi-play mdi-24px'></i></button>
             Index Household and Neighbors</div>
 		  </div>
         "
@@ -227,7 +226,7 @@ class AnalysisView extends Backbone.View
 
           <hr>
           <div class='analysis dropDownBtn'>
-            <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+            <div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
 		  		Age: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small></div>
           </div>
         "
@@ -259,8 +258,8 @@ class AnalysisView extends Backbone.View
 		  </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
-		  		Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small> 
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
+		  		Gender: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
 		  	</div>
 		  </div>
         "
@@ -292,12 +291,12 @@ class AnalysisView extends Backbone.View
             <span class='mdl-switch__label'>Toggle Unknown</span>
           </label>
         "
-		
+
         $("#analysis").append "
           </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
 		  		Nets and Spraying: <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
 		  	</div>
 		  </div>
@@ -323,7 +322,7 @@ class AnalysisView extends Backbone.View
 		  </div>
           <hr>
 		  <div class='analysis dropDownBtn'>
-		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+		  	<div class='report-subtitle'><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
 		  		Travel History (within past month): <small>Includes index cases with complete household visits, positive index case household members, and positive neighbor household members</small>
 		  	</div>
 		  </div>
@@ -376,7 +375,7 @@ class AnalysisView extends Backbone.View
 		  </div>
         "
         , "travel-history-table"
-  
+
         ###
         This looks nice but breaks copy/paste
         _.each [2..5], (column) ->
@@ -422,12 +421,12 @@ class AnalysisView extends Backbone.View
         buttonClass: buttonClass
         buttonText: buttonText
     else ""
-      
+
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
       <div id='#{id}' class='analysis-report dropdown-section'>
       <div class='scroll-div'>
-       <div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>      
+       <div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>
         <table #{if id? then "id=#{id}" else ""} class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
           <thead>
             <tr>

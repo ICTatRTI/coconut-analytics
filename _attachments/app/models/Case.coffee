@@ -54,7 +54,7 @@ class Case
             # Duplicate
             if this[resultDoc.question].complete is "true" and (resultDoc.complete isnt "true")
               console.warn "Using the result marked as complete"
-              return #  Use the version already loaded which is marked as complete 
+              return #  Use the version already loaded which is marked as complete
             else if this[resultDoc.question].complete and resultDoc.complete
               console.warn "Duplicate complete entries for case: #{@caseID}"
           this[resultDoc.question] = resultDoc
@@ -67,7 +67,7 @@ class Case
           throw "Inconsistent Case ID. Working on #{@caseID} but current doc has #{resultDoc["caseid"]}: #{JSON.stringify resultDoc}"
         @questions.push "USSD Notification"
         this["USSD Notification"] = resultDoc
-    
+
 
   fetch: (options) =>
     Coconut.database.query "cases/cases",
@@ -87,7 +87,7 @@ class Case
     return returnVal
 
   deIdentify: (result) ->
-    
+
   flatten: (questions = @questions) ->
     returnVal = {}
     _.each questions, (question) =>
@@ -118,7 +118,7 @@ class Case
 
   user: ->
     userId = @.Household?.user || @.Facility?.user || @["Case Notification"]?.user
-  
+
   facility: ->
     @["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase()
 
@@ -161,7 +161,7 @@ class Case
   district: ->
     shehia = @validShehia()
     if shehia?
-      
+
       findOneShehia = GeoHierarchy.findOneShehia(shehia)
       if findOneShehia
         return findOneShehia.parent().name
@@ -204,7 +204,7 @@ class Case
 
   possibleQuestions: ->
     ["Case Notification", "Facility","Household","Household Members"]
-  
+
   questionStatus: =>
     result = {}
     _.each @possibleQuestions(), (question) =>
@@ -215,7 +215,7 @@ class Case
       else
         result[question] = (@[question]?.complete is "true")
     return result
-      
+
   complete: =>
     @questionStatus()["Household Members"] is true
 
@@ -233,7 +233,7 @@ class Case
 
   notFollowedUpAfterXHours: =>
     @moreThanXHoursSinceFacilityNotifed() and not @followedUp()
-    
+
   followedUpWithinXHours: =>
     not @notFollowedUpAfterXHours()
 
@@ -314,7 +314,7 @@ class Case
     return [] unless @["Household"]?
     _(@["Household Members"]).filter (householdMember) =>
       householdMember.HeadofHouseholdName isnt @["Household"].HeadofHouseholdName and householdMember.complete is "true"
-  
+
   hasCompleteNeighborHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
 
@@ -329,7 +329,7 @@ class Case
   positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
     _(@positiveCasesAtIndexHouseholdAndNeighborHouseholds()).filter (householdMemberOrNeighbor) =>
       @ageInYears() < 5
-        
+
   positiveCasesAtIndexHouseholdAndNeighborHouseholdsOver5: =>
     _(@positiveCasesAtIndexHouseholdAndNeighborHouseholds()).filter (householdMemberOrNeighbor) =>
       @ageInYears >= 5
@@ -428,7 +428,7 @@ class Case
 
   isUnder5: =>
     @ageInYears() < 5
-  
+
   resultsAsArray: =>
     _.chain @possibleQuestions()
     .map (question) =>
@@ -479,7 +479,7 @@ class Case
     issues.push "Missing case notification" unless @["Case Notification"]? or @["Case Notification"]?.length is 0
 
     return issues
-  
+
 
   allResultsByQuestion: ->
     returnVal = {}
@@ -531,7 +531,7 @@ class Case
   moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
     @daysBetweenPositiveResultAndNotificationFromFacility() > 3
 
-    
+
   daysBetweenPositiveResultAndCompleteHousehold: =>
     dateOfPositiveResults = @dateOfPositiveResults()
     completeHouseholdVisit = @dateHouseholdVisitCompleted()
@@ -576,7 +576,7 @@ class Case
 
    moreThan48HoursSinceFacilityNotifed: =>
      @hoursSinceFacilityNotified() > 48
-   
+
    moreThanXHoursSinceFacilityNotifed: =>
      @hoursSinceFacilityNotified() > parseInt(Coconut.config.case_followup)
 
@@ -723,7 +723,7 @@ class Case
     .flatten().value().join(",") + "--EOR--<br/>"
 
   Case.summaryProperties = {
-    
+
     # TODO Document how the different options work
     # propertyName is used to change the column name at the top of the CSV
     # otherPropertyNames is an array of other values to try and check
@@ -1149,7 +1149,7 @@ Case.updateCaseSummaryDocs = (options) ->
                 options?.success?()
         .catch (error) -> console.error error
 
-  
+
   Coconut.database.get "CaseSummaryData"
   .catch (error) ->
     console.log error
@@ -1255,10 +1255,10 @@ Case.updateSummaryForCases = (options) ->
           saveCaseSummaryDoc()
 
 
-                    
+
 Case.createCaseView = (options) ->
   @case = options.case
-  
+
   tables = [
     "USSD Notification"
     "Case Notification"
@@ -1266,7 +1266,7 @@ Case.createCaseView = (options) ->
     "Household"
     "Household Members"
   ]
-  
+
   @mappings = {
     createdAt: "Created At"
     lastModifiedAt: "Last Modified At"
@@ -1275,16 +1275,16 @@ Case.createCaseView = (options) ->
     complete: "Complete"
     savedBy: "Saved By"
   }
-  
+
   #hack to rename Question name in Case view report
   caseQuestions = @case.Questions().replace("Case Notification", "Case Notification Received").replace("USSD Notification","Case Notification Sent")
-  
+
   Coconut.caseview = "
-    <h5>Case ID: #{@case.MalariaCaseID()}</h5><button id='closeDialog' class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored f-right'><i class='material-icons'>cancel</i></button>
+    <h5>Case ID: #{@case.MalariaCaseID()}</h5><button id='closeDialog' class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored f-right'><i class='mdi mdi-close-circle mdi-24px'></i></button>
     <h6>Last Modified: #{@case.LastModifiedAt()}</h6>
     <h6>Questions: #{caseQuestions}</h6>
   "
-             
+
   # USSD Notification doesn't have a mapping
   finished = _.after 5, =>
     Coconut.caseview += _.map(tables, (tableType) =>
@@ -1298,7 +1298,7 @@ Case.createCaseView = (options) ->
     ).join("")
     options?.success()
     return false
-   
+
   _(tables).each (question) =>
     if question != "USSD Notification"
       question = new Question(id: question)
@@ -1307,16 +1307,16 @@ Case.createCaseView = (options) ->
           _.extend(@mappings, question.safeLabelsToLabelsMappings())
     finished()
     return false
-          
-              
+
+
 Case.createObjectTable = (name,object,mappings) ->
   #Hack to replace title to differ from Questions title
   name = "Case Notification Received" if name == 'Case Notification'
   name = "Case Notification Sent" if name == 'USSD Notification'
-  
+
   "
-    <h4 id=#{object._id}>#{name} 
-      <!-- <small><a href='#edit/result/#{object._id}'>Edit</a></small> --> 
+    <h4 id=#{object._id}>#{name}
+      <!-- <small><a href='#edit/result/#{object._id}'>Edit</a></small> -->
     </h4>
     <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp caseTable'>
       <thead>
@@ -1331,7 +1331,7 @@ Case.createObjectTable = (name,object,mappings) ->
           _.map(object, (value, field) =>
             if !(Coconut.currentUser.isAdmin())
               if (_.indexOf(['name','Name','FirstName','MiddleName','LastName','HeadofHouseholdName','ContactMobilepatientrelative'],field) != -1)
-                value = "************" 
+                value = "************"
             return if "#{field}".match(/_id|_rev|collection/)
             "
               <tr>
@@ -1344,7 +1344,7 @@ Case.createObjectTable = (name,object,mappings) ->
               </tr>
             "
           ).join("")
-        
+
         }
       </tbody>
     </table>
@@ -1352,7 +1352,7 @@ Case.createObjectTable = (name,object,mappings) ->
 
 Case.showCaseDialog = (options) ->
   caseId = options.caseID
-  
+
   Coconut.case = new Case
     caseID: caseId
   Coconut.case.fetch
@@ -1369,5 +1369,5 @@ Case.showCaseDialog = (options) ->
       return false
 
 
-    
+
 module.exports = Case

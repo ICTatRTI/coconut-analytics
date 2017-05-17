@@ -18,7 +18,7 @@ html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
 
-header .material-icons{
+header .mdi{
   font-size: 48px;
   margin-left: -10px;
 }
@@ -113,7 +113,7 @@ header .mdl-layout-title{
   color: rgba(255, 255, 255, 0.56);
   font-weight: 500;
 }
-.coconut-navigation .mdl-navigation__link .material-icons {
+.coconut-navigation .mdl-navigation__link .mdi {
   font-size: 60px;
   color: rgba(255, 255, 255, 0.56);
   margin-right: 32px;
@@ -127,7 +127,7 @@ header .mdl-layout-title{
 .coconut-navigation .mdl-navigation__link .report__link {
 	font-size: 14px;
 }
-	
+
 .coconut-content {
   max-width: 1080px;
 }
@@ -248,7 +248,7 @@ _:-ms-input-placeholder, :root .coconut-graph {
 }
 
 .coconut-header .material-icons {
-   font-size: 34px;	
+   font-size: 34px;
 }
 
 .drawer_question_set_link i{

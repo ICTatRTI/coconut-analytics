@@ -11,12 +11,12 @@ class ChangeLogView extends Backbone.View
 
   el: '#log'
 
-  events: 
+  events:
     "click button#OkClickBtn, button#closeBtn": "OkClicked"
-  
+
   OkClicked: ->
      changeLogDialog.close()
- 
+
   render: =>
     @$el.html "
       <style>
@@ -24,7 +24,7 @@ class ChangeLogView extends Backbone.View
       </style>
       <dialog id='changeLogDialog'>
         <div class='f-right'>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='closeBtn' type='submit' ><i class='material-icons'>close</i></button>
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='closeBtn' type='submit' ><i class='mdi mdi-close-circle mdi-24px'></i></button>
         </div>
         <div class='m-b-40'>
           <div id='dialog-title'>Changes Log</div>
@@ -48,7 +48,7 @@ class ChangeLogView extends Backbone.View
             <li>Location Accuracy Setting Implemented as Filter in Map Data Query</li>
           </ul>
         </div>
-        
+
         <h5>Aug 18, 2016</h5>
         <div class='changes'>
           <ul>
@@ -136,7 +136,7 @@ class ChangeLogView extends Backbone.View
             <li>#199 - UI:Hash PII before display</li>
             <li>MapView: #203 label buttons no longer change the URL</li>
           </ul>
-        </div>  
+        </div>
         <h5>July 25, 2016</h5>
         <div class='changes'>
           <ul>
@@ -171,14 +171,14 @@ class ChangeLogView extends Backbone.View
             <li>#181 - Fixed Issues table search not working</li>
             <li>#188 - Graphs to filter by the specified date range</li>
           </ul>
-        </div>    
+        </div>
         <h5>July 19, 2016</h5>
         <div class='changes'>
           <ul>
             <li>MapView: comment out code for labeling</li>
             <li>Re-wording of column headings in Analysis report</li>
           </ul>
-        </div>  
+        </div>
         <h5>July 18, 2016</h5>
         <div class='changes'>
           <ul>
@@ -205,7 +205,7 @@ class ChangeLogView extends Backbone.View
            <li>Removed persistent params from URL after updating data in System Settings</li>
            <li>Removed 'To Do' from Activities menu</li>
           </ul>
-        </div>   
+        </div>
         <h5>July 12, 2016</h5>
         <div class='changes'>
           <ul>
@@ -233,7 +233,7 @@ class ChangeLogView extends Backbone.View
            <li>MapView:  legend added</li>
            <li>MapView #142 Add last Date of IRS to cases and cases (time) layers Also preliminary district labeling implementation</li>
           </ul>
-        </div>  
+        </div>
         <h5>July 8, 2016</h5>
         <div class='changes'>
           <ul>
@@ -244,7 +244,7 @@ class ChangeLogView extends Backbone.View
            <li>Quick Fix for a bug in Config model</li>
            <li>Other bug fixes as detailed in issue tickets</li>
           </ul>
-        </div>  
+        </div>
         <h5>July 6, 2016</h5>
         <div class='changes'>
           <ul>
@@ -299,7 +299,7 @@ class ChangeLogView extends Backbone.View
             <li> Remove zero counts from column titles in Case Follow Up report</li>
             <li>Remove 'USSD' from CaseFollowUp report column title</li>
           </ul>
-        </div>  
+        </div>
         <h5>June 27, 2016</h5>
         <div class='changes'>
           <ul>
@@ -326,7 +326,7 @@ class ChangeLogView extends Backbone.View
             <li>Add preliminary Yearly Trends graph. Appropriate data still need to be extracted for this graph</li>
             <li>Temporarily apply disabled css to drawer items not ready</li>
             <li>MapView: Cases style functionality for One or More Cases, Recent Travel and LLIN < Number of Sleeping Spaces</li>
-            
+
           </ul>
         </div>
         <h5>June 23, 2016</h5>
@@ -339,25 +339,25 @@ class ChangeLogView extends Backbone.View
             <li>MapView: Event listener established between myLayersControl and MapView. Will be used to style cases tomorrow. </li>
           </ul>
         </div>
-        <h5>June 22, 2016</h5> 
+        <h5>June 22, 2016</h5>
         <div class='changes'>
-          <ul>          
+          <ul>
             <li>MapView:  initial work done for case styling selector (layout change event). Not finished. </li>
             <li>Added bcryptjs for generating password hash, and modify codes to reset passwords.</li>
             <li>Removed 'undefined' as roles in MessagingView</li>
             <li>Remove 'user' from Assigned To listing in IssuesView</li>
-            <li>MapView: time slider setting added to page refresh.</li>      
+            <li>MapView: time slider setting added to page refresh.</li>
             <li>MapView: heatmap and cluster settings added to page refresh setting</li>
             <li>MapView:  add mapLat and mapping variables to url and parse them on page refresh</li>
           </ul>
         </div>
-        <h5>June 21, 2016</h5> 
+        <h5>June 21, 2016</h5>
         <div class='changes'>
           <ul>
-            <li>MapView: Template for url variable parsing for map settings loading after date query. zoom level implemented. other settings to come.</li>      
+            <li>MapView: Template for url variable parsing for map settings loading after date query. zoom level implemented. other settings to come.</li>
           </ul>
         </div>
-        <h5>June 20, 2016</h5> 
+        <h5>June 20, 2016</h5>
         <div class='changes'>
           <ul>
             <li>MapView: True Case Numbers added.</li>
@@ -370,14 +370,14 @@ class ChangeLogView extends Backbone.View
             <li>MapView: Layer control styling: move cases layer above other overlay layers</li>
           </ul>
         </div>
-        
+
         <div id='dialogActions'>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='OkClickBtn' type='submit' ><i class='material-icons'>done</i> Ok</button>
-        </div> 
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='OkClickBtn' type='submit' ><i class='mdi mdi-check mdi-24px'>done</i> Ok</button>
+        </div>
       </dialog>
     "
     dialogPolyfill.registerDialog(changeLogDialog)
-    
+
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        changeLogDialog.showModal()

@@ -42,7 +42,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary1'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>notifications_active</i></div>
+                  <div><i class='mdi mdi-bell-ring mdi-24px white'></i></div>
                   <div class='stats' id='alarmStat'></div>
                 </div>
                 <div class='stats_pct' id='alarmStatPct'><div class='loading'>Loading...</div></div>
@@ -52,7 +52,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary2'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>notifications_none</i></div>
+                  <div><i class='mdi mdi-bell-ring-outline mdi-24px white'></i></div>
                   <div class='stats' id='alertStat'></div>
                 </div>
                 <div class='stats_pct' id='alertStatPct'><div class='loading'>Loading...</div></div>
@@ -62,7 +62,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary3'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div><i class='mdi mdi-account-location mdi-24px white'></i></div>
                   <div class='stats' id='notifiedStat'></div>
                 </div>
                 <div class='stats_pct' id='notifiedStatPct'><div class='loading'>Loading...</div></div>
@@ -72,7 +72,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary4'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div><i class='mdi mdi-account-location mdi-24px white'></i></div>
                   <div class='stats' id='notfollowStat'></div>
                 </div>
                 <div class='stats_pct' id='notfollowStatPct'><div class='loading'>Loading...</div></div>
@@ -82,7 +82,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary5'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div><i class='mdi mdi-account-location mdi-24px white'></i></div>
                   <div class='stats' id='hsattestStat'></div>
                 </div>
                 <div class='stats_pct' id='hsattestStatPct'><div class='loading'>Loading...</div></div>
@@ -92,7 +92,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary6'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div><i class='mdi mdi-account-location mdi-24px white'></i></div>
                   <div class='stats' id='hsatStat'></div>
                 </div>
                 <div class='stats_pct' id='hsatStatPct'><div class='loading'>Loading...</div></div>
@@ -102,7 +102,7 @@ class DashboardView extends Backbone.View
 <!--            <div class='stat_summary'>
               <a class='chip summary7'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div><i class='mdi mdi-account-location mdi-24px white'></i></div>
                   <div class='stats' id='fsatStat'></div>
                 </div>
                 <div class='stats_pct' id='fsatStatPct'><div class='loading'>Loading...</div></div>
@@ -113,7 +113,7 @@ class DashboardView extends Backbone.View
             <div class='stat_summary'>
               <a class='chip summary8'>
                 <div class='summary_icon'>
-                  <div><i class='material-icons white'>person_pin</i></div>
+                  <div><i class='mdi mdi-account-location mdi-24px white'></i></div>
                   <div class='stats' id='importedStat'></div>
                 </div>
                 <div class='stats_pct' id='importedStatPct'><div class='loading'>Loading...</div></div>

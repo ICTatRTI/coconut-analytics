@@ -20,7 +20,7 @@ class UsersReportView extends Backbone.View
     $target =  $(e.target).closest('.userReports')
     $target.next(".user-report").slideToggle()
     if ($target.find("i").text()== "play_arrow")
-       iconStatus = "details"	
+       iconStatus = "details"
     else
        iconStatus = "play_arrow"
     $target.find("i").text(iconStatus)
@@ -31,19 +31,19 @@ class UsersReportView extends Backbone.View
       caseID: caseID
       success: ->
     return false
-        
+
   closeDialog: () ->
     caseDialog.close() if caseDialog.open
-    
+
   render: =>
     HTMLHelpers.ChangeTitle("Reports: Users Report - How Fast are Follow-ups Occuring")
     @$el.html "
        <dialog id='caseDialog'></dialog>
        <div id='dateSelector'></div>
-       <h4>How fast are follow-ups occuring?</h4> 
-       <div id='users'> 
+       <h4>How fast are follow-ups occuring?</h4>
+       <div id='users'>
          <div class='userReports dropDownBtn'>
-            <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+            <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
              All Users</h4>
          </div>
          <div id='allUsers' class='user-report dropdown-section'>
@@ -78,7 +78,7 @@ class UsersReportView extends Backbone.View
           success: (userAnalysis) =>
             $('#content').append "
                 <div class='userReports dropDownBtn'>
-                   <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='material-icons'>play_arrow</i></button>
+                   <h4><button class='mdl-button mdl-js-button mdl-button--icon'><i class='mdi mdi-play mdi-24px'></i></button>
                     By User</h4>
                 </div>
                 <div id='usersReport_wrapper' class='dataTables_wrapper no-footer user-report dropdown-section'>

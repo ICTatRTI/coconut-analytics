@@ -135,7 +135,7 @@ class UsersView extends Backbone.View
       id = "user.#{$("#resetname").html()}"
       newPass = $("#newPass").val()
       if newPass is ""
-        $('.coconut-mdl-card__title').html("<i class='material-icons'>error_outline</i> Please enter new password...").show()
+        $('.coconut-mdl-card__title').html("<i class='mdi mdi-information-outline'></i> Please enter new password...").show()
       else
         hash = bcrypt.hashSync newPass, CONST.SaltRounds
         Coconut.database.get id,
@@ -234,8 +234,8 @@ class UsersView extends Backbone.View
                 <label class='mdl-textfield__label' for='comments'>Comments</label>
               </div>
               <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='userSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='userCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='userSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='userCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
               </div>
           </form>
         "
@@ -249,14 +249,14 @@ class UsersView extends Backbone.View
              </div>
              <div class='coconut-mdl-card__title'></div>
             <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='material-icons'>loop</i> Submit</button>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnCancel' type='submit' ><i class='material-icons'>cancel</i> Cancel</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='mdi mdi-check-circle mdi-24px'></i> Submit</button>
+               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnCancel' type='submit' ><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
             </div>
           </form>
         "
         @$el.html "
             <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
-              <i class='material-icons'>add</i>
+              <i class='mdi mdi-plus mdi-36px'></i>
             </button></h4>
             <dialog id='dialog'>
               <div id='dialogContent'> </div>
@@ -290,11 +290,11 @@ class UsersView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
                         <td>
                            <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-pw-reset' data-user-id='#{user._id}' title='Reset password'><i class='material-icons icon-24'>vpn_key</i></a></button>
+                           <a href='#' class='user-pw-reset' data-user-id='#{user._id}' title='Reset password'><i class='mdi mdi-key mdi-24px'></i></a></button>
                            <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-edit' data-user-id='#{user._id}' title='Edit user'><i class='material-icons icon-24'>mode_edit</i></a></button>
+                           <a href='#' class='user-edit' data-user-id='#{user._id}' title='Edit user'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
                            <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-delete' data-user-id='#{user._id}' title='Delete user'><i class='material-icons icon-24'>delete</i></a></button>
+                           <a href='#' class='user-delete' data-user-id='#{user._id}' title='Delete user'><i class='mdi mdi-delete mdi-24px'></i></a></button>
                         </td>
                      </tr>
                      "

@@ -400,7 +400,7 @@ li.mdl-menu__item a {
    text-decoration: none;
 }
 
-i.material-icons{
+i.mdi{
 	vertical-align: middle;
 }
 
@@ -412,14 +412,16 @@ i.material-icons{
 }
 
 .mdl-navigation__link.drawer__subtitle, .mdl-navigation__link.drawer__link {
-   font-size: 1.2em;
-
+   font-size: 1.3em;
 }
 
 .mdl-navigation__link.drawer__subtitle:hover, .mdl-navigation__link.drawer__link:hover,
 a#maps.mdl-navigation__link.drawer__link:hover, a#export.mdl-navigation__link.drawer__link:hover{
    font-size: 1.4em;
+}
 
+.mdl-navigation__link.drawer__subtitle i {
+   padding-right: 5px;
 }
 
 a#dashboard.mdl-navigation__link.drawer__subtitle, a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__link {
@@ -427,7 +429,7 @@ a#dashboard.mdl-navigation__link.drawer__subtitle, a#maps.mdl-navigation__link.d
 }
 
 a#maps.mdl-navigation__link.drawer__link, a#export.mdl-navigation__link.drawer__link {
-   font-size: 1.2em;
+   font-size: 1.3em;
 }
 
 .drawer__subtitle i.material-icons{

@@ -84,8 +84,8 @@ class GeoHierarchyView extends Backbone.View
           }
 
         <div id='dialogActions'>
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='ghSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='ghCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='ghSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='ghCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
         </div>
       </form>
     "
@@ -97,7 +97,7 @@ class GeoHierarchyView extends Backbone.View
        table.dataTable thead th { padding: 0 0 8px}
       </style>
       <h4>Geo Hierarchy <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-geo-btn'>
-              <i class='material-icons'>add</i>
+              <i class='mdi mdi-plus mdi-36px'></i>
             </button>
       </h4>
       <dialog id='dialog'>
@@ -129,9 +129,9 @@ class GeoHierarchyView extends Backbone.View
             }
             <td>
                <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='geo-edit' data-geo-id='#{rowIdentifier}'><i class='material-icons icon-24'>mode_edit</i></a></button>
+                <a href='#' class='geo-edit' data-geo-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
                <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='geo-delete' data-geo-id='#{rowIdentifier}'><i class='material-icons icon-24'>delete</i></a></button>
+                <a href='#' class='geo-delete' data-geo-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i></a></button>
             </td>
           </tr>
           "

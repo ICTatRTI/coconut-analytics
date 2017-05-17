@@ -86,7 +86,7 @@ class SystemSettingsView extends Backbone.View
               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--file setting_inputs'>
                 <input class='mdl-textfield__input' placeholder='Application logo' type='text' id='appIcon' value='#{Coconut.config.appIcon}' title='Click to view image' readonly/>
                 <div class='mdl-button mdl-button--primary mdl-button--icon mdl-button--file'>
-                  <i class='material-icons'>attach_file</i>
+                  <i class='mdi mdi-paperclip mdi-24px'></i>
                   <input type='file' id='logoImage'>
                 </div>
                 <label class='mdl-textfield__label' for='appName'>Application Logo (recommended size: 70 x 55 px )</label>
@@ -230,7 +230,7 @@ class SystemSettingsView extends Backbone.View
       </div>
       <hr />
       <div id='dialogActions-left'>
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button' value='save'><i class='material-icons'>save</i> Update</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Update</button> &nbsp;
       </div>
       </form>
     "

@@ -11,12 +11,12 @@ class HelpView extends Backbone.View
 
   el: '#log'
 
-  events: 
+  events:
     "click button#OkBtn": "OkClicked"
-  
+
   OkClicked: ->
      aboutDialog.close()
- 
+
   render: =>
     @$el.html "
       <style>
@@ -30,24 +30,24 @@ class HelpView extends Backbone.View
         <h5>Application Help<h5>
         <div id='help_content'>
           <p>Need help with Coconut Surveillance?</p>
-          
-          <p>The best place to start may be the <a target='_blank' href='http://docs.coconutsurveillance.org'>Coconut Surveillance documentation</a> website. There you will find information 
+
+          <p>The best place to start may be the <a target='_blank' href='http://docs.coconutsurveillance.org'>Coconut Surveillance documentation</a> website. There you will find information
           about deploying the system, using the mobile and analytics applications, and the software technology behind the System.
           Documentation can also be downloaded from this website in PDF format for use offline.</p>
-          
-          <p>Still need help? Visit the <a target='_blank' href='http://talk.coconutsurveillance.org'>Coconut Surveillance Community</a> to search for answers or to post a question to the 
+
+          <p>Still need help? Visit the <a target='_blank' href='http://talk.coconutsurveillance.org'>Coconut Surveillance Community</a> to search for answers or to post a question to the
           community.</p>
-          
-          <p>Need expert technical assistance, help considering a new deployment, or have a great idea for collaboration? 
+
+          <p>Need expert technical assistance, help considering a new deployment, or have a great idea for collaboration?
           <a href='mailto:coconutsurveillance@rti.org'>Contact us</a> to discuss your needs and your ideas.</p>
         </div>
         <div id='dialogActions'>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' autofocus='autofocus'><i class='material-icons'>done</i> Ok</button>
-        </div> 
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' autofocus='autofocus'><i class='mdi mdi-check mdi-24px'></i> Ok</button>
+        </div>
       </dialog>
     "
     dialogPolyfill.registerDialog(aboutDialog)
-    
+
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        aboutDialog.showModal()

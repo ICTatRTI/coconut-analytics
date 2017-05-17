@@ -153,7 +153,7 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     .width($('.chart_container').width()-options.adjustX)
     .height($('.chart_container').height()-options.adjustY)
     .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-    .y(d3.scale.linear().domain([0,120]))
+    .y(d3.scale.linear())
     .yAxisLabel("Number of Cases")
     .elasticY(true)
     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))

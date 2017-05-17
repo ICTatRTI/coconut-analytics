@@ -13,7 +13,7 @@ class Dhis2View extends Backbone.View
     "click button#updateBtn": "update"
     "click button#test": "test"
     "click button#send": "send"
-    
+
   render: =>
 
     @fields = {
@@ -35,14 +35,14 @@ class Dhis2View extends Backbone.View
           <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
             <input class='mdl-textfield__input' type='text' id='#{fieldId}' value=''>
             <label class='mdl-textfield__label' for='#{fieldId}'>#{fieldName}</label>
-          </div> 
+          </div>
           "
         .join ""
       }
       <div id='dialogActions'>
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button'><i class='material-icons'>save</i> Update Settings</button> &nbsp;
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='test' type='button'><i class='material-icons'>cloud_done</i> Test Settings</button> &nbsp;
-       <button class='mdl-button mdl-js-button mdl-button--primary' id='send' type='button'><i class='material-icons'>sync</i>Send Cases For Last 30 Days</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='updateBtn' type='button'><i class='mdi mdi-content-save mdi-24px'></i> Update Settings</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='test' type='button'><i class='mdi mdi-cloud-check mdi-24px'></i> Test Settings</button> &nbsp;
+       <button class='mdl-button mdl-js-button mdl-button--primary' id='send' type='button'><i class='mdi mdi-sync mdi-24px'></i>Send Cases For Last 30 Days</button> &nbsp;
       </div>
     "
     @load()
@@ -60,7 +60,7 @@ class Dhis2View extends Backbone.View
           $("##{fieldId}").val result[fieldId]
             .parent().addClass "is-dirty"
     .catch (error) ->
-  
+
   test: =>
     dhis2 = new Dhis2
       dhis2Url: $("#dhis2Url").val()

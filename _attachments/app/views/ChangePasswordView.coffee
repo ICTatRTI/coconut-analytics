@@ -10,7 +10,7 @@ bcrypt = require('bcryptjs')
 CONST = require "../Constants"
 
 class ChangePasswordView extends Backbone.View
-  
+
   el: '#login-backgrd'
 
   events:
@@ -38,26 +38,26 @@ class ChangePasswordView extends Backbone.View
            </div>
            <div class='coconut-mdl-card__title'></div>
           <div id='dialogActions'>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='material-icons'>loop</i> Submit</button>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='toLogin' type='submit' ><i class='material-icons'>open_lock</i> Back to Login</button>
-          </div> 
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='mdi mdi-check-circle mdi-24px'></i> Submit</button>
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='toLogin' type='submit' ><i class='mdi mdi-login mdi-24px'></i> Back to Login</button>
+          </div>
         </form>
       </dialog>
     "
     dialogPolyfill.registerDialog(loginDialog)
     componentHandler.upgradeAllRegistered()
-    
+
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        loginDialog.showModal()
     else
        loginDialog.show()
-       
+
     componentHandler.upgradeDom()
-    
+
   displayErrorMsg: (msg) ->
     errMsg = @$el.find('.coconut-mdl-card__title')[0]
-    $(errMsg).html "<i class='material-icons'>error_outline</i> #{msg}"
+    $(errMsg).html "<i class='mdi mdi-information-outline mdi-24px'></i> #{msg}"
 
 
   ResetPassword: () ->
@@ -78,7 +78,7 @@ class ChangePasswordView extends Backbone.View
         hash = bcrypt.hashSync newPass, CONST.SaltRounds
         Coconut.database.get id,
            include_docs: true
-        .catch (error) => 
+        .catch (error) =>
           view.displayErrorMsg('Error encountered resetting password...')
           console.error error
         .then (user) =>
@@ -88,7 +88,7 @@ class ChangePasswordView extends Backbone.View
           .then =>
             loginDialog.close()
             view.trigger "success"
-        
+
     return false
 
   module.exports = ChangePasswordView

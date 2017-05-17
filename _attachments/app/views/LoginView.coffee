@@ -40,9 +40,9 @@ class LoginView extends Backbone.View
            <div class='coconut-mdl-card__title'></div>
            <div id='forgotten'><a href='#' id='forgot_passwd'>Forgot my password</a></div>
           <div id='dialogActions'>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='btnLogin' type='submit' ><i class='material-icons'>lock_open</i> Login</button>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='resetPwd' type='submit' ><i class='material-icons'>vpn_key</i> Reset Password</button>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='toLogin' type='submit' ><i class='material-icons'>lock_open</i> Back To Login</button>
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='btnLogin' type='submit' ><i class='mdi mdi-lock-open-outline mdi-24px'></i> Login</button>
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='resetPwd' type='submit' ><i class='mdi mdi-key mdi-24px'></i> Reset Password</button>
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='toLogin' type='submit' ><i class='mdi mdi-lock-open-outline mdi-24px'></i> Back To Login</button>
           </div>
         </form>
       </dialog>
@@ -61,7 +61,7 @@ class LoginView extends Backbone.View
   displayErrorMsg: (msg, icon) ->
     errMsg = @$el.find('.coconut-mdl-card__title')[0]
     $(errMsg).show()
-    $(errMsg).html "<i class='material-icons'>#{icon}</i> #{msg}"
+    $(errMsg).html "<i class='mdi mdi-#{icon} mdi-24px'></i> #{msg}"
 
   submitIfEnter: (event) ->
     @login() if event.which == 10 or event.which == 13
@@ -74,7 +74,7 @@ class LoginView extends Backbone.View
     }
     # Useful for reusing the login screen - like for database encryption
     if $("#userName").val() is "" or $("#passWord").val() is ""
-      view.displayErrorMsg('Please enter both username and password.', 'error_outline')
+      view.displayErrorMsg('Please enter both username and password.', 'information-outline')
       return false
 
     User.login

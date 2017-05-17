@@ -92,8 +92,8 @@ class RainfallStationView extends Backbone.View
           }
 
         <div id='dialogActions'>
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='rsSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
-           <button class='mdl-button mdl-js-button mdl-button--primary' id='rsCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='rsSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
+           <button class='mdl-button mdl-js-button mdl-button--primary' id='rsCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
         </div>
       </form>
     "
@@ -101,7 +101,7 @@ class RainfallStationView extends Backbone.View
     @$el.html "
       <style> table.dataTable thead th { padding: 0 0 8px}</style>
       <h4>Rainfall Stations <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-station-btn'>
-              <i class='material-icons'>add</i>
+              <i class='mdi mdi-plus mdi-36px'></i>
             </button>
       </h4>
       <dialog id='dialog'>
@@ -133,9 +133,9 @@ class RainfallStationView extends Backbone.View
             }
             <td>
                <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='station-edit' data-station-id='#{rowIdentifier}'><i class='material-icons icon-sm'>mode_edit</i></a></button>
+                <a href='#' class='station-edit' data-station-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
                <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='station-delete' data-station-id='#{rowIdentifier}'><i class='material-icons icon-sm'>delete</i></a></button>
+                <a href='#' class='station-delete' data-station-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i></a></button>
             </td>
           </tr>
           "

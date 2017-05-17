@@ -5,7 +5,7 @@
 #thresholdTable > tbody > tr > td button {
   display: block;
   margin-left: auto;
-  
+
 }
 #thresholdTable > tbody > tr > td, #thresholdTable > thead > tr > th {
   text-align: right;
@@ -18,7 +18,7 @@
 }
 
 #thresholdKey > thead > tr > th:nth-child(1),
-#thresholdKey > tbody > tr > td:nth-child(1) 
+#thresholdKey > tbody > tr > td:nth-child(1)
 {
   text-align: center;
   width: 100px;
@@ -38,7 +38,7 @@
 .mdl-card__media.btn_th div.three {
   text-align: right;
   overflow: auto;
-  
+
 }
 
 .mdi-account-plus,
@@ -89,7 +89,7 @@ button.mdl-card__media a {
 .mdl-dialog__title {
     padding: 24px 24px 0;
     margin: 0;
-    font-size: 2.5rem; 
+    font-size: 2.5rem;
 }
 
 .mdl-card {
@@ -152,7 +152,7 @@ button.mdl-card__media:hover {
   color: #333;
 }
 
-button.mdl-card__media:hover span, 
+button.mdl-card__media:hover span,
 button.mdl-card__media:hover small a{
   color: #333 !important;
   text-decoration: none;
@@ -171,7 +171,7 @@ button.mdl-card__media:hover small a{
 
 #epi-key,
 #districtStat.mdl-card--expand,
-#facilityStat.mdl-card--expand, 
+#facilityStat.mdl-card--expand,
 #yourcases.mdl-card--expand {
   display: inline-block;
 }
@@ -233,14 +233,14 @@ button.mdl-card__media:hover small a{
   padding-bottom: 10px;
 }
 
-.threshold { 
-  border: solid 1px; 
-} 
-.alarmAlert { 
-  color:black; 
-  background-color:#EEEEEE; 
-  font-weight:bold; 
-} 
+.threshold {
+  border: solid 1px;
+}
+.alarmAlert {
+  color:black;
+  background-color:#EEEEEE;
+  font-weight:bold;
+}
 
 .epi-summary img {
   margin-left: 10px;
@@ -287,13 +287,12 @@ img.epi-summary {
   background-color: #ff6a00;
 }
 
-.material-icons.visited,
-.material-icons.assigned {
+.mdi.visited,
+.mdi.assigned {
   color: rgb(63,81,181);
 }
 
-.material-icons.alert,
-.material-icons.alarm {
+.mdi.alert,
+.mdi.alarm {
   color: rgb(255,64,129);
 }
-

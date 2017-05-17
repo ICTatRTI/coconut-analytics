@@ -11,12 +11,12 @@ class AboutView extends Backbone.View
 
   el: '#log'
 
-  events: 
+  events:
     "click button#OkBtn": "OkClicked"
-  
+
   OkClicked: ->
      aboutDialog.close()
- 
+
   render: =>
     @$el.html "
       <style>
@@ -30,7 +30,7 @@ class AboutView extends Backbone.View
         </div>
         <div id='version'>Version #{CONST.Version}</div>
         <div id='license'>
-          <p><i class='material-icons'>copyright</i> Copyright 2012 RTI International. </p>
+          <p><i class='mdi mdi-copyright mdi-24px'></i> Copyright 2012 RTI International. </p>
           <p>RTI International is a registered trademark and a trade name of Research Triangle Institute.</p>
           <div>Licensed under the Apache License, Version 2.0 (the 'License');<br />
           you may not use this file except in compliance with the License.<br />
@@ -47,13 +47,13 @@ class AboutView extends Backbone.View
         <div>The development of Coconut Surveillance has been funded by RTI International and the U.S. President’s
 Malaria Initiative. Coconut Surveillance has been developed in close collaboration with the Zanzibar Malaria Elimination Programme.</div>
         <div id='dialogActions'>
-             <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' ><i class='material-icons'>done</i> Ok</button>
-        </div> 
+             <button class='mdl-button mdl-js-button mdl-button--primary' id='OkBtn' type='submit' ><i class='mdi mdi-check mdi-24px'></i> Ok</button>
+        </div>
       </dialog>
     "
     dialogPolyfill.registerDialog(aboutDialog)
     $('button#OkBtn').focus()
-    
+
     # Temporary hack for polyfill issue on non-chrome browsers
     if (Env.is_chrome)
        aboutDialog.showModal()

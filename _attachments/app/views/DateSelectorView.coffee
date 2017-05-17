@@ -7,7 +7,7 @@ require 'bootstrap-daterangepicker'
 
 class DateSelectorView extends Backbone.View
   el: "#dateSelector"
-    
+
   events:
     "change #select-by": "selectBy"
     "click .submitBtn": "updateReportView"
@@ -26,25 +26,25 @@ class DateSelectorView extends Backbone.View
     Coconut.router.reportViewOptions['endDate'] = @endDate.format("YYYY-MM-DD")
     if Coconut.dateSelectorView.reportType is 'dashboard'
       url = "#{Coconut.dateSelectorView.reportType}/#{Coconut.router.reportViewOptions['startDate']}/#{Coconut.router.reportViewOptions['endDate']}"
-    else  
+    else
       url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
     Coconut.router.navigate(url,{trigger: true})
 
   render: =>
     @$el.html "
       <div id='dateRange' class='f-left'>
-          <i class='material-icons'>event</i>&nbsp;
-          <span></span><i class='material-icons f-right'>arrow_drop_down</i>
+          <i class='mdi mdi-calendar mdi-24px'></i>&nbsp;
+          <span></span><i class='mdi mdi-menu-down mdi-24px f-right'></i>
       </div>
       <div id='noDataFound' class='f-left'>No data found for date range selected. Using predefined default dates</div>
       <div style='clear:both'></div>
     "
-    $('#dateRange span').html(@startDate + ' - ' + @endDate) 
+    $('#dateRange span').html(@startDate + ' - ' + @endDate)
     $('#dateRange').daterangepicker
       "startDate": @startDate
       "endDate": @endDate
       "showWeekNumbers": true
-      "ranges": 
+      "ranges":
         'Today': [moment(), moment()],
         'Last 7 Days': [moment().subtract(6, 'days'), moment()],
         'Last 30 Days': [moment().subtract(29, 'days'), moment()],
@@ -52,7 +52,7 @@ class DateSelectorView extends Backbone.View
         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
         'This Year': [moment().startOf('year'), moment().endOf('year')],
         'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
-      "locale": 
+      "locale":
         "format": "YYYY-MM-DD"
         "separator": " - "
         "applyLabel": "Apply"

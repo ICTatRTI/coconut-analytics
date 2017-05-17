@@ -62,16 +62,9 @@ class CaseFollowupView extends Backbone.View
       <div id='dateSelector'></div>
       <div id='summary-dropdown'>
         <div id='unhide-icons'>
-		  <!--
-		  <span id='cases-drop' class='drop-pointer rpt-suboptions'>
-		 	<button class='mdl-button mdl-js-button mdl-button--icon'>
-		 	   <i class='material-icons'>functions</i>
-		     </button>Summary
-		  </span>
-          -->
           <span id='legend-drop' class='drop-pointer rpt-suboptions'>
             <button class='mdl-button mdl-js-button mdl-button--icon'>
-              <i class='material-icons'>dashboard</i>
+              <i class='mdi mdi-view-dashboard mdi-24px'></i>
             </button>
               Legend <small>( click for dropdown )</small>
           </span>
