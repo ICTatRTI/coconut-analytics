@@ -22,7 +22,7 @@ Dialog = require './Dialog'
 
 class IssuesView extends Backbone.View
   dialogEdit = ""
-  
+
   el: "#content"
 
   events:
@@ -31,11 +31,11 @@ class IssuesView extends Backbone.View
     "click a.issue-delete": "deleteIssue"
     "click button#issueSave" : "saveIssue"
     "click button#issueCancel": "formCancel"
-	  
+
   formCancel: (e) =>
     dialog.close() if dialog.open
     return false
-	
+
   newIssue: (e) =>
    e.preventDefault
    @mode = "create"
@@ -43,7 +43,7 @@ class IssuesView extends Backbone.View
    Dialog.create(dialogEdit, dialogTitle)
    $('form#issue input').val('')
    return false
-   
+
   editIssue: (e) =>
     e.preventDefault
     @mode = "edit"
@@ -53,7 +53,7 @@ class IssuesView extends Backbone.View
     issueID = $(e.target).closest("a").attr "data-issue-id"
     Coconut.database.get issueID,
        include_docs: true
-    .catch (error) -> 
+    .catch (error) ->
       console.error error
       Dialog.confirm(error, 'Error Encountered',['Ok'])
     .then (issue) =>
@@ -63,9 +63,9 @@ class IssuesView extends Backbone.View
        $("[name=actionTaken]").val(@issue["Action Taken"])
        $("[name=solution]").val(@issue.Solution)
        $("[name=dateResolved]").val(@issue["Date Resolved"])
-       
+
      return false
- 
+
   deleteIssue: (e) =>
     view = @
     e.preventDefault
@@ -82,9 +82,9 @@ class IssuesView extends Backbone.View
         .catch (error) ->
           console.error error
           Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
-          
+
     return false
-    
+
   saveIssue: =>
     description = $("[name=description]").val()
     if description is ""
@@ -126,8 +126,8 @@ class IssuesView extends Backbone.View
       </style>
       <div id='dateSelector'></div>
       <div style='padding: 10px 0'>
-        <h4>Issues <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-issue-btn'>
-              <i class='material-icons'>add_circle</i>
+        <h4>Issues <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-issue-btn'>
+              <i class='material-icons'>add</i>
             </button></h4>
       </div>
       <dialog id='dialog'>
@@ -143,12 +143,12 @@ class IssuesView extends Backbone.View
         </thead>
         <tbody>
         </tbody>
-      </table>	  
+      </table>
       "
     users = new UserCollection()
     users.fetch
 # Could be a bug in puchdb-backbone that it does not recognize error or success. It will execute error function regardless.
-#      error: (error) -> 
+#      error: (error) ->
 #        console.log JSON.stringify error
 #        console.log("Error received")
 
@@ -195,7 +195,7 @@ class IssuesView extends Backbone.View
              <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='issueSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
                <button class='mdl-button mdl-js-button mdl-button--primary' id='issueCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
-             </div> 
+             </div>
           </form>
         "
         @dialogConfirm = "
@@ -208,7 +208,7 @@ class IssuesView extends Backbone.View
             </div>
           </form>
         "
-            
+
     Reports.getIssues
       startDate: options.startDate
       endDate: options.endDate
@@ -246,7 +246,7 @@ class IssuesView extends Backbone.View
               "buttons": [
                 "csv",'excel','pdf'
                 ]
-                
+
             $('#analysis-spinner').hide()
 
           _(issues).map (issue) ->
@@ -263,7 +263,7 @@ class IssuesView extends Backbone.View
                 if user?._id == undefined
                   issue.FullName = '-'
                 else
-                  issue.FullName=  "#{user.name}#{ if user.district then ' - ' + user.district else ''}".trim()    
+                  issue.FullName=  "#{user.name}#{ if user.district then ' - ' + user.district else ''}".trim()
                 completed()
-    
+
   module.exports = IssuesView

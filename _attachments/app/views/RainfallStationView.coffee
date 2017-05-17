@@ -40,7 +40,7 @@ class RainfallStationView extends Backbone.View
     $("input[id='Phone Numbers']").val(rec[3].innerText)
     Dialog.markTextfieldDirty()
     return false
-	
+
   formCancel: (e) =>
     e.preventDefault
     console.log("Cancel pressed")
@@ -61,17 +61,17 @@ class RainfallStationView extends Backbone.View
   deleteDialog: (e) =>
     e.preventDefault
     dialogTitle = "Are you sure?"
-    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
+    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
     console.log("Delete initiated")
     return false
 
-#TODO Need code to delete doc	
+#TODO Need code to delete doc
   deleteStation: (e) =>
     e.preventDefault
     console.log("Record Deleted")
     dialog.close() if dialog.open
     return false
-			
+
   render: ->
     options = $.extend({},Coconut.router.reportViewOptions)
     HTMLHelpers.ChangeTitle("Admin: Rainfall Station")
@@ -94,14 +94,14 @@ class RainfallStationView extends Backbone.View
         <div id='dialogActions'>
            <button class='mdl-button mdl-js-button mdl-button--primary' id='rsSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
            <button class='mdl-button mdl-js-button mdl-button--primary' id='rsCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
-        </div> 
+        </div>
       </form>
     "
     $('#analysis-spinner').show()
     @$el.html "
       <style> table.dataTable thead th { padding: 0 0 8px}</style>
-      <h4>Rainfall Stations <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-station-btn'>
-              <i class='material-icons'>add_circle</i>
+      <h4>Rainfall Stations <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-station-btn'>
+              <i class='material-icons'>add</i>
             </button>
       </h4>
       <dialog id='dialog'>

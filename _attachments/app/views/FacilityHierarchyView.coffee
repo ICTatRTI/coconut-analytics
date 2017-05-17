@@ -14,7 +14,7 @@ js2form = require 'form2js'
 
 class FacilityHierarchyView extends Backbone.View
   el: '#content'
-  
+
   events:
     "click #new-facility-btn": "createFacility"
     "click a.facility-edit": "editFacility"
@@ -22,7 +22,7 @@ class FacilityHierarchyView extends Backbone.View
     "click button#fhSave": "formSave"
     "click button#fhCancel": "formCancel"
     "click button#buttonYes": "deleteFacility"
-  
+
   createFacility: (e) =>
     e.preventDefault
     @mode = "create"
@@ -47,7 +47,7 @@ class FacilityHierarchyView extends Backbone.View
     $("input#Type").val(rec[5].innerText)
     Dialog.markTextfieldDirty()
     return false
-	  
+
 #    Coconut.database.get id,
 #       include_docs: true
 #    .catch (error) -> console.error error
@@ -57,7 +57,7 @@ class FacilityHierarchyView extends Backbone.View
   formSave: (e) =>
     console.log("Saving Data")
     dialog.close() if dialog.open
-    
+
     @data = new FacilityHierarchy()
     @data.Region = $("input#Region").val()
     @data.District = $("input#District").val()
@@ -72,11 +72,11 @@ class FacilityHierarchyView extends Backbone.View
     .then (result) ->
       @render()
     return false
-	
+
   deleteDialog: (e) =>
     e.preventDefault
     dialogTitle = "Are you sure?"
-    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
+    Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
     console.log("Delete initiated")
     return false
 
@@ -98,7 +98,7 @@ class FacilityHierarchyView extends Backbone.View
     HTMLHelpers.ChangeTitle("Admin: Facilities")
     @fields = "Region,District,Facility Name,Aliases,Phone Numbers,Type".split(/,/)
     @document_id = "Facility Hierarchy"
-    
+
     @dialogEdit = "
       <form id='facility' method='dialog'>
          <div id='dialog-title'> </div>
@@ -115,11 +115,11 @@ class FacilityHierarchyView extends Backbone.View
           <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='fhSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
                <button class='mdl-button mdl-js-button mdl-button--primary' id='fhCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
-          </div> 
+          </div>
       </form>
     "
     $('#analysis-spinner').show()
-   
+
     @$el.html "
       <style>
         fieldset { padding:0; border:0; margin-top:25px; }
@@ -128,8 +128,8 @@ class FacilityHierarchyView extends Backbone.View
         input.text { margin-bottom:12px; width:95%; padding: .4em; }
         table.dataTable thead th { padding: 0 0 8px}
       </style>
-      <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-facility-btn'>
-              #{ if(Coconut.config.facilitiesEdit) then "<i class='material-icons'>add_circle</i>" else "" }
+      <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-facility-btn'>
+              #{ if(Coconut.config.facilitiesEdit) then "<i class='material-icons'>add</i>" else "" }
             </button>
       </h4>
       <dialog id='dialog'>
@@ -214,5 +214,5 @@ class FacilityHierarchyView extends Backbone.View
           mobile_numbers: if phone_numbers is "" then [] else phone_numbers.split(/ +|, */)
           aliases: if aliases is "" then [] else aliases.split(/, */)
           type: type or "public"
-          
+
 module.exports = FacilityHierarchyView

@@ -34,11 +34,11 @@ class UsersView extends Backbone.View
     setMode: (mode) ->
       $('input#mode').val(mode)
       if mode == 'edit'
-        $('#div_password').hide() 
+        $('#div_password').hide()
         $('form#user input#_id').prop('readonly', true)
-      else 
+      else
         $('form#user input#_id').prop('readonly', false)
-        
+
     createUser: (e) =>
       e.preventDefault
       dialogTitle = "Add New User"
@@ -54,7 +54,7 @@ class UsersView extends Backbone.View
       Dialog.create(@dialogEdit, dialogTitle)
       @setMode('edit')
       id = $(e.target).closest("a").attr "data-user-id"
-      
+
       Coconut.database.get id,
          include_docs: true
       .catch (error) -> console.error error
@@ -71,14 +71,14 @@ class UsersView extends Backbone.View
            document.querySelector('#switch-1').MaterialSwitch.on()
          Dialog.markTextfieldDirty()
        return false
-	   
+
     formSave: (e) =>
       errorMsg = ""
       errorMsg += 'Username, ' if $('#_id').val() == ''
       errorMsg += 'Password, ' if $('input#mode').val() == 'add' and $('#passwd').val() == ''
       errorMsg += 'District, ' if $('#district').val() == ''
       errorMsg += 'Name, ' if $('#name').val() == ''
-      
+
       if errorMsg != ''
         errorMsg = 'Required field(s): ' + errorMsg.slice(0, -2)
         $('#errMsg').html(errorMsg)
@@ -88,7 +88,7 @@ class UsersView extends Backbone.View
           @user = {
             _id: "user." + $("#_id").val()
           }
-          
+
         @user.collection = "user"
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
@@ -100,25 +100,25 @@ class UsersView extends Backbone.View
         @user.comments = $('#comments').val()
         @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
         roles_selected = document.getElementsByName("role")
-        
+
         roles = []
         _.map roles_selected, (role) ->
           roles.push(role.id) if role.checked
 
         @user.roles = roles
         Coconut.database.put @user
-        .catch (error) -> 
+        .catch (error) ->
            console.error error
            Dialog.confirm( error, 'Error Encountered',['Ok'])
         .then =>
           console.log(@user)
           @render()
         return false
-	
+
     deleteDialog: (e) =>
       e.preventDefault
       dialogTitle = "Are you sure?"
-      Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes']) 
+      Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
       return false
 
     showResetView: (e) ->
@@ -129,7 +129,7 @@ class UsersView extends Backbone.View
       username = id.substring(5)
       $('#resetname').html(username)
       return false
-      
+
     resetPassword: (e) =>
       e.preventDefault
       id = "user.#{$("#resetname").html()}"
@@ -140,7 +140,7 @@ class UsersView extends Backbone.View
         hash = bcrypt.hashSync newPass, CONST.SaltRounds
         Coconut.database.get id,
            include_docs: true
-        .catch (error) => 
+        .catch (error) =>
           view.displayErrorMsg('Error encountered resetting password...')
           console.error error
         .then (user) =>
@@ -150,7 +150,7 @@ class UsersView extends Backbone.View
           .then ->
             Dialog.confirm("Password has been reset...", 'Password Reset',['Ok'])
       return false
-      
+
 
     deleteUser: (e) =>
       view = @
@@ -168,9 +168,9 @@ class UsersView extends Backbone.View
           .catch (error) ->
             console.error error
             Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
-            
+
       return false
-	
+
     formCancel: (e) =>
       e.preventDefault
       dialog.close() if dialog.open
@@ -223,7 +223,7 @@ class UsersView extends Backbone.View
                      "
                      ).join("")
                 }
-                
+
               </div>
               <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
@@ -236,7 +236,7 @@ class UsersView extends Backbone.View
               <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='userSave' type='submit' value='save'><i class='material-icons'>save</i> Save</button> &nbsp;
                <button class='mdl-button mdl-js-button mdl-button--primary' id='userCancel' type='submit' value='cancel'><i class='material-icons'>cancel</i> Cancel</button>
-              </div> 
+              </div>
           </form>
         "
         @dialogPass = "
@@ -251,12 +251,12 @@ class UsersView extends Backbone.View
             <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='material-icons'>loop</i> Submit</button>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='btnCancel' type='submit' ><i class='material-icons'>cancel</i> Cancel</button>
-            </div> 
+            </div>
           </form>
         "
         @$el.html "
-            <h4>Users <button class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored' id='new-user-btn'>
-              <i class='material-icons'>add_circle</i>
+            <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
+              <i class='material-icons'>add</i>
             </button></h4>
             <dialog id='dialog'>
               <div id='dialogContent'> </div>
@@ -265,7 +265,7 @@ class UsersView extends Backbone.View
             <div id='results' class='result'>
               <table class='summary tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
                 <thead>
-                  <tr> 
+                  <tr>
                   <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
                   <th class='header mdl-data-table__cell--non-numeric'>District</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Name</th>
@@ -275,7 +275,7 @@ class UsersView extends Backbone.View
                   <th class='header mdl-data-table__cell--non-numeric'>Inactive</th>
                   <th>Actions</th>
                   </tr>
-                </thead> 
+                </thead>
                 <tbody>
                   #{
                     _(users).map (user) ->
@@ -296,7 +296,7 @@ class UsersView extends Backbone.View
                            <button class='delete mdl-button mdl-js-button mdl-button--icon'>
                            <a href='#' class='user-delete' data-user-id='#{user._id}' title='Delete user'><i class='material-icons icon-24'>delete</i></a></button>
                         </td>
-                     </tr> 
+                     </tr>
                      "
                     .join("")
                   }
