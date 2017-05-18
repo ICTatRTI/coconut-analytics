@@ -5,7 +5,6 @@ Backbone.$  = $
 Cookies = require 'js-cookie'
 AboutView = require './AboutView'
 HelpView = require './HelpView'
-ChangeLogView = require './ChangeLogView'
 
 class HeaderView extends Backbone.View
   el: "header.coconut-header"
@@ -14,17 +13,12 @@ class HeaderView extends Backbone.View
     "click a#logout": "Logout"
     "click a#about": "About"
     "click a#help": "Help"
-    "click a#changes": "ChangeLog"
 
   Logout: ->
     Coconut.router.navigate "#logout", {trigger: true}
 
    Login: ->
     Coconut.router.navigate "#login"
-
-  ChangeLog: ->
-    Coconut.changeLogView = new ChangeLogView() if !Coconut.changeLogView
-    Coconut.changeLogView.render()
 
   About: ->
     Coconut.aboutView = new AboutView() if !Coconut.aboutView

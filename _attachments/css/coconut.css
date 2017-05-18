@@ -1031,12 +1031,6 @@ dialog#aboutDialog {
   width: 500px;
 }
 
-dialog#changeLogDialog {
-  width: 600px;
-  height: 550px;
-  overflow: scroll;
-}
-
 #analysis-spinner, .graph-spinner {
 	position: fixed;
 	top: 50%;
