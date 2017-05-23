@@ -65,9 +65,11 @@ Graphs.compositeResize = (composite, container, options) ->
 Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,callback) ->
   ndx1 = crossfilter(dataForGraph1)
   ndx2 = crossfilter(dataForGraph2)
+
   dim1 = ndx1.dimension((d) ->
     return moment(d.key[0]).isoWeek()
   )
+
   dim2 = ndx2.dimension((d) ->
     return moment(d.key[0]).isoWeek()
   )
@@ -77,7 +79,7 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
 
   composite
     .width($('.chart_container').width()-options.adjustX)
-    .height($('.chart_container').height()-options.adjustY)
+    .height($('.chart_container').height())
     .x(d3.scale.linear())
     .y(d3.scale.linear())
     .xUnits(d3.time.weeks)

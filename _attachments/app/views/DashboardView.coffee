@@ -133,7 +133,8 @@ class DashboardView extends Backbone.View
             </div>
             <div class='chart mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
                 <div id='container_2' class='chart_container f-left' data-graph-id = 'IncidentsGraph'>
-                   <div class='chart-title'>Number of Positive Cases: Current vs Last Year</div>
+                   <div class='chart-title'>Number of Positive Cases: Current vs Last Year
+                   <span><small>(Aggregated by Week)</small></span></div>
                    <div class='mdl-spinner mdl-js-spinner is-active graph-spinner'></div>
                    <div id='chart_2' class='chart'></div>
                 </div>
@@ -315,9 +316,9 @@ class DashboardView extends Backbone.View
 
     window.onresize = () ->
       adjustButtonSize()
-      new_height = 0.45 *  $(".chart_container").width()
+      new_height = 0.43 *  $(".chart_container").width()
       $(".chart_container").css('height',new_height)
-      $(".chart_container").height(0.44 * $(".chart_container").width())
+      $(".chart_container").height(0.45 * $(".chart_container").width())
 
       Graphs.compositeResize(composite0, 'chart_container', options)
       Graphs.compositeResize(composite1, 'chart_container', options)

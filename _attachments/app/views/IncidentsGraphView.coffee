@@ -14,10 +14,10 @@ class IncidentsGraphView extends Backbone.View
 
   render: =>
     options = $.extend({},Coconut.router.reportViewOptions)
-    title= "Number of Positive Cases for Current and Last Year"
+    title= "Number of Positive Cases for Current and Last Year <br /><small>(Aggregated by Week)</small>"
     HTMLHelpers.ChangeTitle("Graphs: " + title)
     @$el.html "
-       <style> 
+       <style>
          .y-axis-label { margin-right: 20px}
        </style>
        <div class='chart-title'>#{title}</div>
@@ -64,9 +64,9 @@ class IncidentsGraphView extends Backbone.View
       window.onresize = () ->
         HTMLHelpers.resizeChartContainer()
         Graphs.compositeResize(composite, 'chart_container', options)
-          
+
     .catch (error) ->
       console.error error
       $('#analysis-spinner').hide()
-    
+
 module.exports = IncidentsGraphView
