@@ -42,10 +42,10 @@ class Dhis2
       url: "#{@dhis2Url}/api/#{options.api}"
 #      beforeSend: (xhr) ->
 #        xhr.setRequestHeader("Authorization", "Basic " + btoa(@dhis2username + ":" + @dhis2password))
-
       username: @dhis2username
       password: @dhis2password
       method: options.method or "GET"
+      crossDomain: true
       contentType: "application/json"
       xhrFields:
         withCredentials: true
