@@ -179,7 +179,7 @@ def fixIdentifyingAttributes(result, days_to_shift)
       end
     end
   end
-    
+
   if changed
     @db.bulk_save_doc(result)
   end
@@ -225,10 +225,10 @@ def filter_for_2013_2016
 
 
     puts "Removing all case_summary docs (need to rebuild)"
-    @db.all_docs({:startkey => "case_summary_", :endkey => "case_summary_zz"})['rows'].each{ |row| 
+    @db.all_docs({:startkey => "case_summary_", :endkey => "case_summary_zz"})['rows'].each{ |row|
       print "."
       @db.delete_doc({"_id" => row["id"], "_rev" => row["value"]["rev"]}, true) unless row.nil?
-    } 
+    }
 
     puts "Saving: " + @db.bulk_save().to_yaml
 
@@ -263,10 +263,10 @@ puts "Shifting dates for weekly reports by #{days_to_shift}"
 end
 
 puts "Changing passwords"
-# Change all user passwords to password
+# Change all user passwords to bcrypy hash version of 'password'
 @db.all_docs({:startkey => "user",:endkey => "userz",:include_docs => true})['rows'].map{|row|row["doc"]}.each do |doc|
-  doc["password"] = "password"
+  doc["hash"] = "$2a$10$6KmPWcacb3y6Eq7H7ilQCOCAIIqogyXa2Znij3AXyFtzn59W6nKE2"
   @db.bulk_save_doc(doc)
 end
 
-@db.bulk_save() 
+@db.bulk_save()
