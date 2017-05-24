@@ -66,9 +66,8 @@ User.login = (options) ->
   user.fetch
     success: ->
       if !(user.inActive())
-# temporarily disabled during testing.
-#        hash = user.get("hash") || 'unknown'
-#        if bcrypt.compareSync(options.password, hash)
+        hash = user.get("hash") || 'unknown'
+        if bcrypt.compareSync(options.password, hash)
           Coconut.currentUser = user
           Coconut.currentlogin = user.username()
           Cookies.set('current_user', Coconut.currentlogin)
@@ -84,8 +83,8 @@ User.login = (options) ->
           .catch (error) ->
              console.error error
           options.success()
-#        else
-#          options.error("Invalid username/password")
+        else
+          options.error("Invalid username/password")
       else
         options.error("User account disabled")
     error: ->
