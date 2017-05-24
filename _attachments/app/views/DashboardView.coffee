@@ -318,7 +318,7 @@ class DashboardView extends Backbone.View
       adjustButtonSize()
       new_height = 0.43 *  $(".chart_container").width()
       $(".chart_container").css('height',new_height)
-      $(".chart_container").height(0.45 * $(".chart_container").width())
+#      $(".chart_container").height(0.45 * $(".chart_container").width())
 
       Graphs.compositeResize(composite0, 'chart_container', options)
       Graphs.compositeResize(composite1, 'chart_container', options)
