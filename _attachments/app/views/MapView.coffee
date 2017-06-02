@@ -905,17 +905,17 @@ class MapView extends Backbone.View
 
     #streets = L.mapbox.tileLayer('mapbox.streets')
     #google streets option below
-    streets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
+    streets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
     #mapBox Terrain below
     #outdoors = L.mapbox.tileLayer('mapbox.outdoors')
     #google Terrain below
-    outdoors = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']});
+    outdoors = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']});
     #mapBox Satellite below
     #satellite = L.mapbox.tileLayer('mapbox.satellite')
     #mapBox hybrid satellite below
     #satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
     #Google Hybrid Satellite Below
-    satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
+    satellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
     #Check map for url settings.
     zoom = getURLValue 'mapZoom'
     if zoom == undefined then zoom = 9
