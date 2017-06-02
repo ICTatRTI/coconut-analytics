@@ -39,54 +39,61 @@ Backbone.sync = BackbonePouch.sync
   db: Coconut.database
   fetch: 'query'
 
-QuestionCollection = require './models/QuestionCollection'
-DhisOrganisationUnits = require './models/DhisOrganisationUnits'
-GeoHierarchyClass = require './models/GeoHierarchy'
-dhisOrganisationUnits = new DhisOrganisationUnits()
-console.log "Loading dhis2"
-dhisOrganisationUnits.loadExtendExport
-  dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
-  error: (error) -> console.error error
-  success: (result) ->
-    console.log "Loading GeoHierarchy"
-    global.GeoHierarchy = new GeoHierarchyClass(result)
-    global.FacilityHierarchy = GeoHierarchy # These have been combined
-    Coconut.questions = new QuestionCollection()
-    console.log "Loading questions"
-    Coconut.questions.fetch
-      error: (error) -> console.error error
-      success: ->
+Coconut.database.get "coconut.config"
+.then (doc) ->
+  Coconut.config = doc
+  Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
 
-        Case = require './models/Case'
+  QuestionCollection = require './models/QuestionCollection'
+  DhisOrganisationUnits = require './models/DhisOrganisationUnits'
+  GeoHierarchyClass = require './models/GeoHierarchy'
+  dhisOrganisationUnits = new DhisOrganisationUnits()
+  console.log "Loading dhis2"
+  dhisOrganisationUnits.loadExtendExport
+    dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
+    error: (error) -> console.error error
+    success: (result) ->
+      console.log "Loading GeoHierarchy"
+      global.GeoHierarchy = new GeoHierarchyClass(result)
+      global.FacilityHierarchy = GeoHierarchy # These have been combined
+      Coconut.questions = new QuestionCollection()
+      console.log "Loading questions"
+      Coconut.questions.fetch
+        error: (error) -> console.error error
+        success: ->
 
-        throttledUpdateCaseSummaryDocs = _.throttle (options) ->
-          Case.updateCaseSummaryDocs(options)
-        , 1000
+          Case = require './models/Case'
 
-        try
-          #Case.resetAllCaseSummaryDocs()
-          #
-          #
-          #Coconut.database.get "CaseSummaryData"
-          #.then (result) ->
-          #  result.lastChangeSequenceProcessed = 1000000
-          #  Coconut.database.put result
-          #  .then ->
-              Case.updateCaseSummaryDocs
-                maximumNumberChangesToProcess: 3000
-                error: (error) ->
-                  console.error "ERROR"
-                  console.error error
-                success: (result) ->
-                  console.log "DONE"
-                  Coconut.database.changes
-                    live: true
-                    since: "now"
-                    filter: (doc) ->
-                      doc._id isnt "CaseSummaryData"
-                  .on "change", ->
-                    throttledUpdateCaseSummaryDocs
-                      error: (error) -> console.error error
-                      success: (result) -> console.log "DONE"
-        catch error
-          console.log error
+          throttledUpdateCaseSummaryDocs = _.throttle (options) ->
+            Case.updateCaseSummaryDocs(options)
+          , 1000
+
+          try
+            #Case.resetAllCaseSummaryDocs()
+            #
+            #
+            #Coconut.database.get "CaseSummaryData"
+            #.then (result) ->
+            #  result.lastChangeSequenceProcessed = 1000000
+            #  Coconut.database.put result
+            #  .then ->
+                Case.updateCaseSummaryDocs
+                  maximumNumberChangesToProcess: 3000
+                  error: (error) ->
+                    console.error "ERROR"
+                    console.error error
+                  success: (result) ->
+                    console.log "DONE"
+                    Coconut.database.changes
+                      live: true
+                      since: "now"
+                      filter: (doc) ->
+                        doc._id isnt "CaseSummaryData"
+                    .on "change", ->
+                      throttledUpdateCaseSummaryDocs
+                        error: (error) -> console.error error
+                        success: (result) -> console.log "DONE"
+          catch error
+            console.log error
+.catch (error) ->
+  console.error error
