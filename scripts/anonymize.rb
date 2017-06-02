@@ -265,6 +265,7 @@ end
 puts "Changing passwords"
 # Change all user passwords to bcrypy hash version of 'password'
 @db.all_docs({:startkey => "user",:endkey => "userz",:include_docs => true})['rows'].map{|row|row["doc"]}.each do |doc|
+  doc["password"] = "password"
   doc["hash"] = "$2a$10$6KmPWcacb3y6Eq7H7ilQCOCAIIqogyXa2Znij3AXyFtzn59W6nKE2"
   @db.bulk_save_doc(doc)
 end
