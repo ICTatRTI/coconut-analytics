@@ -34,35 +34,42 @@ Backbone.sync = BackbonePouch.sync
   db: Coconut.database
   fetch: 'query'
 
-QuestionCollection = require './models/QuestionCollection'
-DhisOrganisationUnits = require './models/DhisOrganisationUnits'
-GeoHierarchyClass = require './models/GeoHierarchy'
-dhisOrganisationUnits = new DhisOrganisationUnits()
-dhisOrganisationUnits.loadExtendExport
-  dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
-  error: (error) -> console.error error
-  success: (result) ->
-    global.GeoHierarchy = new GeoHierarchyClass(result)
-    global.FacilityHierarchy = GeoHierarchy # These have been combined
-    Coconut.questions = new QuestionCollection()
-    Coconut.questions.fetch
-      error: (error) -> console.error error
-      success: ->
+Coconut.database.get "coconut.config"
+.then (doc) ->
+  Coconut.config = doc
+  Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
 
-        try
-          Case = require './models/Case'
-        catch error
-          console.error error
+  QuestionCollection = require './models/QuestionCollection'
+  DhisOrganisationUnits = require './models/DhisOrganisationUnits'
+  GeoHierarchyClass = require './models/GeoHierarchy'
+  dhisOrganisationUnits = new DhisOrganisationUnits()
+  dhisOrganisationUnits.loadExtendExport
+    dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
+    error: (error) -> console.error error
+    success: (result) ->
+      global.GeoHierarchy = new GeoHierarchyClass(result)
+      global.FacilityHierarchy = GeoHierarchy # These have been combined
+      Coconut.questions = new QuestionCollection()
+      Coconut.questions.fetch
+        error: (error) -> console.error error
+        success: ->
 
-        console.log "Resetting"
+          try
+            Case = require './models/Case'
+          catch error
+            console.error error
 
-        try
-          Case.resetAllCaseSummaryDocs
-            numberCasesToProcessConcurrently: process?.argv[3] or 2
-            error: (error) ->
-              console.error "ERROR"
-              console.error error
-            success: (result) ->
-              console.log "DONE"
-        catch error
-          console.log error
+          console.log "Resetting"
+
+          try
+            Case.resetAllCaseSummaryDocs
+              numberCasesToProcessConcurrently: process?.argv[3] or 2
+              error: (error) ->
+                console.error "ERROR"
+                console.error error
+              success: (result) ->
+                console.log "DONE"
+          catch error
+            console.log error
+.catch (error) ->
+  console.error error
