@@ -196,14 +196,14 @@ def filter_for_2013_2016
     # Remove everything beside 2013-2015
     #puts @db.view('caseIDsByDate/caseIDsByDate?startKey="2010"&endKey="2012-12-31"')['rows'][0]
     puts "Removing case data before 2012-12-31"
-    @db.view('zanzibar/caseIDsByDate', {:endkey=>"2013", :include_docs=>true, :inclusive_end=>true})['rows'].each do |row|
+    @db.view('caseIDsByDate/caseIDsByDate', {:endkey=>"2013", :include_docs=>true, :inclusive_end=>true})['rows'].each do |row|
       #print "-"
       puts row["key"]
       @db.delete_doc({"_id" => row["id"], "_rev" => row["doc"]["_rev"]}, true)
     end
 
     puts "Removing case data after 2016-01-01"
-    @db.view('zanzibar/caseIDsByDate', {:startkey=>"2016", :include_docs => true})['rows'].each do |row|
+    @db.view('caseIDsByDate/caseIDsByDate', {:startkey=>"2016", :include_docs => true})['rows'].each do |row|
       #print "+"
       puts row["key"]
       @db.delete_doc({"_id" => row["id"], "_rev" => row["doc"]["_rev"]}, true)
@@ -245,7 +245,7 @@ filter_for_2013_2016() # Not sure why I have to do this multiple times but a few
 days_to_shift = (DateTime.now - DateTime.parse(@db.view("zanzibar/caseIDsByDate", {:limit => 1, :descending => true})['rows'][0]["key"])).to_i
 
 puts "Fixing identifying attributes and shifting dates by #{days_to_shift}"
-@db.view('zanzibar/caseIDsByDate?include_docs=true')['rows'].map{|row|row["doc"]}.each do |doc|
+@db.view('caseIDsByDate/caseIDsByDate?include_docs=true')['rows'].map{|row|row["doc"]}.each do |doc|
   fixIdentifyingAttributes(doc, days_to_shift)
 end
 
@@ -263,10 +263,10 @@ puts "Shifting dates for weekly reports by #{days_to_shift}"
 end
 
 puts "Changing passwords"
-# Change all user passwords to bcrypy hash version of 'password'
+# Change all user passwords to crypto hash version of 'password'
 @db.all_docs({:startkey => "user",:endkey => "userz",:include_docs => true})['rows'].map{|row|row["doc"]}.each do |doc|
   doc["password"] = "password"
-  doc["hash"] = "$2a$10$6KmPWcacb3y6Eq7H7ilQCOCAIIqogyXa2Znij3AXyFtzn59W6nKE2"
+  doc["hash"] = "IdnB0SpwpWgkYjt/xgC0nexQZAEavfxY8/DHWNx+ThA="
   @db.bulk_save_doc(doc)
 end
 
