@@ -90,7 +90,7 @@ class LoginView extends Backbone.View
         $('#passWord').val(loginData.passWord)
         view.displayErrorMsg(error,'error_outline')
         Dialog.markTextfieldDirty()
-        console.log("Wrong credentials")
+
 
   ForgotPassword: () ->
     $('div#passwordInput').hide()

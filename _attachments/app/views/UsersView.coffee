@@ -9,6 +9,8 @@ Dialog = require './Dialog'
 humanize = require 'underscore.string/humanize'
 Form2js = require 'form2js'
 js2form = require 'form2js'
+Config = require '../models/Config'
+crypto = require('crypto')
 
 require 'material-design-lite'
 
@@ -17,11 +19,15 @@ moment = require 'moment'
 DataTables = require( 'datatables.net' )()
 User = require '../models/User'
 UserCollection = require '../models/UserCollection'
-bcrypt = require 'bcryptjs'
+crypto = require('crypto')
 CONST = require "../Constants"
 
 class UsersView extends Backbone.View
     el:'#content'
+
+    initialize: =>
+      @salt = Config.salt()
+
     events:
       "click #new-user-btn": "createUser"
       "click a.user-edit": "editUser"
@@ -98,7 +104,7 @@ class UsersView extends Backbone.View
         @user.email = $('#email').val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
-        @user.hash = bcrypt.hashSync(@user.password, CONST.SaltRounds) if @user.password != ""
+        @user.password = (crypto.pbkdf2Sync @user.password, @salt, 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
         roles_selected = document.getElementsByName("role")
 
         roles = []
@@ -111,7 +117,6 @@ class UsersView extends Backbone.View
            console.error error
            Dialog.confirm( error, 'Error Encountered',['Ok'])
         .then =>
-          console.log(@user)
           @render()
         return false
 
@@ -137,14 +142,13 @@ class UsersView extends Backbone.View
       if newPass is ""
         $('.coconut-mdl-card__title').html("<i class='mdi mdi-information-outline'></i> Please enter new password...").show()
       else
-        hash = bcrypt.hashSync newPass, CONST.SaltRounds
         Coconut.database.get id,
            include_docs: true
         .catch (error) =>
           view.displayErrorMsg('Error encountered resetting password...')
           console.error error
         .then (user) =>
-          user.hash = hash
+          user.password = (crypto.pbkdf2Sync newPass, @salt, 1000, 256/8, 'sha256').toString('base64')
           Coconut.database.put user
           .catch (error) -> console.error error
           .then ->

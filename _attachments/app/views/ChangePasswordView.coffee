@@ -6,8 +6,9 @@ Backbone.$  = $
 Dialog = require './Dialog'
 User = require '../models/User'
 dialogPolyfill = require 'dialog-polyfill'
-bcrypt = require('bcryptjs')
 CONST = require "../Constants"
+crypto = require('crypto')
+Config = require '../models/Config'
 
 class ChangePasswordView extends Backbone.View
 
@@ -75,14 +76,15 @@ class ChangePasswordView extends Backbone.View
       else
         # TODO: codes to reset password in User model?
         id = "user.#{username}"
-        hash = bcrypt.hashSync newPass, CONST.SaltRounds
+        salt = Config.salt()
+        hashKey = (crypto.pbkdf2Sync newPass, salt, 1000, 256/8, 'sha256').toString('base64')
         Coconut.database.get id,
            include_docs: true
         .catch (error) =>
           view.displayErrorMsg('Error encountered resetting password...')
           console.error error
         .then (user) =>
-          user.hash = hash
+          user.password = hashKey
           Coconut.database.put user
           .catch (error) -> console.error error
           .then =>

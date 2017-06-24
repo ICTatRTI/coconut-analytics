@@ -5,7 +5,10 @@ Dialog = require '../views/Dialog'
 class Config extends Backbone.Model
   sync: BackbonePouch.sync
      db: pouchdb
-  
+
+Config.salt = ->
+   "HAInmlF250kCAQnM"
+
 Config.getConfig = (options) ->
   Coconut.database.get "coconut.config"
   .then (doc) ->
@@ -24,5 +27,5 @@ Config.getLogoUrl = (options) ->
       resolve(url)
     .catch (error) ->
       reject(error)
-    
+
 module.exports = Config

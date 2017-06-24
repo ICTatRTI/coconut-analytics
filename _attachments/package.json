@@ -8,9 +8,9 @@
     "static": "./node_modules/node-static/bin/cli.js --port 8081 ./"
   },
   "dependencies": {
+    "Base64": "^0.3.0",
     "backbone": "^1.2.1",
     "backbone-pouch": "^1.5.0",
-    "bcryptjs": "^2.3.0",
     "bootstrap-daterangepicker": "^2.1.24",
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
@@ -42,6 +42,7 @@
     "node-static": "^0.7.7",
     "pouchdb": "*",
     "react": "^0.14.8",
+    "sha1": "^1.1.1",
     "tablesorter": "^2.25.4",
     "uglifyjs": "^2.4.10",
     "underscore": "^1.8.3",

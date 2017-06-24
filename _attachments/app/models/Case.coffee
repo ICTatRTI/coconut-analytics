@@ -5,7 +5,6 @@ Backbone.$  = $
 moment = require 'moment'
 Question = require './Question'
 Dhis2 = require './Dhis2'
-bcrypt = require('bcryptjs')
 CONST = require "../Constants"
 humanize = require 'underscore.string/humanize'
 titleize = require 'underscore.string/titleize'

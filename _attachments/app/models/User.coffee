@@ -5,8 +5,9 @@ Backbone.$  = $
 PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 Cookies = require 'js-cookie'
-bcrypt = require('bcryptjs')
 moment = require 'moment'
+crypto = require('crypto')
+Config = require './Config'
 
 class User extends Backbone.Model
   sync: BackbonePouch.sync
@@ -18,8 +19,8 @@ class User extends Backbone.Model
   district: ->
     @get("district")
 
-  hash: ->
-    @get("hash")
+  password: ->
+    @get("password")
 
   districtInEnglish: ->
     GeoHierarchy.englishDistrictName @get("district")
@@ -66,8 +67,10 @@ User.login = (options) ->
   user.fetch
     success: ->
       if !(user.inActive())
-        hash = user.get("hash") || 'unknown'
-        if bcrypt.compareSync(options.password, hash)
+        hashPwd = user.get("password") || 'unknown'
+        salt = Config.salt()
+        hashKey = (crypto.pbkdf2Sync options.password, salt, 1000, 256/8, 'sha256').toString('base64')
+        if hashPwd is hashKey
           Coconut.currentUser = user
           Coconut.currentlogin = user.username()
           Cookies.set('current_user', Coconut.currentlogin)
