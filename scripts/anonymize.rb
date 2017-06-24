@@ -265,8 +265,7 @@ end
 puts "Changing passwords"
 # Change all user passwords to crypto hash version of 'password'
 @db.all_docs({:startkey => "user",:endkey => "userz",:include_docs => true})['rows'].map{|row|row["doc"]}.each do |doc|
-  doc["password"] = "password"
-  doc["hash"] = "IdnB0SpwpWgkYjt/xgC0nexQZAEavfxY8/DHWNx+ThA="
+  doc["password"] = "IdnB0SpwpWgkYjt/xgC0nexQZAEavfxY8/DHWNx+ThA="
   @db.bulk_save_doc(doc)
 end
 
