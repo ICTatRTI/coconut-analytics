@@ -22,7 +22,7 @@
     "d3-scale": "^1.0.3",
     "datatables.net": "^1.10.12",
     "datatables.net-dt": "^1.10.12",
-    "dc": "^2.0.0-beta.32",
+    "dc": "^2.1.7",
     "dialog-polyfill": "^0.4.7",
     "forever": "^0.15.2",
     "form2js": "git://github.com/maxatwork/form2js",
