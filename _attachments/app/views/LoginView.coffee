@@ -29,7 +29,7 @@ class LoginView extends Backbone.View
              <div id='dialog-title'>#{Coconut.config.appName}</div>
            </div>
            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-               <input class='mdl-textfield__input' type='text' id='userName' name='userName' autofocus'>
+               <input class='mdl-textfield__input' type='text' id='userName' name='userName' autofocus style='text-transform:lowercase;' onkeyup='javascript:this.value=this.value.toLowerCase()' />
                <label class='mdl-textfield__label' for='userName'>Username*</label>
            </div>
 
