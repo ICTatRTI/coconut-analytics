@@ -65,15 +65,26 @@ graphsViews = {
   TimeToComplete: require './views/TimeToCompleteGraphView'
   PositivityGraph: require './views/PositivityGraphView'
 }
-  
+
 class Router extends Backbone.Router
   # caches views
   views: {}
-  
+
   # holds option pairs for more complex URLs like for reports
   reportViewOptions: {}
   activityViewOptions: {}
   dateSelectorOptions: {}
+  noLogin = ["login", "logout"]
+  execute: (callback, args, name) ->
+    if noLogin.indexOf(name) is -1
+      @userLoggedIn
+        success:  =>
+          args.push(@parseQueryString(args.pop())) if args[0] isnt null
+          callback.apply(this, args) if (callback)
+        error: =>
+          @loginFailed()
+    else
+      callback.apply(this, args) if callback
       
   routes:
     "": "dashboard"
@@ -101,9 +112,9 @@ class Router extends Backbone.Router
     "new/issue": "newIssue"
     "show/issue/:issueID": "showIssue"
     "activities": "activities"
-    "activities/*options": "activities" 
+    "activities/*options": "activities"
     "*noMatch": "noMatch"
-  
+
   initialize: (appView) ->
     @appView = appView
 
@@ -119,7 +130,7 @@ class Router extends Backbone.Router
       HTMLHelpers.showBackground('show')
       Coconut.router.navigate("#dashboard", {trigger: true})
     )
-    
+
   logout: ->
     User.logout()
     $("span#username").html ""
@@ -145,110 +156,92 @@ class Router extends Backbone.Router
           dialog.addEventListener 'close', ->
             Coconut.router.navigate("#login", {trigger: true})
         )
-    else  
+    else
        Dialog.createDialogWrap()
        Dialog.confirm("Invalid Token or Token expired.", "Error",["Ok"])
        dialog.addEventListener 'close', ->
          Coconut.router.navigate("#login", {trigger: true})
-       
+
   notAdmin: ->
     if !(Coconut.currentUser)
       @loginFailed()
     else
       Dialog.confirm("You do not have admin privileges", "Warning",["Ok"]) if(Coconut.currentUser)
-    
+
   reports: (options) =>
-    @userLoggedIn
-      success:  =>
-        # Allows us to get name/value pairs from URL
-        options = _(options?.split(/\//)).map (option) -> unescape(option)
+    # Allows us to get name/value pairs from URL
+    options = _(options?.split(/\//)).map (option) -> unescape(option)
 
-        _.each options, (option,index) =>
-          @reportViewOptions[option] = options[index+1] unless index % 2
-    
-        defaultOptions = @setDefaultOptions()
+    _.each options, (option,index) =>
+      @reportViewOptions[option] = options[index+1] unless index % 2
 
-        # Set the default option if it isn't already set
-        _(defaultOptions).each (defaultValue, option) =>
-          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
-        type = @reportViewOptions["type"]
-        @views[type] = new reportViews[type]() unless @views[type]
-        @views[type].setElement "#content"
-        #@views[type].render()
-        @appView.showView(@views[type])
-        @reportType = 'reports'
-        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
-      error: =>
-        @loginFailed()
+    defaultOptions = @setDefaultOptions()
+
+    # Set the default option if it isn't already set
+    _(defaultOptions).each (defaultValue, option) =>
+      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+    type = @reportViewOptions["type"]
+    @views[type] = new reportViews[type]() unless @views[type]
+    @views[type].setElement "#content"
+    #@views[type].render()
+    @appView.showView(@views[type])
+    @reportType = 'reports'
+    @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
+
 
   # Needs to refactor later to keep it DRY
   activities: (options) =>
-    @userLoggedIn
-      success:  =>
-        options = _(options?.split(/\//)).map (option) -> unescape(option)
+    options = _(options?.split(/\//)).map (option) -> unescape(option)
 
-        _.each options, (option,index) =>
-          @reportViewOptions[option] = options[index+1] unless index % 2
+    _.each options, (option,index) =>
+      @reportViewOptions[option] = options[index+1] unless index % 2
 
-        defaultOptions = @setDefaultOptions()
+    defaultOptions = @setDefaultOptions()
 
-        _(defaultOptions).each (defaultValue, option) =>
-          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+    _(defaultOptions).each (defaultValue, option) =>
+      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
 
-        type = @reportViewOptions["type"]
-        @views[type] = new activityViews[type]() unless @views[type]
-        #@views[type].render()
-        @appView.showView(@views[type])
-        @reportType = 'activities'
-        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
-      error: =>
-        @loginFailed()
-        
+    type = @reportViewOptions["type"]
+    @views[type] = new activityViews[type]() unless @views[type]
+    #@views[type].render()
+    @appView.showView(@views[type])
+    @reportType = 'activities'
+    @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
+
   graphs: (options) =>
-    @userLoggedIn
-      success:  =>
-        options = _(options?.split(/\//)).map (option) -> unescape(option)
+    console.log("Options = ", options)
+    options = _(options?.split(/\//)).map (option) -> unescape(option)
 
-        _.each options, (option,index) =>
-          @reportViewOptions[option] = options[index+1] unless index % 2
+    _.each options, (option,index) =>
+      @reportViewOptions[option] = options[index+1] unless index % 2
 
-        defaultOptions = @setDefaultOptions()
+    defaultOptions = @setDefaultOptions()
 
-        _(defaultOptions).each (defaultValue, option) =>
-          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+    _(defaultOptions).each (defaultValue, option) =>
+      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
 
-        type = @reportViewOptions["type"]
+    type = @reportViewOptions["type"]
 
-        @views[type] = new graphsViews[type]() unless @views[type]
+    @views[type] = new graphsViews[type]() unless @views[type]
 #        @views[type].render()
-        @appView.showView(@views[type])
-        @reportType = 'graphs'
-        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
-      error: =>
-        @loginFailed()
-        
-        
+    @appView.showView(@views[type])
+    @reportType = 'graphs'
+    @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
+
+
   showCase: (caseID, docID) ->
-    @userLoggedIn
+    Coconut.caseView ?= new CaseView()
+    Coconut.caseView.case = new Case
+      caseID: caseID
+    Coconut.caseView.case.fetch
       success: ->
-        Coconut.caseView ?= new CaseView()
-        Coconut.caseView.case = new Case
-          caseID: caseID
-        Coconut.caseView.case.fetch
-          success: ->
-            Coconut.caseView.render(docID)
-          error: (error) ->
-            alert "Could not display case: #{error}"
-      error: =>
-        @loginFailed()
-        
+        Coconut.caseView.render(docID)
+      error: (error) ->
+        alert "Could not display case: #{error}"
+
   dashboard: (startDate,endDate) =>
-    @userLoggedIn
-      success:  =>
-        @showDashboard(startDate,endDate)
-      error: =>
-        @loginFailed()
-  
+    @showDashboard(startDate,endDate)
+
 
   showDashboard: (startDate,endDate) =>
     Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
@@ -260,44 +253,38 @@ class Router extends Backbone.Router
     #Coconut.dashboardView.render()
     @appView.showView(Coconut.dashboardView)
     @showDateFilter(startDate, endDate, Coconut.dashboardView, @reportType)
-    
-    
+
+
   dataExport: =>
-    @userLoggedIn
-      success:  =>
-        [startDate,endDate] = @setStartEndDateIfMissing()
-        @dataExportView = new DataExportView unless @dataExportView
-        @dataExportView.startDate = startDate
-        @dataExportView.endDate = endDate
-        #@dataExportView.render()
-        @appView.showView(@dataExportView)
-        @reportType = 'export'
-        @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
-      error: =>
-        @loginFailed()
+    [startDate,endDate] = @setStartEndDateIfMissing()
+    @dataExportView = new DataExportView unless @dataExportView
+    @dataExportView.startDate = startDate
+    @dataExportView.endDate = endDate
+    #@dataExportView.render()
+    @appView.showView(@dataExportView)
+    @reportType = 'export'
+    @showDateFilter(@dataExportView.startDate,@dataExportView.endDate, @dataExportView, @reportType)
+
 
   maps: (options) =>
-    @userLoggedIn
-      success:  =>
-        options = _(options?.split(/\//)).map (option) -> unescape(option)
-        # remove type option
-        options.splice(0,2)
-        _.each options, (option,index) =>
-          @reportViewOptions[option] = options[index+1] unless index % 2
-    
-        defaultOptions = @setDefaultOptions()
+    console.log("Options = ", options)
+    options = _(options?.split(/\//)).map (option) -> unescape(option)
+    # remove type option
+    options.splice(0,2)
+    _.each options, (option,index) =>
+      @reportViewOptions[option] = options[index+1] unless index % 2
 
-        # Set the default option if it isn't already set
-        _(defaultOptions).each (defaultValue, option) =>
-          @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
-        type = @reportViewOptions["type"]
-        @mapView = new MapView unless @mapView
-        #@mapView.render()
-        @appView.showView(@mapView)
-        @reportType = 'maps'
-        @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @mapView, @reportType)
-      error: =>
-        @loginFailed()
+    defaultOptions = @setDefaultOptions()
+
+    # Set the default option if it isn't already set
+    _(defaultOptions).each (defaultValue, option) =>
+      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+    type = @reportViewOptions["type"]
+    @mapView = new MapView unless @mapView
+    #@mapView.render()
+    @appView.showView(@mapView)
+    @reportType = 'maps'
+    @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @mapView, @reportType)
 
   FacilityHierarchy: =>
     @adminLoggedIn
@@ -307,7 +294,7 @@ class Router extends Backbone.Router
         @appView.showView(@facilityHierarchyView)
       error: =>
         @notAdmin()
-        
+
 
   rainfallStation: =>
     @adminLoggedIn
@@ -364,33 +351,25 @@ class Router extends Backbone.Router
         @notAdmin()
 
   newIssue: (issueID) =>
-    @userLoggedIn
-      success: =>
-        Coconut.issueView ?= new IssueView()
-        Coconut.issueView.issue = null
+    Coconut.issueView ?= new IssueView()
+    Coconut.issueView.issue = null
+    #Coconut.issueView.render()
+    @appView.showView(Coconut.issueView)
+
+  showIssue: (issueID) =>
+    Coconut.issueView ?= new IssueView()
+    Coconut.database.get issueID
+    .catch (error) ->
+      console.error error
+    .then (result) =>
+      if(result)
+        Coconut.issueView.issue = result
         #Coconut.issueView.render()
         @appView.showView(Coconut.issueView)
-      error: =>
-        @loginFailed()
-        
-  showIssue: (issueID) =>
-    @userLoggedIn
-      success: =>
-        Coconut.issueView ?= new IssueView()
-        Coconut.database.get issueID
-        .catch (error) -> 
-          console.error error
-        .then (result) =>
-          if(result)
-            Coconut.issueView.issue = result
-            #Coconut.issueView.render()
-            @appView.showView(Coconut.issueView)
-          else
-            Dialog.createDialogWrap()
-            Dialog.confirm("Issue not found: <br />#{issueID}", "Database Error",["Ok"])
-      error: =>
-        @loginFailed()
-        
+      else
+        Dialog.createDialogWrap()
+        Dialog.confirm("Issue not found: <br />#{issueID}", "Database Error",["Ok"])
+
   userLoggedIn: (callback) =>
     User.isAuthenticated
       success: (user) =>
@@ -437,5 +416,25 @@ class Router extends Backbone.Router
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
-    	  
+
+  parseQueryString: (queryString)->
+    params = {}
+    if(queryString)
+      _.each(
+        _.map(decodeURI(queryString).split(/&/g),(el,i) ->
+          aux = el.split('=')
+          o = {}
+          if(aux.length >= 1)
+            val = undefined
+            if(aux.length == 2)
+              val = aux[1]
+            o[aux[0]] = val
+          return o
+        ),
+        (o) ->
+          _.extend(params,o)
+      )
+    return params
+
+
 module.exports = Router
