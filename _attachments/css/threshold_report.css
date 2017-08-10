@@ -109,7 +109,7 @@ button.mdl-card__media a {
 }
 
 .mdl-data-table td:first-of-type {
-padding-top: 0px !important;
+/* padding-top: 0px !important; */
 }
 
 .mdl-data-table td {

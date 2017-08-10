@@ -16,10 +16,10 @@ class IssueView extends Backbone.View
       caseID: caseID
       success: ->
     return false
-  
+
   closeDialog: () ->
     caseDialog.close() if caseDialog.open
-    
+
   render: =>
     @$el.html "
       <style>
@@ -27,11 +27,11 @@ class IssueView extends Backbone.View
       </style>
       <dialog id='caseDialog'></dialog>
     "
-    
+
     if @issue?
       @$el.append "
         <div style='display:hidden' id='message'></div>
-        <h4>Issue: #{@issue.Description}</h4>
+        <h4><a href='javascript:history.back()'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i> Issue: #{@issue.Description}</h4>
         #{
           if @issue["Threshold Description"] then "<h5>Threshold:#{@issue["Threshold Description"]}</h5>" else ""
         }
@@ -56,7 +56,7 @@ class IssueView extends Backbone.View
                 "Issue not yet assigned."
             }
           </ul>
-<!--          
+<!--
           <button id='edit' type='button' class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored'>Edit</button>
 -->
         </div>
@@ -72,7 +72,7 @@ class IssueView extends Backbone.View
           <tbody>
           </tbody>
         </table>
-
+        <div><a href='javascript:history.back()'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i></div>
         <ul id='links'></ul>
       "
 
