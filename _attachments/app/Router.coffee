@@ -74,7 +74,7 @@ class Router extends Backbone.Router
   reportViewOptions: {}
   activityViewOptions: {}
   dateSelectorOptions: {}
-  noLogin = ["login", "logout"]
+  noLogin = ["login", "logout", "reset_password"]
   execute: (callback, args, name) ->
     if noLogin.indexOf(name) is -1
       @userLoggedIn
@@ -85,7 +85,7 @@ class Router extends Backbone.Router
           @loginFailed()
     else
       callback.apply(this, args) if callback
-      
+
   routes:
     "": "dashboard"
     "login": "login"

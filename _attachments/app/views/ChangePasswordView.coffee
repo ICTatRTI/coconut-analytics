@@ -24,7 +24,7 @@ class ChangePasswordView extends Backbone.View
         <form id='loginForm' method='dialog'>
            <div class='m-b-20'>
              <div class='f-left'><img src='images/cocoLogo.png' id='cslogo_xsm'></div>
-             <div id='dialog-title'>Coconut Plus</div>
+             <div id='dialog-title'>#{Coconut.config.appName}</div>
            </div>
            <h5>Reset Password</h5>
            <input id='username' type='hidden' value='#{username}' name='username'>
