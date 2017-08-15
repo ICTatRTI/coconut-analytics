@@ -98,7 +98,7 @@ class UsersView extends Backbone.View
         @user.collection = "user"
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
-        @user.district = $("#district").val().toUpperCase()
+        @user.district = $("select#district").val()
         @user.password = $('#passwd').val()
         @user.name = $('#name').val()
         @user.email = $('#email').val()
@@ -202,12 +202,30 @@ class UsersView extends Backbone.View
              <input type='hidden' id='mode' value='' />
              #{
               _.map( @fields, (field) =>
-                "
-                   <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_#{field}'>
-                     <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if (field is "_id" and not @user) then "readonly='true'" else ""} #{ if field is "_id" then "style='text-transform:lowercase;' onkeyup='javascript:this.value=this.value.toLowerCase()'"}></input>
-                     <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
-                   </div>
-                "
+                if field is 'district'
+                  selectList = GeoHierarchy.allDistricts()
+                  "
+                  <div class='mdl-select mdl-js-select mdl-select--floating-label'>
+                      <select class='mdl-select__input' id='#{field}' name='#{field}'>
+                        <option value=''></option>
+                        #{
+                          selectList.map (list) =>
+                            "<option value='#{list}'>
+                              #{list}
+                             </option>"
+                          .join ""
+                        }
+                      </select>
+                      <label class='mdl-select__label' for='#{field}'>#{humanize(field)}</label>
+                  </div>
+                  "
+                else
+                  "
+                     <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_#{field}'>
+                       <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if (field is "_id" and not @user) then "readonly='true'" else ""} #{ if field is "_id" then "style='text-transform:lowercase;' onkeyup='javascript:this.value=this.value.toLowerCase()'"}></input>
+                       <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
+                     </div>
+                  "
                 ).join("")
               }
               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_email' style='margin-bottom: 10px'>

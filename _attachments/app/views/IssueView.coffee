@@ -31,7 +31,7 @@ class IssueView extends Backbone.View
     if @issue?
       @$el.append "
         <div style='display:hidden' id='message'></div>
-        <h4><a href='javascript:history.back()'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i> Issue: #{@issue.Description}</h4>
+        <h4><a href='javascript:history.back()' title='Prev screen'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i> Issue: #{@issue.Description}</h4>
         #{
           if @issue["Threshold Description"] then "<h5>Threshold:#{@issue["Threshold Description"]}</h5>" else ""
         }
@@ -72,7 +72,7 @@ class IssueView extends Backbone.View
           <tbody>
           </tbody>
         </table>
-        <div><a href='javascript:history.back()'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i></div>
+        <div><a href='javascript:history.back()' title='Prev screen'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i></div>
         <ul id='links'></ul>
       "
 

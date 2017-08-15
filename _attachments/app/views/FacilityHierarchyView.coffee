@@ -38,9 +38,8 @@ class FacilityHierarchyView extends Backbone.View
     Dialog.create(@dialogEdit, dialogTitle)
     id = $(e.target).closest("a").attr "data-facility-id"
     rec = $("[id='#{id}']").find('td')
-    console.log(rec[0].innerText)
-    $("input#Region").val(rec[0].innerText)
-    $("input#District").val(rec[1].innerText)
+    $("select#Region").val(rec[0].innerText)
+    $("select#District").val(rec[1].innerText)
     $("input[id='Facility Name']").val(rec[2].innerText)
     $("input#Aliases").val(rec[3].innerText)
     $("input[id='Phone Numbers']").val(rec[4].innerText)
@@ -59,13 +58,12 @@ class FacilityHierarchyView extends Backbone.View
     dialog.close() if dialog.open
 
     @data = new FacilityHierarchy()
-    @data.Region = $("input#Region").val()
-    @data.District = $("input#District").val()
+    @data.Region = $("select#Region").val()
+    @data.District = $("select#District").val()
     @data.FacilityName = $("input[id='Facility Name']").val()
     @data.FacilityAlias = $("input#Aliases").val()
     @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
     @data.Type = $("input#Type").val()
-
     Coconut.database.put @data
       _rev: @data._rev if @mode == "edit"
     .catch (error) -> console.error error
@@ -83,13 +81,12 @@ class FacilityHierarchyView extends Backbone.View
 #TODOS Need to add codes to delete doc
   deleteFacility: (e) =>
     e.preventDefault
-    console.log("Record Deleted")
+    console.log("Delete pressed but not deleted for time being")
     dialog.close() if dialog.open
     return false
 
   formCancel: (e) =>
     e.preventDefault
-    console.log("Cancel pressed")
     dialog.close() if dialog.open
     return false
 
@@ -105,21 +102,41 @@ class FacilityHierarchyView extends Backbone.View
          #{
           _.map( @fields, (field) =>
             "
-               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                 <input class='mdl-textfield__input' type='text' id='#{field}' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
-                 <label class='mdl-textfield__label' for='#{field}'>#{humanize(field)}</label>
+               #{ if field is 'Region' or field is 'District'
+                    selectList = if field is 'District' then GeoHierarchy.allDistricts() else GeoHierarchy.allRegions()
+                    "
+                    <div class='mdl-select mdl-js-select mdl-select--floating-label'>
+                        <select class='mdl-select__input' id='#{field}' name='#{field}'>
+                          <option value=''></option>
+                          #{
+                            selectList.map (list) =>
+                              "<option value='#{list}'>
+                                #{list}
+                               </option>"
+                            .join ""
+                          }
+                        </select>
+                        <label class='mdl-select__label' for='#{field}'>#{field}</label>
+                    </div>
+                    "
+                  else
+                    "
+                    <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
+                    <input class='mdl-textfield__input' type='text' id='#{field}' name='#{field}'" + " #{if field is "_id" and not @user then "readonly='true'" else ''}></input>
+                    <label class='mdl-textfield__label' for='#{field}'>#{humanize(field)}</label>
+                    "
+               }
                </div>
             "
             ).join("")
-          }
-          <div id='dialogActions'>
+         }
+         <div id='dialogActions'>
                <button class='mdl-button mdl-js-button mdl-button--primary' id='fhSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
                <button class='mdl-button mdl-js-button mdl-button--primary' id='fhCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
-          </div>
+         </div>
       </form>
     "
     $('#analysis-spinner').show()
-
     @$el.html "
       <style>
         fieldset { padding:0; border:0; margin-top:25px; }
@@ -151,6 +168,7 @@ class FacilityHierarchyView extends Backbone.View
       @databaseDoc = result
       data = @dataToColumns(result)
       @$el.find("#facilityHierarchy tbody").html(_(data).map (rowData, rowIdentifier) =>
+
           "
           <tr id='#{rowIdentifier}'>
             #{
@@ -172,7 +190,6 @@ class FacilityHierarchyView extends Backbone.View
           "
         .join("")
       )
-
       $('#analysis-spinner').hide()
       @dataTable = $("#facilityHierarchy").dataTable
         aaSorting: [[0,"asc"]]
