@@ -16,10 +16,10 @@ class ChromeView extends Backbone.View
     "click button#DownloadBtn": "DownloadClicked"
 
   OkClicked: ->
-     aboutDialog.close()
+     aboutDialog.close() if aboutDialog.open
 
   DownloadClicked: ->
-     aboutDialog.close()
+     aboutDialog.close() if aboutDialog.open
      window.open("https://www.google.com/chrome/browser/")
 
   render: =>

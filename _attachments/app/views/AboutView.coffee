@@ -15,7 +15,7 @@ class AboutView extends Backbone.View
     "click button#OkBtn": "OkClicked"
 
   OkClicked: ->
-     aboutDialog.close()
+     aboutDialog.close() if aboutDialog.open
 
   render: =>
     @$el.html "
