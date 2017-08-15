@@ -22,6 +22,23 @@ class FacilityHierarchyView extends Backbone.View
     "click button#fhSave": "formSave"
     "click button#fhCancel": "formCancel"
     "click button#buttonYes": "deleteFacility"
+    "change select#Region": "updateDistrictList"
+
+  updateDistrictList: (e) =>
+    regionSelected = $("select#Region").val()
+    districtSelected = $("select#District").val()
+    districtList = if regionSelected isnt "" then GeoHierarchy.findAllDistrictsFor(regionSelected,"REGION") else []
+    $("select#District").val(districtSelected)
+    $("select#District").empty().append("
+      <option value=''></option>
+      #{
+        districtList.map (list) =>
+          "<option value='#{list}'>
+            #{list}
+           </option>"
+        .join ""
+      }
+    ")
 
   createFacility: (e) =>
     e.preventDefault
@@ -39,6 +56,7 @@ class FacilityHierarchyView extends Backbone.View
     id = $(e.target).closest("a").attr "data-facility-id"
     rec = $("[id='#{id}']").find('td')
     $("select#Region").val(rec[0].innerText)
+    $("select#Region").trigger("change")
     $("select#District").val(rec[1].innerText)
     $("input[id='Facility Name']").val(rec[2].innerText)
     $("input#Aliases").val(rec[3].innerText)
@@ -103,7 +121,11 @@ class FacilityHierarchyView extends Backbone.View
           _.map( @fields, (field) =>
             "
                #{ if field is 'Region' or field is 'District'
-                    selectList = if field is 'District' then GeoHierarchy.allDistricts() else GeoHierarchy.allRegions()
+                    if field is 'Region'
+                      selectList = GeoHierarchy.allRegions()
+                    else
+                      regionSelected = $("select#Region").val()
+                      selectList = GeoHierarchy.findAllDistrictsFor(regionSelected,"REGION") if regionSelected isnt ""
                     "
                     <div class='mdl-select mdl-js-select mdl-select--floating-label'>
                         <select class='mdl-select__input' id='#{field}' name='#{field}'>
