@@ -200,10 +200,14 @@ class FacilityHierarchyView extends Backbone.View
             }
             <td>
             #{ if(Coconut.config.facilitiesEdit)
-                "<button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                  <a href='#' class='facility-edit' data-facility-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
-                 <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                  <a href='#' class='facility-delete' data-facility-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i></a></button>
+                "
+                 <button id='edit-menu_#{rowIdentifier}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
+                    <i class='mdi mdi-dots-vertical mdi-24px'></i>
+                  </button>
+                  <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{rowIdentifier}'>
+                    <li class='mdl-menu__item'><a href='#' class='facility-edit' data-facility-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i> Edit</a></li>
+                    <li class='mdl-menu__item'><a href='#' class='facility-delete' data-facility-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i> Delete</a></li>
+                  </ul>
                 "
                else ""
             }
@@ -212,6 +216,7 @@ class FacilityHierarchyView extends Backbone.View
           "
         .join("")
       )
+      componentHandler.upgradeDom()
       $('#analysis-spinner').hide()
       @dataTable = $("#facilityHierarchy").dataTable
         aaSorting: [[0,"asc"]]

@@ -311,12 +311,14 @@ class UsersView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{user.comments || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
                         <td>
-                           <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-pw-reset' data-user-id='#{user._id}' title='Reset password'><i class='mdi mdi-key mdi-24px'></i></a></button>
-                           <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-edit' data-user-id='#{user._id}' title='Edit user'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
-                           <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                           <a href='#' class='user-delete' data-user-id='#{user._id}' title='Delete user'><i class='mdi mdi-delete mdi-24px'></i></a></button>
+                         <button id='edit-menu_#{user._id}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
+                            <i class='mdi mdi-dots-vertical mdi-24px'></i>
+                          </button>
+                          <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{user._id}'>
+                            <li class='mdl-menu__item'><a href='#' class='user-pw-reset' data-user-id='#{user._id}'><i class='mdi mdi-key mdi-24px'></i> Reset Passwd</a></li>
+                            <li class='mdl-menu__item'><a href='#' class='user-edit' data-user-id='#{user._id}'><i class='mdi mdi-pencil mdi-24px'></i> Edit User</a></li>
+                            <li class='mdl-menu__item'><a href='#' class='user-delete' data-user-id='#{user._id}'><i class='mdi mdi-delete mdi-24px'></i> Delete User</a></li>
+                          </ul>
                         </td>
                      </tr>
                      "
@@ -326,6 +328,7 @@ class UsersView extends Backbone.View
               </table>
             </div>
         "
+        componentHandler.upgradeDom()
        # $("table.summary").tablesorter({sortList: [[0,0]]})
         @dataTable = $("table.summary").dataTable
           aaSorting: [[0,"asc"]]

@@ -128,16 +128,19 @@ class GeoHierarchyView extends Backbone.View
               .join()
             }
             <td>
-               <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='geo-edit' data-geo-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i></a></button>
-               <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                <a href='#' class='geo-delete' data-geo-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i></a></button>
+               <button id='edit-menu_#{rowIdentifier}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
+                  <i class='mdi mdi-dots-vertical mdi-24px'></i>
+                </button>
+                <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{rowIdentifier}'>
+                  <li class='mdl-menu__item'><a href='#' class='geo-edit' data-geo-id='#{rowIdentifier}'><i class='mdi mdi-pencil mdi-24px'></i> Edit</a></li>
+                  <li class='mdl-menu__item'><a href='#' class='geo-delete' data-geo-id='#{rowIdentifier}'><i class='mdi mdi-delete mdi-24px'></i> Delete</a></li>
+                </ul>
             </td>
           </tr>
           "
         .join("")
       )
-
+      componentHandler.upgradeDom()
       $('#analysis-spinner').hide()
 
       $("#geoHierarchy").dataTable

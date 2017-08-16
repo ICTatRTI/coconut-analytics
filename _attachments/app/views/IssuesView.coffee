@@ -228,15 +228,17 @@ class IssuesView extends Backbone.View
                    <td class='mdl-data-table__cell--non-numeric'>#{Issue.FullName}</td>
                    <td class='mdl-data-table__cell--non-numeric'>#{Issue['Date Resolved'] or '-'}</td>
                    <td>
-                     <button class='edit mdl-button mdl-js-button mdl-button--icon'>
-                      <a href='#' class='issue-edit' data-issue-id='#{Issue._id}'><i class='mdi mdi-pencil mdi-24px'></i></a>
+                     <button id='edit-menu_#{Issue._id}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
+                        <i class='mdi mdi-dots-vertical mdi-24px'></i>
                      </button>
-                     <button class='delete mdl-button mdl-js-button mdl-button--icon'>
-                     <a href='#' class='issue-delete' data-issue-id='#{Issue._id}'><i class='mdi mdi-delete mdi-24px'></i></a>
-                      </button>
+                     <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{Issue._id}'>
+                        <li class='mdl-menu__item'><a href='#' class='issue-edit' data-issue-id='#{Issue._id}'><i class='mdi mdi-pencil mdi-24px'></i> Edit</a></li>
+                        <li class='mdl-menu__item'><a href='#' class='issue-delete' data-issue-id='#{Issue._id}'><i class='mdi mdi-delete mdi-24px'></i> Delete</a></li>
+                     </ul>
                    </td>
                  </tr>
               "
+            componentHandler.upgradeDom()
             datatable = $("#issuesTable").DataTable
               'order': [[1,"desc"]]
               "pagingType": "full_numbers"
