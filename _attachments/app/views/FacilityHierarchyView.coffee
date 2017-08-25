@@ -167,9 +167,8 @@ class FacilityHierarchyView extends Backbone.View
         input.text { margin-bottom:12px; width:95%; padding: .4em; }
         table.dataTable thead th { padding: 0 0 8px}
       </style>
-      <h4>Health Facilities <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-facility-btn'>
-              #{ if(Coconut.config.facilitiesEdit) then "<i class='mdi mdi-plus mdi-36px'></i>" else "" }
-            </button>
+      <h4>Health Facilities #{ if(Coconut.config.facilitiesEdit) then "<button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-facility-btn'>
+              <i class='mdi mdi-plus mdi-36px'></i></button>" else "" }
       </h4>
       <dialog id='dialog'>
         <div id='dialogContent'> </div>

@@ -203,3 +203,11 @@
   border-bottom: none;
   padding-bottom: 10px;
 }
+
+.mdl-menu li a {
+  color: rgba(0,0,0, 0.87);
+  background-color: transparent;
+  font-size: 14px;
+  font-weight: 400;
+  padding-left: 0px;
+}
