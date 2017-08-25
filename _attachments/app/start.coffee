@@ -12,7 +12,7 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB('https://cococloud.co/coconut-surveillance-zanzibar')
+global.pouchdb = new PouchDB('https://cococloud.co/democs')
 AppView = require './AppView'
 global.HTMLHelpers = require './HTMLHelpers'
 
@@ -38,7 +38,7 @@ global.Coconut =
   reportDates:
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
-  
+
 global.Env = {
 #  is_chrome: /chrome/i.test(navigator.userAgent)
   is_chrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
@@ -57,7 +57,7 @@ checkBrowser = (callback) ->
     chromeView.render()
     callback.success()
   else
-    callback.success()  
+    callback.success()
 
 User.isAuthenticated
   success: ->
@@ -68,8 +68,8 @@ User.isAuthenticated
 
 # Render headerView here instead of below with MenuView, otherwise the hamburger menu will be missing in smaller screen
 Coconut.headerView = new HeaderView
-Coconut.headerView.render() 
-        
+Coconut.headerView.render()
+
 Config.getConfig
   error: ->
     console.log("Error Retrieving Config")
@@ -81,7 +81,7 @@ Config.getConfig
     .then (url) ->
       Coconut.logoUrl = url
       Coconut.menuView = new MenuView
-      
+
       Coconut.menuView.render()
       _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
         Coconut.database.get docId
@@ -109,5 +109,3 @@ Config.getConfig
                 checkBrowser()
 
     global.Issues = require './models/Issues'
-
-
