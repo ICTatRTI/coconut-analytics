@@ -55,6 +55,10 @@ class HTMLHelpers
       @createCaseLink
         caseID: doc.MalariaCaseID
         docId: doc._id
+        iconOnly: false
+        buttonClass: ''
+        iconText: ''
+        caseBtn: 'caseBtn'
     ).join("")
 
   @createDisaggregatableDocGroup = (text,docs) ->
