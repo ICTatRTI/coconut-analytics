@@ -2,7 +2,7 @@
   "name": "coconut-analytics",
   "version": "0.9.0",
   "scripts": {
-    "dev": "bash ./setDeploymentTarget.sh http://localhost:5984/coconut-surveillance-zanzibar; npm run watch & npm run livereload & npm run static",
+    "dev": "bash ./setDeploymentTarget.sh http://localhost:5984/democs; npm run watch & npm run livereload & npm run static",
     "watch": "./node_modules/watchify/bin/cmd.js -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js",
     "livereload": "./node_modules/livereloadify/cli.js ./",
     "static": "./node_modules/node-static/bin/cli.js --port 8081 ./"
