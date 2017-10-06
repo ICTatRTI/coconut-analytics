@@ -1,0 +1,55 @@
+{
+   "_id": "Case Notification",
+   "_rev": "18-8a1217a71d3984bb025b04e690676eec",
+   "questions": [
+       {
+           "_id": "81",
+           "label": "Facility Name",
+           "autocomplete-options": "window.FacilityOptions = FacilityHierarchy.allFacilities()",
+           "repeatable": "false",
+           "validation": "return 'Facility Name is not valid' unless _.contains(window.FacilityOptions, value)",
+           "type": "autocomplete from code",
+           "id": "81"
+       },
+       {
+           "repeatable": "false",
+           "_id": "311",
+           "type": "text",
+           "id": "311",
+           "label": "Malaria Case ID"
+       },
+       {
+           "label": "Shehia",
+           "autocomplete-options": "window.ShehiaOptions = GeoHierarchy.allShehias()",
+           "repeatable": "false",
+           "_id": "211",
+           "type": "autocomplete from code",
+           "id": "211"
+       },
+       {
+           "repeatable": "false",
+           "_id": "221",
+           "type": "text",
+           "id": "221",
+           "label": "Name"
+       },
+       {
+           "label": "complete",
+           "repeatable": "false",
+           "type": "checkbox",
+           "id": "341",
+           "_id": "341"
+       }
+   ],
+   "isApplicationDoc": true,
+   "resultSummaryFields": {
+       "Malaria Case ID": "on",
+       "Facility Name": "on"
+   },
+   "id": "Case Notification",
+   "collection": "question",
+   "couchapp": {
+   },
+   "onValidatedComplete": "malariaCase.createNextResult()",
+   "action_on_questions_loaded": "window.malariaCase = new Case({caseID: Coconut.questionView.result.get 'MalariaCaseID'});malariaCase.fetch() if malariaCase.caseID"
+}
