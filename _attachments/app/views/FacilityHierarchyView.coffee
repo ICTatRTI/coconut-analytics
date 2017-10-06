@@ -53,7 +53,6 @@ class FacilityHierarchyView extends Backbone.View
     @mode = "edit"
     dialogTitle = "Edit Facility"
     Dialog.create(@dialogEdit, dialogTitle)
-    rrec = @dataTable.row().data()
     id = $(e.target).closest("a").attr "data-facility-id"
     $("tr").removeClass("selected")
     document.getElementById("#{id}").classList.add('selected')
@@ -92,12 +91,6 @@ class FacilityHierarchyView extends Backbone.View
     dataArray = @dataTable.rows().data()
     @updateDatabaseDoc(dataArray)
     @updateDbRecord(@databaseDoc)
-    # Coconut.database.put @databaseDoc,
-    #   _rev: @databaseDoc._rev
-    # .catch (error) -> console.error error
-    # .then (result) =>
-    #   @render()
-    # return false
 
   deleteDialog: (e) =>
     e.preventDefault
@@ -112,7 +105,7 @@ class FacilityHierarchyView extends Backbone.View
 #TODOS Need to add codes to delete doc
   deleteFacility: (e) =>
     e.preventDefault
-    @dataTable.row('.selected').remove().draw(false)
+    @dataTable.row('.selected').remove()
     @data = @dataTable.rows().data()
     @updateDatabaseDoc(@data)
     @updateDbRecord(@databaseDoc)

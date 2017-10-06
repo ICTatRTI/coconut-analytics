@@ -23,6 +23,7 @@ class RainfallStationView extends Backbone.View
 
   createStation: (e) =>
     e.preventDefault
+    @mode = "create"
     dialogTitle = "Add New Rainfall Station"
     Dialog.create(@dialogEdit, dialogTitle)
     $('form#station input').val('')
@@ -30,9 +31,12 @@ class RainfallStationView extends Backbone.View
 
   editStation: (e) =>
     e.preventDefault
+    @mode = "edit"
     dialogTitle = "Edit Rainfall Station"
     Dialog.create(@dialogEdit, dialogTitle)
     id = $(e.target).closest("a").attr "data-station-id"
+    $("tr").removeClass("selected")
+    document.getElementById("#{id}").classList.add('selected')
     rec = $("[id='#{id}']").find('td')
     $("input#Region").val(rec[0].innerText)
     $("input#District").val(rec[1].innerText)
@@ -50,16 +54,28 @@ class RainfallStationView extends Backbone.View
   formSave: (e) =>
     console.log("Saving Data")
     dialog.close() if dialog.open
-#    @updateDatabaseDoc(@dataTable.data())
-#    Coconut.database.put @databaseDoc
-#      _rev: doc._rev #if edit mode
-#    .catch (error) -> console.error error
-#    .then (result) ->
-#      @render()
+    @data = {}
+    @data.Region = $("input#Region").val()
+    @data.District = $("input#District").val()
+    @data.stationName = $("input#Name").val()
+    @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
+
+    newdata = [@data.Region, @data.District,@data.stationName, @data.PhoneNumbers, null]
+    if @mode is "create"
+      @dataTable.row.add(newdata)
+    else
+      @dataTable.row('.selected').data(newdata)
+
+    dataArray = @dataTable.rows().data()
+    @updateRainfallDoc(dataArray)
+    @updateDbRecord(@databaseDoc)
     return false
 
   deleteDialog: (e) =>
     e.preventDefault
+    id = $(e.target).closest("a").attr "data-station-id"
+    $("tr").removeClass("selected")
+    document.getElementById("#{id}").classList.add('selected')
     dialogTitle = "Are you sure?"
     Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
     console.log("Delete initiated")
@@ -68,6 +84,10 @@ class RainfallStationView extends Backbone.View
 #TODO Need code to delete doc
   deleteStation: (e) =>
     e.preventDefault
+    @dataTable.row('.selected').remove()
+    @data = @dataTable.rows().data()
+    @updateRainfallDoc(@data)
+    @updateDbRecord(@databaseDoc)
     console.log("Record Deleted")
     dialog.close() if dialog.open
     return false
@@ -147,7 +167,7 @@ class RainfallStationView extends Backbone.View
       componentHandler.upgradeDom()
       $('#analysis-spinner').hide()
 
-      $("#rainfallStations").dataTable
+      @dataTable = $("#rainfallStations").DataTable
         aaSorting: [[0,"asc"]]
         iDisplayLength: 10
         dom: 'T<"clear">lfrtip'
@@ -168,5 +188,26 @@ class RainfallStationView extends Backbone.View
         data[stationName]["Name"] = stationName
         data[stationName]["Phone Numbers"] = data[stationName]["Phone Numbers"].join(",")
       return data
+
+    @updateRainfallDoc = (tableData) ->
+      @databaseDoc.data = {}
+      _(tableData).each (row) =>
+        [region, district, stationName, phone_numbers] = row
+        @databaseDoc.data[stationName] = {} unless @databaseDoc.data[stationName]?
+        @databaseDoc.data[stationName]=
+          Region: region
+          District: district
+        @databaseDoc.data[stationName]['Phone Numbers']= [] unless @databaseDoc.data[stationName]['Phone Numbers']?
+        # phone_numbers.split(/ +|, */)
+        _(phone_numbers.split(/ +|, */)).each (r) =>
+          @databaseDoc.data[stationName]['Phone Numbers'].push r
+
+    @updateDbRecord = (rec) ->
+      Coconut.database.put rec,
+        _rev: rec._rev
+      .catch (error) -> console.error error
+      .then (result) =>
+        @render()
+      return false
 
 module.exports = RainfallStationView
