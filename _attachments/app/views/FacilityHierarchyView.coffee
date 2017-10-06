@@ -53,7 +53,10 @@ class FacilityHierarchyView extends Backbone.View
     @mode = "edit"
     dialogTitle = "Edit Facility"
     Dialog.create(@dialogEdit, dialogTitle)
+    rrec = @dataTable.row().data()
     id = $(e.target).closest("a").attr "data-facility-id"
+    $("tr").removeClass("selected")
+    document.getElementById("#{id}").classList.add('selected')
     rec = $("[id='#{id}']").find('td')
     $("select#Region").val(rec[0].innerText)
     $("select#Region").trigger("change")
@@ -74,7 +77,6 @@ class FacilityHierarchyView extends Backbone.View
   formSave: (e) =>
     console.log("Saving Data")
     dialog.close() if dialog.open
-
     @data = new FacilityHierarchy()
     @data.Region = $("select#Region").val()
     @data.District = $("select#District").val()
@@ -82,15 +84,26 @@ class FacilityHierarchyView extends Backbone.View
     @data.FacilityAlias = $("input#Aliases").val()
     @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
     @data.Type = $("input#Type").val()
-    Coconut.database.put @data
-      _rev: @data._rev if @mode == "edit"
-    .catch (error) -> console.error error
-    .then (result) ->
-      @render()
-    return false
+    newdata = [@data.Region, @data.District,@data.FacilityName, @data.FacilityAlias, @data.PhoneNumbers, @data.Type, null]
+    if @mode is "create"
+      @dataTable.row.add(newdata)
+    else
+      @dataTable.row('.selected').data(newdata)
+    dataArray = @dataTable.rows().data()
+    @updateDatabaseDoc(dataArray)
+    @updateDbRecord(@databaseDoc)
+    # Coconut.database.put @databaseDoc,
+    #   _rev: @databaseDoc._rev
+    # .catch (error) -> console.error error
+    # .then (result) =>
+    #   @render()
+    # return false
 
   deleteDialog: (e) =>
     e.preventDefault
+    id = $(e.target).closest("a").attr "data-facility-id"
+    $("tr").removeClass("selected")
+    document.getElementById("#{id}").classList.add('selected')
     dialogTitle = "Are you sure?"
     Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
     console.log("Delete initiated")
@@ -99,7 +112,10 @@ class FacilityHierarchyView extends Backbone.View
 #TODOS Need to add codes to delete doc
   deleteFacility: (e) =>
     e.preventDefault
-    console.log("Delete pressed but not deleted for time being")
+    @dataTable.row('.selected').remove().draw(false)
+    @data = @dataTable.rows().data()
+    @updateDatabaseDoc(@data)
+    @updateDbRecord(@databaseDoc)
     dialog.close() if dialog.open
     return false
 
@@ -217,7 +233,7 @@ class FacilityHierarchyView extends Backbone.View
       )
       componentHandler.upgradeDom()
       $('#analysis-spinner').hide()
-      @dataTable = $("#facilityHierarchy").dataTable
+      @dataTable = $("#facilityHierarchy").DataTable
         aaSorting: [[0,"asc"]]
         iDisplayLength: 10
         dom: 'T<"clear">lfrtip'
@@ -257,5 +273,13 @@ class FacilityHierarchyView extends Backbone.View
           mobile_numbers: if phone_numbers is "" then [] else phone_numbers.split(/ +|, */)
           aliases: if aliases is "" then [] else aliases.split(/, */)
           type: type or "public"
+
+    @updateDbRecord = (rec) ->
+      Coconut.database.put rec,
+        _rev: rec._rev
+      .catch (error) -> console.error error
+      .then (result) =>
+        @render()
+      return false
 
 module.exports = FacilityHierarchyView
