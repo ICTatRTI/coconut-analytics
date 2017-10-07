@@ -23,6 +23,7 @@ class GeoHierarchyView extends Backbone.View
 
   createGeoHierarchy: (e) =>
     e.preventDefault
+    @mode = "create"
     dialogTitle = "Add New Geo Hierarchy"
     Dialog.create(@dialogEdit, dialogTitle)
     $('form#hierarchy input').val('')
@@ -30,9 +31,12 @@ class GeoHierarchyView extends Backbone.View
 
   editGeoHierarchy: (e) =>
     e.preventDefault
+    @mode = "edit"
     dialogTitle = "Edit Geo Hierarchy"
     Dialog.create(@dialogEdit, dialogTitle)
     id = $(e.target).closest("a").attr "data-geo-id"
+    $("tr").removeClass("selected")
+    document.getElementById("#{id}").classList.add('selected')
     rec = $("[id='#{id}']").find('td')
     $("input#Region").val(rec[0].innerText)
     $("input#District").val(rec[1].innerText)
@@ -42,11 +46,26 @@ class GeoHierarchyView extends Backbone.View
 
   formSave: (e) =>
     console.log("Saving Data")
-    dialog.close()
+    dialog.close() if dialog.open
+    @data = {}
+    @data.Region = $("input#Region").val()
+    @data.District = $("input#District").val()
+    @data.Shehia = $("input#Shehia").val()
+    newdata = [@data.Region, @data.District,@data.Shehia, null]
+    if @mode is "create"
+      @dataTable.row.add(newdata)
+    else
+      @dataTable.row('.selected').data(newdata)
+    dataArray = @dataTable.rows().data().sort()
+    @updateDatabaseDoc(dataArray)
+    @updateDbRecord(@databaseDoc)
     return false
 
   deleteDialog: (e) =>
     e.preventDefault
+    id = $(e.target).closest("a").attr "data-geo-id"
+    $("tr").removeClass("selected")
+    document.getElementById("#{id}").classList.add('selected')
     dialogTitle = "Are you sure?"
     Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
     console.log("Delete initiated")
@@ -55,6 +74,10 @@ class GeoHierarchyView extends Backbone.View
 #TODO Need code to delete doc
   deleteGeo: (e) =>
     e.preventDefault
+    @dataTable.row('.selected').remove()
+    @data = @dataTable.rows().data()
+    @updateDatabaseDoc(@data)
+    @updateDbRecord(@databaseDoc)
     console.log("Record Deleted")
     dialog.close() if dialog.open
     return false
@@ -143,7 +166,7 @@ class GeoHierarchyView extends Backbone.View
       componentHandler.upgradeDom()
       $('#analysis-spinner').hide()
 
-      $("#geoHierarchy").dataTable
+      @dataTable = $("#geoHierarchy").DataTable
         aaSorting: [[0,"asc"]]
         iDisplayLength: 10
         dom: 'T<"clear">lfrtip'
@@ -166,5 +189,24 @@ class GeoHierarchyView extends Backbone.View
               District: district
               Shehia: shehia
       return data
+
+    @updateDatabaseDoc = (tableData) ->
+      @databaseDoc.hierarchy = {}
+      _(tableData).each (row) =>
+        [region, district, shehia] = row
+        region = region.toUpperCase()
+        district = district.toUpperCase()
+        shehia = shehia.toUpperCase()
+        @databaseDoc.hierarchy[region] = {} unless @databaseDoc.hierarchy[region]
+        @databaseDoc.hierarchy[region][district] = [] unless @databaseDoc.hierarchy[region][district]
+        @databaseDoc.hierarchy[region][district].push shehia
+
+    @updateDbRecord = (rec) ->
+      Coconut.database.put rec,
+        _rev: rec._rev
+      .catch (error) -> console.error error
+      .then (result) =>
+        @render()
+      return false
 
 module.exports = GeoHierarchyView
