@@ -20,6 +20,23 @@ class RainfallStationView extends Backbone.View
     "click button#rsSave": "formSave"
     "click button#rsCancel": "formCancel"
     "click button#buttonYes": "deleteStation"
+    "change select#Region": "updateDistrictList"
+
+  updateDistrictList: (e) =>
+    regionSelected = $("select#Region").val()
+    districtSelected = $("select#District").val()
+    districtList = if regionSelected isnt "" then GeoHierarchy.findAllDistrictsFor(regionSelected,"REGION") else []
+    $("select#District").val(districtSelected)
+    $("select#District").empty().append("
+      <option value=''></option>
+      #{
+        districtList.map (list) =>
+          "<option value='#{list}'>
+            #{list}
+           </option>"
+        .join ""
+      }
+    ")
 
   createStation: (e) =>
     e.preventDefault
@@ -55,8 +72,8 @@ class RainfallStationView extends Backbone.View
     console.log("Saving Data")
     dialog.close() if dialog.open
     @data = {}
-    @data.Region = $("input#Region").val()
-    @data.District = $("input#District").val()
+    @data.Region = $("select#Region").val()
+    @data.District = $("select#District").val()
     @data.stationName = $("input#Name").val()
     @data.PhoneNumbers = $("input[id='Phone Numbers']").val()
 
@@ -103,13 +120,38 @@ class RainfallStationView extends Backbone.View
          #{
           _.map( @fields, (field) =>
             "
-               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                 <input class='mdl-textfield__input' type='text' id='#{field}' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
-                 <label class='mdl-textfield__label' for='#{field}'>#{if field is "_id" then "Username" else humanize(field)}</label>
-               </div>
+               #{ if field is 'Region' or field is 'District'
+                    if field is 'Region'
+                      selectList = GeoHierarchy.allRegions()
+                    else
+                      regionSelected = $("select#Region").val()
+                      selectList = GeoHierarchy.findAllDistrictsFor(regionSelected,"REGION") if regionSelected isnt ""
+                    "
+                     <div class='mdl-select mdl-js-select mdl-select--floating-label'>
+                         <select class='mdl-select__input' id='#{field}' name='#{field}'>
+                           <option value=''></option>
+                           #{
+                             selectList.map (list) =>
+                               "<option value='#{list}'>
+                                 #{list}
+                                </option>"
+                             .join ""
+                           }
+                         </select>
+                         <label class='mdl-select__label' for='#{field}'>#{field}</label>
+                     </div>
+                    "
+                else
+                  "
+                  <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
+                    <input class='mdl-textfield__input' type='text' id='#{field}' name='#{field}' #{if field is "_id" and not @user then "readonly='true'" else ""}></input>
+                    <label class='mdl-textfield__label' for='#{field}'>#{if field is "_id" then "Username" else humanize(field)}</label>
+                  </div>
+                  "
+               }
             "
-            ).join("")
-          }
+          ).join("")
+        }
 
         <div id='dialogActions'>
            <button class='mdl-button mdl-js-button mdl-button--primary' id='rsSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
