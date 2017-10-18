@@ -68,7 +68,8 @@ User.login = (options) ->
     success: ->
       if !(user.inActive())
         hashPwd = user.get("password") || 'unknown'
-        salt = Config.salt()
+        #salt = Config.salt()
+        salt = ""
         hashKey = (crypto.pbkdf2Sync options.password, salt, 1000, 256/8, 'sha256').toString('base64')
         if hashPwd is hashKey
           Coconut.currentUser = user

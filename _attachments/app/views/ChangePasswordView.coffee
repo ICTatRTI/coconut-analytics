@@ -76,7 +76,8 @@ class ChangePasswordView extends Backbone.View
       else
         # TODO: codes to reset password in User model?
         id = "user.#{username}"
-        salt = Config.salt()
+        #salt = Config.salt()
+        salt = ""
         hashKey = (crypto.pbkdf2Sync newPass, salt, 1000, 256/8, 'sha256').toString('base64')
         Coconut.database.get id,
            include_docs: true

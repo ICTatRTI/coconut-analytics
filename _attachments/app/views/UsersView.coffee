@@ -104,7 +104,7 @@ class UsersView extends Backbone.View
         @user.email = $('#email').val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
-        @user.password = (crypto.pbkdf2Sync @user.password, @salt, 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
+        @user.password = (crypto.pbkdf2Sync @user.password, '', 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
         roles_selected = document.getElementsByName("role")
 
         roles = []
@@ -148,7 +148,7 @@ class UsersView extends Backbone.View
           view.displayErrorMsg('Error encountered resetting password...')
           console.error error
         .then (user) =>
-          user.password = (crypto.pbkdf2Sync newPass, @salt, 1000, 256/8, 'sha256').toString('base64')
+          user.password = (crypto.pbkdf2Sync newPass, '', 1000, 256/8, 'sha256').toString('base64')
           Coconut.database.put user
           .catch (error) -> console.error error
           .then ->
