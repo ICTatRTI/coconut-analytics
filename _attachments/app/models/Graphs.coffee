@@ -161,7 +161,7 @@ Graphs.positiveCases = (dataForGraph, composite, container, options) ->
     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
     .renderHorizontalGridLines(true)
     .shareTitle(false)
-    .renderlet((chart) ->
+    .on('renderlet',(chart) =>
       Graphs.axis_adjust(chart, container)
     )
     .compose([
@@ -228,7 +228,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
       .renderHorizontalGridLines(true)
       .shareTitle(false)
       .xUnits(d3.time.week)
-      .renderlet((chart) ->
+      .on('renderlet',(chart) =>
         Graphs.axis_adjust(chart, container)
        )
       .compose([
@@ -296,7 +296,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
-     .renderlet((chart) ->
+     .on('renderlet',(chart) =>
        Graphs.axis_adjust(chart, container)
      )
      .compose([
@@ -522,7 +522,7 @@ Graphs.attendance = (dataForGraph, composite2, container, options) ->
      .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
      .renderHorizontalGridLines(true)
      .shareTitle(false)
-     .renderlet((chart) ->
+     .on('renderlet',(chart) =>
        Graphs.axis_adjust(chart, container)
      )
      .compose([
