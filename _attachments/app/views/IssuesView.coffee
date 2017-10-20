@@ -82,7 +82,7 @@ class IssuesView extends Backbone.View
         .catch (error) ->
           console.error error
           Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
-
+      dialog.close() if dialog.open
     return false
 
   saveIssue: =>
@@ -123,6 +123,7 @@ class IssuesView extends Backbone.View
         .errorMsg { color: red; display: none }
         td.label {vertical-align: top; padding-right: 10px}
         textarea { width: 300px; height: 50px}
+        .dataTables_scrollBody {min-height: 200px;}
       </style>
       <div id='dateSelector'></div>
       <div style='padding: 10px 0'>
@@ -245,6 +246,7 @@ class IssuesView extends Backbone.View
               "dom": '<"top"fl>rt<"bottom"ip><"clear">'
               "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
               "retrieve": true
+              "scrollX": true
               "buttons": [
                 "csv",'excel','pdf'
                 ]
