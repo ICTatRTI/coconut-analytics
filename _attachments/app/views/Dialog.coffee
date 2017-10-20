@@ -11,7 +11,7 @@ class Dialog
     # Temporary hack for polyfill issue on non-chrome browsers
     if !dialog.open
       if (Env.is_chrome) then dialog.showModal() else dialog.show()
-    
+
 
   @markTextfieldDirty = () ->
     #hack to make MDL textfield label float in edit mode
@@ -33,6 +33,7 @@ class Dialog
         </div>
       </form>
     "
+#    dialog.returnValue = ""
     if !dialog.open
       if (Env.is_chrome) then dialog.showModal() else dialog.show()
 
@@ -45,5 +46,5 @@ class Dialog
   @errorMessage: (err) ->
     @createDialogWrap()
     @confirm(err, 'Error Encountered',['Ok'])
-    
+
 module.exports = Dialog

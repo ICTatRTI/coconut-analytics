@@ -63,6 +63,7 @@ class GeoHierarchyView extends Backbone.View
 
   deleteDialog: (e) =>
     e.preventDefault
+    dialog.close() if dialog.open
     id = $(e.target).closest("a").attr "data-geo-id"
     $("tr").removeClass("selected")
     document.getElementById("#{id}").classList.add('selected')

@@ -160,6 +160,7 @@ class UsersView extends Backbone.View
       view = @
       e.preventDefault
       id = $(e.target).closest("a").attr "data-user-id"
+      dialog.close() if dialog.open
       dialogTitle = "Are you sure?"
       Dialog.confirm("This will permanently remove the record id #{id}.", dialogTitle,['No', 'Yes'])
       dialog.addEventListener 'close', (event) ->
@@ -168,11 +169,12 @@ class UsersView extends Backbone.View
             return Coconut.database.remove(doc)
           .then (result) =>
             Dialog.confirm( 'User Successfully Deleted..', 'Delete User',['Ok'])
-            view.render()
+#            view.render()
+            Backbone.history.loadUrl(Backbone.history.fragment)
           .catch (error) ->
             console.error error
             Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
-
+        dialog.close() if dialog.open
       return false
 
     formCancel: (e) =>

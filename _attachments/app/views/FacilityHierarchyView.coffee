@@ -94,6 +94,7 @@ class FacilityHierarchyView extends Backbone.View
 
   deleteDialog: (e) =>
     e.preventDefault
+    dialog.close() if dialog.open
     id = $(e.target).closest("a").attr "data-facility-id"
     $("tr").removeClass("selected")
     document.getElementById("#{id}").classList.add('selected')
