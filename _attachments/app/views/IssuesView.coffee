@@ -128,7 +128,7 @@ class IssuesView extends Backbone.View
       <div id='dateSelector'></div>
       <div style='padding: 10px 0'>
         <h4>Issues <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-issue-btn'>
-              <i class='mdi mdi-plus mdi-36px'></i>
+              <i class='mdi mdi-plus mdi-14px'></i>
             </button></h4>
       </div>
       <dialog id='dialog'>

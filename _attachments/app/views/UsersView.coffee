@@ -280,7 +280,7 @@ class UsersView extends Backbone.View
         "
         @$el.html "
             <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
-              <i class='mdi mdi-plus mdi-36px'></i>
+              <i class='mdi mdi-plus mdi-14px'></i>
             </button></h4>
             <dialog id='dialog'>
               <div id='dialogContent'> </div>

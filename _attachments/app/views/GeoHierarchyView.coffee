@@ -121,7 +121,7 @@ class GeoHierarchyView extends Backbone.View
        table.dataTable thead th { padding: 0 0 8px}
       </style>
       <h4>Geo Hierarchy <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-geo-btn'>
-              <i class='mdi mdi-plus mdi-36px'></i>
+              <i class='mdi mdi-plus mdi-14px'></i>
             </button>
       </h4>
       <dialog id='dialog'>
