@@ -1176,7 +1176,7 @@ html, body, .mdl-layout__content, #content{
 }
 .layerControlForm{
     position: absolute !important;
-    top: 40px !important;
+    top: 0px !important;
     right: 0px !important;
     width: 255px !important;
     height: auto !important;

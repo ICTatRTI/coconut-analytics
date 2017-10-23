@@ -175,12 +175,12 @@ window.addEventListener 'fullScreenChange', ((e) ->
 window.addEventListener 'toggleLegend', ((e) ->
   toState = e.detail.toState
   if toState == "on"
-    console.dir("legend.getContainer().hidden: " + legend._map)
+#    console.dir("legend.getContainer().hidden: " + legend._map)
     if !legend._map
         legend.addTo map
         setUpLegend()
   else if toState == "off"
-    console.dir("legend.getContainer().hidden: " + legend._map)
+#    console.dir("legend.getContainer().hidden: " + legend._map)
     legend.removeFrom map
 
   return
@@ -435,6 +435,7 @@ class MapView extends Backbone.View
     return typeAheadAdminNames
 
   reportResults = (results) ->
+        console.log(results)
         casesGeoJSON.features =  _(results.rows).chain().map (result) ->
           caseSummary = result.doc
 #          console.log("caseSummary: " + JSON.stringify(caseSummary));
@@ -879,7 +880,7 @@ class MapView extends Backbone.View
                 </div>
             <div class='mdl-cell mdl-cell--1-col'></div>
         </div>-->
-        <div class='mdl-grid' style='height:80%'>
+        <div class='mdl-grid' style='height:85%'>
             <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
