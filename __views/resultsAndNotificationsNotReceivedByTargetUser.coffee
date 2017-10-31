@@ -1,4 +1,4 @@
-(doc) ->
+(document) ->
   if document.transferred?
     lastTransfer = document.transferred[document.transferred.length-1]
     if lastTransfer.received is false
