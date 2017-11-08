@@ -23,8 +23,9 @@ class ExportDataView extends Backbone.View
       include_docs: true
       startkey: @startDate
       endkey: @endDate
-    .then (result) ->
+    .then (result) =>
       csv = ""
+      keys = []
       _(result.rows).map (row) ->
         unless keys.length > 0
           keys = _(row.doc).chain().keys().without("_id","_rev").value()
@@ -34,16 +35,16 @@ class ExportDataView extends Backbone.View
             .join(",")
           )
 
-        csv += (
+        csv += "\n" + (
           _(keys).map (key) ->
             "\"#{row.doc[key] or ""}\""
           .join(",")
         )
 
-        blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
-        saveAs(blob, "coconut-#{@startDate}-#{@endDate}.csv")
-        $('#downloadMsg').hide()
-        $('#analysis-spinner').hide()
+      blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
+      FileSaver.saveAs(blob, "coconut-#{@startDate}-#{@endDate}.csv")
+      $('#downloadMsg').hide()
+      $('#analysis-spinner').hide()
     .catch (error) -> console.error error
     
 #    url = "http://spreadsheet.zmcp.org/spreadsheet_cleaned/#{@startDate}/#{@endDate}"
