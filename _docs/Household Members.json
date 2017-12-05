@@ -208,7 +208,7 @@
    ],
    "isApplicationDoc": true,
    "resultSummaryFields": {
-       "Head of Household Name": "on",
+       "Head Of Household Name": "on",
        "First Name": "on",
        "Malaria Test Result": "on",
        "Malaria Case ID": "on"
