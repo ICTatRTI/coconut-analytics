@@ -279,7 +279,7 @@
    "isApplicationDoc": true,
    "resultSummaryFields": {
        "Head Of Household Name": "on",
-       "Total Number of Residents in the Household": "on",
+       "Total Number Of Residents In The Household": "on",
        "Malaria Case ID": "on"
    },
    "collection": "question",
