@@ -1,5 +1,6 @@
 _ = require 'underscore'
 $ = require 'jquery'
+require('jquery-ui')
 Backbone = require 'backbone'
 Backbone.$  = $
 
