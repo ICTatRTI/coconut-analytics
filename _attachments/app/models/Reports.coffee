@@ -246,13 +246,13 @@ class Reports
                   data.netsAndIRS[caseLocation].recentIRS.push positiveCase
                   data.netsAndIRS["ALL"].recentIRS.push positiveCase
 
-              if positiveCase.TravelledOvernightinpastmonth?
-                if positiveCase.TravelledOvernightinpastmonth is "Unknown"
-                  positiveCase.TravelledOvernightinpastmonth = "Not Applicable"
-                data.travel[caseLocation][positiveCase.TravelledOvernightinpastmonth].push positiveCase
-                data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightinpastmonth.match(/Yes/)
-                data.travel["ALL"][positiveCase.TravelledOvernightinpastmonth].push positiveCase
-                data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightinpastmonth.match(/Yes/)
+              if positiveCase.TravelledOvernightInPastMonth?
+                if positiveCase.TravelledOvernightInPastMonth is "Unknown"
+                  positiveCase.TravelledOvernightInPastMonth = "Not Applicable"
+                data.travel[caseLocation][positiveCase.TravelledOvernightInPastMonth].push positiveCase
+                data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
+                data.travel["ALL"][positiveCase.TravelledOvernightInPastMonth].push positiveCase
+                data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
               else if positiveCase.OvernightTravelinpastmonth
                 if positiveCase.OvernightTravelinpastmonth is "Unknown"
                   positiveCase.OvernightTravelinpastmonth = "Not Applicable"

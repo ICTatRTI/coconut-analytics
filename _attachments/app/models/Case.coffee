@@ -35,11 +35,11 @@ class Case
         @questions.push resultDoc.question
         if resultDoc.question is "Household Members"
           this["Household Members"].push resultDoc
-        else if resultDoc.question is "Household" and resultDoc.Reasonforvisitinghousehold is "Index Case Neighbors"
+        else if resultDoc.question is "Household" and resultDoc.ReasonForVisitingHousehold is "Index Case Neighbors"
           this["Neighbor Households"].push resultDoc
         else
           if resultDoc.question is "Facility"
-            dateOfPositiveResults = resultDoc.DateofPositiveResults
+            dateOfPositiveResults = resultDoc.DateOfPositiveResults
             if dateOfPositiveResults?
               dayMonthYearMatch = dateOfPositiveResults.match(/^(\d\d).(\d\d).(20\d\d)/)
               if dayMonthYearMatch
@@ -47,7 +47,7 @@ class Case
                 if day > 31 or month > 12
                   console.error "Invalid DateOfPositiveResults: #{this}"
                 else
-                  resultDoc.DateofPositiveResults = "#{year}-#{month}-#{day}"
+                  resultDoc.DateOfPositiveResults = "#{year}-#{month}-#{day}"
 
           if this[resultDoc.question]?
             # Duplicate
@@ -238,7 +238,7 @@ class Case
 
   # Includes any kind of travel including only within Zanzibar
   indexCaseHasTravelHistory: =>
-    @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/)? or false
+    @.Facility?.TravelledOvernightInPastMonth?.match(/Yes/)? or false
 
   indexCaseHasNoTravelHistory: =>
     not @indexCaseHasTravelHistory()
@@ -269,7 +269,7 @@ class Case
     return result
 
   completeHouseholdVisit: =>
-    @.Household?.complete is "true" or @.Facility?.Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility is "Yes"
+    @.Household?.complete is "true" or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes"
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
@@ -393,12 +393,12 @@ class Case
       return @["Case Notification"]?.Name
 
   indexCaseDiagnosisDate: ->
-    if @["Facility"]?.DateofPositiveResults?
-      date = @["Facility"].DateofPositiveResults
+    if @["Facility"]?.DateOfPositiveResults?
+      date = @["Facility"].DateOfPositiveResults
       momentDate = if date.match(/^20\d\d/)
-        moment(@["Facility"].DateofPositiveResults)
+        moment(@["Facility"].DateOfPositiveResults)
       else
-        moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY")
+        moment(@["Facility"].DateOfPositiveResults, "DD-MM-YYYY")
       return momentDate.format("YYYY-MM-DD") if momentDate.isValid()
 
     if @["USSD Notification"]?
@@ -500,12 +500,12 @@ class Case
 
 
   dateOfPositiveResults: ->
-    if @["Facility"]?.DateofPositiveResults?
-      date = @["Facility"].DateofPositiveResults
+    if @["Facility"]?.DateOfPositiveResults?
+      date = @["Facility"].DateOfPositiveResults
       if date.match(/^20\d\d/)
-        moment(@["Facility"].DateofPositiveResults).format("YYYY-MM-DD")
+        moment(@["Facility"].DateOfPositiveResults).format("YYYY-MM-DD")
       else
-        moment(@["Facility"].DateofPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
+        moment(@["Facility"].DateOfPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
 
   daysBetweenPositiveResultAndNotificationFromFacility: =>
 
@@ -749,7 +749,7 @@ class Case
     village:
       propertyName: "Village"
 
-    indexCasePatientName:
+    IndexCasePatientName:
       propertyName: "Patient Name"
     ageInYears: {}
     Sex: {}
@@ -784,86 +784,86 @@ class Case
     numberSuspectedImportedCasesIncludingHouseholdMembers: {}
     massScreenCase: {}
 
-    CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
+    CaseIdForOtherHouseholdMemberThatTestedPositiveAtAHealthFacility:
       propertyName: "Case ID for Other Household Member That Tested Positive at a Health Facility"
     CommentRemarks: {}
-    ContactMobilepatientrelative:
+    ContactMobilePatientRelative:
       propertyName: "Contact Mobile Patient Relative"
-    Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility:
+    HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility:
       propertyName: "Has Someone From the Same Household Recently Tested Positive at a Health Facility"
-    HeadofHouseholdName: {}
+    HeadOfHouseholdName: {}
     ParasiteSpecies: {}
-    ReferenceinOPDRegister: {}
+    ReferenceInOpdRegister: {}
     ShehaMjumbe: {}
-    TravelledOvernightinpastmonth:
+    TravelledOvernightInPastMonth:
       propertyName: "Travelled Overnight in Past Month"
-    IfYESlistALLplacestravelled:
+    IfYesListAllPlacesTravelled:
       propertyName: "All Places Traveled to in Past Month"
     TreatmentGiven: {}
 
     #Household
     CouponNumbers: {}
     FollowupNeighbors: {}
-    Haveyougivencouponsfornets: {}
-    HeadofHouseholdName: {}
-    "HouseholdLocation-accuracy": {}
-    "HouseholdLocation-altitude": {}
-    "HouseholdLocation-altitudeAccuracy": {}
-    "HouseholdLocation-description": {}
-    "HouseholdLocation-heading": {}
-    "HouseholdLocation-latitude": {}
-    "HouseholdLocation-longitude": {}
-    "HouseholdLocation-timestamp": {}
-    IndexcaseIfpatientisfemale1545yearsofageissheispregant:
+    HaveYouGivenCouponsForNets: {}
+    HeadOfHouseholdName: {}
+    "HouseholdLocationAccuracy": {}
+    "HouseholdLocationAltitude": {}
+    "HouseholdLocationAltitudeAccuracy": {}
+    "HouseholdLocationDescription": {}
+    "HouseholdLocationHeading": {}
+    "HouseholdLocationLatitude": {}
+    "HouseholdLocationLongitude": {}
+    "HouseholdLocationTimestamp": {}
+    IndexCaseIfPatientIsFemale1545YearsOfAgeIsSheIsPregant:
       propertyName: "Is Index Case Pregnant"
-    IndexcaseOvernightTraveloutsideofZanzibarinthepastyear:
+    IndexCaseOvernightTravelOutsideOfZanzibarInThePastYear:
       propertyName: "Has Index Case had Overnight Travel Outside of Zanzibar in the Past Year"
-    IndexcaseOvernightTravelwithinZanzibar1024daysbeforepositivetestresult: {}
+    IndexCaseOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult: {}
       "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
-    travelLocationName: {}
-    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar07daysbeforepositivetestresult:
+    TravelLocationName: {}
+    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar07DaysBeforePositiveTestResult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 0-7 Days Before Positive Test Result"
-    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar814daysbeforepositivetestresult:
+    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar814DaysBeforePositiveTestResult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 8-14 Days Before Positive Test Result"
-    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar1521daysbeforepositivetestresult:
+    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar1521DaysBeforePositiveTestResult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 15-21 Days Before Positive Test Result"
-    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar2242daysbeforepositivetestresult:
+    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar2242DaysBeforePositiveTestResult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 22-42 Days Before Positive Test Result"
-    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar43365daysbeforepositivetestresult:
+    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar43365DaysBeforePositiveTestResult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 43-365 Days Before Positive Test Result"
-    ListalllocationsofovernighttravelwithinZanzibar1024daysbeforepositivetestresult:
+    ListAllLocationsOfOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult:
       propertyName: "All Locations Of Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
-    IndexcasePatient: {}
-    IndexcasePatientscurrentstatus: {}
-    IndexcasePatientstreatmentstatus: {}
-    IndexcaseSleptunderLLINlastnight: {}
-    LastdateofIRS: {}
-    NumberofHouseholdMembersTreatedforMalariaWithinPastWeek: {}
-    NumberofHouseholdMemberswithFeverorHistoryofFeverWithinPastWeek: {}
-    NumberofLLIN: {}
-    NumberofSleepingPlacesbedsmattresses: {}
-    Numberofotherhouseholdswithin50stepsofindexcasehousehold:
+    IndexCasePatient: {}
+    IndexCasePatientSCurrentStatus: {}
+    IndexCasePatientSTreatmentStatus: {}
+    IndexCaseSleptUnderLlinLastNight: {}
+    LastDateOfIrs: {}
+    NumberOfHouseholdMembersTreatedForMalariaWithinPastWeek: {}
+    NumberOfHouseholdMembersWithFeverOrHistoryOfFeverWithinPastWeek: {}
+    NumberOfLlin: {}
+    NumberOfSleepingPlacesBedsMattresses: {}
+    NumberOfOtherHouseholdsWithin50StepsOfIndexCaseHousehold:
       propertyName: "Number of Other Households Within 50 Steps of Index Case Household"
-    Reasonforvisitinghousehold:
+    ReasonForVisitingHousehold:
       propertyName: "Reason for Visiting Household"
     ShehaMjumbe: {}
-    TotalNumberofResidentsintheHousehold: {}
+    TotalNumberOfResidentsInTheHousehold: {}
 
-    daysFromCaseNotificationToCompleteFacility: {}
-    daysFromSMSToCompleteHousehold:
+    DaysFromCaseNotificationToCompleteFacility: {}
+    DaysFromSmsToCompleteHousehold:
       propertyName: "Days between SMS Sent to DMSO to Having Complete Household"
 
-    daysBetweenPositiveResultAndNotificationFromFacility: {}
-    lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: {}
-    oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: {}
-    twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
-    moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    DaysBetweenPositiveResultAndNotificationFromFacility: {}
+    LessThanOneDayBetweenPositiveResultAndNotificationFromFacility: {}
+    OneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    TwoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
+    MoreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: {}
 
-    daysBetweenPositiveResultAndCompleteHousehold: {}
-    lessThanOneDayBetweenPositiveResultAndCompleteHousehold: {}
-    oneToTwoDaysBetweenPositiveResultAndCompleteHousehold: {}
-    twoToThreeDaysBetweenPositiveResultAndCompleteHousehold: {}
-    moreThanThreeDaysBetweenPositiveResultAndCompleteHousehold: {}
+    DaysBetweenPositiveResultAndCompleteHousehold: {}
+    LessThanOneDayBetweenPositiveResultAndCompleteHousehold: {}
+    OneToTwoDaysBetweenPositiveResultAndCompleteHousehold: {}
+    TwoToThreeDaysBetweenPositiveResultAndCompleteHousehold: {}
+    MoreThanThreeDaysBetweenPositiveResultAndCompleteHousehold: {}
 
     "USSD Notification: Created At":
       otherPropertyNames: ["createdAt"]
@@ -1329,7 +1329,7 @@ Case.createObjectTable = (name,object,mappings) ->
           labels = CONST.Labels
           _.map(object, (value, field) =>
             if !(Coconut.currentUser.isAdmin())
-              if (_.indexOf(['name','Name','FirstName','MiddleName','LastName','HeadofHouseholdName','ContactMobilepatientrelative'],field) != -1)
+              if (_.indexOf(['name','Name','FirstName','MiddleName','LastName','HeadOfHouseholdName','ContactMobilePatientRelative'],field) != -1)
                 value = "************"
             return if "#{field}".match(/_id|_rev|collection/)
             "
