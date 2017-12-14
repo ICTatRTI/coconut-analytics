@@ -35,7 +35,7 @@ class Case
         @questions.push resultDoc.question
         if resultDoc.question is "Household Members"
           this["Household Members"].push resultDoc
-        else if resultDoc.question is "Household" and resultDoc.ReasonForVisitingHousehold is "Index Case Neighbors"
+        else if resultDoc.question is "Household" and resultDoc.Reasonforvisitinghousehold is "Index Case Neighbors"
           this["Neighbor Households"].push resultDoc
         else
           if resultDoc.question is "Facility"
@@ -269,7 +269,7 @@ class Case
     return result
 
   completeHouseholdVisit: =>
-    @.Household?.complete is "true" or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes"
+    @.Household?.complete is true or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes"
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
@@ -844,7 +844,7 @@ class Case
     NumberOfSleepingPlacesBedsMattresses: {}
     NumberOfOtherHouseholdsWithin50StepsOfIndexCaseHousehold:
       propertyName: "Number of Other Households Within 50 Steps of Index Case Household"
-    ReasonForVisitingHousehold:
+    Reasonforvisitinghousehold:
       propertyName: "Reason for Visiting Household"
     ShehaMjumbe: {}
     TotalNumberOfResidentsInTheHousehold: {}

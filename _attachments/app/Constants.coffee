@@ -532,6 +532,7 @@ module.exports =
       "isUnder5": "Is Under 5"
       "TravelledOvernightInPastMonth": "Travelled Overnight in Past Month"
       "HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility": "Has Someone From The Same Household Recently Tested Positive at a Health Facility"
+      "Reasonforvisitinghousehold": "Reason For Visiting Household"
       "ReasonForVisitingHousehold": "Reason For Visiting Household"
       "CurrentBodyTemperatureC": "Current Body Temperature (C)"
       "IfYesListAllPlacesTravelled": "If Yes List All Places Travelled"
@@ -570,6 +571,7 @@ module.exports =
       "DaysFromCaseNotificationToCompleteFacility": "Days From Case Notification To Complete Facility"
       "DaysFromSmsToCompleteHousehold": "Days between SMS Senxt to DMSO to Having Complete Household"
       "Comments": "Comments"
+      "CommentsOrRemarks": "Comments or Remarks"
       "HouseholdLocationDescription": "Household Location - Description"
       "HouseholdLocationLatitude": "Household Location - Latitude"
       "HouseholdLocationLongitude": "Household Location - Longitude"
@@ -595,7 +597,7 @@ module.exports =
       "NumberPositiveCasesAtIndexHouseholdAndNeighborHouseholds": "Number Positive Cases At Index Household And Neighbor Households"
       "NumberHouseholdOrNeighborMembersTested": "Number Household Or Neighbor Members Tested"
       "NumberPositiveCasesIncludingIndex": "Number Positive Cases Including Index"
-
+      "transferred": "Transfered"
 
 
     }
