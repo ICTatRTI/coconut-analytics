@@ -765,10 +765,14 @@ class Case
     type: {}
 
     hasCompleteFacility: {}
-    notCompleteFacilityAfter24Hours: {}
-    notFollowedUpAfter48Hours: {}
-    notFollowedUpAfterXHours: {}
-    followedUpWithin48Hours: {}
+    notCompleteFacilityAfter24Hours:
+      propertyName: "Not Complete Facility After 24 Hours"
+    notFollowedUpAfter48Hours:
+      propertyName: "Not Followed Up After 48 Hours"
+    notFollowedUpAfterXHours: 
+      propertyName: "Not Followed Up After X Hours"
+    followedUpWithin48Hours:
+      propertyName: "Followed Up Within 48 Hours"
     indexCaseHasTravelHistory: {}
     indexCaseHasNoTravelHistory: {}
     indexCaseSuspectedImportedCase: {}
@@ -780,7 +784,8 @@ class Case
     numberHouseholdOrNeighborMembers: {}
     numberHouseholdOrNeighborMembersTested: {}
     numberPositiveCasesIncludingIndex: {}
-    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: {}
+    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5:
+      propertyName: "Number Positive Cases At Index Household And Neighbor Households Under 5"
     numberSuspectedImportedCasesIncludingHouseholdMembers: {}
     massScreenCase: {}
 
@@ -793,7 +798,8 @@ class Case
       propertyName: "Has Someone From the Same Household Recently Tested Positive at a Health Facility"
     HeadOfHouseholdName: {}
     ParasiteSpecies: {}
-    ReferenceInOpdRegister: {}
+    ReferenceInOpdRegister:
+      propertyName: "Reference In OPD Register"
     ShehaMjumbe: {}
     TravelledOvernightInPastMonth:
       propertyName: "Travelled Overnight in Past Month"
@@ -818,8 +824,8 @@ class Case
       propertyName: "Is Index Case Pregnant"
     IndexCaseOvernightTravelOutsideOfZanzibarInThePastYear:
       propertyName: "Has Index Case had Overnight Travel Outside of Zanzibar in the Past Year"
-    IndexCaseOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult: {}
-      "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
+    IndexCaseOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult:
+      propertyName: "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     TravelLocationName: {}
     AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar07DaysBeforePositiveTestResult:
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 0-7 Days Before Positive Test Result"
@@ -834,14 +840,20 @@ class Case
     ListAllLocationsOfOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult:
       propertyName: "All Locations Of Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     IndexCasePatient: {}
-    IndexCasePatientSCurrentStatus: {}
-    IndexCasePatientSTreatmentStatus: {}
-    IndexCaseSleptUnderLlinLastNight: {}
-    LastDateOfIrs: {}
+    IndexCasePatientSCurrentStatus:
+      propertyName: "Index Case Patient's Current Status"
+    IndexCasePatientSTreatmentStatus:
+      propertyName: "Index Case Patient's Treatment Status"
+    IndexCaseSleptUnderLlinLastNight:
+      propertyName: "Index Case Slept Under LLIN Last Night"
+    LastDateOfIrs:
+      propertyName: "Last Date Of IRS"
     NumberOfHouseholdMembersTreatedForMalariaWithinPastWeek: {}
     NumberOfHouseholdMembersWithFeverOrHistoryOfFeverWithinPastWeek: {}
-    NumberOfLlin: {}
-    NumberOfSleepingPlacesBedsMattresses: {}
+    NumberOfLlin:
+      propertyName: "Number Of LLIN"
+    NumberOfSleepingPlacesBedsMattresses:
+      propertyName: "Number of Sleeping Places (Beds/Mattresses)"
     NumberOfOtherHouseholdsWithin50StepsOfIndexCaseHousehold:
       propertyName: "Number of Other Households Within 50 Steps of Index Case Household"
     Reasonforvisitinghousehold:
