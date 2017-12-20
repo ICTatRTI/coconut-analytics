@@ -769,7 +769,7 @@ class Case
       propertyName: "Not Complete Facility After 24 Hours"
     notFollowedUpAfter48Hours:
       propertyName: "Not Followed Up After 48 Hours"
-    notFollowedUpAfterXHours: 
+    notFollowedUpAfterXHours:
       propertyName: "Not Followed Up After X Hours"
     followedUpWithin48Hours:
       propertyName: "Followed Up Within 48 Hours"
@@ -1175,7 +1175,9 @@ Case.updateCaseSummaryDocs = (options) ->
       limit: 1
     .then (result) ->
       console.log result
-      update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
+      if result.results.length isnt 0
+        # only update when there is change
+        update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
 
 Case.updateCaseSummaryDocsSince = (options) ->
     limit = options.maximumNumberChangesToProcess
