@@ -269,7 +269,7 @@ class Case
     return result
 
   completeHouseholdVisit: =>
-    @.Household?.complete is true or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes"
+    @.Household?.complete is "true" or @.Household?.complete is true or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes"
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
@@ -776,7 +776,10 @@ class Case
     indexCaseHasTravelHistory: {}
     indexCaseHasNoTravelHistory: {}
     indexCaseSuspectedImportedCase: {}
-    completeHouseholdVisit: {}
+    completeHouseholdVisit:
+      propertyName: "Complete Household Visit"
+    CompleteHouseholdVisit:
+      propertyName: "Complete Household Visit"
     numberHouseholdMembersTestedAndUntested: {}
     numberHouseholdMembersTested: {}
     numberPositiveCasesAtIndexHousehold: {}
