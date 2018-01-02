@@ -425,10 +425,11 @@ class Reports
       _(results.rows).each (result) ->
         caseId = result.value[1]
         user = result.value[0]
-        dataByUser[user].caseIds[caseId] = true
-        dataByUser[user].cases[caseId] = {}
-        total.caseIds[caseId] = true
-        total.cases[caseId] = {}
+        if user isnt ""
+          dataByUser[user].caseIds[caseId] = true
+          dataByUser[user].cases[caseId] = {}
+          total.caseIds[caseId] = true
+          total.cases[caseId] = {}
 
       _(dataByUser).each (userData,user) ->
         if _(dataByUser[user].cases).size() is 0
