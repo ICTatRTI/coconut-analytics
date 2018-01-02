@@ -51,7 +51,7 @@ class Case
 
           if this[resultDoc.question]?
             # Duplicate
-            if this[resultDoc.question].complete is "true" and (resultDoc.complete isnt "true")
+            if (this[resultDoc.question].complete is "true" or this[resultDoc.question].complete is true) and (resultDoc.complete isnt "true" or resultDoc.complete isnt true)
               console.warn "Using the result marked as complete"
               return #  Use the version already loaded which is marked as complete
             else if this[resultDoc.question].complete and resultDoc.complete
@@ -212,11 +212,11 @@ class Case
         _.each @["Household Members"]?, (member) ->
           result["Household Members"] = false if member.complete is "false"
       else
-        result[question] = (@[question]?.complete is "true")
+        result[question] = (@[question]?.complete is "true" or @[question]?.complete is true)
     return result
 
   complete: =>
-    @questionStatus()["Household Members"] is true
+    @questionStatus()["Household Members"] is true or @questionStatus()["Household Members"] is "true"
 
   hasCompleteFacility: =>
     @.Facility?.complete is "true" or @.Facility?.complete is true
@@ -289,7 +289,7 @@ class Case
   completeIndexCaseHouseholdMembers: =>
     return [] unless @["Household"]?
     _(@["Household Members"]).filter (householdMember) =>
-      householdMember.HeadofHouseholdName is @["Household"].HeadofHouseholdName and householdMember.complete is "true"
+      (householdMember.HeadofHouseholdName is @["Household"].HeadofHouseholdName or householdMember.HeadOfHouseholdName is @["Household"].HeadOfHouseholdName) and (householdMember.complete is "true" or householdMember.complete is true)
 
   hasCompleteIndexCaseHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
@@ -307,12 +307,12 @@ class Case
 
   completeNeighborHouseholds: =>
     _(@["Neighbor Households"]).filter (household) =>
-      household.complete is "true"
+      household.complete is "true" or household.complete is true
 
   completeNeighborHouseholdMembers: =>
     return [] unless @["Household"]?
     _(@["Household Members"]).filter (householdMember) =>
-      householdMember.HeadofHouseholdName isnt @["Household"].HeadofHouseholdName and householdMember.complete is "true"
+      (householdMember.HeadofHouseholdName isnt @["Household"].HeadofHouseholdName or householdMember.HeadOfHouseholdName isnt @["Household"].HeadOfHouseholdName) and (householdMember.complete is "true" or householdMember.complete is true)
 
   hasCompleteNeighborHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
@@ -385,7 +385,7 @@ class Case
     @Household?["Reason for visiting household"]? is "Mass Screen"
 
   indexCasePatientName: ->
-    if @["Facility"]?.complete is "true"
+    if (@["Facility"]?.complete is "true" or @["Facility"]?.complete is true)
       return "#{@["Facility"].FirstName} #{@["Facility"].LastName}"
     if @["USSD Notification"]?
       return @["USSD Notification"]?.name
@@ -585,23 +585,23 @@ class Case
 
   # Note the replace call to handle a bug that created lastModified entries with timezones
   timeFromCaseNotificationToCompleteFacility: =>
-    if @["Facility"]?.complete is "true" and @["Case Notification"]?
+    if (@["Facility"]?.complete is "true" or @["Facility"]?.complete is true) and @["Case Notification"]?
       return moment(@["Facility"].lastModifiedAt.replace(/\+0\d:00/,"")).diff(@["Case Notification"]?.createdAt)
 
   daysFromCaseNotificationToCompleteFacility: =>
-    if @["Facility"]?.complete is "true" and @["Case Notification"]?
+    if (@["Facility"]?.complete is "true" or @["Facility"]?.complete is true) and @["Case Notification"]?
       moment.duration(@timeFromCaseNotificationToCompleteFacility()).asDays()
 
   timeFromFacilityToCompleteHousehold: =>
-    if @["Household"]?.complete is "true" and @["Facility"]?
+    if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["Facility"]?
       return moment(@["Household"].lastModifiedAt.replace(/\+0\d:00/,"")).diff(@["Facility"]?.lastModifiedAt)
 
   timeFromSMSToCompleteHousehold: =>
-    if @["Household"]?.complete is "true" and @["USSD Notification"]?
+    if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["USSD Notification"]?
       return moment(@["Household"].lastModifiedAt.replace(/\+0\d:00/,"")).diff(@["USSD Notification"]?.date)
 
   daysFromSMSToCompleteHousehold: =>
-    if @["Household"]?.complete is "true" and @["USSD Notification"]?
+    if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
   createOrUpdateOnDhis2: (options = {}) =>
@@ -800,6 +800,7 @@ class Case
     HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility:
       propertyName: "Has Someone From the Same Household Recently Tested Positive at a Health Facility"
     HeadOfHouseholdName: {}
+    HeadofHouseholdName: {}
     ParasiteSpecies: {}
     ReferenceInOpdRegister:
       propertyName: "Reference In OPD Register"

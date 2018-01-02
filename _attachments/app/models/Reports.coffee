@@ -156,7 +156,7 @@ class Reports
           data.followups[caseLocation].allCases.push malariaCase
           data.followups["ALL"].allCases.push malariaCase
 
-          if malariaCase["Facility"]?.complete is "true"
+          if malariaCase["Facility"]?.complete is "true" or malariaCase["Facility"]?.complete is true
             data.followups[caseLocation].casesWithCompleteFacilityVisit.push malariaCase
             data.followups["ALL"].casesWithCompleteFacilityVisit.push malariaCase
           else
