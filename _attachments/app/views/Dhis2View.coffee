@@ -65,8 +65,8 @@ class Dhis2View extends Backbone.View
   test: =>
     dhis2 = new Dhis2
       dhis2Url: $("#dhis2Url").val()
-      username: $("#dhis2username").val()
-      password: $("#dhis2password").val()
+      dhis2username: $("#dhis2username").val()
+      dhis2password: $("#dhis2password").val()
       programId: $("#programId").val()
       malariaCaseEntityId: $("#malariaCaseEntityId").val()
       caseIdAttributeId: $("#caseIdAttributeId").val()
