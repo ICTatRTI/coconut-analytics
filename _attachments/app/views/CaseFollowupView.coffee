@@ -241,7 +241,7 @@ class CaseFollowupView extends Backbone.View
                     <button id= '#{malariaCase.caseID}' class='btn btn-small caseBtnLg #{if malariaCase.notFollowedUpAfter48Hours() then "mdl-button--primary" else "" } caseid'>#{malariaCase.caseID}</button>
                 </td>
                 <td class='IndexCaseDiagnosisDate mdl-data-table__cell--non-numeric'>
-                  #{malariaCase.indexCaseDiagnosisDate()}
+                  #{malariaCase.IndexCaseDiagnosisDate()}
                 </td>
                 <td class='HealthFacilityDistrict mdl-data-table__cell--non-numeric'>
                   #{

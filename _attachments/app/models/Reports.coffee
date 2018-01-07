@@ -604,7 +604,7 @@ class Reports
       result = {}
       _(cases).each (malariaCase) ->
         console.log "!"
-        diagnosisDate = malariaCase.indexCaseDiagnosisDate()
+        diagnosisDate = malariaCase.IndexCaseDiagnosisDate()
         if diagnosisDate is null
           console.error "Invalid date for malariaCase:"
           console.error malariaCase

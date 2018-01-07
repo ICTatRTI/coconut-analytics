@@ -392,7 +392,7 @@ class Case
     if @["Case Notification"]?
       return @["Case Notification"]?.Name
 
-  indexCaseDiagnosisDate: ->
+  IndexCaseDiagnosisDate: ->
     if @["Facility"]?.DateOfPositiveResults?
       date = @["Facility"].DateOfPositiveResults
       momentDate = if date.match(/^20\d\d/)
@@ -407,8 +407,8 @@ class Case
     else if @["Case Notification"]?
       return moment(@["Case Notification"].createdAt).format("YYYY-MM-DD")
 
-  indexCaseDiagnosisDateIsoWeek: =>
-    moment(@indexCaseDiagnosisDate()).isoWeek()
+  IndexCaseDiagnosisDateIsoWeek: =>
+    moment(@IndexCaseDiagnosisDate()).isoWeek()
 
   householdMembersDiagnosisDates: =>
     @householdMembersDiagnosisDate()
@@ -731,7 +731,8 @@ class Case
     MalariaCaseID:
       propertyName: "Malaria Case ID"
     indexCaseDiagnosisDate: {}
-    indexCaseDiagnosisDateIsoWeek: {}
+    IndexCaseDiagnosisDateIsoWeek:
+      propertyName: "Index Case Diagnosis Date ISO Week"
 
     # LostToFollowup: {}
     #
@@ -782,29 +783,26 @@ class Case
       propertyName: "Complete Household Visit"
     numberHouseholdMembersTestedAndUntested: {}
     numberHouseholdMembersTested: {}
-    numberPositiveCasesAtIndexHousehold: {}
-    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: {}
-    numberHouseholdOrNeighborMembers: {}
-    numberHouseholdOrNeighborMembersTested: {}
-    numberPositiveCasesIncludingIndex: {}
-    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5:
-      propertyName: "Number Positive Cases At Index Household And Neighbor Households Under 5"
-    numberSuspectedImportedCasesIncludingHouseholdMembers: {}
-    massScreenCase: {}
 
+    NumberPositiveCasesAtIndexHousehold: {}
+    NumberHouseholdOrNeighborMembers: {}
+    NumberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: {}
+    NumberHouseholdOrNeighborMembersTested: {}
+    NumberPositiveCasesIncludingIndex: {}
+    NumberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5:
+      propertyName: "Number Positive Cases At Index Household And Neighbor Households Under 5"
+    NumberSuspectedImportedCasesIncludingHouseholdMembers: {}
+    MassScreenCase: {}
     CaseIdForOtherHouseholdMemberThatTestedPositiveAtAHealthFacility:
       propertyName: "Case ID for Other Household Member That Tested Positive at a Health Facility"
     CommentRemarks: {}
-    ContactMobilePatientRelative:
-      propertyName: "Contact Mobile Patient Relative"
+    ContactMobilePatientRelative: {}
     HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility:
       propertyName: "Has Someone From the Same Household Recently Tested Positive at a Health Facility"
     HeadOfHouseholdName: {}
-    HeadofHouseholdName: {}
     ParasiteSpecies: {}
     ReferenceInOpdRegister:
       propertyName: "Reference In OPD Register"
-    ShehaMjumbe: {}
     TravelledOvernightInPastMonth:
       propertyName: "Travelled Overnight in Past Month"
     IfYesListAllPlacesTravelled:
@@ -816,14 +814,22 @@ class Case
     FollowupNeighbors: {}
     HaveYouGivenCouponsForNets: {}
     HeadOfHouseholdName: {}
-    "HouseholdLocationAccuracy": {}
-    "HouseholdLocationAltitude": {}
-    "HouseholdLocationAltitudeAccuracy": {}
-    "HouseholdLocationDescription": {}
-    "HouseholdLocationHeading": {}
-    "HouseholdLocationLatitude": {}
-    "HouseholdLocationLongitude": {}
-    "HouseholdLocationTimestamp": {}
+    HouseholdLocationAccuracy:
+      propertyName: "Household Location - Accuracy"
+    HouseholdLocationAltitude:
+      propertyName: "Household Location - Altitude"
+    HouseholdLocationAltitudeAccuracy:
+      propertyName: "Household Location - Altitude Accuracy"
+    HouseholdLocationDescription:
+      propertyName: "Household Location - Description"
+    HouseholdLocationHeading:
+      propertyName: "Household Location - Heading"
+    HouseholdLocationLatitude:
+      propertyName: "Household Location - Latitude"
+    HouseholdLocationLongitude:
+      propertyName: "Household Location - Longitude"
+    HouseholdLocationTimestamp:
+      propertyName: "Household Location - Timestamp"
     IndexCaseIfPatientIsFemale1545YearsOfAgeIsSheIsPregant:
       propertyName: "Is Index Case Pregnant"
     IndexCaseOvernightTravelOutsideOfZanzibarInThePastYear:
@@ -850,19 +856,22 @@ class Case
       propertyName: "Index Case Patient's Treatment Status"
     IndexCaseSleptUnderLlinLastNight:
       propertyName: "Index Case Slept Under LLIN Last Night"
+    IndexCaseDiagnosisDate: {}
     LastDateOfIrs:
       propertyName: "Last Date Of IRS"
-    NumberOfHouseholdMembersTreatedForMalariaWithinPastWeek: {}
-    NumberOfHouseholdMembersWithFeverOrHistoryOfFeverWithinPastWeek: {}
+    NumberOfHouseholdMembersTreatedForMalariaWithinPastWeek:
+      propertyName: "Number of Household Members Treated for Malaria Within Past Week"
+    NumberOfHouseholdMembersWithFeverOrHistoryOfFeverWithinPastWeek:
+      propertyName: "Number of Household Members With Fever or History of Fever Within Past Week"
     NumberOfLlin:
       propertyName: "Number Of LLIN"
     NumberOfSleepingPlacesBedsMattresses:
       propertyName: "Number of Sleeping Places (Beds/Mattresses)"
     NumberOfOtherHouseholdsWithin50StepsOfIndexCaseHousehold:
       propertyName: "Number of Other Households Within 50 Steps of Index Case Household"
-    Reasonforvisitinghousehold:
-      propertyName: "Reason for Visiting Household"
-    ShehaMjumbe: {}
+    ReasonForVisitingHousehold: {}
+    ShehaMjumbe:
+      propertyName: "Sheha Mjumbe"
     TotalNumberOfResidentsInTheHousehold: {}
 
     DaysFromCaseNotificationToCompleteFacility: {}
@@ -911,6 +920,166 @@ class Case
       otherPropertyNames: ["savedBy"]
     "Household: User":
       otherPropertyNames: ["user"]
+## Old naming
+    HeadofHouseholdName:
+      propertyName: "Head Of Household Name"
+    ContactMobilepatientrelative:
+      propertyName: "Contact Mobile Patient Relative"
+    IfYESlistALLplacestravelled:
+      propertyName: "All Places Traveled to in Past Month"
+    CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
+      propertyName: "CaseID For Other Household Member That Tested Positive at a Health Facility"
+    AgeinMonthsorYears:
+      propertyName: "Age in Months or Years"
+    TravelledOvernightinpastmonth:
+      propertyName: "Travelled Overnight in Past Month"
+    Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility:
+      propertyName: "Has Someone From The Same Household Recently Tested Positive at a Health Facility"
+    Reasonforvisitinghousehold:
+      propertyName: "Reason For Visiting Household"
+    Ifyeslistallplacestravelled:
+      propertyName: "If Yes List All Places Travelled"
+    AgeinYearsorMonths:
+      propertyName: "Age in Years or Months"
+    Fevercurrentlyorinthelasttwoweeks:
+      propertyName: "Fever Currently Or In The Last Two Weeks?"
+    SleptunderLLINlastnight:
+      propertyName: "Slept Under LLIN Last Night?"
+    OvernightTravelinpastmonth:
+      propertyName: "Overnight Travel in Past Month"
+    ResidentofShehia:
+      propertyName: "Resident of Shehia"
+    TotalNumberofResidentsintheHousehold:
+      propertyName: "Total Number of Residents in the Household"
+    NumberofLLIN:
+      propertyName: "Number of LLIN"
+    NumberofSleepingPlacesbedsmattresses:
+      propertyName: "Number of Sleeping Places (Beds/Mattresses)"
+    NumberofHouseholdMemberswithFeverorHistoryofFeverWithinPastWeek:
+      propertyName: "Number of Household Members With Fever or History of Fever Within Past Week"
+    NumberofHouseholdMembersTreatedforMalariaWithinPastWeek:
+      propertyName: "Number of Household Members Treated for Malaria Within Past Week"
+    LastdateofIRS:
+      propertyName: "Last Date of IRS"
+    Haveyougivencouponsfornets:
+      propertyName: "Have you given coupon(s) for nets?"
+    IndexcaseIfpatientisfemale1545yearsofageissheispregant:
+      propertyName: "Index Case: If Patient is Female 15-45 Years of Age, Is She Pregnant?"
+    IndexcasePatientscurrentstatus:
+      propertyName: "Index case: Patient's current status"
+    IndexcasePatientstreatmentstatus:
+      propertyName: "Index case: Patient's treatment status"
+    indexCasePatientName:
+      propertyName: "Patient Name"
+    IndexcasePatient:
+      propertyName: "Index Case Patient"
+    IndexcaseSleptunderLLINlastnight:
+      propertyName: "Index case: Slept under LLIN last night?"
+    IndexcaseOvernightTraveloutsideofZanzibarinthepastyear:
+      propertyName: "Index Case Overnight Travel Outside of Zanzibar in the Past Year"
+    IndexcaseOvernightTravelwithinZanzibar1024daysbeforepositivetestresult:
+      propertyName: "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
+    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar07daysbeforepositivetestresult:
+      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 0-7 Days Before Positive Test Result"
+    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar814daysbeforepositivetestresult:
+      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 8-14 Days Before Positive Test Result"
+    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar1521daysbeforepositivetestresult:
+      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 15-21 Days Before Positive Test Result"
+    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar2242daysbeforepositivetestresult:
+      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 22-42 Days Before Positive Test Result"
+    AlllocationsandentrypointsfromovernighttraveloutsideZanzibar43365daysbeforepositivetestresult:
+      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 43-365 Days Before Positive Test Result"
+    ListalllocationsofovernighttravelwithinZanzibar1024daysbeforepositivetestresult:
+      propertyName: "All Locations Of Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
+    daysBetweenPositiveResultAndNotificationFromFacility:
+      propertyName: "Days Between Positive Result at Facility and Case Notification"
+    daysFromCaseNotificationToCompleteFacility:
+      propertyName: "Days From Case Notification To Complete Facility"
+    daysFromSMSToCompleteHousehold:
+      propertyName: "Days between SMS Sent to DMSO to Having Complete Household"
+    "HouseholdLocation-description":
+      propertyName: "Household Location - Description"
+    "HouseholdLocation-latitude":
+      propertyName: "Household Location - Latitude"
+    "HouseholdLocation-longitude":
+      propertyName: "Household Location - Longitude"
+    "HouseholdLocation-accuracy":
+      propertyName: "Household Location - Accuracy"
+    "HouseholdLocation-altitude":
+      propertyName: "Household Location - Altitude"
+    "HouseholdLocation-altitudeAccuracy":
+      propertyName: "Household Location - Altitude Accuracy"
+    "HouseholdLocation-heading":
+      propertyName: "Household Location - Heading"
+    "HouseholdLocation-timestamp":
+      propertyName: "Household Location - Timestamp"
+    travelLocationName:
+      propertyName: "Travel Location Name"
+    OvernightTravelwithinZanzibar1024daysbeforepositivetestresult:
+      propertyName: "Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
+    OvernightTraveloutsideofZanzibarinthepastyear:
+      propertyName: "Overnight Travel Outside of Zanzibar In The Past Year"
+    ReferredtoHealthFacility:
+      propertyName: "Referred to Health Facility"
+    indexCaseDiagnosisDate:
+      propertyName: "Index Case Diagnosis Date"
+    hasCompleteFacility:
+      propertyName: "Has Complete Facility"
+    notCompleteFacilityAfter24Hours:
+      propertyName: "Not Complete Facility After 24 Hours"
+    notFollowedUpAfter48Hours:
+      propertyName: "Not Followed Up After 48 Hours"
+    followedUpWithin48Hours:
+      propertyName: "Followed Up Within 48Hours"
+    indexCaseHasTravelHistory:
+      propertyName: "Index Case Has Travel History"
+    indexCaseHasNoTravelHistory:
+      propertyName: "Index Case Has No Travel History"
+    completeHouseholdVisit:
+      propertyName: "Complete Household Visit"
+    numberPositiveCasesAtIndexHousehold:
+      propertyName: "Number Positive Cases At Index Household"
+    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds:
+      propertyName: "Number Positive Cases At Index Household And Neighbor Households"
+    numberHouseholdOrNeighborMembersTested:
+      propertyName: "Number Household Or Neighbor Members Tested"
+    numberPositiveCasesIncludingIndex:
+      propertyName: "Number Positive Cases Including Index"
+    numberHouseholdOrNeighborMembers:
+      propertyName: "Number Household Or Neighbor Members"
+    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5:
+      propertyName: "Number Positive Cases At Index Household And Neighbor Households Under 5"
+    numberSuspectedImportedCasesIncludingHouseholdMembers:
+      propertyName: "Number Suspected Imported Cases Including Household Members"
+    NumberofHouseholdMembersTreatedforMalariaWithinPastWeek:
+      propertyName: "Number of Household Members Treated for Malaria Within Past Week"
+    NumberofHouseholdMemberswithFeverorHistoryofFeverWithinPastWeek:
+      propertyName: "Number of Household Members With Fever or History of Fever Within Past Week"
+    massScreenCase:
+      propertyName: "Mass Screen Case"
+    TotalNumberofResidentsintheHousehold:
+      propertyName: "Total Number Of Residents In The Household"
+    daysBetweenPositiveResultAndNotificationFromFacility:
+       propertyName: "Days Between Positive Result at Facility and Case Notification"
+    lessThanOneDayBetweenPositiveResultAndNotificationFromFacility:
+       propertyName: "Less Than One Day Between Positive Result And Notification From Facility"
+    oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility:
+       propertyName: "One To Two Days Between Positive Result And Notification From Facility"
+    twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility:
+       propertyName: "Two To Three Days Between Positive Result And Notification From Facility"
+    moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility:
+       propertyName: "More Than Three Days Between Positive Result And Notification From Facility"
+    daysBetweenPositiveResultAndCompleteHousehold:
+       propertyName: "Days Between Positive Result And Complete Household"
+    lessThanOneDayBetweenPositiveResultAndCompleteHousehold:
+      propertyName: "Less Than One Day Between Positive Result And Complete Household"
+    oneToTwoDaysBetweenPositiveResultAndCompleteHousehold:
+       propertyName: "One To Two Days Between Positive Result And Complete Household"
+    twoToThreeDaysBetweenPositiveResultAndCompleteHousehold:
+       propertyName: "Two To Three Days Between Positive Result And Complete Household"
+    moreThanThreeDaysBetweenPositiveResultAndCompleteHousehold:
+       propertyName: "More Than Three Days Between Positive Result And Complete Household"
+
   }
 
 Case.resetSpreadsheetForAllCases = =>
