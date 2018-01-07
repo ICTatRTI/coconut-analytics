@@ -27,7 +27,7 @@ BackbonePouch = require 'backbone-pouch'
 _ = require 'underscore'
 
 global.Coconut =
-  database: new PouchDB(process?.argv[2] or "http://localhost:5984/coconut-surveillance-zanzibar")
+  database: new PouchDB(process?.argv[2] or "http://localhost:5984/democs")
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
