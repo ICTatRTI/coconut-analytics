@@ -69,30 +69,22 @@ Coconut.database.get "coconut.config"
           , 1000
 
           try
-            #Case.resetAllCaseSummaryDocs()
-            #
-            #
-            #Coconut.database.get "CaseSummaryData"
-            #.then (result) ->
-            #  result.lastChangeSequenceProcessed = 1000000
-            #  Coconut.database.put result
-            #  .then ->
-                Case.updateCaseSummaryDocs
-                  maximumNumberChangesToProcess: 3000
-                  error: (error) ->
-                    console.error "ERROR"
-                    console.error error
-                  success: (result) ->
-                    console.log "DONE"
-                    Coconut.database.changes
-                      live: true
-                      since: "now"
-                      filter: (doc) ->
-                        doc._id isnt "CaseSummaryData"
-                    .on "change", ->
-                      throttledUpdateCaseSummaryDocs
-                        error: (error) -> console.error error
-                        success: (result) -> console.log "DONE"
+            Case.updateCaseSummaryDocs
+              maximumNumberChangesToProcess: 3000
+              error: (error) ->
+                console.error "ERROR"
+                console.error error
+              success: (result) ->
+                console.log "DONE"
+                Coconut.database.changes
+                  live: true
+                  since: "now"
+                  filter: (doc) ->
+                    doc._id isnt "CaseSummaryData"
+                .on "change", ->
+                  throttledUpdateCaseSummaryDocs
+                    error: (error) -> console.error error
+                    success: (result) -> console.log "DONE"
           catch error
             console.log error
 .catch (error) ->
