@@ -64,7 +64,7 @@ class IssueView extends Backbone.View
         <table id='caseTable' class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
           <thead>
             #{
-              _(["caseId","district","shehia","village","indexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (header) ->
+              _(["caseId","district","shehia","village","IndexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (header) ->
                 "<th>#{header}</th>"
               .join ""
             }
@@ -94,7 +94,7 @@ class IssueView extends Backbone.View
                   "
                   <tr>
                   #{
-                    _(["caseId","district","shehia","village","indexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (property) ->
+                    _(["caseId","district","shehia","village","IndexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (property) ->
                       "<td>
                         #{
                           if property is "caseId"

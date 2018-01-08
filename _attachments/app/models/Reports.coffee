@@ -156,7 +156,7 @@ class Reports
           data.followups[caseLocation].allCases.push malariaCase
           data.followups["ALL"].allCases.push malariaCase
 
-          if malariaCase["Facility"]?.complete is "true"
+          if malariaCase["Facility"]?.complete is "true" or malariaCase["Facility"]?.complete is true
             data.followups[caseLocation].casesWithCompleteFacilityVisit.push malariaCase
             data.followups["ALL"].casesWithCompleteFacilityVisit.push malariaCase
           else
@@ -246,13 +246,13 @@ class Reports
                   data.netsAndIRS[caseLocation].recentIRS.push positiveCase
                   data.netsAndIRS["ALL"].recentIRS.push positiveCase
 
-              if positiveCase.TravelledOvernightinpastmonth?
-                if positiveCase.TravelledOvernightinpastmonth is "Unknown"
-                  positiveCase.TravelledOvernightinpastmonth = "Not Applicable"
-                data.travel[caseLocation][positiveCase.TravelledOvernightinpastmonth].push positiveCase
-                data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightinpastmonth.match(/Yes/)
-                data.travel["ALL"][positiveCase.TravelledOvernightinpastmonth].push positiveCase
-                data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightinpastmonth.match(/Yes/)
+              if positiveCase.TravelledOvernightInPastMonth?
+                if positiveCase.TravelledOvernightInPastMonth is "Unknown"
+                  positiveCase.TravelledOvernightInPastMonth = "Not Applicable"
+                data.travel[caseLocation][positiveCase.TravelledOvernightInPastMonth].push positiveCase
+                data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
+                data.travel["ALL"][positiveCase.TravelledOvernightInPastMonth].push positiveCase
+                data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
               else if positiveCase.OvernightTravelinpastmonth
                 if positiveCase.OvernightTravelinpastmonth is "Unknown"
                   positiveCase.OvernightTravelinpastmonth = "Not Applicable"
@@ -425,10 +425,11 @@ class Reports
       _(results.rows).each (result) ->
         caseId = result.value[1]
         user = result.value[0]
-        dataByUser[user].caseIds[caseId] = true
-        dataByUser[user].cases[caseId] = {}
-        total.caseIds[caseId] = true
-        total.cases[caseId] = {}
+        if user isnt ""
+          dataByUser[user].caseIds[caseId] = true
+          dataByUser[user].cases[caseId] = {}
+          total.caseIds[caseId] = true
+          total.cases[caseId] = {}
 
       _(dataByUser).each (userData,user) ->
         if _(dataByUser[user].cases).size() is 0
@@ -603,7 +604,7 @@ class Reports
       result = {}
       _(cases).each (malariaCase) ->
         console.log "!"
-        diagnosisDate = malariaCase.indexCaseDiagnosisDate()
+        diagnosisDate = malariaCase.IndexCaseDiagnosisDate()
         if diagnosisDate is null
           console.error "Invalid date for malariaCase:"
           console.error malariaCase

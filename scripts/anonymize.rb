@@ -7,7 +7,7 @@ require 'yaml'
 
 #RestClient.log = 'stdout'
 
-@db = CouchRest.database("http://admin:password@localhost:5984/coconut-surveillance-zanzibar")
+@db = CouchRest.database("http://admin:password@localhost:5984/zanzibar")
 #@db = CouchRest.database("http://cococloud.co/zanzibar")
 #
 @db.bulk_save_cache_limit = 100
@@ -193,10 +193,10 @@ def filter_for_2013_2016
   if @db.get("filtered_for_2013_2016_data")
     puts "Database already filtered"
   else
-    # Remove everything beside 2013-2015
+    # Remove everything beside 2014-2015
     #puts @db.view('caseIDsByDate/caseIDsByDate?startKey="2010"&endKey="2012-12-31"')['rows'][0]
-    puts "Removing case data before 2012-12-31"
-    @db.view('caseIDsByDate/caseIDsByDate', {:endkey=>"2013", :include_docs=>true, :inclusive_end=>true})['rows'].each do |row|
+    puts "Removing case data before 2013-12-31"
+    @db.view('caseIDsByDate/caseIDsByDate', {:endkey=>"2014", :include_docs=>true, :inclusive_end=>true})['rows'].each do |row|
       #print "-"
       puts row["key"]
       @db.delete_doc({"_id" => row["id"], "_rev" => row["doc"]["_rev"]}, true)
@@ -209,8 +209,8 @@ def filter_for_2013_2016
       @db.delete_doc({"_id" => row["id"], "_rev" => row["doc"]["_rev"]}, true)
     end
 
-    puts "Removing weekly data before 2012-12-31"
-    @db.view('weeklyDataBySubmitDate/weeklyDataBySubmitDate', {:endkey=>["2013"], :include_docs => true, :inclusive_end=>true, :reduce => false})['rows'].each do |row|
+    puts "Removing weekly data before 2013-12-31"
+    @db.view('weeklyDataBySubmitDate/weeklyDataBySubmitDate', {:endkey=>["2014"], :include_docs => true, :inclusive_end=>true, :reduce => false})['rows'].each do |row|
       #print "+"
       puts row["key"]
       @db.delete_doc({"_id" => row["id"], "_rev" => row["doc"]["_rev"]}, true)
@@ -223,12 +223,11 @@ def filter_for_2013_2016
       @db.delete_doc({"_id" => row["id"], "_rev" => row["doc"]["_rev"]}, true)
     end
 
-
-    puts "Removing all case_summary docs (need to rebuild)"
-    @db.all_docs({:startkey => "case_summary_", :endkey => "case_summary_zz"})['rows'].each{ |row|
-      print "."
-      @db.delete_doc({"_id" => row["id"], "_rev" => row["value"]["rev"]}, true) unless row.nil?
-    }
+    # puts "Removing all case_summary docs (need to rebuild)"
+    # @db.all_docs({:startkey => "case_summary_", :endkey => "case_summary_zz"})['rows'].each{ |row|
+    #   print "."
+    #   @db.delete_doc({"_id" => row["id"], "_rev" => row["value"]["rev"]}, true) unless row.nil?
+    # }
 
     puts "Saving: " + @db.bulk_save().to_yaml
 
@@ -237,12 +236,12 @@ def filter_for_2013_2016
 
 end
 
-filter_for_2013_2016()
-filter_for_2013_2016()
+#filter_for_2013_2016()
+#filter_for_2013_2016()
 filter_for_2013_2016() # Not sure why I have to do this multiple times but a few get left out
 @db.save_doc('_id' => "filtered_for_2013_2016_data") unless @db.get("filtered_for_2013_2016_data")
 
-days_to_shift = (DateTime.now - DateTime.parse(@db.view("zanzibar/caseIDsByDate", {:limit => 1, :descending => true})['rows'][0]["key"])).to_i
+days_to_shift = (DateTime.now - DateTime.parse(@db.view("caseIDsByDate/caseIDsByDate", {:limit => 1, :descending => true})['rows'][0]["key"])).to_i
 
 puts "Fixing identifying attributes and shifting dates by #{days_to_shift}"
 @db.view('caseIDsByDate/caseIDsByDate?include_docs=true')['rows'].map{|row|row["doc"]}.each do |doc|
@@ -258,7 +257,7 @@ puts "Shifting dates for weekly reports by #{days_to_shift}"
     doc["Submit Date"] = (DateTime.parse(doc["Submit Date"]) + days_to_shift).strftime("%Y-%m-%d %H:%M:%S")
     doc["date_shifted"] = true
     doc["shift_amount"] = days_to_shift
-    @db.bulk_save_doc(result)
+    @db.bulk_save_doc(doc)
   end
 end
 

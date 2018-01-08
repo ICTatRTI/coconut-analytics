@@ -31,9 +31,10 @@ class Dhis2View extends Backbone.View
       <h4>DHIS2</h4>
       #{
         _(@fields).map (fieldName, fieldId) ->
+          inputType = if fieldId is "dhis2password" then "password" else "text"
           "
           <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-            <input class='mdl-textfield__input' type='text' id='#{fieldId}' value=''>
+            <input class='mdl-textfield__input' type='#{inputType}' id='#{fieldId}' value=''>
             <label class='mdl-textfield__label' for='#{fieldId}'>#{fieldName}</label>
           </div>
           "
@@ -64,8 +65,8 @@ class Dhis2View extends Backbone.View
   test: =>
     dhis2 = new Dhis2
       dhis2Url: $("#dhis2Url").val()
-      username: $("#dhis2username").val()
-      password: $("#dhis2password").val()
+      dhis2username: $("#dhis2username").val()
+      dhis2password: $("#dhis2password").val()
       programId: $("#programId").val()
       malariaCaseEntityId: $("#malariaCaseEntityId").val()
       caseIdAttributeId: $("#caseIdAttributeId").val()

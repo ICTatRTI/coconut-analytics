@@ -38,12 +38,13 @@ class Dhis2
 
   request: (options) =>
     options.data = JSON.stringify(options.data) if options.method is "POST" or options.method is "PUT"
+#    console.log("DHIS2Url = #{@dhis2Url}/api/#{options.api}")
     $.ajax
       url: "#{@dhis2Url}/api/#{options.api}"
 #      beforeSend: (xhr) ->
 #        xhr.setRequestHeader("Authorization", "Basic " + btoa(@dhis2username + ":" + @dhis2password))
-      username: @dhis2username
-      password: @dhis2password
+      headers:
+        Authorization: "Basic " + btoa(@dhis2username + ":" + @dhis2password)
       method: options.method or "GET"
       crossDomain: true
       contentType: "application/json"

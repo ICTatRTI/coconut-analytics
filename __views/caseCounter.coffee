@@ -2,7 +2,7 @@
   if doc._id.lastIndexOf("case_summary_", 0) is 0 # Implements startsWith http://stackoverflow.com/a/4579228/266111
     if doc["Index Case Diagnosis Date"]?
       total = doc["Number Positive Cases Including Index"]
-      under5 = doc["Number Positive Cases At Index Household And Neighbor Households Under5"]
+      under5 = if doc["Number Positive Cases At Index Household And Neighbor Households Under 5"]? then doc["Number Positive Cases At Index Household And Neighbor Households Under 5"] else doc["Number Positive Cases At Index Household And Neighbor Households Under5"]
       over5 = total - under5
       emit [doc["Index Case Diagnosis Date"], "Over 5"], over5
       emit [doc["Index Case Diagnosis Date"], "Under 5"], under5
