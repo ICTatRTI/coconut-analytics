@@ -12,6 +12,14 @@ class CaseView extends Backbone.View
   render: (scrollTargetID) =>
 
     Coconut.case = @case
+    tables = [
+      "Summary"
+      "USSD Notification"
+      "Case Notification"
+      "Facility"
+      "Household"
+      "Household Members"
+    ]
     @$el.html "
       <style>
         table#caseTable {width: 95%; margin-bottom: 30px}
@@ -20,16 +28,13 @@ class CaseView extends Backbone.View
 
       <h3>Case ID: #{@case.MalariaCaseID()}</h3>
       <h5>Last Modified: #{@case.LastModifiedAt()}</h5>
-      <h5>Questions: #{@case.Questions()}</h5>
+      <h5>Questions: 
+        #{
+          # TODO - make these links that scroll to appropriate table
+          tables.join(", ")
+        }
+      }</h5>
     "
-
-    tables = [
-      "USSD Notification"
-      "Case Notification"
-      "Facility"
-      "Household"
-      "Household Members"
-    ]
 
     @mappings = {
       createdAt: "Created At"
@@ -43,7 +48,9 @@ class CaseView extends Backbone.View
     # USSD Notification doesn't have a mapping
     finished = _.after 4, =>
       @$el.append _.map(tables, (tableType) =>
-        if @case[tableType]?
+        if (tableType is "Summary")
+          @createObjectTable(tableType,@case.summaryCollection())
+        else if @case[tableType]?
           if tableType is "Household Members"
             _.map(@case[tableType], (householdMember) =>
               @createObjectTable(tableType,householdMember)
@@ -53,7 +60,7 @@ class CaseView extends Backbone.View
       ).join("")
       _.each $('table tr'), (row, index) ->
         $(row).addClass("odd") if index%2 is 1
-      $('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
+      #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
 
     _(tables).each (question) =>
       question = new Question(id: question)
@@ -66,7 +73,7 @@ class CaseView extends Backbone.View
 
   createObjectTable: (name,object) =>
     "
-      <h4 id=#{object._id}>#{name} 
+      <h4 id=#{object._id or ""}>#{name} 
         <!-- <small><a href='#edit/result/#{object._id}'>Edit</a></small> --> 
       </h4>
       <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp' id='caseTable'>
