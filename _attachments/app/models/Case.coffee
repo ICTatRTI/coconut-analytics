@@ -1446,6 +1446,7 @@ Case.createCaseView = (options) ->
   @case = options.case
 
   tables = [
+    "Summary"
     "USSD Notification"
     "Case Notification"
     "Facility"
@@ -1472,15 +1473,17 @@ Case.createCaseView = (options) ->
   "
 
   # USSD Notification doesn't have a mapping
-  finished = _.after 5, =>
+  finished = _.after tables.length, =>
     Coconut.caseview += _.map(tables, (tableType) =>
-      if @case[tableType]?
+      if (tableType is "Summary")
+        @createObjectTable(tableType,@case.summaryCollection())
+      else if @case[tableType]?
         if tableType is "Household Members"
           _.map(@case[tableType], (householdMember) =>
-            @createObjectTable(tableType,householdMember, @mappings)
+            @createObjectTable(tableType,householdMember)
           ).join("")
         else
-          @createObjectTable(tableType,@case[tableType], @mappings)
+          @createObjectTable(tableType,@case[tableType])
     ).join("")
     options?.success()
     return false
@@ -1495,7 +1498,7 @@ Case.createCaseView = (options) ->
     return false
 
 
-Case.createObjectTable = (name,object,mappings) ->
+Case.createObjectTable = (name,object) ->
   #Hack to replace title to differ from Questions title
   name = "Case Notification Received" if name == 'Case Notification'
   name = "Case Notification Sent" if name == 'USSD Notification'
@@ -1523,7 +1526,7 @@ Case.createObjectTable = (name,object,mappings) ->
               <tr>
                 <td class='mdl-data-table__cell--non-numeric'>
                   #{
-                   mappings[field] or labels[field]
+                   @mappings[field] or labels[field] or field
                   }
                 </td>
                 <td class='mdl-data-table__cell--non-numeric'>#{value}</td>
