@@ -5,7 +5,7 @@ Backbone.$  = $
 
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
-FacilityHierarchy = require '../models/FacilityHierarchy'
+#FacilityHierarchy = require '../models/FacilityHierarchy'
 
 class CompareWeeklyView extends Backbone.View
   el: "#content"
@@ -33,6 +33,7 @@ class CompareWeeklyView extends Backbone.View
     @renderFacilityTimeliness()
 
   renderFacilityTimeliness: =>
+    $('#analysis-spinner').show()
     $('table#facilityTimeliness tbody').html "
             #{
               quartilesAndMedian = (values)->
@@ -232,6 +233,7 @@ class CompareWeeklyView extends Backbone.View
         $(".dataTables_info").hide()
       else
         $(".DTTT_container").hide()
+    $('#analysis-spinner').hide()
 
   render: =>
     @options = $.extend({},Coconut.router.reportViewOptions)
@@ -337,7 +339,6 @@ class CompareWeeklyView extends Backbone.View
         console.error error
       success: (results) =>
         @results = results
-        $('#analysis-spinner').hide()
         @renderFacilityTimeliness()
 
 module.exports = CompareWeeklyView

@@ -100,7 +100,7 @@ class GeoHierarchy
   ###
     Zanzibar Specific Functions - should have generic equivalent above
   ###
-  
+
   swahiliDistrictName: (districtName) =>
     @findFirst(districtName, "DISTRICT")?.name
 
@@ -148,6 +148,21 @@ class GeoHierarchy
 
   allFacilities: => _.pluck @findAllForLevel("FACILITY"), "name"
 
+  getFacility: (facility) =>
+    facility = facility.trim() if facility
+    if _(@allFacilities()).contains facility
+      return facility
+    # Still no match? - check aliases
+    result = null
+    _.each FacilityHierarchy.hierarchy, (districtFacilities) ->
+      return if result?
+
+      matchedFacilityData =  _(districtFacilities).find (facilityData) ->
+        _(facilityData.aliases).contains(facility)
+
+      result = matchedFacilityData.facility if matchedFacilityData
+    return result
+
   # Warning facilityNames may not be unique
   getDistrict: (facilityName) =>
     ancestors = @findAllAncestorsAtLevel(facilityName, "FACILITY", "DISTRICT")
@@ -161,7 +176,7 @@ class GeoHierarchy
   facilities: (districtName) =>
     _(@findAllDescendantsAtLevel(districtName, "DISTRICT", "FACILITY")).pluck "name"
 
-  facilitiesForDistrict: (districtName) => @facilities(district)
+  facilitiesForDistrict: (districtName) => @facilities(districtName)
 
   facilitiesForZone: (zoneName) => @findAllDescendantsAtLevel(zoneName, "ZONE", "FACILITY")
 

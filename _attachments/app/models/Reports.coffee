@@ -558,7 +558,7 @@ class Reports
 
           if aggregationArea is "Facility" # Necessary for handling aliases (facilities with different names)
             facilityName = area
-            area = FacilityHierarchy.getFacility(facilityName)
+            area = GeoHierarchy.getFacility(facilityName)
             if area is null
               console.error "Can't find facility #{facilityName}"
               console.error row
