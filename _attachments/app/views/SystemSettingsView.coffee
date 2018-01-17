@@ -3,7 +3,6 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 
-Reports = require '../models/Reports'
 Dialog = require './Dialog'
 Config = require '../models/Config'
 CONST = require '../Constants'
@@ -177,25 +176,6 @@ class SystemSettingsView extends Backbone.View
       </div>
       <div class='mdl-grid'>
         <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
-          <h4>Reports Settings</h4>
-          <div class='indent m-l-20'>
-            <h5>Response Time Target <span><small>( in hours )</small></span></h5>
-            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='case_notification' value='#{Coconut.config.case_notification}'>
-              <label class='mdl-textfield__label' for='case_notification'>T1:Case reporting</label>
-              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
-            </div>
-            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='case_followup' value='#{Coconut.config.case_followup}'>
-              <label class='mdl-textfield__label' for='cloud_database_name'>T2:Case investigation</label>
-              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
-            </div>
-            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label setting_inputs'>
-              <input class='mdl-textfield__input' type='text' pattern='[0-9]*' id='case_focus_investigation' value='#{Coconut.config.case_focus_investigation || 0}'>
-              <label class='mdl-textfield__label' for='cloud_database_name'>T3:Focus investigation</label>
-              <span class='mdl-textfield__error'>Only positive integer allowed.</span>
-            </div>
-          </div>
         </div>
         <div class='mdl-cell mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone'>
            <h4>Map Settings</h4>

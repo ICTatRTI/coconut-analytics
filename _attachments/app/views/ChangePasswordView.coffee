@@ -6,7 +6,6 @@ Backbone.$  = $
 Dialog = require './Dialog'
 User = require '../models/User'
 dialogPolyfill = require 'dialog-polyfill'
-CONST = require "../Constants"
 crypto = require('crypto')
 Config = require '../models/Config'
 

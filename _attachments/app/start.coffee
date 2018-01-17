@@ -12,8 +12,8 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB('https://cococloud.co/democs')
-AppView = require './AppView'
+global.pouchdb = new PouchDB('http://localhost:5984/wusc')
+#global.pouchdb = new PouchDB('https://wusc.cococloud.co:6984/wusc')
 global.HTMLHelpers = require './HTMLHelpers'
 
 # These are local .coffee files
@@ -22,22 +22,20 @@ User = require './models/User'
 Config = require './models/Config'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
-GeoHierarchyClass = require './models/GeoHierarchy'
-DhisOrganisationUnits = require './models/DhisOrganisationUnits'
 QuestionCollection = require './models/QuestionCollection'
-Dhis2 = require './models/Dhis2'
-ChromeView = require './views/ChromeView'
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
 
 global.Coconut =
   database: pouchdb
-  router: new Router(AppView)
+  router: new Router()
   currentlogin: Cookies.get('current_user') || null
   reportDates:
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
     endDate: moment().format("YYYY-MM-DD")
+  config:
+    appName: "WUSC"
 
 global.Env = {
 #  is_chrome: /chrome/i.test(navigator.userAgent)
@@ -55,9 +53,9 @@ checkBrowser = (callback) ->
   if !Env.is_chrome
     chromeView = new ChromeView()
     chromeView.render()
-    callback.success()
+    callback?.success()
   else
-    callback.success()
+    callback?.success()
 
 User.isAuthenticated
   success: ->
@@ -70,42 +68,7 @@ User.isAuthenticated
 Coconut.headerView = new HeaderView
 Coconut.headerView.render()
 
-Config.getConfig
-  error: ->
-    console.log("Error Retrieving Config")
-  success: ->
-    Config.getLogoUrl()
-    .catch (error) ->
-      console.error "Logo Url not setup"
-      console.error error
-    .then (url) ->
-      Coconut.logoUrl = url
-      Coconut.menuView = new MenuView
-
-      Coconut.menuView.render()
-      _(["shehias_high_risk","shehias_received_irs"]).each (docId) ->
-        Coconut.database.get docId
-        .catch (error) -> console.error error
-        .then (result) ->
-          Coconut[docId] = result
-
-
-    Coconut.dhis2 = new Dhis2()
-    Coconut.dhis2.loadFromDatabase
-      error: (error) -> console.error error
-      success: ->
-        dhisOrganisationUnits = new DhisOrganisationUnits()
-        dhisOrganisationUnits.rawData = Coconut.dhis2.dhis2Doc
-        dhisOrganisationUnits.extendExport
-          error: (error) -> console.error error
-          success: (result) ->
-            global.GeoHierarchy = new GeoHierarchyClass(result)
-            global.FacilityHierarchy = GeoHierarchy # These have been combined
-            Coconut.questions = new QuestionCollection()
-            Coconut.questions.fetch
-              error: (error) -> console.error error
-              success: ->
-                Backbone.history.start()
-                checkBrowser()
-
-    global.Issues = require './models/Issues'
+Coconut.menuView = new MenuView
+Coconut.menuView.render()
+Backbone.history.start()
+checkBrowser()

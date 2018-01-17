@@ -18,9 +18,7 @@ moment = require 'moment'
 
 DataTables = require( 'datatables.net' )()
 User = require '../models/User'
-UserCollection = require '../models/UserCollection'
 crypto = require('crypto')
-CONST = require "../Constants"
 
 class UsersView extends Backbone.View
     el:'#content'
@@ -82,7 +80,6 @@ class UsersView extends Backbone.View
       errorMsg = ""
       errorMsg += 'Username, ' if $('#_id').val() == ''
       errorMsg += 'Password, ' if $('input#mode').val() == 'add' and $('#passwd').val() == ''
-      errorMsg += 'District, ' if $('#district').val() == ''
       errorMsg += 'Name, ' if $('#name').val() == ''
 
       if errorMsg != ''
@@ -98,7 +95,6 @@ class UsersView extends Backbone.View
         @user.collection = "user"
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
-        @user.district = $("select#district").val()
         @user.password = $('#passwd').val()
         @user.name = $('#name').val()
         @user.email = $('#email').val()
@@ -182,13 +178,15 @@ class UsersView extends Backbone.View
 
     render: =>
       HTMLHelpers.ChangeTitle("Admin: Users")
-      Coconut.database.query "users",
+      Coconut.database.allDocs
+        startkey: "user.",
+        endkey: "user.\ufff0"
         include_docs: true
       .catch (error) -> console.error error
       .then (result) =>
         users = _(result.rows).pluck("doc")
 
-        @fields =  "_id,password,district,name".split(",")
+        @fields =  "_id,password,name".split(",")
         @dialogEdit = "
           <form id='user' method='dialog'>
              <div id='dialog-title'> </div>
@@ -201,25 +199,7 @@ class UsersView extends Backbone.View
              <div id='errMsg'></div>
              <input type='hidden' id='mode' value='' />
              #{
-              _.map( @fields, (field) =>
-                if field is 'district'
-                  selectList = GeoHierarchy.allDistricts()
-                  "
-                  <div class='mdl-select mdl-js-select mdl-select--floating-label'>
-                      <select class='mdl-select__input' id='#{field}' name='#{field}'>
-                        <option value=''></option>
-                        #{
-                          selectList.map (list) =>
-                            "<option value='#{list}'>
-                              #{list}
-                             </option>"
-                          .join ""
-                        }
-                      </select>
-                      <label class='mdl-select__label' for='#{field}'>#{humanize(field)}</label>
-                  </div>
-                  "
-                else
+                _.map( @fields, (field) =>
                   "
                      <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_#{field}'>
                        <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if (field is "_id" and not @user) then "readonly='true'" else ""} #{ if field is "_id" then "style='text-transform:lowercase;' onkeyup='javascript:this.value=this.value.toLowerCase()'"}></input>
@@ -289,7 +269,6 @@ class UsersView extends Backbone.View
                 <thead>
                   <tr>
                   <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
-                  <th class='header mdl-data-table__cell--non-numeric'>District</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Name</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Email</th>
                   <th class='header mdl-data-table__cell--non-numeric'>Roles</th>
@@ -304,7 +283,6 @@ class UsersView extends Backbone.View
                       "
                       <tr>
                         <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.email || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{user.roles || ''}</td>

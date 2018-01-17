@@ -61,62 +61,15 @@ class MenuView extends Backbone.View
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-document mdi-24px'></i>
         Reports</span>
         <div class='m-l-20 dropdown' id='drawer-reports'>
-        #{
-          reportLinks = {
-            Analysis: "Analysis"
-            Casefollowup: "Case Follow-ups Status"
-            Compareweekly: "Compare Weekly Facility Reports With Case Follow-ups"
-            Epidemicthreshold: "Epidemic Thresholds"
-            Systemerrors: "Errors Detected By System"
-            Periodtrends: "Period Trends Compared To Previous 3 Weeks"
-            Rainfallreport: "Rainfall Submission"
-            Usersreport: "Users Report - How Fast are Follow-ups Occurring"
-            Weeklyreports: "Weekly Facility Reports"
-            #Weeklysummary: "Weekly Trends Compared To Previous 3 Weeks"
-          }
-          _(reportLinks).map (linkText, linkUrl) ->
-            "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
-          .join ""
-        }
         </div>
         <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-ticket mdi-24px'></i>
             Activities
         </span>
-        <div class='m-l-20 dropdown' id='drawer-activities'>
-        #{
-             activityLinks = {
-               Issues: "Issues"
-               Messaging: "Send SMS To Users"
-             }
-             _(activityLinks).map (linkText, linkUrl) ->
-               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/type/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
-             .join ""
-        }
-        </div>
         <span class='mdl-navigation__link drawer__subtitle' id='graphs-main' data-title='Graphs' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-chart mdi-24px'></i>
             Graphs
         </span>
-        <div class='m-l-20 dropdown' id='drawer-graphs'>
-          #{
-           graphLinks = {
-             IncidentsGraph: "Number of Cases"
-             PositiveCasesGraph: "Number of Positive Malaria Cases by Age"
-             AttendanceGraph: "Attendance"
-             TestRateGraph: "Test Rate"
-             PositivityGraph: "Number of Persons Tested and Number Positive"
-             # positivity_with_rainfall: "Positivity With Rainfall"
-             # positivity_by_year: "Positivity Cases By Year"
-             TimeToNotify: "Time to Notify"
-             TimeToComplete: "Time to Follow-up"
-
-           }
-           _(graphLinks).map (linkText, linkUrl) ->
-             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
-           .join ""
-          }
-        </div>
         <a class='mdl-navigation__link drawer__link' href='#maps' id='maps' data-title='Maps' data-category='menuLink'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-map mdi-24px'></i>
             <span class='link-title'>Maps</span>

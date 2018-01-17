@@ -45,6 +45,7 @@ class User extends Backbone.Model
 
 
 User.isAuthenticated = (options) ->
+  console.log "AAAA"
   username = Cookies.get('current_user')
   if username? and username isnt ""
     id = "user.#{username}"
@@ -68,8 +69,12 @@ User.login = (options) ->
     success: ->
       if !(user.inActive())
         hashPwd = user.get("password") || 'unknown'
-        salt = Config.salt()
+        salt = ""
+        console.log "salt"
+        console.log salt
         hashKey = (crypto.pbkdf2Sync options.password, salt, 1000, 256/8, 'sha256').toString('base64')
+        console.log hashPwd
+        console.log hashKey
         if hashPwd is hashKey
           Coconut.currentUser = user
           Coconut.currentlogin = user.username()
