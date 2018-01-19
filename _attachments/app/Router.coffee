@@ -9,6 +9,7 @@ PouchDB = require 'pouchdb'
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
 UsersView = require './views/UsersView'
+SchoolsView = require './views/SchoolsView'
 SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
 ChangePasswordView = require './views/ChangePasswordView'
@@ -51,6 +52,7 @@ class Router extends Backbone.Router
     "reset_password": "reset_password"
     "admin/system_settings": "systemSettings"
     "admin/users": "users"
+    "admin/schools": "schools"
     "*noMatch": "noMatch"
 
   dashboard: =>
@@ -117,6 +119,14 @@ class Router extends Backbone.Router
       success: =>
         @usersView = new UsersView() unless @usersView
         @usersView.render()
+      error: =>
+        @notAdmin()
+
+  schools: () =>
+    @adminLoggedIn
+      success: =>
+        @schoolsView = new SchoolsView() unless @schoolsView
+        @schoolsView.render()
       error: =>
         @notAdmin()
 
