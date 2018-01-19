@@ -49,7 +49,7 @@ class MenuView extends Backbone.View
     @$el.html "
       <header class='coconut-drawer-header'>
         <div class='clear m-t-30'>
-          <div class='f-left m-l-20'><img src=\"#{Coconut.logoUrl}\" id='cslogo_sm'></div>
+          <div class='f-left m-l-20'><img src=\"#{Coconut.logoUrl}\" id='wusclogo_sm'></div>
           <div class='mdl-layout-title' id='drawer-title'>#{Coconut.config.appName}</div>
         </div>
       </header>
@@ -61,15 +61,52 @@ class MenuView extends Backbone.View
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-document mdi-24px'></i>
         Reports</span>
         <div class='m-l-20 dropdown' id='drawer-reports'>
+          #{
+          reportLinks = {
+            Analysis: "Analysis"
+            SpotChecks: "Spot Checks Status"
+            Enrolment: "Enrolment"
+            Verification: "Verification"
+            Followups: "Students Follow up"
+            Weeklyreports: "Weekly School Reports"
+          }
+          _(reportLinks).map (linkText, linkUrl) ->
+            "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
+          .join ""
+          }
         </div>
         <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-ticket mdi-24px'></i>
             Activities
         </span>
+        <div class='m-l-20 dropdown' id='drawer-activities'>
+        #{
+             activityLinks = {
+               Issues: "Issues"
+               FutureFeature: "Future Features"
+             }
+             _(activityLinks).map (linkText, linkUrl) ->
+               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/type/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
+             .join ""
+        }
+        </div>
         <span class='mdl-navigation__link drawer__subtitle' id='graphs-main' data-title='Graphs' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-chart mdi-24px'></i>
             Graphs
         </span>
+        <div class='m-l-20 dropdown' id='drawer-graphs'>
+          #{
+           graphLinks = {
+             IncidentsGraph: "Sample Graph 1"
+             PositiveCasesGraph: "Sample Graph 2"
+             AttendanceGraph: "Sample Graph 3"
+             TestRateGraph: "Sample Graph4"
+           }
+           _(graphLinks).map (linkText, linkUrl) ->
+             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
+           .join ""
+          }
+        </div>
         <a class='mdl-navigation__link drawer__link' href='#maps' id='maps' data-title='Maps' data-category='menuLink'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-map mdi-24px'></i>
             <span class='link-title'>Maps</span>
@@ -102,12 +139,12 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-admin'>
         #{
           adminLinks = {
-            dhis2: "DHIS2"
-            facilities: "Facilities"
-            rainfall_station: "Rainfall Station"
-            geo_hierarchy: "Regions, Districts & Shehias"
+            #dhis2: "DHIS2"
+            #facilities: "Facilities"
+            #rainfall_station: "Rainfall Station"
+            #geo_hierarchy: "Regions, Districts & Shehias"
             #shehias_received_irs: "Shehias Received IRS"
-            #shehias_high_risk: "Shehias High Risk"
+            schools: "Schools"
             system_settings: "System Settings"
             users: "Users"
           }
