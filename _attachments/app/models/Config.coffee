@@ -7,7 +7,7 @@ class Config extends Backbone.Model
      db: pouchdb
 
 Config.salt = ->
-   "HAInmlF250kCAQnM"
+   ""
 
 Config.getConfig = (options) ->
   Coconut.database.get "coconut.config"
