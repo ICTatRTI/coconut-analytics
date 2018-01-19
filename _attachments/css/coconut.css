@@ -30,7 +30,7 @@ main.mdl-layout__content {
   display: none;
 }
 
-#cslogo_sm {
+#wusclogo_sm {
 	width: 70px;
 	height: 56px;
 	margin-right: 10px;
@@ -286,6 +286,7 @@ button.not-followed-up-after-48-hours-false {
 
 #dateSelector {
    margin-bottom: 20px;
+	 margin-left: 20px;
 }
 
 .select-by-date, .select-by-week {
@@ -417,7 +418,7 @@ i.mdi{
 /* Drawer styling */
 
 #drawer-title{
-	font-size: 20px;
+	font-size: 30px;
   margin-top: 5px;
 }
 
@@ -813,13 +814,13 @@ a.chip {
 .wrapper {
   box-sizing: border-box;
   position: absolute;
-  right: 20px;
+  right: 5px;
   top: 0px;
 }
 
 #logged-in{
     position: absolute;
-    right: 80px;
+    right: 60px;
     top: 12px;
 }
 

@@ -249,6 +249,7 @@ _:-ms-input-placeholder, :root .coconut-graph {
 
 .coconut-header .material-icons {
    font-size: 34px;
+   margin-top: 5px;
 }
 
 .drawer_question_set_link i{
