@@ -12,8 +12,10 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB('http://localhost:5984/wusc')
-#global.pouchdb = new PouchDB('https://wusc.cococloud.co:6984/wusc')
+global.pouchdb = new PouchDB('https://wusc.cococloud.co/wusc')
+global.peopleDb = new PouchDB('https://wusc.cococloud.co/wusc-people')
+global.schoolsDb = new PouchDB('https://wusc.cococloud.co/wusc-schools')
+#global.pouchdb = new PouchDB('https://wusc.cococloud.co/wusc')
 global.HTMLHelpers = require './HTMLHelpers'
 
 # These are local .coffee files
@@ -29,6 +31,8 @@ QuestionCollection = require './models/QuestionCollection'
 
 global.Coconut =
   database: pouchdb
+  peopleDb: peopleDb
+  schoolsDb: schoolsDb
   router: new Router()
   currentlogin: Cookies.get('current_user') || null
   reportDates:
@@ -68,7 +72,18 @@ User.isAuthenticated
 Coconut.headerView = new HeaderView
 Coconut.headerView.render()
 
-Coconut.menuView = new MenuView
-Coconut.menuView.render()
-Backbone.history.start()
-checkBrowser()
+Config.getConfig
+  error: ->
+    console.log("Error Retrieving Config")
+  success: ->
+    Config.getLogoUrl()
+    .catch (error) ->
+      console.error "Logo Url not setup"
+      console.error error
+    .then (url) ->
+      Coconut.logoUrl = url
+      Coconut.menuView = new MenuView
+      Coconut.menuView.render()
+
+      Backbone.history.start()
+      checkBrowser()
