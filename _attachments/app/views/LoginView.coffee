@@ -25,7 +25,7 @@ class LoginView extends Backbone.View
       <dialog id='loginDialog'>
         <form id='loginForm' method='dialog'>
            <div class='m-b-20'>
-             <div class='f-left'><img src='images/cocoLogo.png' id='cslogo_xsm'></div>
+             <div class='f-left'><img src='images/wuscLogo.png' id='cslogo_xsm'></div>
              <div id='dialog-title'>#{Coconut.config.appName}</div>
            </div>
            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
