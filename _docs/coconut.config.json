@@ -1,0 +1,34 @@
+{
+  "_id": "coconut.config",
+  "date_format": "YYYY-MM-DD HH:mm:ss",
+  "cloud_credentials": "admin:nuttycoco",
+  "title": "Coconut WUSC",
+  "isApplicationDoc": true,
+  "appName": "KEEP",
+  "appIcon": "cocoLogo.png",
+  "completion_mode": "on-send",
+  "sync_mode": "couchdb-sync",
+  "cloud_database_name": "wusc",
+  "design_doc_name": "wusc",
+  "cloud": "https://wusc.cococloud.co",
+  "mobile_background_sync": false,
+  "mobile_background_sync_freq": 5,
+  "couchapp": {},
+  "role_types": "admin,mobile,user",
+  "_attachments": {
+    "wuscLogo.png": {
+      "content_type": "image/png",
+      "revpos": 765,
+      "digest": "md5-NZdcsUrMdgVum20GE8lG8Q==",
+      "length": 7430,
+      "stub": true
+    },
+    "cocoLogo.png": {
+      "content_type": "image/png",
+      "revpos": 764,
+      "digest": "md5-uSMOnvnmCGkwfLbSoX+hbg==",
+      "length": 29524,
+      "stub": true
+    }
+  }
+}
