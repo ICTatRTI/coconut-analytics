@@ -84,12 +84,6 @@ User.login = (options) ->
           $("a#logout").show()
           $("a#login").hide()
           if user.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
-          Coconut.database.post
-            collection: "login"
-            user: Coconut.currentlogin
-            date: moment(new Date()).format(Coconut.config.date_format)
-          .catch (error) ->
-             console.error error
           options.success()
         else
           options.error("Invalid username/password")
@@ -111,5 +105,8 @@ User.inactiveStatus = (inactive) ->
 
 User.token = () ->
   return Math.random().toString(36).substr(2).toUpperCase()
+
+User.hashedPassword = (password) ->
+  (crypto.pbkdf2Sync password, Config.salt, 1000, 256/8, 'sha256').toString('base64')
 
 module.exports = User

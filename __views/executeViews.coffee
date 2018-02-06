@@ -2,7 +2,7 @@ request = require 'request'
 glob = require 'glob'
 _ = require 'underscore'
 
-database = process.argv.pop() || "http://localhost:5984/democs"
+database = process.argv.pop()
 
 glob "**/*.coffee", (er, files) ->
   _(files).each (view) ->
@@ -14,6 +14,5 @@ glob "**/*.coffee", (er, files) ->
 
     console.log "Executing view: #{viewUrl}"
     request viewUrl, (result) ->
-      console.log result
       console.log "Finished #{viewUrl}"
 
