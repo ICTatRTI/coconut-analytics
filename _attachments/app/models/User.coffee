@@ -102,6 +102,27 @@ User.logout = (options) ->
   $("a#login").show()
   Coconut.currentUser = null
 
+User.changePass = (options) ->
+  Coconut.database.get Coconut.currentUser.id,
+     include_docs: true
+  .catch (error) =>
+    options.error('Error encountered resetting password...')
+    console.error error
+  .then (user) =>
+    console.log(user)
+    hashPwd = user.password || 'unknown'
+    salt=''
+    hashKey = (crypto.pbkdf2Sync options.currentPass, salt, 1000, 256/8, 'sha256').toString('base64')
+    if hashPwd is hashKey
+      user.password = (crypto.pbkdf2Sync options.newPasswd, '', 1000, 256/8, 'sha256').toString('base64')
+      Coconut.database.put user
+      .catch (error) -> console.error error
+      .then ->
+        Cookies.set('current_password',user.password)
+        options.success()
+    else
+      options.error("Invalid Current Password")
+
 User.inactiveStatus = (inactive) ->
     if (inactive) then "Yes" else "No"
 
