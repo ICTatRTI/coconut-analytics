@@ -12,7 +12,7 @@ UsersView = require './views/UsersView'
 SchoolsView = require './views/SchoolsView'
 SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
-ChangePasswordView = require './views/ChangePasswordView'
+ChangePasswdView = require './views/ChangePasswdView'
 User = require './models/User'
 Dialog = require './views/Dialog'
 
@@ -50,6 +50,7 @@ class Router extends Backbone.Router
     "logout": "logout"
     "reset_password/:token": "reset_password"
     "reset_password": "reset_password"
+    "change_password": "change_password"
     "admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/schools": "schools"
@@ -85,6 +86,16 @@ class Router extends Backbone.Router
   loginFailed: ->
     Coconut.router.navigate("#login", {trigger: true})
 
+  change_password: ->
+    Coconut.changePasswdView = new ChangePasswdView() if !Coconut.changePasswdView
+    Coconut.changePasswdView.render()
+    @listenTo(Coconut.changePasswdView, "success", ->
+      Dialog.createDialogWrap()
+      Dialog.confirm("Password has been updated...", 'Password Reset',['Ok'])
+      dialog.addEventListener 'close', ->
+        Coconut.router.navigate("#dashboard", {trigger: true})
+    )
+    
   reset_password: (token) ->
     $("#login-backgrd").show()
     if token
