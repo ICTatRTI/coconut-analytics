@@ -63,12 +63,10 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-reports'>
           #{
           reportLinks = {
-            Analysis: "Analysis"
-            SpotChecks: "Spot Checks Status"
-            Enrolment: "Enrolment"
-            Verification: "Verification"
-            Followups: "Students Follow up"
-            Weeklyreports: "Weekly School Reports"
+            attendance: "Attendance Summary"
+            spotchecks: "Spot Checks Status"
+            followups: "Follow up Reports"
+            weeklyreports: "Weekly School Reports"
           }
           _(reportLinks).map (linkText, linkUrl) ->
             "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"
