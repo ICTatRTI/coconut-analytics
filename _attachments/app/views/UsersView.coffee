@@ -98,6 +98,9 @@ class UsersView extends Backbone.View
         @user.password = $('#passwd').val()
         @user.name = $('#name').val()
         @user.email = $('#email').val()
+        @user.Phone = $("#phone").val()
+        @user.Region = $("#region").val()
+        @user.Designation = $("#designation").val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         @user.password = (crypto.pbkdf2Sync @user.password, @salt, 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
@@ -190,12 +193,7 @@ class UsersView extends Backbone.View
         @dialogEdit = "
           <form id='user' method='dialog'>
              <div id='dialog-title'> </div>
-             <div>
-                <ul>
-                  <li>We recommend a username that corresponds to the users phone number.</li>
-                  <li>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</li>
-                </ul>
-             </div>
+             <div>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</div>
              <div id='errMsg'></div>
              <input type='hidden' id='mode' value='' />
              #{
@@ -213,6 +211,29 @@ class UsersView extends Backbone.View
                 <label class='mdl-textfield__label' for='email'>Email</label>
                 <span class='mdl-textfield__error'>Email is not valid!</span>
               </div>
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_phone' style='margin-bottom: 10px'>
+                <input class='mdl-textfield__input' type='text' pattern='^[0-9]*$' id='phone' name='phone'</input>
+                <label class='mdl-textfield__label' for='phone'>Phone</label>
+                <span class='mdl-textfield__error'>Phone is not valid!</span>
+              </div>
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_designation'>
+                <input class='mdl-textfield__input' type='text' id='designation' name='designation'></input>
+                <label class='mdl-textfield__label' for='designation'>Designation</label>
+              </div>
+              <div class='mdl-select mdl-js-select mdl-select--floating-label'>
+                <select class='mdl-select__input' id='region' name='region'>
+                  <option value='' #{if @user.Region is "" then "selected='true'" else ""}></option>
+                  #{
+                    selectList = ["Kakuma","Dadaab"]
+                    selectList.map (list) =>
+                      "<option value='#{list}' #{if @user.Region is list then "selected='true'" else ""}>
+                        #{list}
+                      </option>"
+                    .join ""
+                   }
+                </select>
+                <label class='mdl-select__label' for='region'>Region</label>
+              </div>
               <div style='color: rgb(33,150,243)'>Roles:</div>
               <div class='m-l-10 m-b-20'>
                 #{
@@ -225,7 +246,6 @@ class UsersView extends Backbone.View
                      "
                      ).join("")
                 }
-
               </div>
               <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
