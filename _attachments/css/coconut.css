@@ -719,7 +719,7 @@ a.DTTT_button, button.DTTT_button, div.DTTT_button {
 .summary {
   margin: 0 5px;
   height: 70px;
-  padding-top: 20px;
+  /*padding-top: 20px;*/
   text-align: left;
 }
 a.chip {
@@ -1383,4 +1383,8 @@ div.overlay {
 
 .scroll-div {
   overflow-x: scroll;
+}
+
+.text-right {
+	text-align: right;
 }

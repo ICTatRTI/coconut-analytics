@@ -12,23 +12,34 @@ UsersView = require './views/UsersView'
 SchoolsView = require './views/SchoolsView'
 SystemSettingsView = require './views/SystemSettingsView'
 LoginView = require './views/LoginView'
-ChangePasswordView = require './views/ChangePasswordView'
+ChangePasswdView = require './views/ChangePasswdView'
 User = require './models/User'
 Dialog = require './views/Dialog'
 
 DashboardView = require './views/DashboardView'
+AttendanceView = require './views/AttendanceView'
 ExportView = require './views/ExportView'
 
+
 # This allows us to create new instances of these dynamically based on the URL, for example:
-# reports/Analysis will lead to:
-# new reportViews[type]() or new reportView["Analysis"]()
+# reports/Attendance will lead to:
+# new reportViews[type]() or new reportView["Attendance"]()
 #
+
+reportViews = {
+  "attendance": require './views/AttendanceView'
+#  "SpotCheck": require './views/SpotCheckView'
+}
 
 
 class Router extends Backbone.Router
   # caches views
   views: {}
+  reportViewOptions: {}
 
+  initialize: (appView) ->
+    @appView = appView
+    
   # holds option pairs for more complex URLs like for reports
   noLogin = ["login", "logout", "reset_password"]
   execute: (callback, args, name) ->
@@ -45,29 +56,39 @@ class Router extends Backbone.Router
   routes:
     "": "dashboard"
     "dashboard": "dashboard"
+    "attendance": "attendance"
     "export": "export"
     "login": "login"
     "logout": "logout"
+    "reports": "reports"
+    "reports/*options": "reports"  ##reports/type/Attendance/startDate/2016-01-01/endDate/2016-01-01
     "reset_password/:token": "reset_password"
     "reset_password": "reset_password"
+    "change_password": "change_password"
     "admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/schools": "schools"
     "*noMatch": "noMatch"
 
+  noMatch: =>
+    console.error "Invalid URL, no matching route: "
+    $("#content").html "Page not found."
+
   dashboard: =>
+    Coconut.router.reportViewOptions.aggregationLevel="Kakuma"
     @dashboardView = @dashboardView or new DashboardView()
     @dashboardView.setElement("#content")
     @dashboardView.render()
+
+  attendance: =>
+    @attendanceView = @attendanceView or new AttendanceView()
+    @attendanceView.setElement("#content")
+    @attendanceView.render()
 
   export: =>
     @exportView = @exportView or new ExportView()
     @exportView.setElement("#content")
     @exportView.render()
-
-  noMatch: =>
-    console.error "Invalid URL, no matching route: "
-    $("#content").html "Page not found."
 
   login: ->
     Coconut.loginView = new LoginView() if !Coconut.loginView
@@ -84,6 +105,16 @@ class Router extends Backbone.Router
 
   loginFailed: ->
     Coconut.router.navigate("#login", {trigger: true})
+
+  change_password: ->
+    Coconut.changePasswdView = new ChangePasswdView() if !Coconut.changePasswdView
+    Coconut.changePasswdView.render()
+    @listenTo(Coconut.changePasswdView, "success", ->
+      Dialog.createDialogWrap()
+      Dialog.confirm("Password has been updated...", 'Password Reset',['Ok'])
+      dialog.addEventListener 'close', ->
+        Coconut.router.navigate("#dashboard", {trigger: true})
+    )
 
   reset_password: (token) ->
     $("#login-backgrd").show()
@@ -107,6 +138,26 @@ class Router extends Backbone.Router
        Dialog.confirm("Invalid Token or Token expired.", "Error",["Ok"])
        dialog.addEventListener 'close', ->
          Coconut.router.navigate("#login", {trigger: true})
+
+  reports: (options) =>
+    # Allows us to get name/value pairs from URL
+    options = _(options?.split(/\//)).map (option) -> unescape(option)
+
+    _.each options, (option,index) =>
+      @reportViewOptions[option] = options[index+1] unless index % 2
+
+    defaultOptions = @setDefaultOptions()
+
+    # Set the default option if it isn't already set
+    _(defaultOptions).each (defaultValue, option) =>
+      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
+    type = @reportViewOptions["type"]
+    @views[type] = new reportViews[type]() unless @views[type]
+    @views[type].setElement "#content"
+    #@views[type].render()
+    @appView.showView(@views[type])
+    @reportType = 'reports'
+
 
   notAdmin: ->
     if !(Coconut.currentUser)
@@ -160,5 +211,12 @@ class Router extends Backbone.Router
           Dialog.confirm("You do not have admin privileges", "Warning",["Ok"])
       error: =>
         callback.error()
+
+  setDefaultOptions: () ->
+    return {
+       type: "Attendance"
+       startDate: ['2017','1','Kakuma']
+       endDate: ['2017','1','Kakuma']
+    }
 
 module.exports = Router
