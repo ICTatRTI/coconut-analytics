@@ -12,11 +12,15 @@ BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
 Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB('https://wusc.cococloud.co/wusc')
-global.peopleDb = new PouchDB('https://wusc.cococloud.co/wusc-people')
-global.schoolsDb = new PouchDB('https://wusc.cococloud.co/wusc-schools')
-#global.pouchdb = new PouchDB('https://wusc.cococloud.co/wusc')
+global.pouchdb = new PouchDB('https://keep.cococloud.co/keep')
+#global.peopleDb = new PouchDB('http://localhost:5984/wusc-people')
+global.peopleDb = new PouchDB('https://keep.cococloud.co/keep-people')
+global.schoolsDb = new PouchDB('https://keep.cococloud.co/keep-schools')
+global.enrollmentsDb = new PouchDB('https://keep.cococloud.co/keep-enrollments')
+global.spotchecksDb = new PouchDB('https://keep.cococloud.co/keep-spotchecks')
+#global.pouchdb = new PouchDB('https://keep.cococloud.co/keep')
 global.HTMLHelpers = require './HTMLHelpers'
+AppView = require './AppView'
 
 # These are local .coffee files
 Router = require './Router'
@@ -33,7 +37,9 @@ global.Coconut =
   database: pouchdb
   peopleDb: peopleDb
   schoolsDb: schoolsDb
-  router: new Router()
+  enrollmentsDb: enrollmentsDb
+  spotchecksDb: spotchecksDb
+  router: new Router(AppView)
   currentlogin: Cookies.get('current_user') || null
   reportDates:
     startDate: moment().subtract("7","days").format("YYYY-MM-DD")
@@ -46,6 +52,7 @@ global.Env = {
   is_chrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
 }
 
+Coconut.router.reportViewOptions = []
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
   db: Coconut.database

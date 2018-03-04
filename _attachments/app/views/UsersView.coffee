@@ -58,7 +58,7 @@ class UsersView extends Backbone.View
       Dialog.create(@dialogEdit, dialogTitle)
       @setMode('edit')
       id = $(e.target).closest("a").attr "data-user-id"
-
+      @user = {}
       Coconut.database.get id,
          include_docs: true
       .catch (error) -> console.error error
@@ -66,6 +66,7 @@ class UsersView extends Backbone.View
          @user = _.clone(user)
          user._id = user._id.substring(5)
          Form2js.js2form($('form#user').get(0), user)
+         $("option[value='#{@user.Region}']").prop('selected', true)
          if(@user.roles)
            #older doc store this as string and not array
            @user.roles = @user.roles.split(',') if !($.isArray(@user.roles))
@@ -97,7 +98,10 @@ class UsersView extends Backbone.View
         @user.isApplicationDoc = true
         @user.password = $('#passwd').val()
         @user.name = $('#name').val()
-        @user.email = $('#email').val()
+        @user.Email = $('#email').val()
+        @user.Phone = $("#phone").val()
+        @user.Region = $("#region").val()
+        @user.Designation = $("#designation").val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         @user.password = (crypto.pbkdf2Sync @user.password, @salt, 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
@@ -190,12 +194,7 @@ class UsersView extends Backbone.View
         @dialogEdit = "
           <form id='user' method='dialog'>
              <div id='dialog-title'> </div>
-             <div>
-                <ul>
-                  <li>We recommend a username that corresponds to the users phone number.</li>
-                  <li>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</li>
-                </ul>
-             </div>
+             <div>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</div>
              <div id='errMsg'></div>
              <input type='hidden' id='mode' value='' />
              #{
@@ -209,9 +208,32 @@ class UsersView extends Backbone.View
                 ).join("")
               }
               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_email' style='margin-bottom: 10px'>
-                <input class='mdl-textfield__input' type='text' pattern='^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$' id='email' name='email'</input>
+                <input class='mdl-textfield__input' type='text' pattern='^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$' id='email' name='Email'</input>
                 <label class='mdl-textfield__label' for='email'>Email</label>
                 <span class='mdl-textfield__error'>Email is not valid!</span>
+              </div>
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_phone' style='margin-bottom: 10px'>
+                <input class='mdl-textfield__input' type='text' pattern='^[0-9]*$' id='phone' name='Phone'</input>
+                <label class='mdl-textfield__label' for='phone'>Phone</label>
+                <span class='mdl-textfield__error'>Phone is not valid!</span>
+              </div>
+              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_designation'>
+                <input class='mdl-textfield__input' type='text' id='designation' name='Designation'></input>
+                <label class='mdl-textfield__label' for='designation'>Designation</label>
+              </div>
+              <div class='mdl-select mdl-js-select mdl-select--floating-label'>
+                <select class='mdl-select__input' id='region' name='region'>
+                  <option value=''></option>
+                  #{
+                    selectList = ["Kakuma","Dadaab"]
+                    selectList.map (list) =>
+                      "<option value='#{list}' #{if @user?.Region is list then "selected='true'" else ""}>
+                        #{list}
+                      </option>"
+                    .join ""
+                   }
+                </select>
+                <label class='mdl-select__label' for='region'>Region</label>
               </div>
               <div style='color: rgb(33,150,243)'>Roles:</div>
               <div class='m-l-10 m-b-20'>
@@ -225,14 +247,13 @@ class UsersView extends Backbone.View
                      "
                      ).join("")
                 }
-
               </div>
               <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
                    <input type='checkbox' id='inactive' class='mdl-switch__input'>
                    <span class='mdl-switch__label'>Inactive</span>
               </label>
               <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_comments'>
-                <input class='mdl-textfield__input' type='text' id='comments' name='comments'></input>
+                <input class='mdl-textfield__input' type='text' id='comments' name='Comments'></input>
                 <label class='mdl-textfield__label' for='comments'>Comments</label>
               </div>
               <div id='dialogActions'>
