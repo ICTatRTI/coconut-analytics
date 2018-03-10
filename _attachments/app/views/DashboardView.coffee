@@ -8,15 +8,25 @@ class DashboardView extends Backbone.View
     @kakuma_boys = 0
     @kakuma_girls = 0
     @kakuma_students = 0
-    @kakuma_schools = 200
+    @kakuma_schools = 0
     @dadaab_boys = 0
     @dadaab_girls = 0
     @dadaab_students = 0
-    @dadaab_schools = 333
+    @dadaab_schools = 0
   #events:
     #"click button#btnSubmit": "ResetPassword"
 
   render: =>
+    Coconut.schoolsDb.query "schoolsByRegion",
+      reduce: true
+      include_docs: false
+      group: true
+      group_level: 1
+    .then (result) =>
+      _.map(result.rows, (result) =>
+        @kakuma_schools = result.value if result.key[0] is 'KAKUMA'
+        @dadaab_schools = result.value if result.key[0] is 'DADAAB'
+      )
     Coconut.peopleDb.query "peopleByRegionAndGender",
       reduce: true
       include_docs: false
