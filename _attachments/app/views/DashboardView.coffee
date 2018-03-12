@@ -2,6 +2,7 @@ $ = require 'jquery'
 
 Backbone = require 'backbone'
 Backbone.$  = $
+moment = require 'moment'
 
 class DashboardView extends Backbone.View
   initialize: =>
@@ -13,10 +14,25 @@ class DashboardView extends Backbone.View
     @dadaab_girls = 0
     @dadaab_students = 0
     @dadaab_schools = 0
-  #events:
-    #"click button#btnSubmit": "ResetPassword"
+    @spot_lastmonth = 0
+    @spot_last7days = 0
+    @spot_last24hours = ''
+    @spot_requireFollowup = 0
 
   render: =>
+    Coconut.spotchecksDb.query "resultsByDate",
+      reduce: false
+      include_docs: true
+    .then (result) =>
+      results = result.rows
+      @spot_last7days = _.filter(results,(doc) ->
+        moment().diff(moment(doc.key).format("YYYY-MM-DD"),'days') <= 7
+      ).length
+      last_month = moment().subtract(1, "month").startOf("month").format('MM')
+      @spot_lastmonth = _.filter(results,(doc) ->
+        moment(doc.key).format("MM") == last_month
+      ).length
+
     Coconut.schoolsDb.query "schoolsByRegion",
       reduce: true
       include_docs: false
@@ -27,6 +43,7 @@ class DashboardView extends Backbone.View
         @kakuma_schools = result.value if result.key[0] is 'KAKUMA'
         @dadaab_schools = result.value if result.key[0] is 'DADAAB'
       )
+
     Coconut.peopleDb.query "peopleByRegionAndGender",
       reduce: true
       include_docs: false
@@ -96,10 +113,10 @@ class DashboardView extends Backbone.View
                   <td><i class='mdi mdi-school mdi-18px'></i> Schools: <span class='orange'>#{@kakuma_schools + @dadaab_schools}</span></td>
                 </tr>
                 <tr>
-                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last month: <span class='orange'>134</span></td>
-                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last 7 days: <span class='orange'>55</span></td>
-                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last 24 hours: <span class='orange'>15</span></td>
-                  <td><i class='mdi mdi-human-greeting mdi-18px'></i> Students requiring followup: <span class='orange'>245</span></td>
+                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last month: <span class='orange'>#{@spot_lastmonth}</span></td>
+                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last 7 days: <span class='orange'>#{@spot_last7days}</span></td>
+                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last 24 hours: <span class='orange'>-</span></td>
+                  <td><i class='mdi mdi-human-greeting mdi-18px'></i> Students requiring followup: <span class='orange'>-</span></td>
                 </tr>
               </table>
              </div>
@@ -130,19 +147,19 @@ class DashboardView extends Backbone.View
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last month:</td>
-                     <td>35</td>
+                     <td> - </td>
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 7 days:</td>
-                     <td>11</td>
+                     <td> - </td>
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 24 hours:</td>
-                     <td>7</td>
+                     <td> - </td>
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-human-greeting mdi-18px'></i> requiring followup:</td>
-                     <td>117</td>
+                     <td> - </td>
                    </tr>
                   </table>
                 </div>
@@ -173,19 +190,19 @@ class DashboardView extends Backbone.View
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last month:</td>
-                     <td>99</td>
+                     <td> - </td>
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 7 days:</td>
-                     <td>44</td>
+                     <td> - </td>
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 24 hours:</td>
-                     <td>8</td>
+                     <td> - </td>
                    </tr>
                    <tr>
                      <td><i class='mdi mdi-human-greeting mdi-18px'></i> requiring followup:</td>
-                     <td>128</td>
+                     <td> - </td>
                    </tr>
                   </table>
                 </div>
