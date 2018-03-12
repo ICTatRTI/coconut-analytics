@@ -88,6 +88,8 @@ class AttendanceView extends Backbone.View
     HTMLHelpers.ChangeTitle("Reports: Attendance")
     view = @
     Coconut.schoolsDb.allDocs
+      startkey: "school-",
+      endkey: "school-\ufff0"
       include_docs: true
     .catch (error) ->
       console.error error
