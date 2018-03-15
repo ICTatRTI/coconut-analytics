@@ -269,7 +269,7 @@ class Case
     return result
 
   completeHouseholdVisit: =>
-    @.Household?.complete is "true" or @.Household?.complete is true or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes"
+    @.Household?.complete is "true" or @.Household?.complete is true or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes" or @.Facility?.Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility is "Yes"
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
