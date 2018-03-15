@@ -167,9 +167,10 @@ class Case
       else
         shehias = GeoHierarchy.findShehia(shehia)
         district = GeoHierarchy.swahiliDistrictName @["USSD Notification"]?.facility_district
-        shehiaWithSameFacilityDistrict = _(shehias).findWhere {DISTRICT: district}
+        shehiaWithSameFacilityDistrict = _(shehias).find (shehia) ->
+          shehia.parent().name is district
         if shehiaWithSameFacilityDistrict
-          return shehiaWithSameFacilityDistrict.DISTRICT
+          return shehiaWithSameFacilityDistrict.parent().name
 
     else
       console.warn "#{@MalariaCaseID()}: No valid shehia found, using district of reporting health facility (which may not be where the patient lives). Data from USSD Notification:"
