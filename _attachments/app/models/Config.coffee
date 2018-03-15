@@ -13,7 +13,7 @@ Config.getConfig = (options) ->
   Coconut.database.get "coconut.config"
   .then (doc) ->
     Coconut.config = doc
-    Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
+    Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "mobile","reports"]
     options.success()
   .catch (error) ->
     console.error error

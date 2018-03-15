@@ -19,7 +19,7 @@ html, body {
 }
 
 header .mdi{
-  font-size: 48px;
+  font-size: 24px;
   margin-left: -10px;
 }
 
@@ -249,6 +249,7 @@ _:-ms-input-placeholder, :root .coconut-graph {
 
 .coconut-header .material-icons {
    font-size: 34px;
+   margin-top: 5px;
 }
 
 .drawer_question_set_link i{

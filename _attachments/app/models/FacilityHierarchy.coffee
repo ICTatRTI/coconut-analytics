@@ -62,14 +62,15 @@ class FacilityHierarchy extends Backbone.Model
   FacilityHierarchy.getZone = (facility) ->
     district = FacilityHierarchy.getDistrict facility
     districtHierarchy = GeoHierarchy.find(district,"DISTRICT")
+    zone = null
     if districtHierarchy.length is 1
       region = GeoHierarchy.find(district,"DISTRICT")[0].REGION
       if region.match /PEMBA/
-        return "PEMBA"
+        zone = "PEMBA"
       else
-        return "UNGUJA"
+        zone = "UNGUJA"
 
-    return null
+    return zone
 
   FacilityHierarchy.facilities = (district) ->
     _.pluck FacilityHierarchy.hierarchy[district], "facility" if FacilityHierarchy.hierarchy?

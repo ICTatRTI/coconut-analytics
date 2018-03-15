@@ -440,7 +440,9 @@ class MapView extends Backbone.View
           caseSummary = result.doc
 #          console.log("caseSummary: " + JSON.stringify(caseSummary));
 #            NumberofLLIN":"1","NumberofSleepingPlacesbedsmattresses":"1"
-          if caseSummary["Household Location Latitude"] and parseFloat(caseSummary["Household Location Accuracy"]) <= parseFloat(Coconut.config.location_accuracy_threshold)
+          Householdlocationlatitude = if caseSummary["Household Location Latitude"] then "Household Location Latitude" else "Household Location - Latitude"
+          Householdlocationaccuracy = if caseSummary["Household Location Accuracy"] then "Household Location Accuracy" else "Household Location - Accuracy"
+          if caseSummary[Householdlocationlatitude] and parseFloat(caseSummary[Householdlocationaccuracy]) <= parseFloat(Coconut.config.location_accuracy_threshold)
 
             {
               type: 'Feature'
@@ -448,16 +450,16 @@ class MapView extends Backbone.View
                 MalariaCaseID: caseSummary["Malaria Case ID"]
                 hasAdditionalPositiveCasesAtIndexHousehold: caseSummary["Number Positive Cases At Index Household"] > 0
                 numberOfCasesInHousehold: caseSummary["Number Positive Cases At Index Household"]
-                NumberofLLIN: caseSummary["Number Of Llin"]
-                SleepingSpaces: caseSummary["Number Of Sleeping Places (beds/mattresses)"]
+                NumberofLLIN: if caseSummary["Number of LLIN"]? then caseSummary["Number of LLIN"] else caseSummary["Number Of LLIN"]
+                SleepingSpaces: if caseSummary["Number of Sleeping Places (Beds/Mattresses)"]? then caseSummary["Number of Sleeping Places (Beds/Mattresses)"] else caseSummary["Number Of Sleeping Places (beds/mattresses)"]
                 RecentTravel: caseSummary["Index Case Has Travel History"]
                 date: caseSummary["Index Case Diagnosis Date"]
-                dateIRS: caseSummary["Last Date Of Irs"]
+                dateIRS: if caseSummary["Last Date of IRS"]? then caseSummary["Last Date of IRS"] else caseSummary["Last Date Of IRS"]
               geometry:
                 type: 'Point'
                 coordinates: [
-                  caseSummary["Household Location Longitude"]
-                  caseSummary["Household Location Latitude"]
+                  caseSummary["Household Location - Longitude"] or caseSummary["Household Location Longitude"]
+                  caseSummary["Household Location - Latitude"] or caseSummary["Household Location Latitude"]
                 ]
             }
         .compact().value()
@@ -502,7 +504,7 @@ class MapView extends Backbone.View
               <button class='mdl-button mdl-js-button mdl-button--primary caseBtn' id='#{feature.properties.MalariaCaseID}'>
               #{feature.properties.MalariaCaseID}</button>
             "
-            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+feature.properties.NumberofLLIN + "<br />\n Sleeping Spaces: "+feature.properties.SleepingSpaces  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS
+            layer.bindPopup "caseID: #{caselink} <br />\n Household Cases: " + (parseInt(feature.properties.numberOfCasesInHousehold) + 1) + "<br />\n Date: "+feature.properties.date + "<br />\n Recent Travel: "+feature.properties.RecentTravel + "<br />\n LLIN Count: "+ feature.properties.NumberofLLIN  + "<br />\n Sleeping Spaces: "+ (feature.properties.SleepingSpaces)  + "<br />\n Last Date of IRS: "+feature.properties.dateIRS
             clustersLayer.addLayer layer
             layer.on 'click', (e) ->
               layer.openPopup()

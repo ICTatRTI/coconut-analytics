@@ -11,14 +11,18 @@ class HeaderView extends Backbone.View
 
   events:
     "click a#logout": "Logout"
+    "click a#changepass": "ChangePass"
     "click a#about": "About"
     "click a#help": "Help"
 
   Logout: ->
     Coconut.router.navigate "#logout", {trigger: true}
 
-   Login: ->
+  Login: ->
     Coconut.router.navigate "#login"
+
+  ChangePass: ->
+   Coconut.router.navigate "#change_password", {trigger: true}
 
   About: ->
     Coconut.aboutView = new AboutView() if !Coconut.aboutView
@@ -44,6 +48,7 @@ class HeaderView extends Backbone.View
 		    <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='menu-top-right'>
     		  <li class='mdl-menu__item'><a id='help' class='mdl-color-text--blue-grey-400'><i class='mdi mdi-help-circle mdi-24px'></i> Help</a></li>
           <li class='mdl-menu__item'><a id='about' class='mdl-color-text--blue-grey-400'><i class='mdi mdi-information mdi-24px'></i> About</a></li>
+          <li class='mdl-menu__item'><a id='changepass' class='mdl-color-text--blue-grey-400'><i class='mdi mdi-key mdi-24px'></i> Change Passwd</a></li>
     		  <li class='mdl-menu__item'><a id='logout' href='#login' class='mdl-color-text--blue-grey-400'><i class='mdi mdi-logout mdi-24px'></i> Logout</a></li>
     		  <li class='mdl-menu__item login' ><a id='login' href='#' class='mdl-color-text--blue-grey-400'><i class='mdi mdi-login mdi-24px'></i> Login</a></li>
 		    </ul>
