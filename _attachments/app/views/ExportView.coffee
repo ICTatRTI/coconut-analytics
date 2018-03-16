@@ -2,7 +2,7 @@ $ = require 'jquery'
 
 Backbone = require 'backbone'
 Backbone.$  = $
-
+FileSaver = require 'file-saver'
 dasherize = require("underscore.string/dasherize")
 
 class ExportView extends Backbone.View
@@ -20,45 +20,46 @@ class ExportView extends Backbone.View
     validDates
       startDate: @startDate
       endDate: @endDate
-    .then(result) =>
-       $('#downloadMsg').show()
-       $('#analysis-spinner').show()
-       Coconut.database.query "caseIDsByDate",
-         include_docs: true
-         startkey: @startDate
-         endkey: @endDate
-       .then (result) =>
-          csv = ""
-          keys = []
-          _(result.rows).map (row) ->
-            unless keys.length > 0
-              keys = _(row.doc).chain().keys().without("_id","_rev").value()
-              csv = (
+      error: (error) ->
+          console.error error
+      success: (result)  =>
+         $('#downloadMsg').show()
+         $('#analysis-spinner').show()
+         Coconut.database.query "results",
+           include_docs: true
+           startkey: @startDate
+           endkey: @endDate
+         .then (result) =>
+            csv = ""
+            keys = []
+            _(result.rows).map (row) ->
+              unless keys.length > 0
+                keys = _(row.doc).chain().keys().without("_id","_rev").value()
+                csv = (
+                  _(keys).map (key) ->
+                    "\"#{key}\""
+                  .join(",")
+                )
+
+              csv += "\n" + (
                 _(keys).map (key) ->
-                  "\"#{key}\""
+                  "\"#{row.doc[key] or ""}\""
                 .join(",")
               )
 
-            csv += "\n" + (
-              _(keys).map (key) ->
-                "\"#{row.doc[key] or ""}\""
-              .join(",")
-            )
-
-          blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
-          FileSaver.saveAs(blob, "coconut-#{@startDate}-#{@endDate}.csv")
-          $('#downloadMsg').hide()
-          $('#analysis-spinner').hide()
-       .catch (error) -> console.error error
-    .catch(error) -> console.error error
+            blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
+            FileSaver.saveAs(blob, "coconut-#{@startDate}-#{@endDate}.csv")
+            $('#downloadMsg').hide()
+            $('#analysis-spinner').hide()
+          .catch (error) -> console.error error
 
   validDates = (options) =>
     startDate = options.startDate
     endDate = options.endDate
     if startDate? and endDate? and moment(endDate).isAfter(startDate)
-      resolve(true)
+      options.success(true)
     else
-      reject(false)
+      options.success(false)
 
 
 
