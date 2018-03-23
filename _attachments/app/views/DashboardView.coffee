@@ -3,35 +3,119 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
+slugify = require "underscore.string/slugify"
+humanize = require "underscore.string/humanize"
+
+Calendar = require '../Calendar.coffee'
 
 class DashboardView extends Backbone.View
-  initialize: =>
-    @kakuma_boys = 0
-    @kakuma_girls = 0
-    @kakuma_students = 0
-    @kakuma_schools = 0
-    @dadaab_boys = 0
-    @dadaab_girls = 0
-    @dadaab_students = 0
-    @dadaab_schools = 0
-    @spot_lastmonth = 0
-    @spot_last7days = 0
-    @spot_last24hours = ''
-    @spot_requireFollowup = 0
-
   render: =>
-    Coconut.spotchecksDb.query "resultsByDate",
-      reduce: false
-      include_docs: true
-    .then (result) =>
-      results = result.rows
-      @spot_last7days = _.filter(results,(doc) ->
-        moment().diff(moment(doc.key).format("YYYY-MM-DD"),'days') <= 7
-      ).length
-      last_month = moment().subtract(1, "month").startOf("month").format('MM')
-      @spot_lastmonth = _.filter(results,(doc) ->
-        moment(doc.key).format("MM") == last_month
-      ).length
+
+    @tableData =
+      headers: ["Total","Kakuma","Dadaab"]
+      rows: [
+        ["Learners","mdi-human-male-female"]
+        ["Girls", "mdi-human-female"]
+        ["Boys", "mdi-human-female"]
+        ["Schools","mdi-home"]
+        ["Enrollments for current term","mdi-clipboard-check"]
+        ["Learners in an Enrollment for current term","mdi-clipboard-check"]
+        ["Schools with more than 5 Enrollments for current term","mdi-home"]
+        #["Spotchecks for current term","mdi-clipboard-check"]
+        #["Spotchecks last 7 days","mdi-clipboard-check"]
+        #["Learners on followup list","mdi-human-greeting"]
+      ]
+
+
+    @$el.html "
+      <style>
+        .mdl-button--fab.mdl-button--mini-fab {
+           height: 35px;
+           min-width: 35px;
+           width: 35px;
+         }
+         .stats-card-wide {
+           min-height: 176px;
+           width: 100%;
+           background: linear-gradient(to bottom, #fff 0%, #a7d0f1 100%);
+           padding: 20px;
+           margin-bottom: 10px;
+         }
+         .stats-card-wide.totals {
+           background: linear-gradient(to bottom, #fff 0%, #dcdcdc 100%);
+           min-height: 150px;
+           padding: 10px;
+         }
+         .stats-card-wide.region {
+           padding: 10px;
+         }
+         .demo-card-wide > .mdl-card__title {
+            color: #fff;
+            height: 176px;
+          }
+          .mdl-card__supporting-text {
+            width: 100%;
+            background-color: #fff;
+            padding: 0px;
+           }
+
+           table td {padding: 0 10px;}
+           .orange {color: orange}
+      </style>
+      <div class='scroll-div'>
+
+        <div class='content-grid mdl-grid'>
+
+          <div class='mdl-cell mdl-cell--7-col' style='margin-bottom: 10px;'>
+            <div class='stats-card-wide mdl-card mdl-shadow--2dp region'>
+              <div class='mdl-card__title'>
+                <h4 class='mdl-card__title-text'>Dashboard</h4>
+              </div>
+              <div class='mdl-card__supporting-text'>
+
+                <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+                  <thead>
+                    <tr>
+                      <th/>
+                      #{
+                        _(@tableData.headers).map (header) =>
+                          "<th>#{header}</th>"
+                        .join("")
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    #{
+                      _(@tableData.rows).map (row) =>
+                        "
+                          <tr class='row-#{slugify(row[0])}'>
+                            <td><i class='mdi #{row[1]} mdi-18px'></i> #{row[0]}:</td>
+                            #{
+                              _(@tableData.headers).map (header) =>
+                                "<td class='td-#{slugify(header)}'>Loading...</td>"
+                              .join("")
+                            }
+                          </tr>
+                        "
+                      .join("")
+                    }
+
+                  </tbody>
+                </table>
+                  
+
+              </div>
+            </div>
+          </div>
+
+          <div class='mdl-cell mdl-cell--4-col'>
+            <div><img src='images/sample_pie1.png'></div>
+            <div><img src='images/sample_pie2.png'></div>
+            <div><img src='images/sample_bar1.png'></div>
+          </div>
+        </div>
+      </div>
+    "
 
     Coconut.schoolsDb.query "schoolsByRegion",
       reduce: true
@@ -39,10 +123,12 @@ class DashboardView extends Backbone.View
       group: true
       group_level: 1
     .then (result) =>
-      _.map(result.rows, (result) =>
-        @kakuma_schools = result.value if result.key[0] is 'KAKUMA'
-        @dadaab_schools = result.value if result.key[0] is 'DADAAB'
-      )
+      total = 0
+      _(result.rows).each (row) =>
+        $(".row-schools .td-#{slugify(row.key[0])}").html(row.value)
+        total += parseInt(row.value)
+      $(".row-schools .td-total").html(total)
+      addSchoolPercentages()
 
     Coconut.peopleDb.query "peopleByRegionAndGender",
       reduce: true
@@ -50,177 +136,115 @@ class DashboardView extends Backbone.View
       group: true
       group_level: 2
     .then (result) =>
-      Coconut.stats = result.rows
-      _.map(Coconut.stats,(stat) =>
-        if stat.key[0] is 'KAKUMA' and stat.key[1] is "MALE"
-          @kakuma_boys = stat.value
-        if stat.key[0] is 'KAKUMA' and stat.key[1] is "FEMALE"
-          @kakuma_girls = stat.value
-        if stat.key[0] is 'DADAAB' and stat.key[1] is "MALE"
-          @dadaab_boys = stat.value
-        if stat.key[0] is 'DADAAB' and stat.key[1] is "FEMALE"
-          @dadaab_girls = stat.value
-        @kakuma_students = @kakuma_boys + @kakuma_girls
-        @dadaab_students = @dadaab_boys + @dadaab_girls
-      )
+      total = 0
+      kakumaTotal = 0
+      dadaabTotal = 0
+      boysTotal = 0
+      girlsTotal = 0
+      _(result.rows).map (row) =>
+        # By region
+        switch row.key[0]
+          when 'KAKUMA'
+            total += row.value
+            kakumaTotal += row.value
+          when 'DADAAB'
+            total += row.value
+            dadaabTotal += row.value
 
-      @$el.html "
-        <style>
-          .mdl-button--fab.mdl-button--mini-fab {
-             height: 35px;
-             min-width: 35px;
-             width: 35px;
-           }
-           .stats-card-wide {
-             min-height: 176px;
-             width: 100%;
-             background: linear-gradient(to bottom, #fff 0%, #a7d0f1 100%);
-             padding: 20px;
-             margin-bottom: 10px;
-           }
-           .stats-card-wide.totals {
-             background: linear-gradient(to bottom, #fff 0%, #dcdcdc 100%);
-             min-height: 150px;
-             padding: 10px;
-           }
-           .stats-card-wide.region {
-             padding: 10px;
-           }
-           .demo-card-wide > .mdl-card__title {
-              color: #fff;
-              height: 176px;
-            }
-            .mdl-card__supporting-text {
-              width: 100%;
-              background-color: #fff;
-              padding: 0px;
-             }
+        # By region and gender
+        switch row.key[1]
+          when 'MALE'
+            boysTotal += row.value
+            @$(".row-boys .td-#{slugify(row.key[0])}").html(row.value)
+          when 'FEMALE'
+            girlsTotal += row.value
+            @$(".row-girls .td-#{slugify(row.key[0])}").html(row.value)
 
-             table td {padding: 0 10px;}
-             .orange {color: orange}
-        </style>
-        <div class='scroll-div'>
-          <div class='stats-card-wide mdl-card mdl-shadow--2dp totals'>
-            <div class='mdl-card__title'>
-              <h4 class='mdl-card__title-text'>Stats Totals</h4>
-            </div>
-            <div class='mdl-card__supporting-text'>
-              <table style='height: 70px'>
-                <tr>
-                  <td><i class='mdi mdi-human-male-female mdi-18px'></i> Students: <span class='orange'>#{@kakuma_students + @dadaab_students}</span></td>
-                  <td><i class='mdi mdi-human-female mdi-18px'></i> Girls: <span class='orange'>#{@kakuma_girls + @dadaab_girls}</span></td>
-                  <td><i class='mdi mdi-human-male mdi-18px'></i> Boys: <span class='orange'>#{@kakuma_boys + @dadaab_boys}</span></td>
-                  <td><i class='mdi mdi-school mdi-18px'></i> Schools: <span class='orange'>#{@kakuma_schools + @dadaab_schools}</span></td>
-                </tr>
-                <tr>
-                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last month: <span class='orange'>#{@spot_lastmonth}</span></td>
-                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last 7 days: <span class='orange'>#{@spot_last7days}</span></td>
-                  <td><i class='mdi mdi-clipboard-check mdi-18px'></i> Spot checks last 24 hours: <span class='orange'>-</span></td>
-                  <td><i class='mdi mdi-human-greeting mdi-18px'></i> Students requiring followup: <span class='orange'>-</span></td>
-                </tr>
-              </table>
-             </div>
-          </div>
-          <div class='content-grid mdl-grid'>
-            <div class='mdl-cell mdl-cell--4-col' style='margin-bottom: 10px;'>
-              <div class='stats-card-wide mdl-card mdl-shadow--2dp region'>
-                <div class='mdl-card__title'>
-                  <h4 class='mdl-card__title-text'>Kakuma</h4>
-                </div>
-                <div class='mdl-card__supporting-text'>
-                  <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-                   <tr>
-                     <td><i class='mdi mdi-human-male-female mdi-18px'></i> Students:</td>
-                     <td>#{@kakuma_students}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-human-female mdi-18px'></i> Girls:</td>
-                     <td>#{@kakuma_girls}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-human-male mdi-18px'></i> Boys:</td>
-                     <td>#{@kakuma_boys}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-school mdi-18px'></i> Schools:</td>
-                     <td>#{@kakuma_schools}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last month:</td>
-                     <td> - </td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 7 days:</td>
-                     <td> - </td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 24 hours:</td>
-                     <td> - </td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-human-greeting mdi-18px'></i> requiring followup:</td>
-                     <td> - </td>
-                   </tr>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class='mdl-cell mdl-cell--4-col'>
-              <div class='stats-card-wide mdl-card mdl-shadow--2dp region'>
-                <div class='mdl-card__title'>
-                  <h2 class='mdl-card__title-text'>Dadaab</h2>
-                </div>
-                <div class='mdl-card__supporting-text'>
-                  <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-                   <tr>
-                     <td><i class='mdi mdi-human-male-female mdi-18px'></i> Students:</td>
-                     <td>#{@dadaab_students}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-human-female mdi-18px'></i> Girls:</td>
-                     <td>#{@dadaab_girls}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-human-male mdi-18px'></i> Boys:</td>
-                     <td>#{@dadaab_boys}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-school mdi-18px'></i> Schools:</td>
-                     <td>#{@dadaab_schools}</td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last month:</td>
-                     <td> - </td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 7 days:</td>
-                     <td> - </td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-clipboard-check mdi-18px'></i> last 24 hours:</td>
-                     <td> - </td>
-                   </tr>
-                   <tr>
-                     <td><i class='mdi mdi-human-greeting mdi-18px'></i> requiring followup:</td>
-                     <td> - </td>
-                   </tr>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class='mdl-cell mdl-cell--4-col'>
-              <div><img src='images/sample_pie1.png'></div>
-              <div><img src='images/sample_pie2.png'></div>
-              <div><img src='images/sample_bar1.png'></div>
-            </div>
-          </div>
-        </div>
-      "
-      $('div.mdl-spinner').hide()
+      @$(".row-girls .td-total").html(girlsTotal)
+      @$(".row-boys .td-total").html(boysTotal)
+
+      @$(".row-learners .td-total").html(total)
+      @$(".row-learners .td-kakuma").html(kakumaTotal)
+      @$(".row-learners .td-dadaab").html(dadaabTotal)
+      addLearnerPercentage()
 
     .catch (error) ->
       console.error error
       $('div.mdl-spinner').hide()
 
+    Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
+      startkey: Calendar.getYearAndTerm()
+      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      reduce: true
+      group: true
+    .then (result) =>
+      total = 0
+      _(result.rows).each (row) =>
+        total += row.value
+        @$(".row-enrollments-for-current-term .td-#{row.key[2].toLowerCase()}").html(row.value)
+      @$(".row-enrollments-for-current-term .td-total").html(total)
+      
+    Coconut.enrollmentsDb.query "enrollmentsByYearTermRegionWithStudentCount",
+      startkey: Calendar.getYearAndTerm()
+      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      reduce: true
+      group: true
+    .then (result) =>
+      total = 0
+      _(result.rows).each (row) =>
+        total += row.value
+        @$(".row-learners-in-an-enrollment-for-current-term .td-#{row.key[2].toLowerCase()}").html(row.value)
+      @$(".row-learners-in-an-enrollment-for-current-term .td-total").html(total)
+      addLearnerPercentage()
+
+    # Call this after the 4 functions that create the num/den are done
+    addLearnerPercentage = _.after 2, =>
+      @tableData.headers.map (header) =>
+        header = header.toLowerCase()
+        targetCell = ".row-learners-in-an-enrollment-for-current-term .td-#{header}"
+        numerator = @$(targetCell).html()
+        denominator = @$(".row-learners .td-#{header}").html()
+        percent = Math.round(numerator/denominator*100)
+        @$(targetCell).append " (#{percent}%)"
+      
+    Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
+      startkey: Calendar.getYearAndTerm()
+      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      reduce: false
+    .then (result) =>
+      value = _(result.rows).chain().countBy (row) =>
+        row.id[18..21] #school ID
+      .pick (numberOfEnrollments, schoolId) =>
+        numberOfEnrollments > 5
+      .size().value()
+
+      @$(".row-schools-with-more-than-5-enrollments-for-current-term .td-total").html "#{value}"
+      addSchoolPercentages()
+
+
+    @tableData.headers.map (region) =>
+      return if region is "Total"
+      Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
+        startkey: Calendar.getYearAndTerm().concat(region)
+        endkey: Calendar.getYearAndTerm().concat(region).concat("\uf000")
+        reduce: false
+      .then (result) =>
+        value = _(result.rows).chain().countBy (row) =>
+          row.id[18..21] #school ID
+        .pick (numberOfEnrollments, schoolId) =>
+          numberOfEnrollments > 5
+        .size().value()
+        @$(".row-schools-with-more-than-5-enrollments-for-current-term .td-#{region.toLowerCase()}").html value
+        addSchoolPercentages()
+
+    # Call this after the 4 functions that create the num/den are done
+    addSchoolPercentages = _.after 4, =>
+      @tableData.headers.map (header) =>
+        header = header.toLowerCase()
+        targetCell = ".row-schools-with-more-than-5-enrollments-for-current-term .td-#{header}"
+        numerator = @$(targetCell).html()
+        denominator = @$(".row-schools .td-#{header}").html()
+        percent = Math.round(numerator/denominator*100)
+        @$(targetCell).append " (#{percent}%)"
 
 module.exports = DashboardView
