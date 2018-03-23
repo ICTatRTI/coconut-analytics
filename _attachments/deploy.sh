@@ -13,7 +13,7 @@ TARGETNODATABASE=$(echo $TARGETWITHPASSWORD | sed "s/\(.*\)$DATABASE/\1/")
 
 ./setDeploymentTarget.sh $TARGETNOCREDENTIALS
 echo 'Browserifying and uglifying'
-./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | ./node_modules/uglifyjs/bin/uglifyjs > bundle.js
+./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | ./node_modules/uglify-js/bin/uglifyjs > bundle.js
 echo "Couchapp pushing to $TARGETWITHPASSWORD"
 couchapp push $TARGETWITHPASSWORD
 echo "Pushing all required views to $TARGETNODATABASE $DATABASE"
