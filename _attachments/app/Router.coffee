@@ -28,6 +28,7 @@ ExportView = require './views/ExportView'
 
 reportViews = {
   "attendance": require './views/AttendanceView'
+  "enrollments": require './views/EnrollmentsView'
 #  "SpotCheck": require './views/SpotCheckView'
 }
 

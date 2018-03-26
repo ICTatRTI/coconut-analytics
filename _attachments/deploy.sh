@@ -15,7 +15,7 @@ TARGETNODATABASE=$(echo $TARGETWITHPASSWORD | sed "s/\(.*\)$DATABASE/\1/")
 echo 'Browserifying and uglifying'
 ./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | ./node_modules/uglify-js/bin/uglifyjs > bundle.js
 echo "Couchapp pushing to $TARGETWITHPASSWORD"
-couchapp push $TARGETWITHPASSWORD
+couchapp push --verbose $TARGETWITHPASSWORD
 echo "Pushing all required views to $TARGETNODATABASE $DATABASE"
 cd ../__views
 ruby ./pushViews.rb $TARGETNODATABASE $DATABASE
