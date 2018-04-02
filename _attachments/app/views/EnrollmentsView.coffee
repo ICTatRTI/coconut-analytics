@@ -17,9 +17,6 @@ class EnrollmentsView extends Backbone.View
   initialize: =>
     Coconut.reportOptions = {}
 
-  #events:
-    #
-
   headers =  [
     "creation-time"
     "created-by"
@@ -44,6 +41,13 @@ class EnrollmentsView extends Backbone.View
         #table-enrollments td.warn{
           background-color: #ff4081
         }
+        #table-enrollments tr.even{
+          background-color: #DCDCDC;
+        }
+        #table-enrollments a{
+          font-decoration:none;
+          color:black;
+        }
       </style>
       <h1>Enrollments #{Calendar.getYearAndTerm().join("-t")}  </h1>
       <table id='table-enrollments'>
@@ -67,25 +71,29 @@ class EnrollmentsView extends Backbone.View
     .then (result) =>
       @$("#table-enrollments tbody").html( _(result.rows).map (row) =>
         "
-        <tr>
+        <tr class='enrollment-row' id='#{row.id}'>
           #{
             headers.map (header) =>
               "<td class='#{slugify(header)}'>
-              #{
-                data = row.doc[header]
-                if header is "region"
-                  row.key[2]
-                else if header is "# of Students"
-                  _(row.doc.students).size()
-                else if _(row.doc[header]).isString()
-                  data
-                else if _(row.doc[header]).isArray()
-                  data.join(", ")
-                else
-                  console.error "Can't render #{data} for #{header}"
-                  ""
-                
-              }
+                <a href='#enrollment/#{row.id}'>
+                #{
+                  data = row.doc[header]
+                  if header is "region"
+                    row.key[2]
+                  else if header is "# of Students"
+                    _(row.doc.students).size()
+                  else if header is "update-time"
+                    _(row.doc[header]).last() or "-"
+                  else if _(row.doc[header]).isString()
+                    data
+                  else if _(row.doc[header]).isArray()
+                    data.join(", ")
+                  else
+                    console.error "Can't render #{data} for #{header}"
+                    ""
+                  
+                }
+                </a>
               </td>"
             .join("")
           }
