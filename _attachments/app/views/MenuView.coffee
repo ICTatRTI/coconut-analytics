@@ -67,7 +67,7 @@ class MenuView extends Backbone.View
             enrollments: "Enrollments"
             spotchecks: "Spot Checks Status"
             followups: "Follow up Reports"
-            weeklyreports: "Weekly School Reports"
+            users: "Users"
           }
           _(reportLinks).map (linkText, linkUrl) ->
             "<a class='mdl-navigation__link report__link' id = '#{linkUrl}' href='#reports/type/#{linkUrl}' data-title='Reports'>#{linkText}</a>"

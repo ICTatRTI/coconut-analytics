@@ -18,6 +18,7 @@ Dialog = require './views/Dialog'
 
 DashboardView = require './views/DashboardView'
 AttendanceView = require './views/AttendanceView'
+EnrollmentView = require './views/EnrollmentView'
 ExportView = require './views/ExportView'
 
 
@@ -29,6 +30,7 @@ ExportView = require './views/ExportView'
 reportViews = {
   "attendance": require './views/AttendanceView'
   "enrollments": require './views/EnrollmentsView'
+  "users": require './views/UsersReportView'
 #  "SpotCheck": require './views/SpotCheckView'
 }
 
@@ -58,6 +60,7 @@ class Router extends Backbone.Router
     "": "dashboard"
     "dashboard": "dashboard"
     "attendance": "attendance"
+    "enrollment/:enrollment_id": "enrollment"
     "export": "export"
     "login": "login"
     "logout": "logout"
@@ -85,6 +88,13 @@ class Router extends Backbone.Router
     @attendanceView = @attendanceView or new AttendanceView()
     @attendanceView.setElement("#content")
     @attendanceView.render()
+
+  enrollment: (enrollmentId) =>
+    console.log enrollmentId
+    @enrollmentView = @enrollmentView or new EnrollmentView()
+    @enrollmentView.setElement("#content")
+    @enrollmentView.enrollmentId = enrollmentId
+    @enrollmentView.render()
 
   export: =>
     @exportView = @exportView or new ExportView()

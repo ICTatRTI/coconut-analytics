@@ -20,7 +20,7 @@ class DashboardView extends Backbone.View
         ["Schools","mdi-home"]
         ["Enrollments for current term","mdi-clipboard-check"]
         ["Learners in an Enrollment for current term","mdi-clipboard-check"]
-        ["Schools with more than 5 Enrollments for current term","mdi-home"]
+        ["Schools with more than 2 Enrollments for current term","mdi-home"]
         #["Spotchecks for current term","mdi-clipboard-check"]
         #["Spotchecks last 7 days","mdi-clipboard-check"]
         #["Learners on followup list","mdi-human-greeting"]
@@ -215,10 +215,10 @@ class DashboardView extends Backbone.View
       value = _(result.rows).chain().countBy (row) =>
         row.id[18..21] #school ID
       .pick (numberOfEnrollments, schoolId) =>
-        numberOfEnrollments > 5
+        numberOfEnrollments > 2
       .size().value()
 
-      @$(".row-schools-with-more-than-5-enrollments-for-current-term .td-total").html "#{value}"
+      @$(".row-schools-with-more-than-2-enrollments-for-current-term .td-total").html "#{value}"
       addSchoolPercentages()
 
 
@@ -232,16 +232,16 @@ class DashboardView extends Backbone.View
         value = _(result.rows).chain().countBy (row) =>
           row.id[18..21] #school ID
         .pick (numberOfEnrollments, schoolId) =>
-          numberOfEnrollments > 5
+          numberOfEnrollments > 2
         .size().value()
-        @$(".row-schools-with-more-than-5-enrollments-for-current-term .td-#{region.toLowerCase()}").html value
+        @$(".row-schools-with-more-than-2-enrollments-for-current-term .td-#{region.toLowerCase()}").html value
         addSchoolPercentages()
 
     # Call this after the 4 functions that create the num/den are done
     addSchoolPercentages = _.after 4, =>
       @tableData.headers.map (header) =>
         header = header.toLowerCase()
-        targetCell = ".row-schools-with-more-than-5-enrollments-for-current-term .td-#{header}"
+        targetCell = ".row-schools-with-more-than-2-enrollments-for-current-term .td-#{header}"
         numerator = @$(targetCell).html()
         denominator = @$(".row-schools .td-#{header}").html()
         percent = Math.round(numerator/denominator*100)

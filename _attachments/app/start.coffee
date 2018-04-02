@@ -36,9 +36,13 @@ QuestionCollection = require './models/QuestionCollection'
 global.Coconut =
   database: pouchdb
   peopleDb: peopleDb
+  peopleDB: peopleDb
   schoolsDb: schoolsDb
+  schoolsDB: schoolsDb
   enrollmentsDb: enrollmentsDb
+  enrollmentsDB: enrollmentsDb
   spotchecksDb: spotchecksDb
+  spotchecksDB: spotchecksDb
   router: new Router(AppView)
   currentlogin: Cookies.get('current_user') || null
   reportDates:
