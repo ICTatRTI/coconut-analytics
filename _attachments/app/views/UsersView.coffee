@@ -24,7 +24,7 @@ class UsersView extends Backbone.View
     el:'#content'
 
     initialize: =>
-      @salt = Config.salt()
+      @salt = ""
 
     events:
       "click #new-user-btn": "createUser"
