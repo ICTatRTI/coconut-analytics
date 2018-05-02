@@ -703,7 +703,12 @@ class Case
   summaryCollection: ->
     result = {}
     _(Case.summaryProperties).each (options, property) =>
-      result = _(result).extend @summaryResult(property, options)
+      summaryResult = @summaryResult(property, options)
+      # Don't overwrite data if it is already there
+      # Not exactly sure why this is needed, but there seem to be 
+      # Null duplicates that replace good data
+      unless result[_(summaryResult).keys()[0]]?
+        result = _(result).extend summaryResult
     return result
 
   summary: ->
