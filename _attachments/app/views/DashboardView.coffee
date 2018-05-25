@@ -6,10 +6,27 @@ moment = require 'moment'
 slugify = require "underscore.string/slugify"
 humanize = require "underscore.string/humanize"
 
+Chart = require 'chart.js'
+
 Calendar = require '../Calendar.coffee'
 
 class DashboardView extends Backbone.View
+  events:
+    "change #selectedYear": "updateYear"
+    "change #selectedTerm": "updateTerm"
+
+  updateYear: =>
+    @year = @$("#selectedYear").val()
+    @render()
+
+  updateTerm: =>
+    @term = @$("#selectedTerm").val()
+    @render()
+
+
   render: =>
+    unless @year and @term
+      [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
 
     @tableData =
       headers: ["Total","Kakuma","Dadaab"]
@@ -20,12 +37,12 @@ class DashboardView extends Backbone.View
         ["Schools","mdi-home"]
         ["Enrollments for current term","mdi-clipboard-check"]
         ["Learners in an Enrollment for current term","mdi-clipboard-check"]
-        ["Schools with more than 2 Enrollments for current term","mdi-home"]
+        ["Schools with > 2 Enrollments for current term","mdi-home"]
+        ["Schools with > 2 up-to-date Attendances for current term","mdi-home"]
         #["Spotchecks for current term","mdi-clipboard-check"]
         #["Spotchecks last 7 days","mdi-clipboard-check"]
         #["Learners on followup list","mdi-human-greeting"]
       ]
-
 
     @$el.html "
       <style>
@@ -64,58 +81,69 @@ class DashboardView extends Backbone.View
       </style>
       <div class='scroll-div'>
 
-        <div class='content-grid mdl-grid'>
+        <h4 class='mdl-card__title-text'>Dashboard
 
-          <div class='mdl-cell mdl-cell--7-col' style='margin-bottom: 10px;'>
-            <div class='stats-card-wide mdl-card mdl-shadow--2dp region'>
-              <div class='mdl-card__title'>
-                <h4 class='mdl-card__title-text'>Dashboard</h4>
-              </div>
-              <div class='mdl-card__supporting-text'>
+          <select id='selectedYear'>
+          #{
+            [2018..(new Date()).getFullYear()].map (year) =>
+              "<option>#{year}</option>"
+            .join("")
+          }
+          </select>
+          Term:
+          <select id='selectedTerm'>
+          #{
+            [1..3].map (term) =>
+              "<option>#{term}</option>"
+            .join("")
+          }
+          </select>
+        </h4>
 
-                <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-                  <thead>
-                    <tr>
-                      <th/>
-                      #{
-                        _(@tableData.headers).map (header) =>
-                          "<th>#{header}</th>"
-                        .join("")
-                      }
-                    </tr>
-                  </thead>
-                  <tbody>
+
+      </div>
+      <div class='mdl-card__supporting-text'>
+
+        <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
+          <thead>
+            <tr>
+              <th/>
+              #{
+                _(@tableData.headers).map (header) =>
+                  "<th>#{header}</th>"
+                .join("")
+              }
+            </tr>
+          </thead>
+          <tbody>
+            #{
+              _(@tableData.rows).map (row) =>
+                "
+                  <tr class='row-#{slugify(row[0])}'>
+                    <td><i class='mdi #{row[1]} mdi-18px'></i> #{row[0].replace(/current term/,"#{@year}t#{@term}")}:</td>
                     #{
-                      _(@tableData.rows).map (row) =>
-                        "
-                          <tr class='row-#{slugify(row[0])}'>
-                            <td><i class='mdi #{row[1]} mdi-18px'></i> #{row[0]}:</td>
-                            #{
-                              _(@tableData.headers).map (header) =>
-                                "<td class='td-#{slugify(header)}'>Loading...</td>"
-                              .join("")
-                            }
-                          </tr>
-                        "
+                      _(@tableData.headers).map (header) =>
+                        "<td class='td-#{slugify(header)}'>Loading...</td>"
                       .join("")
                     }
+                  </tr>
+                "
+              .join("")
+            }
 
-                  </tbody>
-                </table>
-                  
-
-              </div>
-            </div>
-          </div>
-
-          <div class='mdl-cell mdl-cell--4-col'>
-            <div><img src='images/sample_pie1.png'></div>
-            <div><img src='images/sample_pie2.png'></div>
-            <div><img src='images/sample_bar1.png'></div>
-          </div>
-        </div>
+          </tbody>
+        </table>
+          
+      </div>
+      <div>
+        <canvas id='percentSchoolsWithEnrollment'/>
+        <canvas id='percentLearnersEnrolled'/>
       </div>
     "
+
+    if @year and @term
+      @$("#selectedYear").val(@year)
+      @$("#selectedTerm").val(@term)
 
     Coconut.schoolsDb.query "schoolsByRegion",
       reduce: true
@@ -173,8 +201,8 @@ class DashboardView extends Backbone.View
       $('div.mdl-spinner').hide()
 
     Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
-      startkey: Calendar.getYearAndTerm()
-      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      startkey: ["#{@year}","#{@term}"]
+      endkey: ["#{@year}","#{@term}", "\uf000"]
       reduce: true
       group: true
     .then (result) =>
@@ -185,8 +213,8 @@ class DashboardView extends Backbone.View
       @$(".row-enrollments-for-current-term .td-total").html(total)
       
     Coconut.enrollmentsDb.query "enrollmentsByYearTermRegionWithStudentCount",
-      startkey: Calendar.getYearAndTerm()
-      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      startkey: ["#{@year}","#{@term}"]
+      endkey: ["#{@year}","#{@term}", "\uf000"]
       reduce: true
       group: true
     .then (result) =>
@@ -206,10 +234,30 @@ class DashboardView extends Backbone.View
         denominator = @$(".row-learners .td-#{header}").html()
         percent = Math.round(numerator/denominator*100)
         @$(targetCell).append " (#{percent}%)"
+
+
+        new Chart @$("#percentLearnersEnrolled"),
+          type: 'pie'
+          data:
+            labels: ["Learners Enrolled", "Learners not Enrolled"]
+            datasets: [{
+              backgroundColor: ["rgb(33,150,243)", "#ff4081"],
+              data:[
+                numerator
+                denominator-numerator
+              ]
+            }]
+          options: {
+            title: {
+              display: true,
+              text: "Percent Learners Enrolled"
+            }
+          }
+
       
     Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
-      startkey: Calendar.getYearAndTerm()
-      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      startkey: ["#{@year}","#{@term}"]
+      endkey: ["#{@year}","#{@term}", "\uf000"]
       reduce: false
     .then (result) =>
       value = _(result.rows).chain().countBy (row) =>
@@ -218,15 +266,15 @@ class DashboardView extends Backbone.View
         numberOfEnrollments > 2
       .size().value()
 
-      @$(".row-schools-with-more-than-2-enrollments-for-current-term .td-total").html "#{value}"
+      @$(".row-schools-with-2-enrollments-for-current-term .td-total").html "#{value}"
       addSchoolPercentages()
 
 
     @tableData.headers.map (region) =>
       return if region is "Total"
       Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
-        startkey: Calendar.getYearAndTerm().concat(region)
-        endkey: Calendar.getYearAndTerm().concat(region).concat("\uf000")
+        startkey: ["#{@year}","#{@term}", region]
+        endkey: ["#{@year}","#{@term}", region, "\uf000"]
         reduce: false
       .then (result) =>
         value = _(result.rows).chain().countBy (row) =>
@@ -234,17 +282,65 @@ class DashboardView extends Backbone.View
         .pick (numberOfEnrollments, schoolId) =>
           numberOfEnrollments > 2
         .size().value()
-        @$(".row-schools-with-more-than-2-enrollments-for-current-term .td-#{region.toLowerCase()}").html value
+        @$(".row-schools-with-2-enrollments-for-current-term .td-#{region.toLowerCase()}").html value
         addSchoolPercentages()
+
+
+    Coconut.enrollmentsDb.query "attendanceByYearTermRegion",
+      startkey: ["#{@year}","#{@term}"]
+      endkey: ["#{@year}","#{@term}", "\uf000"]
+      reduce: false
+    .then (result) =>
+      value = _(result.rows).chain().countBy (row) =>
+        row.id[18..21] #school ID
+      .pick (numberOfAttendances, schoolId) =>
+        numberOfAttendances > 2
+      .size().value()
+
+      @$(".row-schools-with-2-up-to-date-attendances-for-current-term .td-total").html "#{value}"
+
+
+    @tableData.headers.map (region) =>
+      return if region is "Total"
+      Coconut.enrollmentsDb.query "attendanceByYearTermRegion",
+        startkey: ["#{@year}","#{@term}", region]
+        endkey: ["#{@year}","#{@term}", region, "\uf000"]
+        reduce: false
+      .then (result) =>
+        value = _(result.rows).chain().countBy (row) =>
+          row.id[18..21] #school ID
+        .pick (numberOfAttendances, schoolId) =>
+          numberOfAttendances > 2
+        .size().value()
+        @$(".row-schools-with-2-up-to-date-attendances-for-current-term .td-#{region.toLowerCase()}").html value
+
 
     # Call this after the 4 functions that create the num/den are done
     addSchoolPercentages = _.after 4, =>
       @tableData.headers.map (header) =>
         header = header.toLowerCase()
-        targetCell = ".row-schools-with-more-than-2-enrollments-for-current-term .td-#{header}"
+        targetCell = ".row-schools-with-2-enrollments-for-current-term .td-#{header}"
         numerator = @$(targetCell).html()
         denominator = @$(".row-schools .td-#{header}").html()
         percent = Math.round(numerator/denominator*100)
         @$(targetCell).append " (#{percent}%)"
+
+        new Chart @$("#percentSchoolsWithEnrollment"),
+          type: 'pie'
+          data:
+            labels: ["Schools > 2 Enrollments", "Schools < 2 Enrollments"]
+            datasets: [{
+              backgroundColor: ["rgb(33,150,243)", "#ff4081"],
+              data:[
+                numerator
+                (denominator-numerator)
+              ]
+            }]
+          options: {
+            title: {
+              display: true,
+              text: "Percent Schools With > 2 Enrollments"
+            }
+          }
 
 module.exports = DashboardView

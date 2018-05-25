@@ -7,94 +7,106 @@ global.$ = require 'jquery'
 global._ = require 'underscore'
 global.Backbone = require 'backbone'
 Backbone.$  = $
-PouchDB = require 'pouchdb'
+global.PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
-Cookies = require 'js-cookie'
-global.pouchdb = new PouchDB('https://keep.cococloud.co/keep')
-#global.peopleDb = new PouchDB('http://localhost:5984/wusc-people')
-global.peopleDb = new PouchDB('https://keep.cococloud.co/keep-people')
-global.schoolsDb = new PouchDB('https://keep.cococloud.co/keep-schools')
-global.enrollmentsDb = new PouchDB('https://keep.cococloud.co/keep-enrollments')
-global.spotchecksDb = new PouchDB('https://keep.cococloud.co/keep-spotchecks')
-#global.pouchdb = new PouchDB('https://keep.cococloud.co/keep')
-global.HTMLHelpers = require './HTMLHelpers'
-AppView = require './AppView'
+global.Cookies = require 'js-cookie'
+
+username = "install"
+password = "installinstallinstall"
+
+#username = Cookies.get("username")
+#password = Cookies.get("password")
+
+switch username
+  when "","null",undefined
+    username = prompt "username"
+switch password
+  when "","null",undefined
+    password = prompt "password"
+
+global.pouchdb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep")
+
+pouchdb.info()
+.catch (error) =>
+  Cookies.remove("username")
+  Cookies.remove("password")
+  alert("Invalid username/password: #{pouchdb.name}")
+.then =>
+  Cookies.set("username", username)
+  Cookies.set("password", password)
+  global.peopleDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-people")
+  global.schoolsDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-schools")
+  global.enrollmentsDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-enrollments")
+  global.spotchecksDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-spotchecks")
+
+  global.HTMLHelpers = require './HTMLHelpers'
+  AppView = require './AppView'
 
 # These are local .coffee files
-Router = require './Router'
-User = require './models/User'
-Config = require './models/Config'
-MenuView = require './views/MenuView'
-HeaderView = require './views/HeaderView'
-QuestionCollection = require './models/QuestionCollection'
+  Router = require './Router'
+  User = require './models/User'
+  Config = require './models/Config'
+  MenuView = require './views/MenuView'
+  HeaderView = require './views/HeaderView'
+  QuestionCollection = require './models/QuestionCollection'
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc
 
-global.Coconut =
-  database: pouchdb
-  peopleDb: peopleDb
-  peopleDB: peopleDb
-  schoolsDb: schoolsDb
-  schoolsDB: schoolsDb
-  enrollmentsDb: enrollmentsDb
-  enrollmentsDB: enrollmentsDb
-  spotchecksDb: spotchecksDb
-  spotchecksDB: spotchecksDb
-  router: new Router(AppView)
-  currentlogin: Cookies.get('current_user') || null
-  reportDates:
-    startDate: moment().subtract("7","days").format("YYYY-MM-DD")
-    endDate: moment().format("YYYY-MM-DD")
-  config:
-    appName: "WUSC"
+  global.Coconut =
+    database: pouchdb
+    peopleDb: peopleDb
+    peopleDB: peopleDb
+    schoolsDb: schoolsDb
+    schoolsDB: schoolsDb
+    enrollmentsDb: enrollmentsDb
+    enrollmentsDB: enrollmentsDb
+    spotchecksDb: spotchecksDb
+    spotchecksDB: spotchecksDb
+    router: new Router(AppView)
+    currentlogin: Cookies.get('current_user') || null
+    reportDates:
+      startDate: moment().subtract("7","days").format("YYYY-MM-DD")
+      endDate: moment().format("YYYY-MM-DD")
+    config:
+      appName: "WUSC"
 
-global.Env = {
+  global.Env = {
 #  is_chrome: /chrome/i.test(navigator.userAgent)
-  is_chrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
-}
+    is_chrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
+  }
 
-Coconut.router.reportViewOptions = []
+  Coconut.router.reportViewOptions = []
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
-Backbone.sync = BackbonePouch.sync
-  db: Coconut.database
-  fetch: 'query'
+  Backbone.sync = BackbonePouch.sync
+    db: Coconut.database
+    fetch: 'query'
 
-Backbone.Model.prototype.idAttribute = '_id'
+  Backbone.Model.prototype.idAttribute = '_id'
 
-checkBrowser = (callback) ->
-  if !Env.is_chrome
-    chromeView = new ChromeView()
-    chromeView.render()
-    callback?.success()
-  else
-    callback?.success()
+  checkBrowser = (callback) ->
+    if !Env.is_chrome
+      chromeView = new ChromeView()
+      chromeView.render()
+      callback?.success()
+    else
+      callback?.success()
 
-User.isAuthenticated
-  success: ->
-    $('header.coconut-header').show()
-    $('div.coconut-drawer').show()
-  error: (err) ->
-    console.log(err)
+  User.isAuthenticated
+    success: ->
+      $('header.coconut-header').show()
+      $('div.coconut-drawer').show()
+    error: (err) ->
+      console.log(err)
 
 # Render headerView here instead of below with MenuView, otherwise the hamburger menu will be missing in smaller screen
-Coconut.headerView = new HeaderView
-Coconut.headerView.render()
+  Coconut.headerView = new HeaderView
+  Coconut.headerView.render()
 
-Config.getConfig
-  error: ->
-    console.log("Error Retrieving Config")
-  success: ->
-    Config.getLogoUrl()
-    .catch (error) ->
-      console.error "Logo Url not setup"
-      console.error error
-    .then (url) ->
-      Coconut.logoUrl = url
-      Coconut.menuView = new MenuView
-      Coconut.menuView.render()
+  Coconut.menuView = new MenuView
+  Coconut.menuView.render()
 
-      Backbone.history.start()
-      checkBrowser()
+  Backbone.history.start()
+  checkBrowser()
