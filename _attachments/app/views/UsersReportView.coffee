@@ -17,8 +17,18 @@ class UsersReportView extends Backbone.View
   initialize: =>
     Coconut.reportOptions = {}
 
-  #events:
-    #
+  events:
+    "change #selectedYear": "updateYear"
+    "change #selectedTerm": "updateTerm"
+
+  updateYear: =>
+    @year = @$("#selectedYear").val()
+    @render()
+
+  updateTerm: =>
+    @term = @$("#selectedTerm").val()
+    @render()
+
 
   headers =  [
     "username"
@@ -39,7 +49,26 @@ class UsersReportView extends Backbone.View
           background-color: #ff4081
         }
       </style>
-      <h1>Users #{Calendar.getYearAndTerm().join("-t")}  </h1>
+
+      <h3>Users 
+        <select id='selectedYear'>
+        #{
+          [2018..(new Date()).getFullYear()].map (year) =>
+            "<option>#{year}</option>"
+          .join("")
+        }
+        </select>
+        Term:
+        <select id='selectedTerm'>
+        #{
+          [1..3].map (term) =>
+            "<option>#{term}</option>"
+          .join("")
+        }
+        </select>
+
+      </h3>
+
       <table id='table-users'>
         <thead>
           #{
@@ -53,12 +82,20 @@ class UsersReportView extends Backbone.View
       </table>
     "
 
+    if @year and @term
+      @$("#selectedYear").val(@year)
+      @$("#selectedTerm").val(@term)
+    else
+      [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
+
     Coconut.database.allDocs
       startkey: "user.",
       endkey: "user.\ufff0"
       include_docs: true
     .then (result) =>
       @$("#table-users tbody").html( _(result.rows).map (row) =>
+        return if row.id is "user.admin"
+        return if row.doc.inactive
         "
         <tr id='row-#{slugify(row.id)}'>
           #{
@@ -66,27 +103,16 @@ class UsersReportView extends Backbone.View
               "<td class='#{slugify(header)}'>
                 #{
                   data = row.doc[header]
-                  if _(data).isString()
-                    data
-                  else if header is "username"
-                    row.id
+                  if header is "username"
+                    row.id.replace(/user-/,"")
                   else if header is "schools"
-                    _.delay =>
-                      console.log data
-                      Promise.all(_(data)?.map (school) =>
-                        Coconut.schoolsDb.get(school)
-                        .then (result) =>
-                          console.log result
-                          Promise.resolve(result.Name)
-                      ).then (schoolNames) =>
-                        console.log schoolNames
-                        @$("#row-#{slugify(row.id)} td.schools").html(schoolNames.join(","))
-
-                    ,1000
+                    "-"
                   else if header is "# of enrollments"
                     "-"
+                  else if _(data).isString()
+                    data
                   else
-                    console.error "Can't render #{data} for #{header}"
+                    console.info "Can't render #{data} for #{header}"
                     ""
                 }
                 </td>
@@ -96,31 +122,59 @@ class UsersReportView extends Backbone.View
         </tr>
         "
       )
+
+
+
     .then =>
-      Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
-        startkey: Calendar.getYearAndTerm()
-        endkey: Calendar.getYearAndTerm().concat("\uf000")
-        include_docs:true
-        reduce: false
+      Coconut.schoolsDb.allDocs
+        include_docs: true
       .then (result) =>
-        _(result.rows).chain().groupBy (row) =>
-          row.doc["created-by"]
-        .each (rows, user) =>
-          @$("#row-user-#{user} td.of-enrollments").html(rows.length)
-      .then =>
-        Coconut.schoolsDB
-      .then =>
+        regionBySchoolId = {}
+        _(result.rows).each (row) =>
+          regionBySchoolId[row.id.replace(/school-/,"")] = row.doc.Region
+
+        Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
+          startkey: ["#{@year}","#{@term}"]
+          endkey: ["#{@year}","#{@term}", "\uf000"]
+          include_docs:true
+          reduce: false
+        .then (result) =>
+          enrollmentNumberByUser = {}
+          enrollmentSchoolNameByUser = {}
+          enrollmentRegionByUser = {}
+
+          _(result.rows).each (row) =>
+            _(row.doc["updated-by"]).each (user) =>
+              enrollmentNumberByUser[user] or= 0
+              enrollmentNumberByUser[user]+=1
+
+              enrollmentSchoolNameByUser[user] or= []
+              enrollmentSchoolNameByUser[user].push row.doc["school-name"]
+              enrollmentRegionByUser[user] or= []
+              enrollmentRegionByUser[user].push regionBySchoolId[row.doc["school-id"]] or "-"
+          
+          _(enrollmentNumberByUser).each (numberOfEnrollments, user) =>
+            @$("#row-user-#{user} td.of-enrollments").html(numberOfEnrollments)
+
+          _(enrollmentSchoolNameByUser).each (schools, user) =>
+            @$("#row-user-#{user} td.schools").html(_(schools).uniq().join(","))
+
+          _(enrollmentRegionByUser).each (regions, user) =>
+            @$("#row-user-#{user} td.region").html(_(regions).uniq().join(","))
 
 
-        @$("#table-users").DataTable
-          paging:false
-        @$("#table-users td.of-enrollments").each (index,element) =>
-          element = $(element)
-          element.addClass("warn") if element.html() is " - "
-          element.addClass("warn") if parseInt(element.html()) < 5
+        .then =>
+          @$("#table-users td.of-enrollments").each (index,element) =>
+            element = $(element)
+            element.addClass("warn") if element.html() is " - "
+            element.addClass("warn") if parseInt(element.html()) < 5
+          _.delay =>
+            @$("#table-users").DataTable
+              paging:false
+          , 1000
 
 
-    .catch (error) => console.error error
+        .catch (error) => console.error error
 
 
 module.exports = UsersReportView

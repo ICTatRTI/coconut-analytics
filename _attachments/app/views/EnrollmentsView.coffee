@@ -17,6 +17,21 @@ class EnrollmentsView extends Backbone.View
   initialize: =>
     Coconut.reportOptions = {}
 
+  events:
+    "change #selectedYear": "updateYear"
+    "change #selectedTerm": "updateTerm"
+
+  updateYear: =>
+    @year = @$("#selectedYear").val()
+    @render()
+
+  updateTerm: =>
+    @term = @$("#selectedTerm").val()
+    @render()
+
+  throttledRender: =>
+    _.throttle => @render
+
   headers =  [
     "creation-time"
     "created-by"
@@ -49,7 +64,25 @@ class EnrollmentsView extends Backbone.View
           color:black;
         }
       </style>
-      <h1>Enrollments #{Calendar.getYearAndTerm().join("-t")}  </h1>
+      <h3>Enrollments 
+        <select id='selectedYear'>
+        #{
+          [2018..(new Date()).getFullYear()].map (year) =>
+            "<option>#{year}</option>"
+          .join("")
+        }
+        </select>
+        Term:
+        <select id='selectedTerm'>
+        #{
+          [1..3].map (term) =>
+            "<option>#{term}</option>"
+          .join("")
+        }
+        </select>
+
+      </h3>
+      (Click an enrollment for more details)<br/>
       <table id='table-enrollments'>
         <thead>
           #{
@@ -63,12 +96,29 @@ class EnrollmentsView extends Backbone.View
       </table>
     "
 
+    if @year and @term
+      @$("#selectedYear").val(@year)
+      @$("#selectedTerm").val(@term)
+    else
+      [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
+
+    nameByUsername = {}
+    Coconut.database.allDocs
+      startkey: "user.",
+      endkey: "user.\ufff0"
+      include_docs: true
+    .then (result) =>
+      _(result.rows).each (row) =>
+        nameByUsername[row.key.replace(/user\./,"")] = row.doc.name
+
+
     Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
-      startkey: Calendar.getYearAndTerm()
-      endkey: Calendar.getYearAndTerm().concat("\uf000")
+      startkey: ["#{@year}","#{@term}"]
+      endkey: ["#{@year}","#{@term}", "\uf000"]
       include_docs:true
       reduce: false
     .then (result) =>
+      console.log result
       @$("#table-enrollments tbody").html( _(result.rows).map (row) =>
         "
         <tr class='enrollment-row' id='#{row.id}'>
@@ -84,6 +134,12 @@ class EnrollmentsView extends Backbone.View
                     _(row.doc.students).size()
                   else if header is "update-time"
                     _(row.doc[header]).last() or "-"
+                  else if header is "created-by"
+                    nameByUsername[data] or "-"
+                  else if header is "updated-by"
+                    _(data).map (username) =>
+                      nameByUsername[username] or "-"
+                    .join(",")
                   else if _(row.doc[header]).isString()
                     data
                   else if _(row.doc[header]).isArray()
