@@ -6,6 +6,8 @@ if [ $# -lt 1 ]
     exit
 fi
 
+echo "Did you kill the npm run start process, otherwise you will get a corrupt bundle.js!"
+
 CREDENTIALS=$(echo $TARGETWITHPASSWORD | cut -f1 -d@ | cut -f 3 -d/)
 TARGETNOCREDENTIALS=$(echo $TARGETWITHPASSWORD | sed "s/$CREDENTIALS@//")
 DATABASE=$(echo $TARGETWITHPASSWORD | rev | cut -f1 -d/ | rev)

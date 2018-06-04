@@ -2,127 +2,114 @@ $ = require 'jquery'
 
 Backbone = require 'backbone'
 Backbone.$  = $
-FileSaver = require 'file-saver'
+global.FileSaver = require 'file-saver'
 dasherize = require("underscore.string/dasherize")
 
 class ExportView extends Backbone.View
 
   events:
-    "click button.downloadBtn": "exportData"
+    "click button.download-csv": "downloadCsv"
+    "change #selectedYear": "updateYear"
+    "change #selectedTerm": "updateTerm"
 
-  exportData: (e) ->
-    btnId = e.target.id
-    btnId = btnId.replace(/-/, "") if btnId.indexOf("-") is 0
-    console.log(btnId)
-    debugger
-    @startDate = $('#startDate').val()
-    @endDate = $('#endDate').val()
-    validDates
-      startDate: @startDate
-      endDate: @endDate
-      error: (error) ->
-          console.error error
-      success: (result)  =>
-         $('#downloadMsg').show()
-         $('#analysis-spinner').show()
-         Coconut.database.query "results",
-           include_docs: true
-           startkey: @startDate
-           endkey: @endDate
-         .then (result) =>
-            csv = ""
-            keys = []
-            _(result.rows).map (row) ->
-              unless keys.length > 0
-                keys = _(row.doc).chain().keys().without("_id","_rev").value()
-                csv = (
-                  _(keys).map (key) ->
-                    "\"#{key}\""
-                  .join(",")
-                )
+  updateYear: =>
+    @year = @$("#selectedYear").val()
+    @render()
 
-              csv += "\n" + (
-                _(keys).map (key) ->
-                  "\"#{row.doc[key] or ""}\""
-                .join(",")
-              )
+  updateTerm: =>
+    @term = @$("#selectedTerm").val()
+    @render()
 
-            blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
-            FileSaver.saveAs(blob, "coconut-#{@startDate}-#{@endDate}.csv")
-            $('#downloadMsg').hide()
-            $('#analysis-spinner').hide()
-          .catch (error) -> console.error error
-
-  validDates = (options) =>
-    startDate = options.startDate
-    endDate = options.endDate
-    if startDate? and endDate? and moment(endDate).isAfter(startDate)
-      options.success(true)
-    else
-      options.success(false)
+  # Need to keep in sync with __view
+  fields: [
+    "Year"
+    "Term"
+    "Region"
+    "SchoolId"
+    "Class"
+    "Stream"
+    "PersonId"
+    "Name"
+    "Sex"
+    "Attendance - Days Eligible"
+    "Attendance - Days Present"
+    "Attendance - Percent"
+    "Performance - English"
+    "Performance - Kiswahili"
+    "Performance - Maths"
+    "Performance - Science"
+    "Performance - Social Studies"
+    "Performance - Biology"
+    "Performance - Physics"
+    "Performance - Chemistry"
+    "Performance - History"
+    "Performance - Geography"
+    "Performance - Christian Religious Education"
+    "Performance - Islamic Religious Education"
+    "Performance - Music"
+    "Performance - Home Science"
+    "Performance - Art and Craft"
+    "Performance - Agriculture"
+    "Performance - Arabic"
+    "Performance - German"
+    "Performance - French"
+    "Performance - Business Studies"
+    "Performance - Computer"
+  ]
 
 
+  downloadCsv: =>
+
+   Coconut.peopleDB.query "attendancePerformanceByYearTermRegionSchoolClassStreamLearner",
+     include_docs: false
+     startkey: [@year, @term]
+     endkey: [@year, @term, {}]
+   .then (result) =>
+      csv = @fields.join(",")+"\n"
+      _(result.rows).map (row) ->
+        csv += row.value + "\n"
+      console.log csv
+      blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
+      FileSaver.saveAs(blob, "coconut-keep-#{@year}-#{@term}.csv")
+      $('#downloadMsg').hide()
+      $('#analysis-spinner').hide()
+    .catch (error) -> console.error error
 
   render: =>
     @$el.html "
       <style>
-        .mdl-button--fab.mdl-button--mini-fab.roundBtn {
-           height: 33px;
-           min-width: 33px;
-           width: 33px;
-         }
+        #{
+          margin = 0
+          [4..8].map (level) =>
+            ".level-#{level} {margin: #{margin+=20}px}"
+          .join("\n")
+        }
       </style>
-      <div id='dateSelector'>
-        <div class='content-grid mdl-grid'>
-          <div class='mdl-cell'>
-            <label for='startDate'>Start Date</label>
-            <input id='startDate' type='date'></input>
-          </div>
-          <div class='mdl-cell'>
-            <label for='endDate'>End Date</label>
-            <input id='endDate' type='date'></input>
-          </div>
-        </div>
-      </div>
-      <div class='scroll-div' >
-        <div><small>Specify the Start and End dates and click the approprite icon to download</small></div>
-        <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-          <thead>
-            <th></th>
-            <th>Kakuma</th>
-            <th>Dadaab</th>
-            <th>Combined</th>
-          </thead>
-          <tbody>
-            #{
-              _([
-                "Verification"
-                "Enrolled Students"
-              ]).map (dataType) ->
-                "
-                  <tr>
-                    <td>#{dataType}</td>
-                    <td>
-                      <button class='downloadBtn mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored roundBtn'>
-                        <i id='#{dasherize(dataType)}-kakuma' class='material-icons mdi-14px'>cloud_download</i>
-                      </button>
-                    </td>
-                    <td>
-                      <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored roundBtn'>
-                        <i id='#{dasherize(dataType)}-dadaab' class='material-icons mdi-14px'>cloud_download</i>
-                      </button>
-                    </td>
-                    <td>
-                      <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored roundBtn'>
-                        <i id='#{dasherize(dataType)}-combined' class='material-icons mdi-14px'>cloud_download</i>
-                      </button>
-                    </td>
-                  </tr>
-                "
-              .join ""
-            }
-          </tbody>
-        </table>
-      </div>
+      <h3>Learners
+        <select id='selectedYear'>
+        #{
+          [2018..(new Date()).getFullYear()].map (year) =>
+            "<option>#{year}</option>"
+          .join("")
+        }
+        </select>
+        Term:
+        <select id='selectedTerm'>
+        #{
+          [1..3].map (term) =>
+            "<option>#{term}</option>"
+          .join("")
+        }
+        </select>
+
+      </h3>
+      <button class='download-csv'>Download CSV</button>
     "
+
+    unless @year and @term
+      [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
+
+    @$("#selectedYear").val(@year)
+    @$("#selectedTerm").val(@term)
+
 module.exports = ExportView
