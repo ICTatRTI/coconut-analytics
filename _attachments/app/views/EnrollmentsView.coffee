@@ -96,11 +96,11 @@ class EnrollmentsView extends Backbone.View
       </table>
     "
 
-    if @year and @term
-      @$("#selectedYear").val(@year)
-      @$("#selectedTerm").val(@term)
-    else
+    unless @year and @term
       [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
+
+    @$("#selectedYear").val(@year)
+    @$("#selectedTerm").val(@term)
 
     nameByUsername = {}
     Coconut.database.allDocs

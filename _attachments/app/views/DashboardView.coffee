@@ -286,7 +286,7 @@ class DashboardView extends Backbone.View
         addSchoolPercentages()
 
 
-    Coconut.enrollmentsDb.query "attendanceByYearTermRegion",
+    Coconut.enrollmentsDb.query "latestRecordedAttendanceByYearTermRegion",
       startkey: ["#{@year}","#{@term}"]
       endkey: ["#{@year}","#{@term}", "\uf000"]
       reduce: false
@@ -302,7 +302,7 @@ class DashboardView extends Backbone.View
 
     @tableData.headers.map (region) =>
       return if region is "Total"
-      Coconut.enrollmentsDb.query "attendanceByYearTermRegion",
+      Coconut.enrollmentsDb.query "latestRecordedAttendanceByYearTermRegion",
         startkey: ["#{@year}","#{@term}", region]
         endkey: ["#{@year}","#{@term}", region, "\uf000"]
         reduce: false

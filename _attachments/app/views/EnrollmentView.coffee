@@ -79,8 +79,6 @@ class EnrollmentView extends Backbone.View
 
                 extraFields = _(@enrollment.doc).chain().keys().difference(@headers).value()
                 @headers = @headers.concat(extraFields) # Just in case new fields have been added to the enrollment
-                
-                
 
                 @headers.map (header, index) =>
                   "
