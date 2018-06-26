@@ -52,6 +52,8 @@ class EnrollmentView extends Backbone.View
     "term"
     "updated-by"
     "update-time"
+    "attendance"
+    "performance"
   ]
 
   render: =>
@@ -93,6 +95,8 @@ class EnrollmentView extends Backbone.View
                           .join("")
                         else if header is "update-time"
                           _(data).last() or "-"
+                        else if header is "attendance" or header is "performance"
+                          ""
                         else if _(data).isString() or _(data).isNumber()
                           data
                         else if _(data).isArray()
@@ -109,6 +113,25 @@ class EnrollmentView extends Backbone.View
             </tbody>
           </table>
         "
+
+        [a,b,schoolId, year, c, term, d, className, e, stream, gender] = @enrollment.doc._id.split(/-/)
+
+        Coconut.schoolsDb.get "school-#{schoolId}"
+        .then (school) =>
+          _(["attendance", "performance"]).each (aggregateType) =>
+            Coconut.enrollmentsDb.query "#{aggregateType}ByYearTermRegionSchoolClassStreamLearner",
+              startkey: [year, term, school.Region, schoolId, className, "#{stream}-#{gender}"]
+              endkey: [year, term, school.Region, schoolId, className, "#{stream}-#{gender}", {}]
+              reduce: true
+              group_level: 6
+            .then (result) =>
+              if result.rows[0]
+                $("tr.#{aggregateType} .data").html "
+                  #{Math.round result.rows[0].value[0]} (for #{result.rows[0].value[1]} records#{if aggregateType is "attendance" then ", latest date: #{@enrollment.latestAttendanceDate()}" else ""})
+                "
+
+
+
     .catch (error) => console.error error
 
 module.exports = EnrollmentView

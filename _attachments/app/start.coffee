@@ -26,7 +26,14 @@ switch password
   when "","null",undefined
     password = prompt "password"
 
-global.pouchdb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep")
+databaseURL =
+  if window.location.origin.startsWith "http://localhost"
+    "http://localhost:5984/"
+  else
+    "https://#{username}:#{password}@keep.cococloud.co/"
+databaseOptions = {ajax: timeout: 50000}
+
+global.pouchdb = new PouchDB("#{databaseURL}keep", databaseOptions)
 
 pouchdb.info()
 .catch (error) =>
@@ -36,10 +43,10 @@ pouchdb.info()
 .then =>
   Cookies.set("username", username)
   Cookies.set("password", password)
-  global.peopleDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-people")
-  global.schoolsDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-schools")
-  global.enrollmentsDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-enrollments")
-  global.spotchecksDb = new PouchDB("https://#{username}:#{password}@keep.cococloud.co/keep-spotchecks")
+  global.peopleDb = new PouchDB("#{databaseURL}keep-people", databaseOptions)
+  global.schoolsDb = new PouchDB("#{databaseURL}keep-schools", databaseOptions)
+  global.enrollmentsDb = new PouchDB("#{databaseURL}keep-enrollments", databaseOptions)
+  global.spotchecksDb = new PouchDB("#{databaseURL}keep-spotchecks", databaseOptions)
 
   global.HTMLHelpers = require './HTMLHelpers'
   AppView = require './AppView'
