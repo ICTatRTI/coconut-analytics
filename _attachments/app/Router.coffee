@@ -17,7 +17,8 @@ User = require './models/User'
 Dialog = require './views/Dialog'
 
 DashboardView = require './views/DashboardView'
-AttendanceView = require './views/AttendanceView'
+#AttendanceView = require './views/AttendanceView'
+AggregatingAverageView = require './views/AggregatingAverageView'
 EnrollmentView = require './views/EnrollmentView'
 ExportView = require './views/ExportView'
 
@@ -28,7 +29,7 @@ ExportView = require './views/ExportView'
 #
 
 reportViews = {
-  "attendance": require './views/AttendanceView'
+  "attendance": require './views/AggregatingAverageView'
   "enrollments": require './views/EnrollmentsView'
   "users": require './views/UsersReportView'
 #  "SpotCheck": require './views/SpotCheckView'
@@ -60,6 +61,7 @@ class Router extends Backbone.Router
     "": "dashboard"
     "dashboard": "dashboard"
     "attendance": "attendance"
+    "performance": "performance"
     "enrollment/:enrollment_id": "enrollment"
     "export": "export"
     "login": "login"
@@ -85,9 +87,18 @@ class Router extends Backbone.Router
     @dashboardView.render()
 
   attendance: =>
-    @attendanceView = @attendanceView or new AttendanceView()
-    @attendanceView.setElement("#content")
-    @attendanceView.render()
+    @aggregatingAverageView = @aggregatingAverageView or new AggregatingAverageView()
+    @aggregatingAverageView.setElement("#content")
+    @aggregatingAverageView.title = "Attendance"
+    @aggregatingAverageView.query = "attendanceByYearTermRegionSchoolClassStreamLearner"
+    @aggregatingAverageView.render()
+
+  performance: =>
+    @aggregatingAverageView = @aggregatingAverageView or new AggregatingAverageView()
+    @aggregatingAverageView.setElement("#content")
+    @aggregatingAverageView.title = "Performance"
+    @aggregatingAverageView.query = "performanceByYearTermRegionSchoolClassStreamLearner"
+    @aggregatingAverageView.render()
 
   enrollment: (enrollmentId) =>
     console.log enrollmentId

@@ -61,9 +61,10 @@ class MenuView extends Backbone.View
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-document mdi-24px'></i>
         Reports</span>
         <div class='m-l-20 dropdown' id='drawer-reports'>
+          <a class='mdl-navigation__link report__link' href='#attendance' data-title='Reports'>Attendance</a>
+          <a class='mdl-navigation__link report__link' href='#performance' data-title='Reports'>Performance</a>
           #{
           reportLinks = {
-            attendance: "Attendance Summary"
             enrollments: "Enrollments"
             spotchecks: "Spot Checks Status"
             followups: "Follow up Reports"
