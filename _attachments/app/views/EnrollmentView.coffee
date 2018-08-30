@@ -22,6 +22,12 @@ ExpandableObjectView = require './ExpandableObjectView'
 class EnrollmentView extends Backbone.View
   events:
     "click .person-details": "personDetails"
+    "click #delete": "delete"
+
+  delete: =>
+    if confirm "Are you sure want to delete this enrollment?"
+      Coconut.enrollmentsDB.remove(@enrollment.doc).then =>
+        Coconut.router.navigate("reports/type/enrollments", {trigger:true})
 
   personDetails: (event) =>
     event.stopPropagation()
@@ -59,7 +65,6 @@ class EnrollmentView extends Backbone.View
   render: =>
     Enrollment.get @enrollmentId
     .then (@enrollment) =>
-      console.log @enrollment
       @enrollment.peopleByRegistrationNumber().then (peopleByRegistrationNumber) =>
 
         @$el.html "
@@ -74,7 +79,11 @@ class EnrollmentView extends Backbone.View
               color: #ff4081;
             }
           </style>
-          <h3>Enrollment: #{@enrollment.toHtmlString()}</h3>
+          <h3>
+            Enrollment: #{@enrollment.toHtmlString()} 
+            <i id='delete' class='mdi mdi-delete mdi-24px'></i>
+
+          </h3>
           <table id='table-enrollment'>
             <tbody>
               #{
@@ -95,8 +104,16 @@ class EnrollmentView extends Backbone.View
                           .join("")
                         else if header is "update-time"
                           _(data).last() or "-"
-                        else if header is "attendance" or header is "performance"
-                          ""
+                        else if header is "attendance"
+                          _(@enrollment.attendanceSummary()).map (value, property) =>
+                            return if property is "Score"
+                            "#{property} : #{value}"
+                          .join("<br/>")
+                        else if header is "performance"
+                          _(@enrollment.performanceSummary()).map (value, property) =>
+                            return if property is "Score"
+                            "#{property} : #{value}"
+                          .join("<br/>")
                         else if _(data).isString() or _(data).isNumber()
                           data
                         else if _(data).isArray()
