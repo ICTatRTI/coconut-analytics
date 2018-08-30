@@ -15,27 +15,27 @@
     "Attendance - Days Eligible"
     "Attendance - Days Present"
     "Attendance - Percent"
-    "Performance - English"
-    "Performance - Kiswahili"
-    "Performance - Maths"
-    "Performance - Science"
-    "Performance - Social Studies"
-    "Performance - Biology"
-    "Performance - Physics"
-    "Performance - Chemistry"
-    "Performance - History"
-    "Performance - Geography"
-    "Performance - Christian Religious Education"
-    "Performance - Islamic Religious Education"
-    "Performance - Music"
-    "Performance - Home Science"
-    "Performance - Art and Craft"
-    "Performance - Agriculture"
-    "Performance - Arabic"
-    "Performance - German"
-    "Performance - French"
-    "Performance - Business Studies"
-    "Performance - Computer"
+    "Performance - english"
+    "Performance - kiswahili"
+    "Performance - maths"
+    "Performance - science"
+    "Performance - social-studies"
+    "Performance - biology"
+    "Performance - physics"
+    "Performance - chemistry"
+    "Performance - history"
+    "Performance - geography"
+    "Performance - christian-religious-education"
+    "Performance - islamic-religious-education"
+    "Performance - music"
+    "Performance - home-science"
+    "Performance - art-and-craft"
+    "Performance - agriculture"
+    "Performance - arabic"
+    "Performance - german"
+    "Performance - french"
+    "Performance - business-studies"
+    "Performance - computer"
   ]
 
   if doc._id[0..5] is "person"
@@ -87,6 +87,9 @@
         result["Stream"]
         result["PersonId"]
       ]
+
+      console.log fields
+      console.log result
 
       valueToEmit = []
       for field in fields
