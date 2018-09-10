@@ -88,9 +88,6 @@
         result["PersonId"]
       ]
 
-      console.log fields
-      console.log result
-
       valueToEmit = []
       for field in fields
         valueToEmit.push result[field] or null

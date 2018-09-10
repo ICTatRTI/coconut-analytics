@@ -29,6 +29,7 @@ ExportView = require './views/ExportView'
 #
 
 reportViews = {
+  "progress": require './views/ProgressView'
   "attendance": require './views/AggregatingAverageView'
   "enrollments": require './views/EnrollmentsView'
   "users": require './views/UsersReportView'

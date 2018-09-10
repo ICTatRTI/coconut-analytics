@@ -9,6 +9,7 @@ require 'json'
 Dir.glob("*.coffee").each do |view|
   next unless view.match(/__reduce/).nil?
   next if view == "executeViews.coffee"
+  next if view == 'runTests.coffee'
   puts view
 
   view_name = view.sub(/\.coffee/,"")

@@ -159,7 +159,7 @@ class EnrollmentsView extends Backbone.View
       )
 
       @$("#table-enrollments").DataTable
-        paging:false
+        paging:true
       @$("#table-enrollments td.of-students").each (index,element) =>
         element = $(element)
         element.addClass("warn") if parseInt(element.html()) < 10

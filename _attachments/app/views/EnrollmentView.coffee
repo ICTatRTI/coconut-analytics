@@ -102,8 +102,6 @@ class EnrollmentView extends Backbone.View
                           _(peopleByRegistrationNumber).map (person, registrationNumber) =>
                             "#{registrationNumber}: #{person.name()} <span class='person-details' data-id='#{person.id()}'>?</span><br/>"
                           .join("")
-                        else if header is "update-time"
-                          _(data).last() or "-"
                         else if header is "attendance"
                           _(@enrollment.attendanceSummary()).map (value, property) =>
                             return if property is "Score"
@@ -117,7 +115,10 @@ class EnrollmentView extends Backbone.View
                         else if _(data).isString() or _(data).isNumber()
                           data
                         else if _(data).isArray()
-                          data.join(", ")
+                          if header is "update-time"
+                            data.pop()
+                          else
+                            data.join(", ")
                         else
                           console.error "Can't render #{data} for #{header}"
                           ""
