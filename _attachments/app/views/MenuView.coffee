@@ -65,6 +65,7 @@ class MenuView extends Backbone.View
           <a class='mdl-navigation__link report__link' href='#performance' data-title='Reports'>Performance</a>
           #{
           reportLinks = {
+            progress: "Progress"
             enrollments: "Enrollments"
             spotchecks: "Spot Checks Status"
             followups: "Follow up Reports"

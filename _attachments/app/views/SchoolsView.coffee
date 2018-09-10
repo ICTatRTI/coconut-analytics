@@ -17,7 +17,6 @@ require 'material-design-lite'
 moment = require 'moment'
 
 DataTables = require( 'datatables.net' )()
-School = require '../models/School'
 crypto = require('crypto')
 
 class SchoolsView extends Backbone.View
