@@ -1,4 +1,11 @@
 #! /usr/bin/env ruby
+#
+#
+
+
+STDERR.puts "DEPRECATED - use coffee version instead"
+return
+
 require 'rubygems'
 require 'couchrest'
 require 'json'

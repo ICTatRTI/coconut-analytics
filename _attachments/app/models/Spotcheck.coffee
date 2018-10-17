@@ -1,1 +1,0 @@
-../../../../coconut-mobile-plugin-keep/_attachments/Spotcheck.coffee
