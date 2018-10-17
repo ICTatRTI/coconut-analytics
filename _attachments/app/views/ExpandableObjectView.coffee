@@ -1,1 +1,1 @@
-../../../../coconut-mobile-plugin-keep/_attachments/ExpandableObjectView.coffee
+/var/www/coconut-mobile-plugin-keep/_attachments/ExpandableObjectView.coffee
