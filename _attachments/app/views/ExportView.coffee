@@ -34,6 +34,9 @@ class ExportView extends Backbone.View
     "Attendance - Days Eligible"
     "Attendance - Days Present"
     "Attendance - Percent"
+    "Spotchecks - # Performed"
+    "Spotchecks - # Present For"
+    "Spotchecks - Attendance Mismatches"
     "Performance - English"
     "Performance - Kiswahili"
     "Performance - Maths"
@@ -68,7 +71,6 @@ class ExportView extends Backbone.View
       csv = @fields.join(",")+"\n"
       _(result.rows).map (row) ->
         csv += row.value + "\n"
-      console.log csv
       blob = new Blob([csv], {type: "text/plain;charset=utf-8"})
       FileSaver.saveAs(blob, "coconut-keep-#{@year}-#{@term}.csv")
       $('#downloadMsg').hide()
