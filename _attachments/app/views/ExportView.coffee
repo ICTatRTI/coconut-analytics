@@ -107,7 +107,7 @@ class ExportView extends Backbone.View
     "
 
     unless @year and @term
-      [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
+      [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear().toString(), "1"]
 
     @$("#selectedYear").val(@year)
     @$("#selectedTerm").val(@term)
