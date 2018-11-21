@@ -18,7 +18,6 @@ global.Person = require "../models/Person"
 
 ExpandableObjectView = require './ExpandableObjectView'
 
-
 class EnrollmentView extends Backbone.View
   events:
     "click .person-details": "personDetails"

@@ -148,6 +148,7 @@ class MenuView extends Backbone.View
             schools: "Schools"
             system_settings: "System Settings"
             users: "Users"
+            new_learners: "New Learners"
           }
           _(adminLinks).map (linkText, linkUrl) ->
             "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"

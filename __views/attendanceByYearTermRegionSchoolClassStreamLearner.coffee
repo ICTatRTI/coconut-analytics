@@ -19,8 +19,8 @@
             when "Half"
               daysEligibleForAttendance+=1
               daysPresent+=0.5
-            when "Left", "Unknown", "Holiday"
-              return
+            #when "Left", "Unknown", "Holiday"
+              # Don't count
 
         year = doc._id[23..26]
         term = doc._id[33]
