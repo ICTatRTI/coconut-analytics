@@ -21,6 +21,8 @@ DashboardView = require './views/DashboardView'
 AggregatingAverageView = require './views/AggregatingAverageView'
 EnrollmentView = require './views/EnrollmentView'
 ExportView = require './views/ExportView'
+NewLearnersView = require './views/NewLearnersView'
+NewLearnerView = require './views/NewLearnerView'
 
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -75,6 +77,8 @@ class Router extends Backbone.Router
     "admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/schools": "schools"
+    "admin/new_learner/:personId": "new_learner"
+    "admin/new_learners": "new_learners"
     "*noMatch": "noMatch"
 
   noMatch: =>
@@ -201,6 +205,25 @@ class Router extends Backbone.Router
       success: =>
         @schoolsView = new SchoolsView() unless @schoolsView
         @schoolsView.render()
+      error: =>
+        @notAdmin()
+
+  new_learners: =>
+    @adminLoggedIn
+      success: =>
+        @newLearnersView ?= new NewLearnersView()
+        @newLearnersView.setElement("#content")
+        @newLearnersView.render()
+      error: =>
+        @notAdmin()
+
+  new_learner: (personId) =>
+    @adminLoggedIn
+      success: =>
+        @newLearnerView ?= new NewLearnerView()
+        @newLearnerView.setElement("#content")
+        @newLearnerView.personId = personId
+        @newLearnerView.render()
       error: =>
         @notAdmin()
 

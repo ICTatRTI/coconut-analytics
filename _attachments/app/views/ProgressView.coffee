@@ -202,6 +202,17 @@ class ProgressView extends Backbone.View
       _(result.rows).each (row) =>
         @$("##{slugify(row.id)} .attendance").html moment(row.value).format("DD MMM")
 
+      Coconut.enrollmentsDb.query "attendanceByYearTermRegionSchoolClassStreamLearner",
+        startkey: ["#{@year}","#{@term}"]
+        endkey: ["#{@year}","#{@term}", "\uf000"]
+        include_docs: false
+        reduce: true
+        group_level: 6
+      .then (result) =>
+        _(result.rows).each (row) =>
+          [year,term,region,schoolId,className,stream] = _(row.key).map( (value) => value.replace(/ /,'-'))
+          @$("#enrollment-school-#{schoolId}-#{year}-term-#{term}-class-#{className.toLowerCase()}-stream-#{stream.toLowerCase()} .attendance").append "- #{Math.round(row.value[0])}%"
+
   enrollmentSpotchecks: =>
     #spotcheck id includes the date
     Coconut.spotchecksDb.allDocs

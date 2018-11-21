@@ -1,7 +1,5 @@
 # db:keep-people
-
-# This is used for generating the CSV and uses the people database instead of the enrollments database
-(doc) ->
+(doc) -> # This is used for generating the CSV and uses the people database instead of the enrollments database
   fields = [
     "Year"
     "Term"
