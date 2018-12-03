@@ -1,3 +1,4 @@
+# db:zanzibar
 (document) ->
   if document.collection is "result"
     if document.complete is "true"

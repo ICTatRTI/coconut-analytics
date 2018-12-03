@@ -1,3 +1,4 @@
+# db:zanzibar
 (doc) ->
   if doc.type is "Weekly Facility Report"
     key = [

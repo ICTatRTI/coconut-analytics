@@ -1,3 +1,4 @@
+# db:zanzibar
 (document) ->
   if document.transferred?
     lastTransfer = document.transferred[document.transferred.length-1]

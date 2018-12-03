@@ -1,8 +1,9 @@
+#! /usr/bin/env coffee
 request = require 'request'
 glob = require 'glob'
 _ = require 'underscore'
 
-database = process.argv.pop() || "http://localhost:5984/democs"
+database = process.argv.pop() || "http://localhost:5984/zanzibar"
 
 glob "**/*.coffee", (er, files) ->
   _(files).each (view) ->

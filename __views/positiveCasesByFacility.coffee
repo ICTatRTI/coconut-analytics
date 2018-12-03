@@ -1,3 +1,4 @@
+# db:zanzibar
 (doc) ->
   if (doc.question == "Facility" && doc.DateofPositiveResults)
     dateStr = doc.DateofPositiveResults.split("-");

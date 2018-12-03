@@ -1,3 +1,4 @@
+# db:zanzibar
 (doc) ->
   if (doc.question == "Facility" && doc.DateofPositiveResults && doc.Age < 5)
     emit(doc.DateofPositiveResults, doc.MalariaCaseID)

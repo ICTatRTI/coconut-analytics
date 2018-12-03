@@ -1,3 +1,4 @@
+# db:zanzibar
 (doc) ->
   if doc.type is "Weekly Facility Report"
     week = if doc.Week.length is 1 then "0#{doc.Week}" else doc.Week
