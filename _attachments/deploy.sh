@@ -22,7 +22,7 @@ git commit -a
 git push
 
 # TODO make git pull work
-ssh $TARGETHOSTNAME -c 'cd /var/www/analytics && git pull'
+ssh $TARGETHOSTNAME 'cd /var/www/analytics && git pull'
 
 echo 'Pushing all required views'
 cd ../__views
