@@ -1,3 +1,4 @@
+Backbone = require 'backbone'
 
 class FacilityHierarchy extends Backbone.Model
 

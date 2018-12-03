@@ -1,3 +1,5 @@
+Backbone = require 'backbone'
+
 class Question extends Backbone.Model
   type: -> @get("type")
   label: -> @get("label") or @get("id") or @get("_id")
