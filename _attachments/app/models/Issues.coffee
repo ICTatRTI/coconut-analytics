@@ -2,6 +2,8 @@ _ = require 'underscore'
 $ = require 'jquery'
 moment = require 'moment'
 
+Reports = require './Reports'
+
 class Issues
 
   @updateEpidemicAlertsAndAlarmsForLastXDaysShowResult = (days) =>
