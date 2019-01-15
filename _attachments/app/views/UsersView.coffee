@@ -101,13 +101,12 @@ class UsersView extends Backbone.View
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
         @user.district = $("select#district").val()
-        @user.password = $('#passwd').val()
         @user.name = $('#name').val()
         @user.email = $('#email').val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
         if $('input#mode').val() is 'add'
-          @user.password = (crypto.pbkdf2Sync @user.password, '', 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
+          @user.password = (crypto.pbkdf2Sync $('#passwd').val(), '', 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
         roles_selected = document.getElementsByName("role")
 
         console.log @user
