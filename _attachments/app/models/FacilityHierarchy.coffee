@@ -3,6 +3,8 @@ Backbone = require 'backbone'
 class FacilityHierarchy extends Backbone.Model
 
   initialize: ->
+    console.error "Facility hierarchy is deprecated!! Features here should all be available in GeoHierarchy"
+    
     @set
       _id: "Facility Hierarchy"
 

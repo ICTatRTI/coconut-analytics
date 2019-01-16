@@ -1,5 +1,10 @@
 _ = require 'underscore'
 
+# Note that in order to support more levels than DHIS2 can
+# We load shehia data from "Geo Hierarchy"
+# And we load Facility data from "dhis2"
+# This merging is done by DhisOrganisationUnits
+
 class GeoHierarchy
   # This property is accessible to the subclass, so Unit instances can always use the info in GeoHierarchy
   geohierarchy = undefined
@@ -12,7 +17,7 @@ class GeoHierarchy
 
     constructor: (rawUnit) ->
       @name = rawUnit.name
-      @parentId = rawUnit.parentId
+      @parentId = rawUnit.parent?.id or rawUnit.parentId
       @level = rawUnit.level
       @id = rawUnit.id
       levelData = _(geohierarchy.rawData.organisationUnitLevels).find (level) => level.level is @level
@@ -200,23 +205,5 @@ class GeoHierarchy
 
     _(privateFacilities).map (privateFacility) ->
       privateFacility.name.toUpperCase()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = GeoHierarchy
