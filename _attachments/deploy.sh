@@ -10,7 +10,7 @@ CREDENTIALS=$(echo $TARGETWITHPASSWORD | cut -f1 -d@ | cut -f 3 -d/)
 TARGETNOCREDENTIALS=$(echo $TARGETWITHPASSWORD | sed "s/$CREDENTIALS@//")
 DATABASE=$(echo $TARGETWITHPASSWORD | rev | cut -f1 -d/ | rev)
 TARGETNODATABASE=$(echo $TARGETWITHPASSWORD | sed "s/$DATABASE//")
-TARGETHOSTNAME=$(echo $TARGETNODATABASE | sed "s/http://")
+TARGETHOSTNAME=$(echo $TARGETWITHPASSWORD | sed "s/.*@//" | sed "s:/.*::")
 
 #./setDeploymentTarget.sh $TARGETNOCREDENTIALS
 ./setDeploymentTarget.sh $TARGETWITHPASSWORD
