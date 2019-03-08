@@ -1,7 +1,11 @@
 {
   "_id": "coconut.config",
   "date_format": "YYYY-MM-DD HH:mm:ss",
+<<<<<<< HEAD
   "cloud_credentials": "admin:nuttycoco",
+=======
+  "cloud_credentials": "admin:***REMOVED***",
+>>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
   "title": "Coconut WUSC",
   "isApplicationDoc": true,
   "appName": "KEEP",
