@@ -215,14 +215,20 @@ class ProgressView extends Backbone.View
 
   enrollmentSpotchecks: =>
     #spotcheck id includes the date
-    Coconut.spotchecksDb.allDocs
-      startkey: "spotcheck-#{_(@enrollments).first()}"
-      endkey: "spotcheck-#{_( @enrollments).last() + "\uf000"}"
+    Coconut.spotchecksDb.query "resultsByDate",
+      startkey: Calendar.termDates[@year][@term].start
+      endkey: Calendar.termDates[@year][@term].end
+      reduce: false
     .then (result) =>
+      console.log result
       _(result.rows).chain().groupBy (row) =>
+        console.log row
         enrollmentId = row.id[10..-12]
       .each (spotchecks, enrollmentId) =>
-        @$("##{slugify(enrollmentId)} .spotcheck").html spotchecks.length
+        @$("##{slugify(enrollmentId)} .spotcheck").html (
+          _(spotchecks).map (spotcheck) =>
+            moment(spotcheck.key).format("DD MMM")
+        ).join(", ")
 
   enrollmentPerformance: =>
     Coconut.enrollmentsDb.query "performanceByYearTermRegionSchoolClassStreamLearner",
@@ -249,16 +255,34 @@ class ProgressView extends Backbone.View
 
     aggregateScore = 0
     numberOfSchools = 0
+    aggregateScoreByRegion =
+      Dadaab: 0
+      Kakuma: 0
+    numberOfSchoolsByRegion = 
+      Dadaab: 0
+      Kakuma: 0
 
     aggregateScoreByField = {}
+    aggregateScoreByRegionAndField =
+      Kakuma: {}
+      Dadaab: {}
     aggregatePotentialScoreByField = {}
+    aggregatePotentialScoreByRegionAndField =
+      Kakuma: {}
+      Dadaab: {}
+
     _(fields).each (field) =>
       aggregateScoreByField[field] = 0
       aggregatePotentialScoreByField[field] = 0
+      for region in ["Dadaab", "Kakuma"]
+        aggregateScoreByRegionAndField[region][field] = 0
+        aggregatePotentialScoreByRegionAndField[region][field] = 0
 
     $("tr.school").each (rowNumber, schoolRow) =>
       enrollmentCount = 0
       enrollmentScore = 0
+
+      region = $(schoolRow).find(".region").html()
 
       $(schoolRow).find(".enrollment").each (number, enrollmentElement) =>
         enrollmentElement = $(enrollmentElement)
@@ -268,20 +292,23 @@ class ProgressView extends Backbone.View
         _(fields).each (field) =>
           fieldResult = enrollmentElement.find(".#{field}")
           aggregatePotentialScoreByField[field] += 1
+          aggregatePotentialScoreByRegionAndField[region][field] += 1
           if fieldResult.length > 0 and
             fieldResult.html() isnt "0" and
             fieldResult.html() isnt ""
               enrollmentScore += 1
               aggregateScoreByField[field] += 1
+              aggregateScoreByRegionAndField[region][field] += 1
       schoolScore = enrollmentScore/(enrollmentCount*fieldsRequiredToBeComplete) || 0
       $(schoolRow).find(".score").html (schoolScore*100).toFixed(0)+"%"
       aggregateScore += schoolScore
       numberOfSchools += 1
+      aggregateScoreByRegion[region] += schoolScore
+      numberOfSchoolsByRegion[region] += 1
 
-    console.log aggregatePotentialScoreByField
-    console.log aggregateScoreByField
     overallScore = aggregateScore/numberOfSchools
     $('#overall-score').html "
+      <div>
       Overall: #{(overallScore*100).toFixed(0)+"%"} 
       <small>
         #{
@@ -290,6 +317,28 @@ class ProgressView extends Backbone.View
           .join(", ")
         }
       </small>
+      </div>
+
+
+      #{
+        (for region in ["Dadaab","Kakuma"]
+          console.log aggregateScoreByRegion[region]
+          console.log numberOfSchoolsByRegion[region]
+          overallScoreByRegion = aggregateScoreByRegion[region]/numberOfSchoolsByRegion[region]
+          "
+          <div>
+          Overall #{region}: #{(overallScoreByRegion*100).toFixed(0)+"%"} 
+          <small>
+            #{
+              _(fields).map (field) ->
+                "<span class='#{field}'>#{titleize(field)}: #{Math.round(100*aggregateScoreByRegionAndField[region][field]/aggregatePotentialScoreByRegionAndField[region][field])}% </span>"
+              .join(", ")
+            }
+          </small>
+          </div>
+          "
+        ).join("")
+      }
     "
 
 module.exports = ProgressView

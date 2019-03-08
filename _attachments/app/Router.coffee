@@ -106,7 +106,6 @@ class Router extends Backbone.Router
     @aggregatingAverageView.render()
 
   enrollment: (enrollmentId) =>
-    console.log enrollmentId
     @enrollmentView = @enrollmentView or new EnrollmentView()
     @enrollmentView.setElement("#content")
     @enrollmentView.enrollmentId = enrollmentId

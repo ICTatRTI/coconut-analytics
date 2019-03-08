@@ -59,6 +59,7 @@ class EnrollmentView extends Backbone.View
     "update-time"
     "attendance"
     "performance"
+    "spotchecks"
   ]
 
   render: =>
@@ -111,6 +112,8 @@ class EnrollmentView extends Backbone.View
                             return if property is "Score"
                             "#{property} : #{value}"
                           .join("<br/>")
+                        else if header is "spotchecks"
+                          "<div id='spotchecks'>Loading...</div>"
                         else if _(data).isString() or _(data).isNumber()
                           data
                         else if _(data).isArray()
@@ -146,6 +149,27 @@ class EnrollmentView extends Backbone.View
                 $("tr.#{aggregateType} .data").html "
                   #{Math.round result.rows[0].value[0]} (for #{result.rows[0].value[1]} records#{if aggregateType is "attendance" then ", latest date: #{@enrollment.latestAttendanceDate()}" else ""})
                 "
+
+        Coconut.spotchecksDb.allDocs
+          startkey: "spotcheck-#{@enrollment.doc._id}"
+          endkey: "spotcheck-#{@enrollment.doc._id}\uf000"
+          include_docs: true
+        .then (result) =>
+          @$("#spotchecks").html(
+            (for row in result.rows
+              "
+                #{row.doc.date}
+                #{
+                  if row.doc.latitude and row.doc.longitude and row.doc.accuracy
+                    "
+                      - <a href='#{"https://www.google.com/maps/search/?api=1&query=#{row.doc.latitude},#{row.doc.longitude}"}'>Map </a> #{row.doc.accuracy}
+                    "
+                  else
+                    "No location data"
+                }
+              "
+            ).join("<br/>")
+          )
 
 
 

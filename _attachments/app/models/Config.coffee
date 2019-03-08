@@ -1,10 +1,9 @@
-PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 Dialog = require '../views/Dialog'
 
 class Config extends Backbone.Model
   sync: BackbonePouch.sync
-     db: pouchdb
+     db: Coconut.database
 
 Config.salt = ->
    ""

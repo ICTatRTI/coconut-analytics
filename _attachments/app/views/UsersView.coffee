@@ -96,7 +96,6 @@ class UsersView extends Backbone.View
         @user.collection = "user"
         @user.inactive = $("#inactive").is(":checked")
         @user.isApplicationDoc = true
-        @user.password = $('#passwd').val()
         @user.name = $('#name').val()
         @user.Email = $('#email').val()
         @user.Phone = $("#phone").val()
@@ -104,7 +103,8 @@ class UsersView extends Backbone.View
         @user.Designation = $("#designation").val()
         @user.roles = $('#roles').val()
         @user.comments = $('#comments').val()
-        @user.password = (crypto.pbkdf2Sync @user.password, @salt, 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
+        if $('input#mode').val() is 'add'
+          @user.password = (crypto.pbkdf2Sync $('#passwd').val(), @salt, 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
         roles_selected = document.getElementsByName("role")
 
         roles = []
