@@ -9,9 +9,8 @@ slugify = require "underscore.string/slugify"
 
 moment = require 'moment'
 global.jQuery = require 'jquery'
-require 'tablesorter'
-DataTables = require( 'datatables.net' )()
 
+Tabulator = require 'tabulator-tables'
 
 class EnrollmentsView extends Backbone.View
   initialize: =>
@@ -83,19 +82,8 @@ class EnrollmentsView extends Backbone.View
 
       </h3>
       (Click an enrollment for more details)<br/>
-      <table id='table-enrollments'>
-        <thead>
-          #{
-            headers.map (header) =>
-              "<th>#{titleize(header)}</th>"
-            .join("")
-          }
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+      <div id='table-enrollments'/>
     "
-
     unless @year and @term
       [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
 
@@ -111,58 +99,36 @@ class EnrollmentsView extends Backbone.View
       _(result.rows).each (row) =>
         nameByUsername[row.key.replace(/user\./,"")] = row.doc.name
 
-
     Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
       startkey: ["#{@year}","#{@term}"]
       endkey: ["#{@year}","#{@term}", "\uf000"]
       include_docs:true
       reduce: false
     .then (result) =>
-      console.log result
-      @$("#table-enrollments tbody").html( _(result.rows).map (row) =>
-        "
-        <tr class='enrollment-row' id='#{row.id}'>
-          #{
-            headers.map (header) =>
-              "<td class='#{slugify(header)}'>
-                <a href='#enrollment/#{row.id}'>
-                #{
-                  data = row.doc[header]
-                  if header is "region"
-                    row.key[2]
-                  else if header is "# of Students"
-                    _(row.doc.students).size()
-                  else if header is "update-time"
-                    _(row.doc[header]).last() or "-"
-                  else if header is "created-by"
-                    nameByUsername[data] or "-"
-                  else if header is "updated-by"
-                    _(data).map (username) =>
-                      nameByUsername[username] or "-"
-                    .join(",")
-                  else if _(row.doc[header]).isString()
-                    data
-                  else if _(row.doc[header]).isArray()
-                    data.join(", ")
-                  else
-                    console.error "Can't render #{data} for #{header}"
-                    ""
-                  
-                }
-                </a>
-              </td>"
-            .join("")
-          }
 
-        </tr>
-        "
-      )
+      data = _(result.rows).map (row) =>
+        doc = row.doc
+        doc.region = row.key[2]
+        doc.id = doc._id
+        doc["created-by"] = nameByUsername[doc["created-by"]] or "-"
+        doc["school-name"] = nameByUsername[doc["created-by"]] or "-"
+        doc["# of Students"] = _(doc.students).size()
+        doc["updated-by"] = _(doc["updated-by"]).map( (username) => nameByUsername[username] or "-").join(",")
+        doc["update-time"] = _(doc['update-time']).last() or "-"
+        delete doc._id
+        delete doc._rev
+        delete doc.students
+        doc
 
-      @$("#table-enrollments").DataTable
-        paging:true
-      @$("#table-enrollments td.of-students").each (index,element) =>
-        element = $(element)
-        element.addClass("warn") if parseInt(element.html()) < 10
+      console.log data
+
+      table = new Tabulator "#table-enrollments", 
+        height: "400"
+        autoColumns: true
+        data: data
+        layout: "fitColumns"
+        rowClick: (e, row) =>
+          router.navigate "enrollment/#{row.getData().id}", trigger: true
 
 
     .catch (error) => console.error error

@@ -215,7 +215,6 @@ class ProgressView extends Backbone.View
 
   enrollmentSpotchecks: =>
     #spotcheck id includes the date
-<<<<<<< HEAD
     Coconut.spotchecksDb.query "resultsByDate",
       startkey: Calendar.termDates[@year][@term].start
       endkey: Calendar.termDates[@year][@term].end
@@ -230,16 +229,6 @@ class ProgressView extends Backbone.View
           _(spotchecks).map (spotcheck) =>
             moment(spotcheck.key).format("DD MMM")
         ).join(", ")
-=======
-    Coconut.spotchecksDb.allDocs
-      startkey: "spotcheck-#{_(@enrollments).first()}"
-      endkey: "spotcheck-#{_( @enrollments).last() + "\uf000"}"
-    .then (result) =>
-      _(result.rows).chain().groupBy (row) =>
-        enrollmentId = row.id[10..-12]
-      .each (spotchecks, enrollmentId) =>
-        @$("##{slugify(enrollmentId)} .spotcheck").html spotchecks.length
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
 
   enrollmentPerformance: =>
     Coconut.enrollmentsDb.query "performanceByYearTermRegionSchoolClassStreamLearner",
@@ -266,7 +255,6 @@ class ProgressView extends Backbone.View
 
     aggregateScore = 0
     numberOfSchools = 0
-<<<<<<< HEAD
     aggregateScoreByRegion =
       Dadaab: 0
       Kakuma: 0
@@ -289,24 +277,13 @@ class ProgressView extends Backbone.View
       for region in ["Dadaab", "Kakuma"]
         aggregateScoreByRegionAndField[region][field] = 0
         aggregatePotentialScoreByRegionAndField[region][field] = 0
-=======
-
-    aggregateScoreByField = {}
-    aggregatePotentialScoreByField = {}
-    _(fields).each (field) =>
-      aggregateScoreByField[field] = 0
-      aggregatePotentialScoreByField[field] = 0
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
 
     $("tr.school").each (rowNumber, schoolRow) =>
       enrollmentCount = 0
       enrollmentScore = 0
 
-<<<<<<< HEAD
       region = $(schoolRow).find(".region").html()
 
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
       $(schoolRow).find(".enrollment").each (number, enrollmentElement) =>
         enrollmentElement = $(enrollmentElement)
         enrollmentCount += 1
@@ -315,37 +292,23 @@ class ProgressView extends Backbone.View
         _(fields).each (field) =>
           fieldResult = enrollmentElement.find(".#{field}")
           aggregatePotentialScoreByField[field] += 1
-<<<<<<< HEAD
           aggregatePotentialScoreByRegionAndField[region][field] += 1
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
           if fieldResult.length > 0 and
             fieldResult.html() isnt "0" and
             fieldResult.html() isnt ""
               enrollmentScore += 1
               aggregateScoreByField[field] += 1
-<<<<<<< HEAD
               aggregateScoreByRegionAndField[region][field] += 1
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
       schoolScore = enrollmentScore/(enrollmentCount*fieldsRequiredToBeComplete) || 0
       $(schoolRow).find(".score").html (schoolScore*100).toFixed(0)+"%"
       aggregateScore += schoolScore
       numberOfSchools += 1
-<<<<<<< HEAD
       aggregateScoreByRegion[region] += schoolScore
       numberOfSchoolsByRegion[region] += 1
 
     overallScore = aggregateScore/numberOfSchools
     $('#overall-score').html "
       <div>
-=======
-
-    console.log aggregatePotentialScoreByField
-    console.log aggregateScoreByField
-    overallScore = aggregateScore/numberOfSchools
-    $('#overall-score').html "
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
       Overall: #{(overallScore*100).toFixed(0)+"%"} 
       <small>
         #{
@@ -354,7 +317,6 @@ class ProgressView extends Backbone.View
           .join(", ")
         }
       </small>
-<<<<<<< HEAD
       </div>
 
 
@@ -377,8 +339,6 @@ class ProgressView extends Backbone.View
           "
         ).join("")
       }
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
     "
 
 module.exports = ProgressView

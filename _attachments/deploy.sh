@@ -4,7 +4,6 @@ echo "Did you kill the npm run start process, otherwise you will get a corrupt b
 
 read justareminder
 
-
 echo 'Browserifying and uglifying'
 ./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | ./node_modules/uglify-js/bin/uglifyjs > bundle.js
 
@@ -24,17 +23,6 @@ TARGETNOCREDENTIALS=$(echo $TARGETWITHPASSWORD | sed "s/$CREDENTIALS@//")
 DATABASE=$(echo $TARGETWITHPASSWORD | rev | cut -f1 -d/ | rev)
 TARGETNODATABASE=$(echo $TARGETWITHPASSWORD | sed "s/\(.*\)$DATABASE/\1/")
 
-<<<<<<< HEAD
-=======
-#./setDeploymentTarget.sh $TARGETNOCREDENTIALS
-echo 'Browserifying and uglifying'
-./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | ./node_modules/uglify-js/bin/uglifyjs > bundle.js
-#echo "Couchapp pushing to $TARGETWITHPASSWORD"
-#couchapp push --verbose $TARGETWITHPASSWORD
-
-rsync --progress --recursive --exclude=node_modules ./ keep.cococloud.co:/var/www/analytics/
-
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
 echo "Pushing all required views to $TARGETNODATABASE $DATABASE"
 cd ../__views
 ruby ./pushViews.rb $TARGETNODATABASE $DATABASE

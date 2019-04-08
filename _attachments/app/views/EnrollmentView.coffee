@@ -59,10 +59,7 @@ class EnrollmentView extends Backbone.View
     "update-time"
     "attendance"
     "performance"
-<<<<<<< HEAD
     "spotchecks"
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
   ]
 
   render: =>
@@ -115,11 +112,8 @@ class EnrollmentView extends Backbone.View
                             return if property is "Score"
                             "#{property} : #{value}"
                           .join("<br/>")
-<<<<<<< HEAD
                         else if header is "spotchecks"
                           "<div id='spotchecks'>Loading...</div>"
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
                         else if _(data).isString() or _(data).isNumber()
                           data
                         else if _(data).isArray()
@@ -155,8 +149,6 @@ class EnrollmentView extends Backbone.View
                 $("tr.#{aggregateType} .data").html "
                   #{Math.round result.rows[0].value[0]} (for #{result.rows[0].value[1]} records#{if aggregateType is "attendance" then ", latest date: #{@enrollment.latestAttendanceDate()}" else ""})
                 "
-
-<<<<<<< HEAD
         Coconut.spotchecksDb.allDocs
           startkey: "spotcheck-#{@enrollment.doc._id}"
           endkey: "spotcheck-#{@enrollment.doc._id}\uf000"
@@ -177,11 +169,6 @@ class EnrollmentView extends Backbone.View
               "
             ).join("<br/>")
           )
-
-=======
->>>>>>> d251b87cb1610fda6338ea35223f49ed8a4ca49d
-
-
     .catch (error) => console.error error
 
 module.exports = EnrollmentView

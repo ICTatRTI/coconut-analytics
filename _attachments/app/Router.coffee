@@ -78,6 +78,7 @@ class Router extends Backbone.Router
     "admin/users": "users"
     "admin/schools": "schools"
     "admin/new_learner/:personId": "new_learner"
+    "admin/new_learners/:region": "new_learners"
     "admin/new_learners": "new_learners"
     "*noMatch": "noMatch"
 
@@ -207,10 +208,11 @@ class Router extends Backbone.Router
       error: =>
         @notAdmin()
 
-  new_learners: =>
+  new_learners: (region) =>
     @adminLoggedIn
       success: =>
         @newLearnersView ?= new NewLearnersView()
+        @newLearnersView.region = region
         @newLearnersView.setElement("#content")
         @newLearnersView.render()
       error: =>
