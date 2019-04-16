@@ -1,8 +1,14 @@
 #!/bin/bash
+echo 'Browserifying and uglifying'
+npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee | npx uglify-js > bundle.js
+
+# Note - don't exclude node modules since this is needed for cronjob scripts
+rsync --recursive --progress ./ zanzibar.cococloud.co:/var/www/analytics/
+
 TARGETWITHPASSWORD=$1
 if [ $# -lt 1 ]
   then
-    printf "Must specify the URL with username/password, e.g.\\n  ./deploy.sh https://admin:password@cococloud.co/zanzibar\\n"
+    printf "To update views you must specify the URL with username/password, e.g.\\n  ./deploy.sh https://admin:password@cococloud.co/zanzibar\\n"
     exit
 fi
 
@@ -11,18 +17,6 @@ TARGETNOCREDENTIALS=$(echo $TARGETWITHPASSWORD | sed "s/$CREDENTIALS@//")
 DATABASE=$(echo $TARGETWITHPASSWORD | rev | cut -f1 -d/ | rev)
 TARGETNODATABASE=$(echo $TARGETWITHPASSWORD | sed "s/$DATABASE//")
 TARGETHOSTNAME=$(echo $TARGETWITHPASSWORD | sed "s/.*@//" | sed "s:/.*::")
-
-#./setDeploymentTarget.sh $TARGETNOCREDENTIALS
-./setDeploymentTarget.sh $TARGETWITHPASSWORD
-echo 'Browserifying and uglifying'
-npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee | npx uglify-js > bundle.js
-
-# App is served from /var/www/analytics by nginx - it gets updated via git
-git commit -a
-git push
-
-# TODO make git pull work
-ssh $TARGETHOSTNAME 'cd /var/www/analytics && git pull'
 
 echo 'Pushing all required views'
 cd ../__views

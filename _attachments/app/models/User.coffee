@@ -11,7 +11,7 @@ Config = require './Config'
 
 class User extends Backbone.Model
   sync: BackbonePouch.sync
-     db: pouchdb
+     db: Coconut.database
 
   username: ->
     @get("_id").replace(/^user\./,"")

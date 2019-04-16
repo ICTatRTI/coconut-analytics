@@ -20,11 +20,11 @@ class FacilityHierarchyView extends Backbone.View
     privateFacilities = GeoHierarchy.allPrivateFacilities()
     facilities = _(GeoHierarchy.findAllForLevel("FACILITY")).map (facilityUnit) =>
       id: facilityUnit.id
-      Region: facilityUnit.parent().parent().parent().name
+      Region: facilityUnit.parent()?.parent()?.parent()?.name
       District: facilityUnit.parent().name
       Name: facilityUnit.name
       Aliases: facilityUnit.aliases
-      "Phone Numbers": facilityUnit.phoneNumber?.join(",")
+      "Phone Numbers": facilityUnit.phoneNumber
       Type: if _(privateFacilities).contains(facilityUnit.name) then "PRIVATE" else "PUBLIC"
 
     new Tabulator "#facility-table", 
