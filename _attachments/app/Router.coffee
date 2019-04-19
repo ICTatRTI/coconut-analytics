@@ -27,6 +27,7 @@ ChangePasswdView = require './views/ChangePasswdView'
 User = require './models/User'
 Dialog = require './views/Dialog'
 MessagingView = require './views/MessagingView'
+FindCaseView = require './views/FindCaseView'
 
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -108,13 +109,33 @@ class Router extends Backbone.Router
     "graphs/*options": "graphs"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
+    "find/case": "findCase"
+    "find/case/:caseID": "findCase"
     "show/case/:caseID": "showCase"
     "show/case/:caseID/:docID": "showCase"
+    "delete/result/:resultId": "deleteResult"
     "new/issue": "newIssue"
     "show/issue/:issueID": "showIssue"
     "activities": "activities"
     "activities/*options": "activities"
     "*noMatch": "noMatch"
+
+  findCase: (caseId) =>
+    Coconut.findCaseView or= new FindCaseView()
+    Coconut.findCaseView.setElement $("#content")
+    Coconut.findCaseView.caseId = caseId
+    Coconut.findCaseView.render()
+
+  deleteResult: (resultId) =>
+    if confirm "Are you sure you want to delete #{resultId}"
+      Coconut.databaste.get(resultId)
+      .catch (error) => alert error
+      .then (result) =>
+        Coconut.destroy(result)
+        .catch (error) => alert error
+        .then =>
+          alert("#{resultId} deleted")
+          Coconut.router.navigate("#", {trigger:true})
 
   initialize: (appView) ->
     @appView = appView

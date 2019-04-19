@@ -55,6 +55,12 @@ class MenuView extends Backbone.View
       </header>
       <div id='container'>
       <nav class='coconut_navigation mdl-navigation'>
+        <a class='mdl-navigation__link drawer__subtitle' id='findCase' data-title='Dashboard' data-category='menuLink' href='#find/case'>
+          <i class='mdl-color-magnify--blue-grey-400 mdi mdi-view-magnify mdi-24px'></i>
+          Find Case
+        </a>
+
+
         <a class='mdl-navigation__link drawer__subtitle' id='dashboard' data-title='Dashboard' data-category='menuLink' href='#dashboard'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-view-dashboard mdi-24px'></i>Dashboard</a>
         <span class='mdl-navigation__link drawer__subtitle' id='report-main' data-title='Reports' data-category='menuHeader'>

@@ -27,13 +27,9 @@ class CaseView extends Backbone.View
       </style>
 
       <h3>Case ID: #{@case.MalariaCaseID()}</h3>
+      <h3>Diagnosis Date: #{@case.IndexCaseDiagnosisDate()}</h3>
+      <h3>Classification: TODO</h3>
       <h5>Last Modified: #{@case.LastModifiedAt()}</h5>
-      <h5>Questions: 
-        #{
-          # TODO - make these links that scroll to appropriate table
-          tables.join(", ")
-        }
-      }</h5>
     "
 
     @mappings = {
@@ -73,9 +69,13 @@ class CaseView extends Backbone.View
 
   createObjectTable: (name,object) =>
     "
-      <h4 id=#{object._id or ""}>#{name} 
-        <!-- <small><a href='#edit/result/#{object._id}'>Edit</a></small> --> 
-      </h4>
+    <div style='height: 40px; font-size:xx-large; cursor:pointer' class='toggleNext'>#{name} ⇩</div>
+    <div style='display:none' class='objectTable'>
+      #{
+        if object._id?
+          "<small><a href='#delete/result/#{object._id}'>Delete</a></small>"
+        else ""
+      }
       <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp' id='caseTable'>
         <thead>
           <tr>
@@ -102,6 +102,13 @@ class CaseView extends Backbone.View
           }
         </tbody>
       </table>
+    </div>
     "
+
+  events:
+    "click .toggleNext": "toggleNext"
+
+  toggleNext: (event) =>
+    $(event.target).next(".objectTable").toggle()
 
 module.exports = CaseView
