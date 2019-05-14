@@ -1,82 +1,88 @@
 # db:keep-people
 (doc) -> # This is used for generating the CSV and uses the people database instead of the enrollments database
-  fields = [
-    "Year"
-    "Term"
-    "Region"
-    "SchoolId"
-    "Class"
-    "Stream"
-    "PersonId"
-    "Name"
-    "Sex"
-    "Attendance - Days Eligible"
-    "Attendance - Days Present"
-    "Attendance - Percent"
-    "Spotchecks - # Performed"
-    "Spotchecks - # Present For"
-    "Spotchecks - Attendance Mismatches"
-    "Performance - english"
-    "Performance - kiswahili"
-    "Performance - maths"
-    "Performance - science"
-    "Performance - social-studies"
-    "Performance - biology"
-    "Performance - physics"
-    "Performance - chemistry"
-    "Performance - history"
-    "Performance - geography"
-    "Performance - christian-religious-education"
-    "Performance - islamic-religious-education"
-    "Performance - music"
-    "Performance - home-science"
-    "Performance - art-and-craft"
-    "Performance - agriculture"
-    "Performance - arabic"
-    "Performance - german"
-    "Performance - french"
-    "Performance - business-studies"
-    "Performance - computer"
-  ]
-
-
-  termDates = {
-    2017:
-      1:
-        start: "2017-01-04"
-        end: "2017-04-07"
-      2:
-        start: "2017-05-02"
-        end: "2017-08-02"
-      3:
-        start: "2017-08-28"
-        end: "2017-10-27"
-    2018:
-      1:
-        start: "2018-01-02"
-        end: "2018-04-06"
-      2:
-        start: "2018-04-30"
-        end: "2018-08-03"
-      3:
-        start: "2018-08-27"
-        end: "2018-10-26"
-    2019:
-      1:
-        start: "2019-01-02"
-        end: "2019-04-05"
-      2:
-        start: "2019-04-29"
-        end: "2019-08-02"
-      3:
-        start: "2019-08-26"
-        end: "2019-10-25"
-  }
 
   if doc._id[0..5] is "person"
+
+    fields = [
+      "Year"
+      "Term"
+      "Region"
+      "SchoolId"
+      "Class"
+      "Stream"
+      "PersonId"
+      "Name"
+      "Sex"
+      "Attendance - Days Eligible"
+      "Attendance - Days Present"
+      "Attendance - Percent"
+      "Spotchecks - # Performed"
+      "Spotchecks - # Present For"
+      "Spotchecks - Attendance Mismatches"
+      "Performance - english"
+      "Performance - kiswahili"
+      "Performance - maths"
+      "Performance - science"
+      "Performance - social-studies"
+      "Performance - biology"
+      "Performance - physics"
+      "Performance - chemistry"
+      "Performance - history"
+      "Performance - geography"
+      "Performance - christian-religious-education"
+      "Performance - islamic-religious-education"
+      "Performance - music"
+      "Performance - home-science"
+      "Performance - art-and-craft"
+      "Performance - agriculture"
+      "Performance - arabic"
+      "Performance - german"
+      "Performance - french"
+      "Performance - business-studies"
+      "Performance - computer"
+    ]
+
+    termDates = {
+      2017:
+        1:
+          start: "2017-01-04"
+          end: "2017-04-07"
+        2:
+          start: "2017-05-02"
+          end: "2017-08-02"
+        3:
+          start: "2017-08-28"
+          end: "2017-10-27"
+      2018:
+        1:
+          start: "2018-01-02"
+          end: "2018-04-06"
+        2:
+          start: "2018-04-30"
+          end: "2018-08-03"
+        3:
+          start: "2018-08-27"
+          end: "2018-10-26"
+      2019:
+        1:
+          start: "2019-01-02"
+          end: "2019-04-05"
+        2:
+          start: "2019-04-29"
+          end: "2019-08-02"
+        3:
+          start: "2019-08-26"
+          end: "2019-10-25"
+    }
+
+
     result = {}
 
     enrollments = {}
+
+    for yearTerm, enrollment of doc.enrollments
+      enrollments[yearTerm] = enrollment
+
     for enrollment, data of doc.attendance
       match = enrollment.match(/(20\d\d)-term-(\d)/)
       enrollments["#{match[1]}-T#{match[2]}"] = enrollment if match
@@ -90,7 +96,7 @@
       result["Term"] = result["Term"][1] # T2 -> 2
       result["Region"] = doc.most_recent_summary["Region"]
       result["Name"] = doc.most_recent_summary.Name
-      result["Sex"] = doc.most_recent_summary.Sex
+      result["Sex"] = doc.most_recent_summary.Sex or "NA"
 
       result["PersonId"] = doc.student_id
 
