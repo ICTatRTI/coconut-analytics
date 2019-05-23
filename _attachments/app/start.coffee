@@ -8,6 +8,7 @@ global._ = require 'underscore'
 global.Backbone = require 'backbone'
 Backbone.$  = $
 PouchDB = require 'pouchdb'
+PouchDB.plugin(require('pouchdb-upsert'))
 BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
