@@ -43,7 +43,7 @@ class IncidentsGraphView extends Backbone.View
     lastYearEnd = moment(endDate).subtract(1,'year').format('YYYY-MM-DD')
 
 
-    Coconut.database.query "caseCounter",
+    Coconut.reportingDatabase.query "caseCounter",
       startkey: [lastYearStart]
       endkey: [endDate]
       reduce: false

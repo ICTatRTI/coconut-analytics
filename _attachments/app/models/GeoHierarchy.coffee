@@ -4,6 +4,44 @@ _ = require 'underscore'
 # We load shehia data from "Geo Hierarchy"
 # And we load Facility data from "dhis2"
 # This merging is done by DhisOrganisationUnits
+class Unit
+
+  constructor: (rawUnit, @geohierarchy) ->
+    @name = rawUnit.name
+    @parentId = rawUnit.parent?.id or rawUnit.parentId
+    @level = rawUnit.level
+    @id = rawUnit.id
+    levelData = _(@geohierarchy.rawData.organisationUnitLevels).find (level) => level.level is @level
+    @levelName = if levelData then levelData.name.toUpperCase() else null
+    @aliases = rawUnit.aliases
+    @phoneNumber = rawUnit.phoneNumber
+
+  parent: =>
+    return null unless @parentId
+    _(@geohierarchy.units).find (unit) => unit.id is @parentId
+
+  children: ->
+    _(@geohierarchy.units).filter (unit) => unit.parentId is @id
+
+  ancestors: =>
+    parent = @parent()
+    return [] if parent is null
+    return [parent].concat(parent.ancestors())
+
+  ancestorAtLevel: (levelName) =>
+    _(@ancestors()).find (ancestor) ->
+      ancestor.levelName is levelName
+
+  descendants: =>
+    children = @children()
+    return [] if children is null
+    return children.concat(_(children).chain().map (child) ->
+      child.descendants()
+    .flatten().compact().value())
+
+  descendantsAtLevel: (levelName) =>
+    _(@descendants()).filter (descendant) -> descendant.levelName is levelName
+
 
 class GeoHierarchy
   # This property is accessible to the subclass, so Unit instances can always use the info in GeoHierarchy
@@ -11,45 +49,7 @@ class GeoHierarchy
 
   constructor: (@rawData) ->
     geohierarchy = this
-    @units = _(@rawData.organisationUnits).map (rawUnit) -> new Unit(rawUnit)
-
-  class Unit
-
-    constructor: (rawUnit) ->
-      @name = rawUnit.name
-      @parentId = rawUnit.parent?.id or rawUnit.parentId
-      @level = rawUnit.level
-      @id = rawUnit.id
-      levelData = _(geohierarchy.rawData.organisationUnitLevels).find (level) => level.level is @level
-      @levelName = if levelData then levelData.name.toUpperCase() else null
-      @aliases = rawUnit.aliases
-      @phoneNumber = rawUnit.phoneNumber
-
-    parent: =>
-      return null unless @parentId
-      _(geohierarchy.units).find (unit) => unit.id is @parentId
-
-    children: ->
-      _(geohierarchy.units).filter (unit) => unit.parentId is @id
-
-    ancestors: =>
-      parent = @parent()
-      return [] if parent is null
-      return [parent].concat(parent.ancestors())
-
-    ancestorAtLevel: (levelName) =>
-      _(@ancestors()).find (ancestor) ->
-        ancestor.levelName is levelName
-
-    descendants: =>
-      children = @children()
-      return [] if children is null
-      return children.concat(_(children).chain().map (child) ->
-        child.descendants()
-      .flatten().compact().value())
-
-    descendantsAtLevel: (levelName) =>
-      _(@descendants()).filter (descendant) -> descendant.levelName is levelName
+    @units = _(@rawData.organisationUnits).map (rawUnit) -> new Unit(rawUnit, geohierarchy)
 
 
   # function from legacy version #

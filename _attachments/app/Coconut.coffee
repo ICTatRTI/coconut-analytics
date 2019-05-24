@@ -17,7 +17,16 @@ class Coconut
     Cookie.set("username", username)
     Cookie.set("password", password)
 
-    @database = new PouchDB("https://#{username}:#{password}@zanzibar.cococloud.co/zanzibar")
+    databaseOptions = {ajax: timeout: 50000}
+
+    databaseURL =
+      if window.location.origin.startsWith "http://localhost"
+        "http://#{username}:#{password}@localhost:5984/"
+      else
+        "https://#{username}:#{password}@zanzibar.cococloud.co/"
+
+    @database = new PouchDB("#{databaseURL}/zanzibar")
+    @reportingDatabase = new PouchDB("#{databaseURL}/zanzibar-reporting")
 
   promptUntilCredentialsWork: =>
     @setupDatabases()

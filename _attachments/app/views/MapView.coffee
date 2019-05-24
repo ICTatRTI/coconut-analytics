@@ -715,7 +715,7 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    Coconut.database.query "caseIDsByDate",
+    Coconut.reportingDatabase.query "caseIDsByDate",
       startkey: startDate
       endkey: endDate
       include_docs: true

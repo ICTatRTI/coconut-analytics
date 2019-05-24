@@ -24,7 +24,7 @@ class FacilityHierarchyView extends Backbone.View
       District: facilityUnit.parent().name
       Name: facilityUnit.name
       Aliases: facilityUnit.aliases
-      "Phone Numbers": facilityUnit.phoneNumber?.join(",")
+      "Phone Numbers": if _(facilityUnit.phoneNumber?).isArray() then facilityUnit.phoneNumber?.join(",") else facilityUnit.phoneNumber
       Type: if _(privateFacilities).contains(facilityUnit.name) then "PRIVATE" else "PUBLIC"
 
     new Tabulator "#facility-table", 

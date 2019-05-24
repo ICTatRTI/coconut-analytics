@@ -44,7 +44,7 @@ class TimeToCompleteGraphView extends Backbone.View
     options.adjustY = 40
     startDate = options.startDate
     endDate = options.endDate
-    Coconut.database.query "caseCounter",
+    Coconut.reportingDatabase.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
       reduce: false
