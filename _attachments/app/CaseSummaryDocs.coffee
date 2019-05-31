@@ -23,18 +23,23 @@ argv = require('minimist')(process.argv.slice(2));
 
 # Make these global so that they can be used from the javascript console
 global.Backbone = require 'backbone'
-PouchDB = require 'pouchdb'
+PouchDB = require 'pouchdb-core'
 PouchDB.plugin(require('pouchdb-upsert'))
+PouchDB.plugin(require('pouchdb-adapter-http'))
+PouchDB.plugin(require('pouchdb-mapreduce'))
+
 BackbonePouch = require 'backbone-pouch'
 _ = require 'underscore'
+moment = require 'moment'
+
 
 global.Coconut =
   database: new PouchDB argv.database,
     ajax:
-      timeout: 1000 * 60 * 5
+      timeout: 1000 * 60 * 10
   reportingDatabase: new PouchDB "#{argv.database}-reporting",
     ajax:
-      timeout: 1000 * 60 * 5
+      timeout: 1000 * 60 * 10
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
@@ -60,20 +65,19 @@ Coconut.database.get "coconut.config"
       Coconut.questions.fetch
         error: (error) -> console.error error
         success: ->
-
           try
             Case = require './models/Case'
           catch error
             console.error error
 
           if argv.update
-            console.log "Updating"
+            process.stdout.write "Update: #{moment().format("YYYY-MM-DD hh:mm")} "
             Case.updateCaseSummaryDocs()
               .catch (error) ->
                 console.error "ERROR"
                 console.error error
               .then (result) ->
-                console.log "DONE"
+                console.log " done."
 
           else if argv.reset
             console.log "Resetting"
@@ -83,7 +87,7 @@ Coconut.database.get "coconut.config"
               console.error "ERROR"
               console.error error
             .then =>
-              console.log "DONE"
+              console.log " done."
 
           else
             console.log "No action, try --update"

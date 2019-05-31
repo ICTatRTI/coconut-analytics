@@ -282,7 +282,7 @@ class Case
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
-      @.Household.lastModifiedAt
+      @.Household?.lastModifiedAt or @Facility.lastModifiedAt # When the household has two cases
 
   followedUp: =>
     @completeHouseholdVisit()
@@ -1246,7 +1246,6 @@ Case.getLatestChangeForCurrentSummaryDataDocs = ->
   .catch (error) ->
     return Promise.resolve(null)
   .then (caseSummaryData) ->
-    console.log caseSummaryData
     return Promise.resolve(caseSummaryData?.lastChangeSequenceProcessed or null)
 
 Case.resetAllCaseSummaryDocs = (options)  =>
@@ -1276,7 +1275,7 @@ Case.resetAllCaseSummaryDocs = (options)  =>
 
       Coconut.database.query "cases/cases"
       .then (result) =>
-        allCases = _(result.rows).chain().pluck("key").uniq().value()
+        allCases = _(result.rows).chain().pluck("key").uniq(true).value()
         console.log "Updating #{allCases.length} cases"
 
         await Case.updateSummaryForCases
@@ -1294,13 +1293,14 @@ Case.updateCaseSummaryDocs = (options) ->
 
   latestChangeForDatabase = await Case.getLatestChangeForDatabase()
   latestChangeForCurrentSummaryDataDocs = await Case.getLatestChangeForCurrentSummaryDataDocs()
-  console.log "latestChangeForDatabase: #{latestChangeForDatabase}"
-  console.log "latestChangeForCurrentSummaryDataDocs: #{latestChangeForCurrentSummaryDataDocs}"
+  #latestChangeForCurrentSummaryDataDocs = "3490519-g1AAAACseJzLYWBgYM5gTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMiQ1JoaGhIVgZzEoPg_se5QDF2S3MjM8tkE2x68JgEMic0j4Vh5apVq7KAhu27jkcxUB1Q2Sog9R8IQMqPyGYBAJk5MBA"
+
+  console.log "latestChangeForDatabase: #{latestChangeForDatabase?.replace(/-.*/, "")}, latestChangeForCurrentSummaryDataDocs: #{latestChangeForCurrentSummaryDataDocs?.replace(/-.*/,"")}"
   unless latestChangeForCurrentSummaryDataDocs 
     console.log "No recorded change for current summary data docs, so resetting"
     Case.resetAllCaseSummaryDocs()
   else
-    console.log "Getting changes since #{latestChangeForCurrentSummaryDataDocs}"
+    #console.log "Getting changes since #{latestChangeForCurrentSummaryDataDocs.replace(/-.*/, "")}"
     # Get list of cases changed since latestChangeForCurrentSummaryDataDocs
     Coconut.database.changes
       since: latestChangeForCurrentSummaryDataDocs
@@ -1309,32 +1309,32 @@ Case.updateCaseSummaryDocs = (options) ->
       view: "cases/cases"
     .then (result) =>
       return if result.results.length is 0
-
+      #console.log "Found changes, now plucking case ids"
       changedCases = _(result.results).chain().map (change) ->
         change.doc.MalariaCaseID if change.doc.MalariaCaseID? and change.doc.question?
       .compact().uniq().value()
-      console.log "Changed cases: #{_(changedCases).length}"
+      #console.log "Changed cases: #{_(changedCases).length}"
 
       await Case.updateSummaryForCases
         caseIDs: changedCases
-      console.log "Updated: #{allCases.length} cases"
+      console.log "Updated: #{changedCases.length} cases"
 
       Coconut.reportingDatabase.upsert "CaseSummaryData", (doc) =>
         doc.lastChangeSequenceProcessed = latestChangeForDatabase
         doc
+      .catch (error) => console.error error
+      .then =>
+        console.log "CaseSummaryData updated through sequence: #{latestChangeForDatabase}"
+
 
 Case.updateSummaryForCases = (options) =>
-
-  console.log "updateSummaryForCases"
   new Promise (resolve, reject) =>
     
     docsToSave = []
     return resolve() if options.caseIDs.length is 0
 
-    console.log options.caseIDs.length
-
-    for caseID in options.caseIDs
-      console.log caseID
+    for caseID, counter in options.caseIDs
+      console.log "#{caseID}: (#{counter+1}/#{options.caseIDs.length} #{Math.floor(((counter+1) / options.caseIDs.length) * 100)}%)"
 
       malariaCase = new Case
         caseID: caseID
@@ -1362,25 +1362,20 @@ Case.updateSummaryForCases = (options) =>
 
       docsToSave.push updatedCaseSummaryDoc
 
-      console.log docsToSave.length
-
-      if docsToSave.length > 100
-        console.log "Saving in reporting database"
+      if docsToSave.length > 500
         try
           await Coconut.reportingDatabase.bulkDocs(docsToSave)
         catch
-          console.log "Saving done"
           console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
           console.error error
         docsToSave.length = 0 # Clear the array: https://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
 
     try
-      console.log "Final save of reporting database"
       await Coconut.reportingDatabase.bulkDocs(docsToSave)
+      resolve()
     catch error
       console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
       console.error error
-
 
 
 ### I think this can be removed

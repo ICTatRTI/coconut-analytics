@@ -2,7 +2,6 @@ _ = require 'underscore'
 $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
-PouchDB = require 'pouchdb'
 global.jQuery = require 'jquery'
 Dialog = require './Dialog'
 humanize = require 'underscore.string/humanize'

@@ -1,4 +1,8 @@
-global.PouchDB = require 'pouchdb'
+global.PouchDB = require 'pouchdb-core'
+PouchDB.plugin(require('pouchdb-upsert'))
+PouchDB.plugin(require('pouchdb-adapter-http'))
+PouchDB.plugin(require('pouchdb-mapreduce'))
+BackbonePouch = require 'backbone-pouch'
 global.Cookie = require 'js-cookie'
 moment = require 'moment'
 
@@ -17,7 +21,7 @@ class Coconut
     Cookie.set("username", username)
     Cookie.set("password", password)
 
-    databaseOptions = {ajax: timeout: 50000}
+    databaseOptions = {ajax: timeout: 1000 * 60 * 10} # Ten minutes
 
     databaseURL =
       if window.location.origin.startsWith "http://localhost"
@@ -25,8 +29,8 @@ class Coconut
       else
         "https://#{username}:#{password}@zanzibar.cococloud.co/"
 
-    @database = new PouchDB("#{databaseURL}/zanzibar")
-    @reportingDatabase = new PouchDB("#{databaseURL}/zanzibar-reporting")
+    @database = new PouchDB("#{databaseURL}/zanzibar", databaseOptions)
+    @reportingDatabase = new PouchDB("#{databaseURL}/zanzibar-reporting", databaseOptions)
 
   promptUntilCredentialsWork: =>
     @setupDatabases()

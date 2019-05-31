@@ -4,7 +4,6 @@ $ = jQuery = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 global.moment = require 'moment'
-PouchDB = require 'pouchdb'
 
 DashboardView = require './views/DashboardView'
 MenuView = require './views/MenuView'
