@@ -3,8 +3,6 @@ $ = require "jquery"
 Backbone = require "backbone"
 Backbone.$  = $
 d3 = require 'd3'
-
-
 map = undefined
 casesLayer = undefined
 casesTimeLayer = undefined
@@ -203,7 +201,6 @@ window.addEventListener 'labelsOnOff', ((e) ->
 ), false
 
 require 'mapbox.js'
-#require 'leaflet'
 materialControl = require 'leaflet-material-controls'
 #global.L = require 'leaflet'
 Reports = require '../models/Reports'
@@ -704,7 +701,7 @@ class MapView extends Backbone.View
 
 
   render: =>
-    $('#analysis-spinner').show()
+    # $('#analysis-spinner').show()
     options = $.extend({},Coconut.router.reportViewOptions)
     HTMLHelpers.ChangeTitle("Maps")
     casesGeoJSON =
@@ -715,48 +712,12 @@ class MapView extends Backbone.View
       'features': []
     startDate = options.startDate
     endDate = options.endDate
-    Coconut.database.query "caseIDsByDate",
-      startkey: startDate
-      endkey: endDate
-      include_docs: true
-    .catch (error) -> console.error error
-    .then (result) -> reportResults(result)
-#        console.log 'success'
-##        console.log "results: " + JSON.stringify results
-#        casesGeoJSON.features =  _(results).chain().map (malariaCase) ->
-#          if malariaCase.Household?["HouseholdLocation-latitude"]
-#            {
-#              type: 'Feature'
-#              properties:
-#                MalariaCaseID: malariaCase.caseID
-#                hasAdditionalPositiveCasesAtIndexHousehold: malariaCase.hasAdditionalPositiveCasesAtIndexHousehold()
-#                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
-#                numberOfCasesInHousehold: malariaCase.positiveCasesAtIndexHousehold().length
-#                date: malariaCase.Household?.lastModifiedAt
-#              geometry:
-#                type: 'Point'
-#                coordinates: [
-#                  malariaCase.Household?["HouseholdLocation-longitude"]
-#                  malariaCase.Household?["HouseholdLocation-latitude"]
-#                ]
-#            }
-#        .compact().value()
-##        console.log 'casesGEoJSON: '+JSON.stringify casesGeoJSON
-#        console.log 'casesGeoJSON.features: ' + casesGeoJSON.features.length
-##        LayerTollBooth = ->
-##          @CasesLoaded = false
-##          return
-#        layerTollBooth = new LayerTollBooth(map, casesLayer)
-#        if casesGeoJSON.features.length > 0
-#            console.log('set true: ')
-#            layerTollBooth.setCasesStatus true
-#            layerTollBooth.enableDisableButtons 'enable'
-#        else
-#            console.log('set false')
-#            layerTollBooth.setCasesStatus false
-#            layerTollBooth.enableDisableButtons 'disable'
-#        updateMap casesGeoJSON
-
+    # Coconut.database.query "caseIDsByDate",
+    #   startkey: startDate
+    #   endkey: endDate
+    #   include_docs: true
+    # .catch (error) -> console.error error
+    # .then (result) -> reportResults(result)
     @$el.html "
         <style>
         .legend {
@@ -853,604 +814,62 @@ class MapView extends Backbone.View
         }
         button.caseBtn {font-size: 1.0em}
         </style>
-        <dialog id='caseDialog'></dialog>
-        <div id='dateSelector'></div>
-        <!--<div class='mdl-grid' style='height:5%'>
-            <div class='mdl-cell mdl-cell--12-col'>
-                    <div style='display: inline-block'>
-                        <label for='pembaToggle'>Switch to: </label>
-                        <button id='pembaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Pemba</button>
-                        <label for='ungujaToggle'>or</label>
-                        <button id='ungujaToggle' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>Unguja</button>
-
-                        <button id='testButton' class='mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect mdl-button--accent'>TEST</button>
-
-                        <form style='display: inline-flex'>
-                          <div class='mui-select'>
-                            <select style='padding-right:20px'>
-                              <option value='island'>Islands</option>
-                              <option value='district'>Districts</option>
-                              <option value='shehias'>Shehias</option>
-                              <option value='villages'>Villages</option>
-                            </select>
-                          </div>
-                          <div class='mui-textfield' style='padding-left:20px'>
-                            <input type='text' class='typeahead' placeholder='Input 1'>
-                          </div>
-                        </form>
-                    </div>
-                </div>
-            <div class='mdl-cell mdl-cell--1-col'></div>
-        </div>-->
         <div class='mdl-grid' style='height:85%'>
             <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
         </div>
-        <div class='mdl-grid' style='height:10%'>
-            <div class='mdl-cell mdl-cell--12-col' id='sliderCell' style='height:20%'>
-                <div id='sliderControls'>
-                    <div id='playDiv'>
-                        <button name='play' id='play' class='mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--mini-fab mdl-color--cyan'>
-                            <i class='mdi mdi-play mdi-24px'></i>
-                        </button>
-                    </div>
-                    <div id = 'sliderContainer'>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id='results' class='result'>
     "
-    #working
-    @snapshot = document.getElementById('snapshot')
-#    L.mapbox.accessToken = 'pk.eyJ1Ijoid29ya21hcHMiLCJhIjoiY2lsdHBxNGx3MDA5eXVka3NvbDl2d2owbSJ9.OptFbCtSJblFz-qKgwp65A'
-
-    #streets = L.mapbox.tileLayer('mapbox.streets')
-    #google streets option below
-    streets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
-    #mapBox Terrain below
-    #outdoors = L.mapbox.tileLayer('mapbox.outdoors')
-    #google Terrain below
-    outdoors = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']});
-    #mapBox Satellite below
-    #satellite = L.mapbox.tileLayer('mapbox.satellite')
-    #mapBox hybrid satellite below
-    #satellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicHVua21hcCIsImEiOiJjaWw5eWV4dzUwMGZwdHJsemN2b2tlN3kzIn0.8hX6wwKsggKXU2FBK4voOw')
-    #Google Hybrid Satellite Below
-    satellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']});
-    #Check map for url settings.
-    zoom = getURLValue 'mapZoom'
-    if zoom == undefined then zoom = 9
-    lat = getURLValue 'mapLat'
-    if lat == undefined then lat = -5.567
-    lng =  getURLValue 'mapLng'
-    if lng == undefined then lng = 39.489
-
-    layers =
-      Streets: streets
-      Outdoors: outdoors
-      Satellite: satellite
-    layerTollBooth = new LayerTollBooth
-    map = L.map('map',
-      center: [
-        lat, lng
-      ]
-      zoom: zoom
-      layers: [
-        streets
-      ]
-      zoomControl: false
-      attributionControl: false
-      )
-    map.lat = -5.67
-    map.lng = 39.489
-    map.zoom = 9
-    map.scrollWheelZoom.disable()
-
-    map.on 'moveend', (e) ->
-      Coconut.router.reportViewOptions['mapZoom'] = map.getZoom()
-      Coconut.router.reportViewOptions['mapLat'] = map.getCenter().lat.toFixed(3)
-      Coconut.router.reportViewOptions['mapLng'] = map.getCenter().lng.toFixed(3)
-      url = "#{Coconut.dateSelectorView.reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
-      Coconut.router.navigate(url,{trigger: false})
-      return
- #   typeAheadNames = setUpTypeAheadData(villagesData)
-
-
-
-#    map.on 'overlayadd', (a) ->
-#      console.log('bringToFront')
-#      map.eachLayer (layer) ->
-##        console.log(JSON.stringify(layer))
-#        return
-##      casesLayer.bringToFront
-#      return
-    materialOptions =
-      fab: true
-      miniFab: true
-      rippleEffect: true
-      toolTips: false
-      color: 'cyan'
-    materialZoomControl = new (zoomControl)(
-      position: 'topright'
-      materialOptions: materialOptions).addTo(map)
-    materialHeatMapControl = new (heatMapControl)(
-      position: 'topleft'
-      materialOptions: materialOptions).addTo(map)
-#    $('.heatMapButton button').attr('disabled')
-#    heatMapControl = $('.heatMapButton')
-#    heatMapControl.onclick.apply(heatMapControl);
-
-
-
-    materialClusterControl = new (clusterControl)(
-      position: 'topleft'
-      materialOptions: materialOptions).addTo(map)
-    materialTimeControl = new (timeControl)(
-      position: 'topleft'
-      materialOptions: materialOptions).addTo(map)
-    materialFullscreen = new (fullScreenControl)(
-      position: 'topright'
-      pseudoFullscreen: false
-      materialOptions: materialOptions).addTo(map)
-#    var materialLayerControl = new L.materialControl.Layers(layers, overlays, {position: 'bottomright', materialOptions: materialOptions}).addTo(map);
-
-    materialLayersControl = new (myLayersControl)(layers, overlays, queriedLayers,
-      position: 'topright'
-      materialOptions: materialOptions).addTo(map)
-#    materialLayersControl.setLayerTollBooth layerTollBooth
-    materialImageControl = new (imageControl)(
-      position: 'topright'
-      materialOptions: materialOptions).addTo(map)
-    layerTollBooth.enableDisableButtons 'disable'
-    L.control.scale(position: 'bottomright').addTo map
-
-    legend = L.control(position: 'bottomleft')
-
-    legend.onAdd = (map) ->
-      div = L.DomUtil.create('div', 'info legend')
-      div.id = "mapLegend"
-#      grades = [
-#        0
-#        10
-#        20
-#        50
-#        100
-#        200
-#        500
-#        1000
-#      ]
-      labels = []
-      # loop through our density intervals and generate a label with a colored square for each interval
-      categories = [
-        'Single Case'
-        'Multiple Cases'
-      ]
-#      div.innerHTML = "Legend"
-
-
-#        div.innerHTML += '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' + grades[i] + (if grades[i + 1] then '&ndash;' + grades[i + 1] + '<br>' else '+')
-#        i++
-      div
-
-
-
-
-    Coconut.database.get 'DistrictsAdjusted'
-    .catch (error) -> console.error error
-    .then (data) ->
-      districtsData = data
-      #console.log('districtsData: '+districtsData)
-      districtsLayer = L.geoJson(districtsData,
-        style: admin1PolyOptions
-        onEachFeature: (feature, layer) ->
-          layer.bindPopup 'District: ' + feature.properties.District_N
-          layer.on 'click', (e) ->
-              return
-          return
-      ).addTo map
-      materialLayersControl.addOverlay(districtsLayer, 'Districts')
-
+    
+    openStreetMapDefault = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        })
+    streets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3']})
+    outdoors = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {maxZoom: 20,subdomains:['mt0','mt1','mt2','mt3']})
+    satellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{maxZoom: 20, subdomains:['mt0','mt1','mt2','mt3']})
+    map = L.map('map', {center: [-5.67, 39.49], zoom: 9, layers: [openStreetMapDefault,streets,outdoors,satellite]})
+    baseMaps =
+    'Default': openStreetMapDefault
+    'Outdoors': outdoors
+    'Satellite': satellite
+    'Streets': streets
+    
     invisibleMarkerOptions =
       radius: 0
       fillColor: '#f44e03'
       opacity: 0
       fillOpacity: 0
-
-    districtsCntrPtsJSON = undefined
-    Coconut.database.get 'DistrictsCntrPtsWGS84'
-    .catch (error) -> console.error error
-    .then (data) ->
-        districtsCntrPtsJSON = data
-        districtsCntrPtFeatures = districtsCntrPtsJSON.features
-        for key of districtsCntrPtFeatures
-          if districtsCntrPtFeatures.hasOwnProperty(key)
-            val = districtsCntrPtFeatures[key]
-            divIcon = L.divIcon(className: "districtLabels", html: val.properties.NAME)
-            marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-            districtsLabelsLayerGroup.addLayer(marker)
-
-        L.geoJson(districtsCntrPtsJSON, pointToLayer: (feature, latlng) ->
-            L.circleMarker latlng, invisibleMarkerOptions
-        )
+    Coconut.database.get 'ShehiasAdjusted'
+      .catch (error) -> console.error error
+      .then (data) ->
+        new L.GeoJSON(data, { style: admin2PolyOptions }).addTo(map)
 
     shehiasCntrPtsJSON = undefined
     Coconut.database.get 'ShehiaCntrPtsWGS84'
     .catch (error) -> console.error error
     .then (data) ->
-        shehiasCntrPtsJSON = data
-        shehiasCntrPtFeatures = shehiasCntrPtsJSON.features
-        for key of shehiasCntrPtFeatures
-          if shehiasCntrPtFeatures.hasOwnProperty(key)
-            val = shehiasCntrPtFeatures[key]
-            divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
-            marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-            shehiasLabelsLayerGroup.addLayer(marker)
+        shehiasCntrPtsJSON = new L.GeoJSON(data).addTo(map)
+        return
+        # for key of shehiasCntrPtFeatures
+        #   if shehiasCntrPtFeatures.hasOwnProperty(key)
+        #     val = shehiasCntrPtFeatures[key]
+        #     divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
+        #     marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
+        #     shehiasLabelsLayerGroup.addLayer(marker)
 
-        L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
-            L.circleMarker latlng, invisibleMarkerOptions
-        )
-
-    villagesCntrPtsJSON = undefined
-    Coconut.database.get 'VillageCntrPtsWGS84'
-    .catch (error) -> console.error error
-    .then (data) ->
-        villagesCntrPtsJSON = data
-        villagesCntrPtFeatures = villagesCntrPtsJSON.features
-        for key of villagesCntrPtFeatures
-          if villagesCntrPtFeatures.hasOwnProperty(key)
-            val = villagesCntrPtFeatures[key]
-            divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
-            marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-            villagesLabelsLayerGroup.addLayer(marker)
-
-        L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
-            L.circleMarker latlng, invisibleMarkerOptions
-        )
-
-#
-#    shehiasCntrPtsJSON = undefined
-#    $.ajax
-#      url: '../../mapdata/ShehiaCntrPtsWGS84.json?V=2'
-#      dataType: 'json'
-#      type: 'GET'
-#      async: false
-#      success: (data) ->
-#        console.log "shahias: " + JSON.stringify data
-#        shehiasCntrPtsJSON = data
-#        return
-#    console.log "districtsCntrPtsJSON: " + shehiasCntrPtsJSON.features.length
-#
-#    shehiasCntrPtFeatures = shehiasCntrPtsJSON.features
-#    for key of shehiasCntrPtFeatures
-#      if shehiasCntrPtFeatures.hasOwnProperty(key)
-#        val = shehiasCntrPtFeatures[key]
-#        divIcon = L.divIcon(className: "shehiaLabels", html: val.properties.NAME)
-#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-#        shehiasLabelsLayerGroup.addLayer(marker)
-#
-#    L.geoJson(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
-#        console.log "pointToLayerShahiaCntrPt"
-#        L.circleMarker latlng, invisibleMarkerOptions
-#    )
-
-#      console.log('districtsData: '+districtsData)
-#      districtsCntrPtsLayer = L.geoJson(districtsData,
-#        style: cntrpts
-#      )
-#    districtsCntrPtsJSON = undefined
-#    $.ajax
-#      url: '../../mapdata/DistrictsCntrPtsWGS84.json?V=1'
-#      dataType: 'json'
-#      type: 'GET'
-#      async: false
-#      success: (data) ->
-#        districtsCntrPtsJSON = data
-#        return
-#    console.log "districtsCntrPtsJSON: " + districtsCntrPtsJSON.features.length
-#
-
-
-#
-#    villagesCntrPtsJSON = undefined
-#    $.ajax
-#      url: '../../mapdata/VillageCntrPtsWGS84.json?V=2'
-#      dataType: 'json'
-#      type: 'GET'
-#      async: false
-#      success: (data) ->
-#        villagesCntrPtsJSON = data
-#        return
-#
-#    villagesCntrPtFeatures = villagesCntrPtsJSON.features
-#    for key of villagesCntrPtFeatures
-#      if villagesCntrPtFeatures.hasOwnProperty(key)
-#        val = villagesCntrPtFeatures[key]
-#        divIcon = L.divIcon(className: "villageLabels", html: val.properties.NAME)
-#        marker = L.marker([val.geometry.coordinates[1], val.geometry.coordinates[0]], {icon: divIcon })
-#        villagesLabelsLayerGroup.addLayer(marker)
-#
-#    L.geoJson(villagesCntrPtsJSON, pointToLayer: (feature, latlng) ->
-#        console.log "pointToLayerVillageCntrPt"
-#        L.circleMarker latlng, invisibleMarkerOptions
-#    )
-
-
-
-
-
-    Coconut.database.get 'ShehiasAdjusted'
-    .catch (error) -> console.error error
-    .then (data) ->
-      shehiasData = data
-      shehiasLayer = L.geoJson(shehiasData,
-        style: admin2PolyOptions
-        onEachFeature: (feature, layer) ->
-          layer.bindPopup 'District: ' + feature.properties.District_N + '<br />\n Shehia: ' + feature.properties.Shehia
-          layer.on 'click', (e) ->
-              return
-          return
-      )
-      materialLayersControl.addOverlay(shehiasLayer, 'Shehias')
-
-    Coconut.database.get 'VillagesAdjusted'
-    .catch (error) -> console.error error
-    .then ( data) ->
-      villagesData = data
-      villagesLayer = L.geoJson(villagesData,
-        style: admin3PolyOptions
-        onEachFeature: (feature, layer) ->
-          #console.log 'villages feature.properties' + feature.properties.Vil_Mtaa_N
-          layer.bindPopup 'District: ' + feature.properties.District_N + '<br />\n Shehia: ' + feature.properties.Ward_Name+'<br />\n Village: ' + feature.properties.Vil_Mtaa_N
-          layer.on 'click', (e) ->
-#              console.log 'Click Villages';
-              return
-          return
-      )
-      materialLayersControl.addOverlay(villagesLayer, 'Villages')
-
-
-
-#    customLayers = L.control.layers(layers, overlays).addTo map
-#
-#    legend = L.control(position: 'bottomleft')
-#
-#    legend.onAdd = (map) ->
-#      div = L.DomUtil.create('div', '<div class="demo-card-square mdl-card mdl-shadow--2dp">')
-#      grades = [
-#        0
-#        10
-#        20
-#        50
-#        100
-#        200
-#        500
-#        1000
-#      ]
-#      labels = []
-#      # loop through our density intervals and generate a label with a colored square for each interval
-#      div.innerHTML += '<div class="mdl-card__title mdl-card--expand">
-#    <h2 class="mdl-card__title-text">Update</h2>
-#  </div>
-#  <div class="mdl-card__supporting-text">
-#    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-#    Aenan convallis.
-#  </div>
-#  <div class="mdl-card__actions mdl-card--border">
-#    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-#      View Updates
-#    </a>
-#  </div>'
-
-#    i = 0
-#    while i < grades.length
-#      i++
-#    div
-#
-#
-#    legend.onAdd = (map) =>
-#      console.log 'legend.onAdd'
-#      categories = [
-#        'Single Case'
-#        'Multiple Cases'
-#      ]
-#      i = 0
-#      while i < categories.length
-#        div.innerHTML += '<i style="background:' + getColor(categories[i]) + '"></i> ' + (if categories[i] then categories[i] + '<br>' else '+')
-#        i++
-#      div
-
-#    legend.addTo(map)
-
-    brushed = ->
-#      console.log('brushed')
-      actives = svg.filter((p) ->
-        !timeScale.brush.empty()
-      )
-      extents = actives.map((p) ->
-        timeScale.brush.extent()
-      )
-#      console.log 'extents: ' + extents
-      brushEndDate = timeScale.brush.extent()[1]
-      endFormat = outFormat(brushEndDate)
-      brushStartDate = timeScale.brush.extent()[0]
-      startFormat = outFormat(brushStartDate)
-      dateRange = [startFormat, endFormat]
-      dayMoFormat = d3.time.format("%b %d")
-      textE.text(dayMoFormat(brushEndDate))
-      textW.text(dayMoFormat(brushStartDate))
-      if d3.event.sourceEvent
-        updateFeaturesByDate(dateRange)
-      return
-
-    # initial value
-
-    resize = ->
-      resizeRender()
-#      svgWidth = parseInt(d3.select('#sliderContainer').style('svgWidth'), 10);
-#      svgWidth = svgWidth - svgMargin.left - svgMargin.right;
-#      d3.select('.xaxis').attr('svgWidth', svgWidth + svgMargin.left + svgMargin.right)
-      return
-
-    d3.select(window).on 'resize', resize
-
-    resizeRender = ->
-        updateDimensions($('#sliderCell').width());
-
-
-    updateDimensions = (winWidth) ->
-        svgMargin =
-          top: 20
-          right: 50
-          bottom: 20
-          left: 50
-        svgWidth = winWidth - (svgMargin.left) - (svgMargin.right) - 100
-        svgHeight = 80 - (svgMargin.bottom) - (svgMargin.top)
-        timeOutDate = new Date(startDate);
-        timeOutDate.setDate timeOutDate.getDate() + 14
-        inputStartDate = new Date(startDate)
-        inputStartDate.setDate inputStartDate.getDate() + 1
-        inputEndDate = new Date(endDate)
-        inputEndDate.setDate inputEndDate.getDate() + 1
-        if timeOutDate > inputEndDate
-            timeOutDate = inputEndDate
-        timeScale = d3.time.scale().domain([
-          inputStartDate
-          inputEndDate
-        ]).range([
-          0
-          svgWidth
-        ]).clamp(true)
-        startValue = timeScale(inputStartDate)
-#        console.log("inputStartDate: " + inputStartDate);
-#        console.log("startValue: " + startValue);
-        startingValue = inputStartDate
-        endValue = timeScale(inputEndDate);
-        endingValue = inputEndDate
-#        console.log("endingValue: " + endingValue);
-#        console.log("timeOutDate: " + timeOutDate);
-        d3.select('.theSVG').attr('width', svgWidth + svgMargin.left + svgMargin.right).attr('height', svgHeight + svgMargin.top + svgMargin.bottom)
-        d3.select('.svgG').attr('transform', 'translate(' + svgMargin.left + ',' + svgMargin.top + ')')
-        d3.select('.xaxis').attr('width',  svgWidth + svgMargin.left + svgMargin.right).attr('transform', 'translate(0,' + svgHeight / 2 + ')').call(d3.svg.axis().scale(timeScale).orient('bottom').tickFormat((d) ->
-          formatDate d
-        ).tickSize(0).tickPadding(12).tickValues([
-          timeScale.domain()[0]
-          timeScale.domain()[1]
-        ]))
-        d3.select('.brush').each((d) ->
-          d3.select(this).call timeScale.brush = d3.svg.brush().x(timeScale).extent([
-            startingValue
-            timeOutDate
-          ]).on('brush', brushed)
-          return
-        ).selectAll('rect').attr('y', 10).attr('height', 16)
-        d3.select('texte').text formatDate(timeOutDate)
-        d3.select('textw').text formatDate(startingValue)
-#        textE = d3.select('#resizee').append('text').attr('class', 'texte')
-#        textE.id = 'texte'
-#        textW = d3.select('#resizew').append('text').attr('class', 'textw').attr('transform', 'translate(-48,0)')
-#        textW.id = 'textw'
-#        textE.text("test")
-#        textW.text("test")
-
-#        rectE = d3.select('#resizee rect').attr('class', 'recte').style('visibility','visible').attr('width', 3)
-#        rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
-        outFormat = d3.time.format("%Y-%m-%d")
-        dateRange = [outFormat(startingValue), outFormat(timeOutDate)]
-
-    $('#play').on 'click', ->
-      duration = 300
-      maxstep = 201
-      minstep = 200
-      if running == true
-        $('#play').html "<i class='mdi mdi-play mdi-24px'></i>"
-        $('#play').removeClass( "mdl-color--red" ).addClass( "mdl-color--cyan" )
-        running = false
-        clearInterval timer
-      else if running == false
-        $('#play').html "<i class='mdi mdi-pause mdi-24px'></i>"
-        $('#play').removeClass( "mdl-color--cyan" ).addClass( "mdl-color--red" )
-        playEndTime = timeScale.brush.extent()[1]
-        playStartTime = timeScale.brush.extent()[0]
-        timer = setInterval((->
-          if timeScale.brush.extent()[1] < timeScale.domain()[1]
-              update()
-          else
-              oneDay = 24*60*60*1000
-              diffDays = Math.round(Math.abs((timeScale.brush.extent()[1] - timeScale.brush.extent()[0])/(oneDay)));
-              lowerExtent = new Date(timeScale.domain()[0])
-              upperExtent = new Date(timeScale.domain()[0])
-              upperExtent.setDate(upperExtent.getDate() + diffDays)
-              d3.select('resizew').attr 'transform', 'translate(' + timeScale.domain()[0] + ',0)'
-        #      handle.select('text').text formatDate(playStartTime)
-              d3.select('textw').text formatDate(timeScale.domain()[0])
-              d3.select('resizee').attr 'transform', 'translate(' + upperExtent + ',0)'
-        #      handle.select('text').text formatDate(playStartTime)
-              d3.select('texte').text formatDate(upperExtent)
-              d3.select('.brush').transition().call(timeScale.brush.extent [
-                lowerExtent
-                upperExtent
-              ]).call timeScale.brush.event
-#              update()
-
-          return
-        ), duration)
-        running = true
-      return
-
-    update = ->
-      playEndTime = timeScale.brush.extent()[1]
-#      console.log 'playEndTime1: ' + playEndTime
-      playEndTime.setDate playEndTime.getDate() + 1
-#      console.log 'playEndTime1: ' + playEndTime
-      playStartTime = timeScale.brush.extent()[0]
-      playStartTime.setDate playStartTime.getDate() + 1
-#      handle.attr 'transform', 'translate(' + timeScale(playStartTime) + ',0)'
-      d3.select('resizew').attr 'transform', 'translate(' + timeScale(playStartTime) + ',0)'
-#      handle.select('text').text formatDate(playStartTime)
-      d3.select('textw').text formatDate(playStartTime)
-
-#      console.log 'playStartTime: ' + formatDate(playStartTime)
-
-      d3.select('.brush').transition().call(timeScale.brush.extent [
-        playStartTime
-        playEndTime
-      ]).call timeScale.brush.event
-
-      playDateRange = [
-        outFormat(playStartTime)
-        outFormat(playEndTime)
-      ]
-      updateFeaturesByDate playDateRange
-      return
-
-    svg = d3.select('#sliderContainer').append('svg').attr('class', 'theSVG').append('g').attr('class','svgG')
-    svg.append('g').attr('class', 'xaxis').select('.domain').select(->
-        @parentNode.appendChild @cloneNode(true)
-    ).attr 'class', 'halo'
-#    Brush extents
-    slider = svg.append('g').attr('class', 'brush')
-    resizeRender()
-
-    _brush = d3.select '.brush'
-    resizes = d3.selectAll '.resize'
-    resizeE = resizes[0][0]
-    resizeE.id = 'resizee'
-    resizeW = resizes[0][1]
-    resizeW.id = 'resizew'
-    textE = d3.select('#resizee').append('text').attr('class', 'texte')
-    textE.id = 'texte'
-    textW = d3.select('#resizew').append('text').attr('class', 'textw').attr('transform', 'translate(-48,0)')
-    textW.id = 'textw'
-    rectE = d3.select('#resizee rect').attr('class', 'recte').style('visibility','visible').attr('width', 3)
-    rectW = d3.select('#resizew rect').attr('class', 'rectw').style('visibility','visible').attr('width', 3)
-    brushStartDate = timeScale.brush.extent()[0]
-    brushEndDate = timeScale.brush.extent()[1]
-    dayMoFormat = d3.time.format("%b %d")
-    textE.text(dayMoFormat(brushEndDate));
-    textW.text(dayMoFormat(brushStartDate));
-    rects = _brush.selectAll('rect')
-    rects3 = rects[0][3]
-
+        # L.geoJSON(shehiasCntrPtsJSON, pointToLayer: (feature, latlng) ->
+        #     return L.circleMarker latlng, invisibleMarkerOptions
+        # ).addTo(map)
+        # shehiasLayer = L.geoJson(data,
+        #   style: admin2PolyOptions
+        #   onEachFeature: (feature, layer) ->
+        #     # console.log feature ,layer
+        #     layer.bindPopup 'District: ' + feature.properties.District_N + '<br />\n Shehia: ' + feature.properties.Shehia
+        #     layer.on 'click', (e) ->
+        #         alert e
+        #     return
+        # )
+        # materialLayersControl.addOverlay(shehiasLayer, 'Shehias')
+    overlayMaps = { "Shehias": shehiasCntrPtsJSON }
+    L.control.layers(baseMaps).addTo(map)
 module.exports = MapView
