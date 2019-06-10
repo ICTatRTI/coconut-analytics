@@ -1,6 +1,5 @@
-PouchDB = require 'pouchdb'
-BackbonePouch = require 'backbone-pouch'
 Dialog = require '../views/Dialog'
+BackbonePouch = require 'backbone-pouch'
 
 class Config extends Backbone.Model
   sync: BackbonePouch.sync

@@ -69,15 +69,23 @@ class Case
 
 
   fetch: (options) =>
-    Coconut.database.query "cases/cases",
-      key: @caseID
-      include_docs: true
-    .catch (error) ->
-      options?.error(error)
-    .then (result) =>
-      return options?.error("Could not find any existing data for case #{@caseID}") if result.rows.length is 0
-      @loadFromResultDocs(_.pluck(result.rows, "doc"))
-      options?.success()
+      unless @caseID
+        return Promise.reject "No caseID to fetch data for"
+      Coconut.database.query "cases",
+        key: @caseID
+        include_docs: true
+      .catch (error) -> 
+        options?.error()
+        Promise.reject(error)
+      .then (result) =>
+        if result.rows.length is 0
+          options?.error("Could not find any existing data for case #{@caseID}")
+          reject ("Could not find any existing data for case #{@caseID}")
+        @loadFromResultDocs(_.pluck(result.rows, "doc"))
+        options?.success()
+        Promise.resolve()
+
+
 
   toJSON: =>
     returnVal = {}
@@ -274,7 +282,7 @@ class Case
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
-      @.Household.lastModifiedAt
+      @.Household?.lastModifiedAt or @Facility.lastModifiedAt # When the household has two cases
 
   followedUp: =>
     @completeHouseholdVisit()
@@ -1222,39 +1230,27 @@ Case.getCases = (options) ->
       .value()
     )
 
-Case.getLatestChange = (options) ->
-  Coconut.database.changes
-    descending: true
-    include_docs: false
-    limit: 1
-  .on "complete", (mostRecentChange) ->
-    options?.success(mostRecentChange.last_seq)
-  .on "error", (error) ->
-    console.error error
-    options?.error()
+Case.getLatestChangeForDatabase = ->
+  new Promise (resolve,reject) =>
+    Coconut.database.changes
+      descending: true
+      include_docs: false
+      limit: 1
+    .on "complete", (mostRecentChange) ->
+      resolve(mostRecentChange.last_seq)
+    .on "error", (error) ->
+      reject error
 
-Case.setCaseSummaryDataDoc = (options) ->
-  save = (doc) ->
-    Coconut.database.put doc
-    .catch (error) -> console.error error
-    .then -> options?.success()
-
-  Coconut.database.get "CaseSummaryData"
+Case.getLatestChangeForCurrentSummaryDataDocs = ->
+  Coconut.reportingDatabase.get "CaseSummaryData"
   .catch (error) ->
-    console.log "Couldn't find 'CaseSummaryData' document (#{error.toJSON()}), creating a new one."
-    save(
-      _id: "CaseSummaryData",
-      lastChangeSequenceProcessed: options.changeSequence
-    )
+    return Promise.resolve(null)
   .then (caseSummaryData) ->
-    caseSummaryData.lastChangeSequenceProcessed = options.changeSequence
-    save(caseSummaryData)
+    return Promise.resolve(caseSummaryData?.lastChangeSequenceProcessed or null)
 
 Case.resetAllCaseSummaryDocs = (options)  =>
-  numberCasesToProcessConcurrently = options?.numberCasesToProcessConcurrently or 2
-
   # Delete all existing case_summary_ docs
-  Coconut.database.allDocs
+  Coconut.reportingDatabase.allDocs
     startkey: "case_summary_"
     endkey: "case_summary_\ufff0"
     include_docs: false
@@ -1268,127 +1264,121 @@ Case.resetAllCaseSummaryDocs = (options)  =>
 
     console.log "Deleting #{docs.length} case_summary_ docs"
 
-    Coconut.database.bulkDocs docs
-    .catch (error) -> console.error error
-    .then ->
+    try
+      await Coconut.reportingDatabase.bulkDocs(docs)
       console.log "Existing case_summary_ docs deleted"
 
-      # This approach works different than update, by getting all cases ids and updating every one, versus working based on changes. It's faster this way
-      #
-      Case.getLatestChange
-        error: (error) -> console.error error
-        success: (latestChange) ->
-          console.log "Latest change: #{latestChange}"
-          console.log "Retrieving all available case IDs"
+      latestChangeForDatabase = await Case.getLatestChangeForDatabase()
 
-          Coconut.database.query "cases/cases"
-          .then (result) =>
-            allCases = _(result.rows).chain().pluck("key").uniq().value()
-            console.log "ALL CASES"
-            console.log allCases.join(',')
+      console.log "Latest change: #{latestChangeForDatabase}"
+      console.log "Retrieving all available case IDs"
 
+      Coconut.database.query "cases/cases"
+      .then (result) =>
+        allCases = _(result.rows).chain().pluck("key").uniq(true).value()
+        console.log "Updating #{allCases.length} cases"
 
-            updateCases = ->
-              try
-                if allCases.length is 0
-                  console.log "Finished, checking for changes since this process started: (#{latestChange})"
-                  Case.setCaseSummaryDataDoc
-                    changeSequence: latestChange
-                    error: (error) -> console.error error
-                    success: ->
-                      Case.updateCaseSummaryDocs # Catches changes since this process started
-                        error: (error) -> console.error error
-                        success: -> options?.success()
+        await Case.updateSummaryForCases
+          caseIDs: allCases
+        console.log "Updated: #{allCases.length} cases"
 
-                  return
-                console.log "Remaining: #{allCases.length}"
-                casesToProcess = allCases.splice(-numberCasesToProcessConcurrently,numberCasesToProcessConcurrently)
-                Case.updateSummaryForCases
-                  caseIDs: casesToProcess
-                  success: ->
-                    console.log "Updated: #{casesToProcess.join(',')}"
-                    updateCases() # recurse
-              catch error
-                console.error error
+        Coconut.reportingDatabase.upsert "CaseSummaryData", (doc) =>
+          doc.lastChangeSequenceProcessed = latestChangeForDatabase
+          doc
 
-            updateCases()
-          .catch (error) ->
-            options?.error()
+    catch error
+      console.error 
 
 Case.updateCaseSummaryDocs = (options) ->
 
-  update = (changeSequence, caseSummaryData) ->
-    Case.updateCaseSummaryDocsSince
-      maximumNumberChangesToProcess: options.maximumNumberChangesToProcess or 500
-      changeSequence: changeSequence
-      error: (error) ->
-        console.error "Error updating CaseSummaryData:"
-        console.error error
-        options.error?()
-      success: (numberCasesChanged,lastChangeSequenceProcessed) ->
-        caseSummaryData.lastChangeSequenceProcessed = lastChangeSequenceProcessed
-        Coconut.database.put caseSummaryData
-        .then (result) ->
-          console.log "Number of cases changed: #{numberCasesChanged}"
-          Case.getLatestChange
-            error: -> console.error error
-            success: (latestChange) ->
-              if lastChangeSequenceProcessed+1 < latestChange
-                Case.updateCaseSummaryDocs(options)  #recurse
-              else
-                options?.success?()
-        .catch (error) -> console.error error
+  latestChangeForDatabase = await Case.getLatestChangeForDatabase()
+  latestChangeForCurrentSummaryDataDocs = await Case.getLatestChangeForCurrentSummaryDataDocs()
+  #latestChangeForCurrentSummaryDataDocs = "3490519-g1AAAACseJzLYWBgYM5gTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMiQ1JoaGhIVgZzEoPg_se5QDF2S3MjM8tkE2x68JgEMic0j4Vh5apVq7KAhu27jkcxUB1Q2Sog9R8IQMqPyGYBAJk5MBA"
 
-
-  Coconut.database.get "CaseSummaryData"
-  .catch (error) ->
-    console.log error
-    console.log "Couldn't find 'CaseSummaryData' document. Starting from the beginning."
-    # defaults used for first run
-    update(0,{_id: "CaseSummaryData"})
-  .then (caseSummaryData) ->
-    console.log caseSummaryData
+  console.log "latestChangeForDatabase: #{latestChangeForDatabase?.replace(/-.*/, "")}, latestChangeForCurrentSummaryDataDocs: #{latestChangeForCurrentSummaryDataDocs?.replace(/-.*/,"")}"
+  unless latestChangeForCurrentSummaryDataDocs 
+    console.log "No recorded change for current summary data docs, so resetting"
+    Case.resetAllCaseSummaryDocs()
+  else
+    #console.log "Getting changes since #{latestChangeForCurrentSummaryDataDocs.replace(/-.*/, "")}"
+    # Get list of cases changed since latestChangeForCurrentSummaryDataDocs
     Coconut.database.changes
-      since: "now"
-      include_docs: false
-      limit: 1
-    .then (result) ->
-      console.log result
-      if result.results.length isnt 0
-        # only update when there is change
-        update(caseSummaryData.lastChangeSequenceProcessed, caseSummaryData)
-
-Case.updateCaseSummaryDocsSince = (options) ->
-    limit = options.maximumNumberChangesToProcess
-    console.log "Looking for the next #{limit} changes after #{options.changeSequence}"
-
-    Coconut.database.changes
-      live: false
-      since: options.changeSequence
+      since: latestChangeForCurrentSummaryDataDocs
       include_docs: true
-      limit: limit
-    .then (result) ->
-        # Could do this with a filter but still need to loop to extract the MalariaCaseID, so this should be faster
-        changedCases = _(result.results).chain().map (change) ->
-          change.doc.MalariaCaseID if change.doc.MalariaCaseID? and change.doc.question?
-        .compact().uniq().value()
-        console.log "Changed cases: #{_(changedCases).join(',')}"
-        lastChangeSequence = result.last_seq
-        Case.updateSummaryForCases
-          caseIDs: changedCases
-          error: (error) ->
-            console.log "Error updating #{changedCases.length} cases, lastChangeSequence: #{lastChangeSequence}"
-            console.log error
-          success: ->
-            console.log "Updated #{changedCases.length} cases, lastChangeSequence: #{lastChangeSequence}"
-            options.success(changedCases.length, lastChangeSequence)
+      filter: "_view"
+      view: "cases/cases"
+    .then (result) =>
+      return if result.results.length is 0
+      #console.log "Found changes, now plucking case ids"
+      changedCases = _(result.results).chain().map (change) ->
+        change.doc.MalariaCaseID if change.doc.MalariaCaseID? and change.doc.question?
+      .compact().uniq().value()
+      #console.log "Changed cases: #{_(changedCases).length}"
 
-    .catch (error) =>
-      console.error "Error downloading changes after #{options.changeSequence}:"
+      await Case.updateSummaryForCases
+        caseIDs: changedCases
+      console.log "Updated: #{changedCases.length} cases"
+
+      Coconut.reportingDatabase.upsert "CaseSummaryData", (doc) =>
+        doc.lastChangeSequenceProcessed = latestChangeForDatabase
+        doc
+      .catch (error) => console.error error
+      .then =>
+        console.log "CaseSummaryData updated through sequence: #{latestChangeForDatabase}"
+
+
+Case.updateSummaryForCases = (options) =>
+  new Promise (resolve, reject) =>
+    
+    docsToSave = []
+    return resolve() if options.caseIDs.length is 0
+
+    for caseID, counter in options.caseIDs
+      console.log "#{caseID}: (#{counter+1}/#{options.caseIDs.length} #{Math.floor(((counter+1) / options.caseIDs.length) * 100)}%)"
+
+      malariaCase = new Case
+        caseID: caseID
+      try
+        await malariaCase.fetch()
+      catch
+        console.error "ERROR fetching case: #{caseID}"
+        console.error error
+
+      docId = "case_summary_#{caseID}"
+
+      currentCaseSummaryDoc = null
+      try 
+         currentCaseSummaryDoc = await Coconut.reportingDatabase.get(docId)
+      catch
+        # Ignore if there is no document
+
+      try
+        updatedCaseSummaryDoc = malariaCase.summaryCollection()
+      catch error
+        console.error error
+
+      updatedCaseSummaryDoc["_id"] = docId
+      updatedCaseSummaryDoc._rev = currentCaseSummaryDoc._rev if currentCaseSummaryDoc?
+
+      docsToSave.push updatedCaseSummaryDoc
+
+      if docsToSave.length > 500
+        try
+          await Coconut.reportingDatabase.bulkDocs(docsToSave)
+        catch
+          console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
+          console.error error
+        docsToSave.length = 0 # Clear the array: https://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
+
+    try
+      await Coconut.reportingDatabase.bulkDocs(docsToSave)
+      resolve()
+    catch error
+      console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
       console.error error
-      options.error?(error)
 
 
+### I think this can be removed
 Case.getCasesByCaseIds = (options) ->
   Coconut.database.query "cases",
     keys: options.caseIDs
@@ -1404,49 +1394,7 @@ Case.getCasesByCaseIds = (options) ->
       .compact()
       .value()
     options.success groupedResults
-
-Case.updateSummaryForCases = (options) ->
-  docsToSave = []
-  options.success() if options.caseIDs.length is 0
-
-  finished = _.after options.caseIDs.length, ->
-    console.log "FINISHED"
-    Coconut.database.bulkDocs docsToSave
-      .then ->
-        options.success()
-      .catch (error) ->
-        console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
-        console.error error
-
-  _(options.caseIDs).each (caseID) ->
-    malariaCase = new Case
-      caseID: caseID
-    malariaCase.fetch
-      error: (error) ->
-        console.error "ERROR fetching case: #{caseID}"
-        console.error error
-        finished()
-      success: ->
-        docId = "case_summary_#{caseID}"
-        caseSummaryDoc = {_id: docId}
-
-        saveCaseSummaryDoc = (result) ->
-          caseSummaryDoc._rev = result._rev if result? # if the row already exists use the _rev
-          try
-            caseSummaryDoc = _(caseSummaryDoc).extend(malariaCase.summaryCollection())
-          catch error
-            console.error error
-
-          docsToSave.push caseSummaryDoc
-          finished()
-
-        Coconut.database.get docId
-        .then (result) ->
-          saveCaseSummaryDoc(result)
-        .catch (error) ->
-          saveCaseSummaryDoc()
-
-
+###
 
 Case.createCaseView = (options) ->
   @case = options.case

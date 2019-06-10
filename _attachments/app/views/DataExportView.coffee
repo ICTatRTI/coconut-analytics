@@ -19,7 +19,7 @@ class ExportDataView extends Backbone.View
     $('#downloadMsg').show()
     $('#analysis-spinner').show()
 
-    Coconut.database.query "caseIDsByDate",
+    Coconut.reportingDatabase.query "caseIDsByDate",
       include_docs: true
       startkey: @startDate
       endkey: @endDate

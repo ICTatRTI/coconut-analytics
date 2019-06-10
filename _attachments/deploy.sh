@@ -3,7 +3,7 @@ echo 'Browserifying and uglifying'
 npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee | npx uglify-js > bundle.js
 
 # Note - don't exclude node modules since this is needed for cronjob scripts
-rsync --recursive --progress ./ zanzibar.cococloud.co:/var/www/analytics/
+rsync --progress --recursive --copy-links --exclude=node_modules ./ zanzibar.cococloud.co:/var/www/analytics/
 
 TARGETWITHPASSWORD=$1
 if [ $# -lt 1 ]

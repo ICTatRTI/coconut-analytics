@@ -130,4 +130,12 @@ class MapView extends Backbone.View
     layerDBs.forEach (layer) ->
       createMapLayers(layer.DB, layer.layerName)
       return
+  
+  getCases: =>
+    Coconut.reportingDatabase.query 'caseIDsByDate', 
+      startkey: Coconut.router.reportViewOptions.startDate,
+      endkey: Coconut.router.reportViewOptions.endDate,
+      include_docs: true
+    .then(results) =>
+      console.log results.rows
 module.exports = MapView

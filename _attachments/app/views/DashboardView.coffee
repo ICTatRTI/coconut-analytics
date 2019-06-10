@@ -195,7 +195,7 @@ class DashboardView extends Backbone.View
     startDate = options.startDate
     endDate = options.endDate
 
-    Coconut.database.query "caseCounter",
+    Coconut.reportingDatabase.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate]
       reduce: false
@@ -210,7 +210,7 @@ class DashboardView extends Backbone.View
           Coconut.dateSelectorView.render()
           displayError()
           options = $.extend({},Coconut.router.reportViewOptions)
-          Coconut.database.query "caseCounter",
+          Coconut.reportingDatabase.query "caseCounter",
             startkey: [startDate]
             endkey: [endDate]
             reduce: false
@@ -248,7 +248,7 @@ class DashboardView extends Backbone.View
     lastYearStart = moment(startDate).subtract(1,'year').year()+'-01-01'
     lastYearEnd = moment(endDate).subtract(1,'year').year()+'-12-31'
 
-    Coconut.database.query "caseCounter",
+    Coconut.reportingDatabase.query "caseCounter",
       startkey: [lastYearStart]
       endkey: [endDate]
       reduce: false
@@ -401,7 +401,7 @@ class DashboardView extends Backbone.View
   groupCaseCounterResult = (dateFormatForGrouping, options) ->
     startDate = Coconut.router.reportViewOptions.startDate
     endDate = Coconut.router.reportViewOptions.endDate
-    Coconut.database.query "caseCounter",
+    Coconut.reportingDatabase.query "caseCounter",
       group: true
       startkey: [startDate]
       endkey: [endDate,{}]

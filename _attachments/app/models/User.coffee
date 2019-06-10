@@ -2,7 +2,6 @@ _ = require 'underscore'
 $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
-PouchDB = require 'pouchdb'
 BackbonePouch = require 'backbone-pouch'
 Cookies = require 'js-cookie'
 moment = require 'moment'

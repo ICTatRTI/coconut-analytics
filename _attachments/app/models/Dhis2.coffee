@@ -22,9 +22,9 @@ class Dhis2
         if result[field]
           @[field] = result[field]
 
-      options.success()
+      options?.success()
 
-    .catch (error) -> options.error(error)
+    .catch (error) -> options?.error(error)
 
   test: (options) =>
     console.log "Reachable?"

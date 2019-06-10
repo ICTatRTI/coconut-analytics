@@ -3,7 +3,6 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
-PouchDB = require 'pouchdb'
 require 'moment-range'
 capitalize = require "underscore.string/capitalize"
 

@@ -6,7 +6,7 @@
 # It makes it easy to run queries against cases with this index available
 #
 # It can be run by typing
-# > coffee UpdateCaseSummaryDocs.coffee
+# > coffee CaseSummaryDocs.coffee --database http://admin:password@localhost:5984/coconut-surveillance-zanzibar -update
 #
 # A document in the database keeps track of which documents have already been processed
 # When a new document appears in the database this script will check it to see if it effects
@@ -19,15 +19,27 @@
 #
 ###
 
+argv = require('minimist')(process.argv.slice(2));
 
 # Make these global so that they can be used from the javascript console
 global.Backbone = require 'backbone'
-PouchDB = require 'pouchdb'
+PouchDB = require 'pouchdb-core'
+PouchDB.plugin(require('pouchdb-upsert'))
+PouchDB.plugin(require('pouchdb-adapter-http'))
+PouchDB.plugin(require('pouchdb-mapreduce'))
+
 BackbonePouch = require 'backbone-pouch'
 _ = require 'underscore'
+moment = require 'moment'
+
 
 global.Coconut =
-  database: new PouchDB(process?.argv[2] or "http://localhost:5984/democs")
+  database: new PouchDB argv.database,
+    ajax:
+      timeout: 1000 * 60 * 10
+  reportingDatabase: new PouchDB "#{argv.database}-reporting",
+    ajax:
+      timeout: 1000 * 60 * 10
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
@@ -53,23 +65,34 @@ Coconut.database.get "coconut.config"
       Coconut.questions.fetch
         error: (error) -> console.error error
         success: ->
-
           try
             Case = require './models/Case'
           catch error
             console.error error
 
-          console.log "Resetting"
-
-          try
-            Case.resetAllCaseSummaryDocs
-              numberCasesToProcessConcurrently: process?.argv[3] or 2
-              error: (error) ->
+          if argv.update
+            process.stdout.write "Update: #{moment().format("YYYY-MM-DD hh:mm")} "
+            Case.updateCaseSummaryDocs()
+              .catch (error) ->
                 console.error "ERROR"
                 console.error error
-              success: (result) ->
-                console.log "DONE"
-          catch error
-            console.log error
+              .then (result) ->
+                console.log " done."
+
+          else if argv.reset
+            console.log "Resetting"
+
+            Case.resetAllCaseSummaryDocs()
+            .catch (error) => 
+              console.error "ERROR"
+              console.error error
+            .then =>
+              console.log " done."
+
+          else
+            console.log "No action, try --update"
+
+
+
 .catch (error) ->
   console.error error

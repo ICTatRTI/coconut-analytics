@@ -8,6 +8,7 @@ class Reports
 
   positiveCaseLocations: (options) ->
 
+    # Query not in database - probably should be handled by better geo-optimized code
     Coconut.database.query "positiveCaseLocations",
       startkey: moment(options.endDate).endOf("day").format(Coconut.config.get "date_format")
       endkey: options.startDate
@@ -50,7 +51,7 @@ class Reports
 
 
   @getCases = (options) =>
-    Coconut.database.query "caseIDsByDate",
+    Coconut.reportingDatabase.query "caseIDsByDate",
       # Note that these seem reversed due to descending order
       startkey: moment(options.endDate).endOf("day").format(Coconut.config.dateFormat)
       endkey: options.startDate

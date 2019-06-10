@@ -2,7 +2,6 @@ _ = require 'underscore'
 $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
-PouchDB = require 'pouchdb'
 moment = require 'moment'
 require 'moment-range'
 

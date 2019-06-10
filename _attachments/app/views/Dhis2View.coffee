@@ -92,7 +92,7 @@ class Dhis2View extends Backbone.View
       Dialog.confirm("Dhis2 Configuration has been saved.", 'System Settings',['Ok'])
 
   send: =>
-    Coconut.database.query "caseIDsByDate",
+    Coconut.reportingDatabase.query "caseIDsByDate",
       # Note that these seem reversed due to descending order
       startkey: moment().subtract(1,"month").format("YYYY-MM-DD")
       endkey: moment().format("YYYY-MM-DD")

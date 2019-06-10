@@ -2,8 +2,7 @@
   "name": "coconut-analytics",
   "version": "0.9.0",
   "scripts": {
-    "develop-demo": "bash ./setDeploymentTarget.sh http://localhost:5984/democs; npm run watch & npm run livereload & npm run static",
-    "develop": "bash ./setDeploymentTarget.sh http://localhost:5984/zanzibar; npm run watch & npm run livereload & npm run static",
+    "start": "npm run watch & npm run livereload & npm run static",
     "watch": "./node_modules/watchify/bin/cmd.js -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js",
     "livereload": "./node_modules/livereloadify/cli.js ./",
     "static": "./node_modules/node-static/bin/cli.js --port 8082 ./"
@@ -33,10 +32,13 @@
     "material-design-icons": "^2.0.0",
     "material-design-lite": "^1.1.3",
     "materialize": "^1.0.0",
+    "minimist": "^1.2.0",
     "moment": "^2.10.3",
     "moment-range": "^2.2.0",
-    "node-static": "^0.7.7",
-    "pouchdb": "*",
+    "pouchdb-adapter-http": "^7.0.0",
+    "pouchdb-core": "^7.0.0",
+    "pouchdb-mapreduce": "^7.0.0",
+    "pouchdb-upsert": "^2.2.0",
     "react": "^0.14.8",
     "sha1": "^1.1.1",
     "tablesorter": "^2.25.4",
@@ -54,6 +56,7 @@
     "watchify": "^3.6.1",
     "livereloadify": "^2.0.0",
     "uglify-js": "^3.4.9",
-    "forever": "^0.15.2"
+    "forever": "^0.15.2",
+    "node-static": "*"
   }
 }

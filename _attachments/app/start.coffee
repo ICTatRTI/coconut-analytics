@@ -7,7 +7,10 @@ global.$ = require 'jquery'
 global._ = require 'underscore'
 global.Backbone = require 'backbone'
 Backbone.$  = $
-PouchDB = require 'pouchdb'
+global.PouchDB = require 'pouchdb-core'
+PouchDB.plugin(require('pouchdb-upsert'))
+PouchDB.plugin(require('pouchdb-adapter-http'))
+PouchDB.plugin(require('pouchdb-mapreduce'))
 BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'

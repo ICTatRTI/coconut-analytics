@@ -8,17 +8,15 @@ Question = require './Question'
 
 class QuestionCollection extends Backbone.Collection
   model: Question
-  pouch:
-    options:
-      query:
-        include_docs: true
-        fun: "questions/questions"
 
-      changes:
-        include_docs: true
-
-  parse: (response) ->
-    _(response.rows).map (question) ->
-      question.doc
+  fetch: (options) =>
+    Coconut.database.query "questions",
+      include_docs: true
+    .then (result) =>
+      for row in result.rows
+        @add(new Question(row.doc))
+      options.success()
+    .catch (error) =>
+      options.error(error)
 
 module.exports = QuestionCollection
