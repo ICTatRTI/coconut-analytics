@@ -3,3 +3,5 @@ _attachments/npm-debug.log
 _attachments/node_modules/
 npm-debug.log
 .couchapprc
+**/node_modules
+**package-lock.json
