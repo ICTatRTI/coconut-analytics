@@ -47,16 +47,16 @@
     "underscore.string": "^3.2.2"
   },
   "devDependencies": {
-    "browserify-shim": "^3.8.12",
     "browserify": "^13.0.1",
+    "browserify-shim": "^3.8.12",
     "chance": "^1.0.4",
     "coffee": "^4.1.0",
-    "coffeeify": "^1.1.0",
-    "coffeescript": "^1.10.0",
-    "watchify": "^3.6.1",
-    "livereloadify": "^2.0.0",
-    "uglify-js": "^3.4.9",
+    "coffeeify": "^3.0.1",
+    "coffeescript": "^2.4.1",
     "forever": "^0.15.2",
-    "node-static": "*"
+    "livereloadify": "^2.0.0",
+    "node-static": "*",
+    "uglify-js": "^3.4.9",
+    "watchify": "^3.6.1"
   }
 }
