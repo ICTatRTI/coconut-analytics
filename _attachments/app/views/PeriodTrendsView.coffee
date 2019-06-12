@@ -170,17 +170,17 @@ class PeriodTrendsView extends Backbone.View
 
       swapColumns =  (table, colIndex1, colIndex2) ->
         if !colIndex1 < colIndex2
-          t = colIndex1
-          colIndex1 = colIndex2
-          colIndex2 = t
+          t = colIndex1
+          colIndex1 = colIndex2
+          colIndex2 = t
         
-        if table && table.rows && table.insertBefore && colIndex1 != colIndex2
-          for row in table.rows
-            cell1 = row.cells[colIndex1]
-            cell2 = row.cells[colIndex2]
-            siblingCell1 = row.cells[Number(colIndex1) + 1]
-            row.insertBefore(cell1, cell2)
-            row.insertBefore(cell2, siblingCell1)
+        if table && table.rows && table.insertBefore && colIndex1 != colIndex2
+          for row in table.rows
+            cell1 = row.cells[colIndex1]
+            cell2 = row.cells[colIndex2]
+            siblingCell1 = row.cells[Number(colIndex1) + 1]
+            row.insertBefore(cell1, cell2)
+            row.insertBefore(cell2, siblingCell1)
 
       swapColumns($("#alertsTable")[0], 8, 9)
 

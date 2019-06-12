@@ -396,9 +396,9 @@ class AnalysisView extends Backbone.View
         $("#analysis table").tablesorter
           widgets: ['zebra']
           sortList: [[0,0]]
-          textExtraction: (node) ->
-            sortValue = $(node).find(".sort-value").text()
-            if sortValue != ""
+          textExtraction: (node) ->
+           sortValue = $(node).find(".sort-value").text()
+           if sortValue != ""
               sortValue
             else
               if $(node).text() is "--"
