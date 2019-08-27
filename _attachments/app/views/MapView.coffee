@@ -14,7 +14,8 @@ class MapView extends Backbone.View
 		color: 'red'
 		weight: 1.5
 		opacity: 1
-		fillOpacity: 0 }
+		fillColor: '#B0BF1A'
+		fillOpacity: 0.7 }
 
 	villageBoundariesStyle = {
 		color: 'green'
@@ -33,6 +34,11 @@ class MapView extends Backbone.View
 	districtBoundaries = undefined
 	villageBoundaries = undefined
 	shehiaBoundaries = undefined
+	caseColorCodes = {
+		ageUnderFive: { name: "Age under 5 Years (Local Case)", color: 'yellow' }
+		overnightTravelPastYear: { name: "Imported Case", color: 'red' }
+		default: { name: "Local Case", color: 'blue' }
+	}
 
 	administrativeLocationCenterPoint = [{ DB: 'DistrictsCntrPtsWGS84', layerName: 'Districts' },
 	{ DB: 'VillageCntrPtsWGS84', layerName: 'Villages' },
@@ -50,14 +56,40 @@ class MapView extends Backbone.View
           color: #8dffd8;
           margin-left: -12px;
           margin-top: -41px;
-        }
+		}
+		.info {
+			padding: 6px 8px;
+			font: 14px/16px Arial, Helvetica, sans-serif;
+			background: white;
+			background: rgba(255,255,255,0.8);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+		.legend {
+			line-height: 18px;
+			color: #555;
+		}
+		.legend i {
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			opacity: 0.7;
+		}
+		.legend .circle {
+			border-radius: 50%;
+			width: 10px;
+			height: 10px;
+			margin-top: 3.6px;
+			border: 0.3px black solid;
+		}
         </style>
-        <div class='mdl-grid' style='height:85%'>
+        <div class='mdl-grid' style='height:100%'>
             <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
                 <div id='date-selector'></div>
                 <div style='width:100%;height:100%;position: relative;' id='map'></div>
             </div>
-        </div>
+		</div>
     "
 		dateSelectorView = new DateSelectorView()
 		dateSelectorView.setElement('#date-selector')
@@ -105,8 +137,16 @@ class MapView extends Backbone.View
 
 		@getCases()
 		@getBoundaries()
+		@createMapLegend(map)
 		
 		createAdministrativeLocationsLayers = (DB, layerName) ->
+			geojsonMarkerOptions = {
+				radius: 8,
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			}
 			Coconut.database.get DB
 			.catch (error) -> console.error error
 			.then (data) ->
@@ -144,26 +184,30 @@ class MapView extends Backbone.View
 			endkey: Coconut.router.reportViewOptions.endDate }
 		.then (result) ->
 
-			shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/images/marker-shadow.png'
-
 			for row in result.rows
-				icon = {
-					iconUrl: 'https://raw.githubusercontent.com/ICTatRTI/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-					shadowUrl,
-					iconSize: [25, 41],
-					iconAnchor: [12, 41],
-					popupAnchor: [1, -34],
-					shadowSize: [41, 41]
-				}
-				defaultIcon = new L.Icon(icon)
-				yellowIcon = new L.Icon({ ...icon, iconUrl: 'https://raw.githubusercontent.com/ICTatRTI/leaflet-color-markers/master/img/marker-icon-2x-yellow.png' })
-				
-				redIcon = new L.Icon({ ...icon, iconUrl: 'https://raw.githubusercontent.com/ICTatRTI/leaflet-color-markers/master/img/marker-icon-2x-red.png' })
 
-				L.marker(row.value.latLong, { icon: defaultIcon }).addTo(map)
+				options = { color: '#000000',  weight: 0.3, radius: 3,
+				fill: true, fillOpacity: 0.8 , fillColor: caseColorCodes.default.color }
+				
 				if row.value.overnightTravelPastYear
-					L.marker(row.value.latLong, { icon: redIcon }).addTo(map)
+					options = { ...options, fillColor: caseColorCodes.overnightTravelPastYear.color }
 				if row.value.ageUnderFive
-					L.marker(row.value.latLong, { icon: yellowIcon }).addTo(map)
+					options = { ...options, fillColor: caseColorCodes.ageUnderFive.color }
+				
+				L.circleMarker(row.value.latLong, { ...options }).addTo(map)
+	
+	createMapLegend: (maps) ->
+		legend = L.control({ position: 'bottomright' })
+
+		legend.onAdd = (map) ->
+			div = L.DomUtil.create('div', 'info legend')
+			categories = Object.keys(caseColorCodes)
+			i = 0
+			while i < categories.length
+				div.innerHTML += "<i class='circle' style='background:#{caseColorCodes[categories[i]]["color"]}'></i>" + (if categories[i] then caseColorCodes[categories[i]]["name"] + '<br>' else '+')
+				i++
+			div
+		legend.addTo(maps)
+			
 
 module.exports = MapView
