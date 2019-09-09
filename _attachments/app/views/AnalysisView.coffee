@@ -8,7 +8,7 @@ global.jQuery = require 'jquery'
 require 'tablesorter'
 
 Reports = require '../models/Reports'
-Case = require '../models/Case'
+CaseView = require './CaseView'
 
 class AnalysisView extends Backbone.View
   el: "#content"
@@ -37,7 +37,7 @@ class AnalysisView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
-    Case.showCaseDialog
+    CaseView.showCaseDialog
       caseID: caseID
       success: ->
     return false

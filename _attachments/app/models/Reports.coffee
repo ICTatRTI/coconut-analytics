@@ -2,7 +2,6 @@ _ = require 'underscore'
 moment = require 'moment'
 
 Case = require './Case'
-FacilityHierarchy = require './FacilityHierarchy'
 
 class Reports
 
@@ -85,184 +84,190 @@ class Reports
     Reports.getCases(options)
 
   @casesAggregatedForAnalysis = (options) =>
+    new Promise (resolve, reject) =>
 
-    data = {}
+      data = {}
 
-    options.aggregationLevel ||= "DISTRICT"
+      options.aggregationLevel ||= "DISTRICT"
 
-    # Hack required because we have multiple success callbacks
-    options.finished = options.success
+      # Hack required because we have multiple success callbacks
+      options.finished = options.success
 
-    Reports.getCases _.extend options,
-      success: (cases) =>
-        IRSThresholdInMonths = 6
+      # Refactor to use reporting database - will be faster and centralize calculations like is the case complete?
 
-        data.followups = {}
-        data.passiveCases = {}
-        data.ages = {}
-        data.gender = {}
-        data.netsAndIRS = {}
-        data.travel = {}
-        data.totalPositiveCases = {}
+      Reports.getCases _.extend options,
+        success: (cases) =>
+          console.log cases
+          IRSThresholdInMonths = 6
 
-        # Setup hashes for each table
-        aggregationNames = GeoHierarchy.all options.aggregationLevel
-        aggregationNames.push("UNKNOWN")
-        aggregationNames.push("ALL")
-        _.each aggregationNames, (aggregationName) ->
-          data.followups[aggregationName] =
-            allCases: []
-            casesWithCompleteFacilityVisit: []
-            casesWithoutCompleteFacilityVisit: []
-            casesWithCompleteHouseholdVisit: []
-            casesWithoutCompleteHouseholdVisit: []
-            missingUssdNotification: []
-            missingCaseNotification: []
-            noFacilityFollowupWithin24Hours: []
-            noHouseholdFollowupWithin48Hours: []
+          data.followups = {}
+          data.passiveCases = {}
+          data.ages = {}
+          data.gender = {}
+          data.netsAndIRS = {}
+          data.travel = {}
+          data.totalPositiveCases = {}
 
-          data.passiveCases[aggregationName] =
-            indexCases: []
-            indexCaseHouseholdMembers: []
-            positiveCasesAtIndexHousehold: []
-            neighborHouseholds: []
-            neighborHouseholdMembers: []
-            positiveCasesAtNeighborHouseholds: []
-          data.ages[aggregationName] =
-            underFive: []
-            fiveToFifteen: []
-            fifteenToTwentyFive: []
-            overTwentyFive: []
-            unknown: []
-          data.gender[aggregationName] =
-            male: []
-            female: []
-            unknown: []
-          data.netsAndIRS[aggregationName] =
-            sleptUnderNet: []
-            recentIRS: []
-          data.travel[aggregationName] =
-            "No":[]
-            "Yes":[] # This needs to be here for old cases
-            "Yes within Zanzibar":[]
-            "Yes outside Zanzibar":[]
-            "Yes within and outside Zanzibar":[]
-            "Any travel":[]
-            "Not Applicable":[]
-          data.totalPositiveCases[aggregationName] = []
+          # Setup hashes for each table
+          aggregationNames = GeoHierarchy.all options.aggregationLevel
+          aggregationNames.push("UNKNOWN")
+          aggregationNames.push("ALL")
+          _.each aggregationNames, (aggregationName) ->
+            data.followups[aggregationName] =
+              allCases: []
+              casesWithCompleteFacilityVisit: []
+              casesWithoutCompleteFacilityVisit: []
+              casesWithCompleteHouseholdVisit: []
+              casesWithoutCompleteHouseholdVisit: []
+              missingUssdNotification: []
+              missingCaseNotification: []
+              noFacilityFollowupWithin24Hours: []
+              noHouseholdFollowupWithin48Hours: []
 
-        _.each cases, (malariaCase) ->
-          caseLocation = malariaCase.locationBy(options.aggregationLevel) || "UNKNOWN"
+            data.passiveCases[aggregationName] =
+              indexCases: []
+              indexCaseHouseholdMembers: []
+              positiveCasesAtIndexHousehold: []
+              neighborHouseholds: []
+              neighborHouseholdMembers: []
+              positiveCasesAtNeighborHouseholds: []
+            data.ages[aggregationName] =
+              underFive: []
+              fiveToFifteen: []
+              fifteenToTwentyFive: []
+              overTwentyFive: []
+              unknown: []
+            data.gender[aggregationName] =
+              male: []
+              female: []
+              unknown: []
+            data.netsAndIRS[aggregationName] =
+              sleptUnderNet: []
+              recentIRS: []
+            data.travel[aggregationName] =
+              "No":[]
+              "Yes":[] # This needs to be here for old cases
+              "Yes within Zanzibar":[]
+              "Yes outside Zanzibar":[]
+              "Yes within and outside Zanzibar":[]
+              "Any travel":[]
+              "Not Applicable":[]
+            data.totalPositiveCases[aggregationName] = []
 
-          data.followups[caseLocation].allCases.push malariaCase
-          data.followups["ALL"].allCases.push malariaCase
+          console.log cases.length
+          _.each cases, (malariaCase) ->
+            caseLocation = malariaCase.locationBy(options.aggregationLevel) || "UNKNOWN"
 
-          if malariaCase["Facility"]?.complete is "true" or malariaCase["Facility"]?.complete is true
-            data.followups[caseLocation].casesWithCompleteFacilityVisit.push malariaCase
-            data.followups["ALL"].casesWithCompleteFacilityVisit.push malariaCase
-          else
-            data.followups[caseLocation].casesWithoutCompleteFacilityVisit.push malariaCase
-            data.followups["ALL"].casesWithoutCompleteFacilityVisit.push malariaCase
+            data.followups[caseLocation].allCases.push malariaCase
+            data.followups["ALL"].allCases.push malariaCase
 
-          if malariaCase.completeHouseholdVisit()
-            data.followups[caseLocation].casesWithCompleteHouseholdVisit.push malariaCase
-            data.followups["ALL"].casesWithCompleteHouseholdVisit.push malariaCase
-          else
-            data.followups[caseLocation].casesWithoutCompleteHouseholdVisit.push malariaCase
-            data.followups["ALL"].casesWithoutCompleteHouseholdVisit.push malariaCase
+            if malariaCase["Facility"]?.complete is "true" or malariaCase["Facility"]?.complete is true
+              data.followups[caseLocation].casesWithCompleteFacilityVisit.push malariaCase
+              data.followups["ALL"].casesWithCompleteFacilityVisit.push malariaCase
+            else
+              data.followups[caseLocation].casesWithoutCompleteFacilityVisit.push malariaCase
+              data.followups["ALL"].casesWithoutCompleteFacilityVisit.push malariaCase
 
-          unless malariaCase["USSD Notification"]?
-            data.followups[caseLocation].missingUssdNotification.push malariaCase
-            data.followups["ALL"].missingUssdNotification.push malariaCase
-          unless malariaCase["Case Notification"]?
-            data.followups[caseLocation].missingCaseNotification.push malariaCase
-            data.followups["ALL"].missingCaseNotification.push malariaCase
-          if malariaCase.notCompleteFacilityAfter24Hours()
-            data.followups[caseLocation].noFacilityFollowupWithin24Hours.push malariaCase
-            data.followups["ALL"].noFacilityFollowupWithin24Hours.push malariaCase
+            if malariaCase.completeHouseholdVisit()
+              data.followups[caseLocation].casesWithCompleteHouseholdVisit.push malariaCase
+              data.followups["ALL"].casesWithCompleteHouseholdVisit.push malariaCase
+            else
+              data.followups[caseLocation].casesWithoutCompleteHouseholdVisit.push malariaCase
+              data.followups["ALL"].casesWithoutCompleteHouseholdVisit.push malariaCase
 
-          if malariaCase.notFollowedUpAfter48Hours()
-            data.followups[caseLocation].noHouseholdFollowupWithin48Hours.push malariaCase
-            data.followups["ALL"].noHouseholdFollowupWithin48Hours.push malariaCase
+            unless malariaCase["USSD Notification"]?
+              data.followups[caseLocation].missingUssdNotification.push malariaCase
+              data.followups["ALL"].missingUssdNotification.push malariaCase
+            unless malariaCase["Case Notification"]?
+              data.followups[caseLocation].missingCaseNotification.push malariaCase
+              data.followups["ALL"].missingCaseNotification.push malariaCase
+            if malariaCase.notCompleteFacilityAfter24Hours()
+              data.followups[caseLocation].noFacilityFollowupWithin24Hours.push malariaCase
+              data.followups["ALL"].noFacilityFollowupWithin24Hours.push malariaCase
 
-          if malariaCase.followedUp()
-            data.passiveCases[caseLocation].indexCases.push malariaCase
-            data.passiveCases["ALL"].indexCases.push malariaCase
+            if malariaCase.notFollowedUpAfter48Hours()
+              data.followups[caseLocation].noHouseholdFollowupWithin48Hours.push malariaCase
+              data.followups["ALL"].noHouseholdFollowupWithin48Hours.push malariaCase
 
-            completeIndexCaseHouseholdMembers = malariaCase.completeIndexCaseHouseholdMembers()
-            data.passiveCases[caseLocation].indexCaseHouseholdMembers =  data.passiveCases[caseLocation].indexCaseHouseholdMembers.concat(completeIndexCaseHouseholdMembers)
-            data.passiveCases["ALL"].indexCaseHouseholdMembers =  data.passiveCases["ALL"].indexCaseHouseholdMembers.concat(completeIndexCaseHouseholdMembers)
+            if malariaCase.followedUp()
+              data.passiveCases[caseLocation].indexCases.push malariaCase
+              data.passiveCases["ALL"].indexCases.push malariaCase
 
-            positiveCasesAtIndexHousehold = malariaCase.positiveCasesAtIndexHousehold()
-            data.passiveCases[caseLocation].positiveCasesAtIndexHousehold = data.passiveCases[caseLocation].positiveCasesAtIndexHousehold.concat positiveCasesAtIndexHousehold
-            data.passiveCases["ALL"].positiveCasesAtIndexHousehold = data.passiveCases["ALL"].positiveCasesAtIndexHousehold.concat positiveCasesAtIndexHousehold
+              completeIndexCaseHouseholdMembers = malariaCase.completeIndexCaseHouseholdMembers()
+              data.passiveCases[caseLocation].indexCaseHouseholdMembers =  data.passiveCases[caseLocation].indexCaseHouseholdMembers.concat(completeIndexCaseHouseholdMembers)
+              data.passiveCases["ALL"].indexCaseHouseholdMembers =  data.passiveCases["ALL"].indexCaseHouseholdMembers.concat(completeIndexCaseHouseholdMembers)
 
-            completeNeighborHouseholds = malariaCase.completeNeighborHouseholds()
-            data.passiveCases[caseLocation].neighborHouseholds =  data.passiveCases[caseLocation].neighborHouseholds.concat(completeNeighborHouseholds)
-            data.passiveCases["ALL"].neighborHouseholds =  data.passiveCases["ALL"].neighborHouseholds.concat(completeNeighborHouseholds)
+              positiveCasesAtIndexHousehold = malariaCase.positiveCasesAtIndexHousehold()
+              data.passiveCases[caseLocation].positiveCasesAtIndexHousehold = data.passiveCases[caseLocation].positiveCasesAtIndexHousehold.concat positiveCasesAtIndexHousehold
+              data.passiveCases["ALL"].positiveCasesAtIndexHousehold = data.passiveCases["ALL"].positiveCasesAtIndexHousehold.concat positiveCasesAtIndexHousehold
 
-            completeNeighborHouseholdMembers = malariaCase.completeNeighborHouseholdMembers()
-            data.passiveCases[caseLocation].neighborHouseholdMembers =  data.passiveCases[caseLocation].neighborHouseholdMembers.concat(completeNeighborHouseholdMembers)
-            data.passiveCases["ALL"].neighborHouseholdMembers =  data.passiveCases["ALL"].neighborHouseholdMembers.concat(completeNeighborHouseholdMembers)
+              completeNeighborHouseholds = malariaCase.completeNeighborHouseholds()
+              data.passiveCases[caseLocation].neighborHouseholds =  data.passiveCases[caseLocation].neighborHouseholds.concat(completeNeighborHouseholds)
+              data.passiveCases["ALL"].neighborHouseholds =  data.passiveCases["ALL"].neighborHouseholds.concat(completeNeighborHouseholds)
 
-            _.each malariaCase.positiveCasesIncludingIndex(), (positiveCase) ->
-              data.totalPositiveCases[caseLocation].push positiveCase
-              data.totalPositiveCases["ALL"].push positiveCase
+              completeNeighborHouseholdMembers = malariaCase.completeNeighborHouseholdMembers()
+              data.passiveCases[caseLocation].neighborHouseholdMembers =  data.passiveCases[caseLocation].neighborHouseholdMembers.concat(completeNeighborHouseholdMembers)
+              data.passiveCases["ALL"].neighborHouseholdMembers =  data.passiveCases["ALL"].neighborHouseholdMembers.concat(completeNeighborHouseholdMembers)
 
-              if positiveCase.Age?
-                age = parseInt(positiveCase.Age)
-                if age < 5
-                  data.ages[caseLocation].underFive.push positiveCase
-                  data.ages["ALL"].underFive.push positiveCase
-                else if age < 15
-                  data.ages[caseLocation].fiveToFifteen.push positiveCase
-                  data.ages["ALL"].fiveToFifteen.push positiveCase
-                else if age < 25
-                  data.ages[caseLocation].fifteenToTwentyFive.push positiveCase
-                  data.ages["ALL"].fifteenToTwentyFive.push positiveCase
-                else if age >= 25
-                  data.ages[caseLocation].overTwentyFive.push positiveCase
-                  data.ages["ALL"].overTwentyFive.push positiveCase
-              else
-                data.ages[caseLocation].unknown.push positiveCase unless positiveCase.age
-                data.ages["ALL"].unknown.push positiveCase unless positiveCase.age
+              _.each malariaCase.positiveCasesIncludingIndex(), (positiveCase) ->
+                data.totalPositiveCases[caseLocation].push positiveCase
+                data.totalPositiveCases["ALL"].push positiveCase
 
-              if positiveCase.Sex is "Male"
-                data.gender[caseLocation].male.push positiveCase
-                data.gender["ALL"].male.push positiveCase
-              else if positiveCase.Sex is "Female"
-                data.gender[caseLocation].female.push positiveCase
-                data.gender["ALL"].female.push positiveCase
-              else
-                data.gender[caseLocation].unknown.push positiveCase
-                data.gender["ALL"].unknown.push positiveCase
+                if positiveCase.Age?
+                  age = parseInt(positiveCase.Age)
+                  if age < 5
+                    data.ages[caseLocation].underFive.push positiveCase
+                    data.ages["ALL"].underFive.push positiveCase
+                  else if age < 15
+                    data.ages[caseLocation].fiveToFifteen.push positiveCase
+                    data.ages["ALL"].fiveToFifteen.push positiveCase
+                  else if age < 25
+                    data.ages[caseLocation].fifteenToTwentyFive.push positiveCase
+                    data.ages["ALL"].fifteenToTwentyFive.push positiveCase
+                  else if age >= 25
+                    data.ages[caseLocation].overTwentyFive.push positiveCase
+                    data.ages["ALL"].overTwentyFive.push positiveCase
+                else
+                  data.ages[caseLocation].unknown.push positiveCase unless positiveCase.age
+                  data.ages["ALL"].unknown.push positiveCase unless positiveCase.age
 
-              if (positiveCase.SleptunderLLINlastnight is "Yes" || positiveCase.IndexcaseSleptunderLLINlastnight is "Yes")
-                data.netsAndIRS[caseLocation].sleptUnderNet.push positiveCase
-                data.netsAndIRS["ALL"].sleptUnderNet.push positiveCase
+                if positiveCase.Sex is "Male"
+                  data.gender[caseLocation].male.push positiveCase
+                  data.gender["ALL"].male.push positiveCase
+                else if positiveCase.Sex is "Female"
+                  data.gender[caseLocation].female.push positiveCase
+                  data.gender["ALL"].female.push positiveCase
+                else
+                  data.gender[caseLocation].unknown.push positiveCase
+                  data.gender["ALL"].unknown.push positiveCase
 
-              if (positiveCase.LastdateofIRS and positiveCase.LastdateofIRS.match(/\d\d\d\d-\d\d-\d\d/))
-                # if date of spraying is less than X months
-                if (new moment).subtract(Coconut.IRSThresholdInMonths,'months') < (new moment(positiveCase.LastdateofIRS))
-                  data.netsAndIRS[caseLocation].recentIRS.push positiveCase
-                  data.netsAndIRS["ALL"].recentIRS.push positiveCase
+                if (positiveCase.SleptunderLLINlastnight is "Yes" || positiveCase.IndexcaseSleptunderLLINlastnight is "Yes")
+                  data.netsAndIRS[caseLocation].sleptUnderNet.push positiveCase
+                  data.netsAndIRS["ALL"].sleptUnderNet.push positiveCase
 
-              if positiveCase.TravelledOvernightInPastMonth?
-                if positiveCase.TravelledOvernightInPastMonth is "Unknown"
-                  positiveCase.TravelledOvernightInPastMonth = "Not Applicable"
-                data.travel[caseLocation][positiveCase.TravelledOvernightInPastMonth].push positiveCase
-                data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
-                data.travel["ALL"][positiveCase.TravelledOvernightInPastMonth].push positiveCase
-                data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
-              else if positiveCase.OvernightTravelinpastmonth
-                if positiveCase.OvernightTravelinpastmonth is "Unknown"
-                  positiveCase.OvernightTravelinpastmonth = "Not Applicable"
-                data.travel[caseLocation][positiveCase.OvernightTravelinpastmonth].push positiveCase
-                data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.OvernightTravelinpastmonth.match(/Yes/)
-                data.travel["ALL"][positiveCase.OvernightTravelinpastmonth].push positiveCase
-                data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.OvernightTravelinpastmonth.match(/Yes/)
+                if (positiveCase.LastdateofIRS and positiveCase.LastdateofIRS.match(/\d\d\d\d-\d\d-\d\d/))
+                  # if date of spraying is less than X months
+                  if (new moment).subtract(Coconut.IRSThresholdInMonths,'months') < (new moment(positiveCase.LastdateofIRS))
+                    data.netsAndIRS[caseLocation].recentIRS.push positiveCase
+                    data.netsAndIRS["ALL"].recentIRS.push positiveCase
 
-        options.finished(data)
+                if positiveCase.TravelledOvernightInPastMonth?
+                  if positiveCase.TravelledOvernightInPastMonth is "Unknown"
+                    positiveCase.TravelledOvernightInPastMonth = "Not Applicable"
+                  data.travel[caseLocation][positiveCase.TravelledOvernightInPastMonth].push positiveCase
+                  data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
+                  data.travel["ALL"][positiveCase.TravelledOvernightInPastMonth].push positiveCase
+                  data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
+                else if positiveCase.OvernightTravelinpastmonth
+                  if positiveCase.OvernightTravelinpastmonth is "Unknown"
+                    positiveCase.OvernightTravelinpastmonth = "Not Applicable"
+                  data.travel[caseLocation][positiveCase.OvernightTravelinpastmonth].push positiveCase
+                  data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.OvernightTravelinpastmonth.match(/Yes/)
+                  data.travel["ALL"][positiveCase.OvernightTravelinpastmonth].push positiveCase
+                  data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.OvernightTravelinpastmonth.match(/Yes/)
+
+          options.finished?(data)
+          resolve(data)
 
   @systemErrors: (options) ->
     Coconut.database.query "errorsByDate",
@@ -519,82 +524,84 @@ class Reports
           successWhenDone()
 
   @aggregateWeeklyReports = (options) ->
-    startDate = moment(options.startDate)
-    startYear = startDate.format("GGGG") # ISO week year
-    startWeek = startDate.format("WW")
-    endDate = moment(options.endDate).endOf("day")
-    endYear = endDate.format("GGGG")
-    endWeek = endDate.format("WW")
-    aggregationArea = options.aggregationArea
-    aggregationPeriod = options.aggregationPeriod
-    facilityType = options.facilityType or "All"
-    Coconut.database.query "weeklyDataBySubmitDate",
-      startkey: [startYear,startWeek]
-      endkey: [endYear,endWeek]
-      include_docs: true
-    .catch (error) -> console.error
-    .then (results) =>
-        cumulativeFields = {
-          "All OPD < 5" : 0
-          "Mal POS < 5" : 0
-          "Mal NEG < 5" : 0
-          "All OPD >= 5" : 0
-          "Mal POS >= 5" : 0
-          "Mal NEG >= 5" : 0
-        }
+    new Promise (resolve,reject) =>
+      startDate = moment(options.startDate)
+      startYear = startDate.format("GGGG") # ISO week year
+      startWeek = startDate.format("WW")
+      endDate = moment(options.endDate).endOf("day")
+      endYear = endDate.format("GGGG")
+      endWeek = endDate.format("WW")
+      aggregationArea = options.aggregationArea
+      aggregationPeriod = options.aggregationPeriod
+      facilityType = options.facilityType or "All"
+      Coconut.database.query "weeklyDataBySubmitDate",
+        startkey: [startYear,startWeek]
+        endkey: [endYear,endWeek]
+        include_docs: true
+      .catch (error) -> console.error
+      .then (results) =>
+          cumulativeFields = {
+            "All OPD < 5" : 0
+            "Mal POS < 5" : 0
+            "Mal NEG < 5" : 0
+            "All OPD >= 5" : 0
+            "Mal POS >= 5" : 0
+            "Mal NEG >= 5" : 0
+          }
 
-        aggregatedData = {}
+          aggregatedData = {}
 
-        _(results.rows).each (row) =>
-          weeklyReport = row.doc
-          date = moment().year(weeklyReport.Year).isoWeek(weeklyReport.Week)
-          period = Reports.getAggregationPeriodDate(aggregationPeriod,date)
+          _(results.rows).each (row) =>
+            weeklyReport = row.doc
+            date = moment().year(weeklyReport.Year).isoWeek(weeklyReport.Week)
+            period = Reports.getAggregationPeriodDate(aggregationPeriod,date)
 
-          if facilityType isnt "All"
-            return if FacilityHierarchy.facilityType(weeklyReport.Facility) isnt facilityType.toUpperCase()
+            if facilityType isnt "All"
+              return if GeoHierarchy.facilityType(weeklyReport.Facility) isnt facilityType.toUpperCase()
 
-          area = weeklyReport[aggregationArea]
-          if aggregationArea is "District"
-            area = GeoHierarchy.swahiliDistrictName(area)
+            area = weeklyReport[aggregationArea]
+            if aggregationArea is "District"
+              area = GeoHierarchy.swahiliDistrictName(area)
 
-          if aggregationArea is "Facility" # Necessary for handling aliases (facilities with different names)
-            facilityName = area
-            area = GeoHierarchy.getFacility(facilityName)
-            if area is null
-              console.error "Can't find facility #{facilityName}"
-              console.error row
+            if aggregationArea is "Facility" # Necessary for handling aliases (facilities with different names)
+              facilityName = area
+              area = GeoHierarchy.findFirst(facilityName, "FACILITY")?.name
+              if area is null
+                console.error "Can't find facility #{facilityName}"
+                console.error row
 
-          aggregatedData[period] = {} unless aggregatedData[period]
-          aggregatedData[period][area] = _(cumulativeFields).clone() unless aggregatedData[period][area]
-          _(_(cumulativeFields).keys()).each (field) ->
-            aggregatedData[period][area][field] += parseInt(weeklyReport[field])
-
-
-          aggregatedData[period][area]["Reports submitted for period"] = 0 unless aggregatedData[period][area]["Reports submitted for period"]
-          aggregatedData[period][area]["Reports submitted for period"] += 1
-
-          endDayForReportPeriod = moment("#{weeklyReport.Year} #{weeklyReport.Week}","YYYY WW").endOf("isoweek")
-          numberOfDaysSinceEndOfPeriodReportSubmitted = moment(weeklyReport["Submit Date"]).diff(endDayForReportPeriod,"days")
-
-          aggregatedData[period][area]["Report submitted within 1 day"] = 0 unless aggregatedData[period][area]["Report submitted within 1 day"]
-          aggregatedData[period][area]["Report submitted 1-3 days"] = 0 unless aggregatedData[period][area]["Report submitted 1-3 days"]
-          aggregatedData[period][area]["Report submitted 3-5 days"] = 0 unless aggregatedData[period][area]["Report submitted 3-5 days"]
-          aggregatedData[period][area]["Report submitted 5+ days"] = 0 unless aggregatedData[period][area]["Report submitted 5+ days"]
-
-          if numberOfDaysSinceEndOfPeriodReportSubmitted <= 1
-            aggregatedData[period][area]["Report submitted within 1 day"] +=1
-          else if numberOfDaysSinceEndOfPeriodReportSubmitted > 1 and numberOfDaysSinceEndOfPeriodReportSubmitted <= 3
-            aggregatedData[period][area]["Report submitted 1-3 days"] +=1
-          else if numberOfDaysSinceEndOfPeriodReportSubmitted > 3 and numberOfDaysSinceEndOfPeriodReportSubmitted <= 5
-            aggregatedData[period][area]["Report submitted 3-5 days"] +=1
-          else if numberOfDaysSinceEndOfPeriodReportSubmitted > 5
-            aggregatedData[period][area]["Report submitted 5+ days"] +=1
+            aggregatedData[period] = {} unless aggregatedData[period]
+            aggregatedData[period][area] = _(cumulativeFields).clone() unless aggregatedData[period][area]
+            _(_(cumulativeFields).keys()).each (field) ->
+              aggregatedData[period][area][field] += parseInt(weeklyReport[field])
 
 
-        options.success {
-          fields: _(cumulativeFields).keys()
-          data: aggregatedData
-        }
+            aggregatedData[period][area]["Reports submitted for period"] = 0 unless aggregatedData[period][area]["Reports submitted for period"]
+            aggregatedData[period][area]["Reports submitted for period"] += 1
+
+            endDayForReportPeriod = moment("#{weeklyReport.Year} #{weeklyReport.Week}","YYYY WW").endOf("isoweek")
+            numberOfDaysSinceEndOfPeriodReportSubmitted = moment(weeklyReport["Submit Date"]).diff(endDayForReportPeriod,"days")
+
+            aggregatedData[period][area]["Report submitted within 1 day"] = 0 unless aggregatedData[period][area]["Report submitted within 1 day"]
+            aggregatedData[period][area]["Report submitted 1-3 days"] = 0 unless aggregatedData[period][area]["Report submitted 1-3 days"]
+            aggregatedData[period][area]["Report submitted 3-5 days"] = 0 unless aggregatedData[period][area]["Report submitted 3-5 days"]
+            aggregatedData[period][area]["Report submitted 5+ days"] = 0 unless aggregatedData[period][area]["Report submitted 5+ days"]
+
+            if numberOfDaysSinceEndOfPeriodReportSubmitted <= 1
+              aggregatedData[period][area]["Report submitted within 1 day"] +=1
+            else if numberOfDaysSinceEndOfPeriodReportSubmitted > 1 and numberOfDaysSinceEndOfPeriodReportSubmitted <= 3
+              aggregatedData[period][area]["Report submitted 1-3 days"] +=1
+            else if numberOfDaysSinceEndOfPeriodReportSubmitted > 3 and numberOfDaysSinceEndOfPeriodReportSubmitted <= 5
+              aggregatedData[period][area]["Report submitted 3-5 days"] +=1
+            else if numberOfDaysSinceEndOfPeriodReportSubmitted > 5
+              aggregatedData[period][area]["Report submitted 5+ days"] +=1
+
+          result = 
+            fields: _(cumulativeFields).keys()
+            data: aggregatedData
+
+          options.success?(result)
+          resolve(result)
 
 
   @positiveCasesAggregated = (options) =>
@@ -699,8 +706,8 @@ class Reports
 
         [caseId, facility, shehia, village] = row.value
         data =
-          Zone: FacilityHierarchy.getZone(facility)
-          District: FacilityHierarchy.getDistrict(facility)
+          Zone: GeoHierarchy.getZone(facility)
+          District: GeoHierarchy.getDistrict(facility)
           Facility: row.value[1]
           Shehia: row.value[2]
           Village: row.value[3]
@@ -742,8 +749,10 @@ class Reports
     #
     # This is what is called after doing the aggregateWeeklyReports
     options.success = (data) =>
+      console.log data
       # This is what is called after doing the aggregateTimelinessForCases
       options.success = (facilityCaseData) ->
+        console.log facilityCaseData
         _(facilityCaseData).each (areaData, period) ->
           _(areaData).each (caseData, area) ->
             data.data[period] = {} unless data.data[period]
@@ -792,6 +801,7 @@ class Reports
       include_docs: false
     .catch (error) -> console.error
     .then (result) ->
+      console.log result
       aggregatedData = {}
 
       _.each result.rows, (row) ->
@@ -806,11 +816,11 @@ class Reports
         facility = row.value[1]
 
         if facilityType isnt "All"
-          return if FacilityHierarchy.facilityType(facility) isnt facilityType.toUpperCase()
+          return if GeoHierarchy.facilityType(facility) isnt facilityType.toUpperCase()
 
         area = switch aggregationArea
-          when "Zone" then FacilityHierarchy.getZone(facility)
-          when "District" then FacilityHierarchy.getDistrict(facility)
+          when "Zone" then GeoHierarchy.getZone(facility)
+          when "District" then GeoHierarchy.getDistrict(facility)
           when "Facility" then facility
         area = "Unknown" if area is null
 
@@ -831,43 +841,44 @@ class Reports
         include_docs: true
       .catch (error) -> options?.error()
       .then (result) =>
-          cases = {}
-          _.chain(result.rows).groupBy (row) =>
-            row.key
-          .each (resultsByCaseID) =>
-            cases[resultsByCaseID[0].key] = new Case
-              results: _.pluck resultsByCaseID, "doc"
+        cases = {}
+        _.chain(result.rows).groupBy (row) =>
+          row.key
+        .each (resultsByCaseID) =>
+          cases[resultsByCaseID[0].key] = new Case
+            results: _.pluck resultsByCaseID, "doc"
 
-          _(aggregatedData).each (areaData,period) ->
-            _(areaData).each (caseData,area) ->
-              _(caseData.cases).each (caseId) ->
-                _([
-                  "daysBetweenPositiveResultAndNotificationFromFacility"
-                  "daysFromCaseNotificationToCompleteFacility"
-                  "daysFromSMSToCompleteHousehold"
-                ]).each (property) ->
-                  aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
-                  value = cases[caseId][property]()
-                  aggregatedData[period][area][property].push value if value?
+        _(aggregatedData).each (areaData,period) ->
+          _(areaData).each (caseData,area) ->
+            _(caseData.cases).each (caseId) ->
+              _([
+                "daysBetweenPositiveResultAndNotificationFromFacility"
+                "daysFromCaseNotificationToCompleteFacility"
+                "daysFromSMSToCompleteHousehold"
+              ]).each (property) ->
+                aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
+                value = cases[caseId][property]()
+                aggregatedData[period][area][property].push value if value?
 
-                _([
-                  "numberHouseholdOrNeighborMembers"
-                  "numberHouseholdOrNeighborMembersTested"
-                  "numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"
-                ]).each (property) ->
-                  aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
-                  aggregatedData[period][area][property]+= cases[caseId][property]()
+              _([
+                "numberHouseholdOrNeighborMembers"
+                "numberHouseholdOrNeighborMembersTested"
+                "numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"
+              ]).each (property) ->
+                aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
+                aggregatedData[period][area][property]+= cases[caseId][property]()
 
-                aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]
-                aggregatedData[period][area]["householdFollowedUp"]+= 1 if cases[caseId].followedUp()
+              aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]
+              aggregatedData[period][area]["householdFollowedUp"]+= 1 if cases[caseId].followedUp()
 
-                _(["hasCompleteFacility","followedUpWithin48Hours"]).each (property) ->
-                  aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
-                  aggregatedData[period][area][property].push caseId if cases[caseId][property]()
+              _(["hasCompleteFacility","followedUpWithin48Hours"]).each (property) ->
+                aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
+                aggregatedData[period][area][property].push caseId if cases[caseId][property]()
 
-                aggregatedData[period][area]["casesNotified"] = [] unless aggregatedData[period][area]["casesNotified"]
-                aggregatedData[period][area]["casesNotified"].push caseId
+              aggregatedData[period][area]["casesNotified"] = [] unless aggregatedData[period][area]["casesNotified"]
+              aggregatedData[period][area]["casesNotified"].push caseId
 
+          console.log aggregatedData
           options.success aggregatedData
 
   @getAggregationPeriodDate = (aggregationPeriod,date) ->

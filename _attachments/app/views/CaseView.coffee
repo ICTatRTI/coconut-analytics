@@ -3,6 +3,7 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 Question = require '../models/Question'
+Case = require '../models/Case'
 
 DataTables = require( 'datatables.net' )()
 
@@ -13,7 +14,6 @@ class CaseView extends Backbone.View
 
     Coconut.case = @case
     tables = [
-      "Summary"
       "USSD Notification"
       "Case Notification"
       "Facility"
@@ -28,8 +28,9 @@ class CaseView extends Backbone.View
 
       <h3>Case ID: #{@case.MalariaCaseID()}</h3>
       <h3>Diagnosis Date: #{@case.IndexCaseDiagnosisDate()}</h3>
-      <h3>Classification: TODO</h3>
+      <h3>Classification: #{@case.classificationsByHouseholdMemberType()}</h3>
       <h5>Last Modified: #{@case.LastModifiedAt()}</h5>
+      <h5>Saved By: #{@case.allUserNames().join(", ")}</h5>
     "
 
     @mappings = {
@@ -41,29 +42,31 @@ class CaseView extends Backbone.View
       savedBy: "Saved By"
     }
 
-    # USSD Notification doesn't have a mapping
-    finished = _.after 4, =>
-      @$el.append _.map(tables, (tableType) =>
-        if (tableType is "Summary")
-          @createObjectTable(tableType,@case.summaryCollection())
-        else if @case[tableType]?
-          if tableType is "Household Members"
-            _.map(@case[tableType], (householdMember) =>
-              @createObjectTable(tableType,householdMember)
-            ).join("")
-          else
-            @createObjectTable(tableType,@case[tableType])
-      ).join("")
-      _.each $('table tr'), (row, index) ->
-        $(row).addClass("odd") if index%2 is 1
-      #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
-
-    _(tables).each (question) =>
+    for question in tables
       question = new Question(id: question)
-      question.fetch
-        success: =>
-          _.extend(@mappings, question.safeLabelsToLabelsMappings())
-          finished()
+      continue if question.id is "Summary" or question.id is "USSD Notification"
+      await question.fetch()
+      .catch (error) => console.error "Can't find question: #{question}"
+      _.extend(@mappings, question.safeLabelsToLabelsMappings())
+
+    # USSD Notification doesn't have a mapping
+    @$el.append _.map(tables, (tableType) =>
+      if @case[tableType]?
+        if tableType is "Household Members"
+          _.map(@case[tableType], (householdMember) =>
+            @createObjectTable(tableType,householdMember)
+          ).join("")
+        else
+          @createObjectTable(tableType,@case[tableType])
+    ).join("")
+    try
+      # TODO there is a bug here that merges the facility data with the household data in the case object - i've moved this here to avoid the side effect showing up
+      @$("h5").last().after @createObjectTable("Summary",@case.summaryCollection())
+    catch error
+      console.error error
+    _.each $('table tr'), (row, index) ->
+      $(row).addClass("odd") if index%2 is 1
+    #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
           
 
 
@@ -110,5 +113,21 @@ class CaseView extends Backbone.View
 
   toggleNext: (event) =>
     $(event.target).next(".objectTable").toggle()
+
+CaseView.showCaseDialog = (options) ->
+  caseId = options.caseID
+
+  caseView = new CaseView()
+  caseView.case = new Case
+    caseID: caseId
+  caseView.case.fetch
+    success: ->
+      caseView.setElement($("#caseDialog"))
+      caseView.render()
+      if (Env.is_chrome)
+         caseDialog.showModal() if !caseDialog.open
+      else
+         caseDialog.show() if !caseDialog.open
+      options?.success()
 
 module.exports = CaseView

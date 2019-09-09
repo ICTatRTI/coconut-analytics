@@ -52,45 +52,46 @@ Coconut.database.get "coconut.config"
   Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
 
   QuestionCollection = require './models/QuestionCollection'
-  DhisOrganisationUnits = require './models/DhisOrganisationUnits'
+  #DhisOrganisationUnits = require './models/DhisOrganisationUnits'
   GeoHierarchyClass = require './models/GeoHierarchy'
-  dhisOrganisationUnits = new DhisOrganisationUnits()
-  dhisOrganisationUnits.loadExtendExport
-    dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
+  #dhisOrganisationUnits = new DhisOrganisationUnits()
+  #dhisOrganisationUnits.loadExtendExport
+  #  dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
+  #  error: (error) -> console.error error
+  #  success: (result) ->
+  global.GeoHierarchy = new GeoHierarchyClass()
+  await GeoHierarchy.load()
+  global.FacilityHierarchy = GeoHierarchy # These have been combined
+  Coconut.questions = new QuestionCollection()
+  Coconut.questions.fetch
     error: (error) -> console.error error
-    success: (result) ->
-      global.GeoHierarchy = new GeoHierarchyClass(result)
-      global.FacilityHierarchy = GeoHierarchy # These have been combined
-      Coconut.questions = new QuestionCollection()
-      Coconut.questions.fetch
-        error: (error) -> console.error error
-        success: ->
-          try
-            Case = require './models/Case'
-          catch error
+    success: ->
+      try
+        Case = require './models/Case'
+      catch error
+        console.error error
+
+      if argv.update
+        process.stdout.write "Update: #{moment().format("YYYY-MM-DD hh:mm")} "
+        Case.updateCaseSummaryDocs()
+          .catch (error) ->
+            console.error "ERROR"
             console.error error
+          .then (result) ->
+            console.log " done."
 
-          if argv.update
-            process.stdout.write "Update: #{moment().format("YYYY-MM-DD hh:mm")} "
-            Case.updateCaseSummaryDocs()
-              .catch (error) ->
-                console.error "ERROR"
-                console.error error
-              .then (result) ->
-                console.log " done."
+      else if argv.reset
+        console.log "Resetting"
 
-          else if argv.reset
-            console.log "Resetting"
+        Case.resetAllCaseSummaryDocs()
+        .catch (error) => 
+          console.error "ERROR"
+          console.error error
+        .then =>
+          console.log " done."
 
-            Case.resetAllCaseSummaryDocs()
-            .catch (error) => 
-              console.error "ERROR"
-              console.error error
-            .then =>
-              console.log " done."
-
-          else
-            console.log "No action, try --update"
+      else
+        console.log "No action, try --update"
 
 
 

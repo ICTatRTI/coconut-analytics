@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Browserifying and uglifying'
-npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee | npx uglify-js > bundle.js
+npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee | npx terser > bundle.js
 
 # Note - don't exclude node modules since this is needed for cronjob scripts
 rsync --progress --recursive --copy-links --exclude=node_modules ./ zanzibar.cococloud.co:/var/www/analytics/

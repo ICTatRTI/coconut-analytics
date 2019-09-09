@@ -6,7 +6,7 @@ Backbone.$  = $
 global.jQuery = require 'jquery'
 moment = require 'moment'
 Reports = require '../models/Reports'
-Case = require '../models/Case'
+CaseView = require './CaseView'
 DataTables = require( 'datatables.net' )()
 
 class CaseFollowupView extends Backbone.View
@@ -34,7 +34,7 @@ class CaseFollowupView extends Backbone.View
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
     scrollTargetID = $(e.target).parent().attr('data-anchor')
-    Case.showCaseDialog
+    CaseView.showCaseDialog
       caseID: caseID
       success: ->
           $('html, body').animate({ scrollTop: $("##{scrollTargetID}").position()?.top }, 'slow') if scrollTargetID?

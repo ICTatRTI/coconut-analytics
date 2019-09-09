@@ -7,7 +7,7 @@ require 'moment-range'
 
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
-Case = require '../models/Case'
+CaseView = require './CaseView'
 
 class PeriodTrendsView extends Backbone.View
   el: "#content"
@@ -27,7 +27,7 @@ class PeriodTrendsView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id')
-    Case.showCaseDialog
+    CaseView.showCaseDialog
       caseID: caseID
       success: ->
     return false

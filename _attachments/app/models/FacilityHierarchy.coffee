@@ -1,4 +1,6 @@
+###
 Backbone = require 'backbone'
+
 
 class FacilityHierarchy extends Backbone.Model
 
@@ -137,3 +139,4 @@ class FacilityHierarchy extends Backbone.Model
     _.chain(FacilityHierarchy.hierarchy).values().flatten().filter( (facility) -> facility.type is "private" ).pluck("facility").value()
 
 module.exports = FacilityHierarchy
+###

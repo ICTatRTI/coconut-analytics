@@ -80,7 +80,7 @@ class Case
       .then (result) =>
         if result.rows.length is 0
           options?.error("Could not find any existing data for case #{@caseID}")
-          reject ("Could not find any existing data for case #{@caseID}")
+          Promise.reject ("Could not find any existing data for case #{@caseID}")
         @loadFromResultDocs(_.pluck(result.rows, "doc"))
         options?.success()
         Promise.resolve()
@@ -126,11 +126,27 @@ class Case
   user: ->
     userId = @.Household?.user || @.Facility?.user || @["Case Notification"]?.user
 
+  allUserIds: ->
+    users = []
+    users.push @.Household?.user 
+    users.push @.Facility?.user 
+    users.push @["Case Notification"]?.user
+
+    _(users).chain().uniq().compact().value()
+
+  allUserNames: =>
+    for userId in @allUserIds()
+      Coconut.nameByUsername[userId] or "Unknown"
+
   facility: ->
-    @["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase()
+    @["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase() or @["Facility"]?.FacilityName or "UNKNOWN"
 
   facilityType: =>
-    FacilityHierarchy.facilityType(@facility())
+    facilityName = @facility()
+    unless facilityName
+      console.warn "No facility name found"
+    else
+      FacilityHierarchy.facilityType(@facility())
 
   facilityDhis2OrganisationUnitId: =>
     GeoHierarchy.findFirst(@facility(), "FACILITY")?.id
@@ -164,6 +180,16 @@ class Case
   village: ->
     @["Facility"]?.Village
 
+  facilityDistrict: ->
+    facilityDistrict = @["USSD Notification"]?.facility_district
+    unless facilityDistrict and GeoHierarchy.validDistrict(facilityDistrict)
+      facilityUnit = GeoHierarchy.findFirst(@facility(), "FACILITY")
+      facilityDistrict = facilityUnit?.ancestorAtLevel("DISTRICT").name
+    unless facilityDistrict
+      console.warn "Could not find a district for USSD notification: #{JSON.stringify @["USSD Notification"]}"
+      return "UNKNOWN"
+    GeoHierarchy.swahiliDistrictName(facilityDistrict)
+
   # Want best guess for the district - try and get a valid shehia, if not use district for reporting facility
   district: ->
     shehia = @validShehia()
@@ -174,27 +200,24 @@ class Case
         return findOneShehia.parent().name
       else
         shehias = GeoHierarchy.findShehia(shehia)
-        district = GeoHierarchy.swahiliDistrictName @["USSD Notification"]?.facility_district
+        facilityDistrict = @facilityDistrict()
         shehiaWithSameFacilityDistrict = _(shehias).find (shehia) ->
-          shehia.parent().name is district
+          shehia.parent().name is facilityDistrict
         if shehiaWithSameFacilityDistrict
           return shehiaWithSameFacilityDistrict.parent().name
+        else
+          console.warn "#{@MalariaCaseID()}: Shehia #{shehia} is not unique, and the facility's district '#{facilityDistrict}' doesn't match the possibilities. It's possible districts are: #{(_(shehias).map (shehia) -> shehia.parent().name).join(', ')}. Using Facility District: #{facilityDistrict}." 
+          return facilityDistrict
 
     else
-      console.warn "#{@MalariaCaseID()}: No valid shehia found, using district of reporting health facility (which may not be where the patient lives). Data from USSD Notification:"
-      console.warn @["USSD Notification"]
+      console.warn "#{@MalariaCaseID()}: No valid shehia found, using district of reporting health facility (which may not be where the patient lives). Data from USSD Notification: #{JSON.stringify(@["USSD Notification"])}"
 
-      district = GeoHierarchy.swahiliDistrictName @["USSD Notification"]?.facility_district
-      if _(GeoHierarchy.allDistricts()).include district
-        return district
+      facilityDistrict = @facilityDistrict()
+
+      if facilityDistrict
+        facilityDistrict
       else
-        console.warn "#{@MalariaCaseID()}: The reported district (#{district}) used for the reporting facility is not a valid district. Looking up the district for the health facility name."
-        district = GeoHierarchy.swahiliDistrictName(FacilityHierarchy.getDistrict @["USSD Notification"]?.hf)
-        if _(GeoHierarchy.allDistricts()).include district
-          return district
-        else
-          console.warn "#{@MalariaCaseID()}: The health facility name (#{@["USSD Notification"]?.hf}) is not valid. Giving up and returning UNKNOWN."
-          return "UNKNOWN"
+        return "UNKNOWN"
 
   highRiskShehia: (date) =>
     date = moment().startOf('year').format("YYYY-MM") unless date
@@ -204,11 +227,23 @@ class Case
       false
 
   locationBy: (geographicLevel) =>
-    return @district() if geographicLevel.match(/district/i)
     return @validShehia() if geographicLevel.match(/shehia/i)
+    district = @district()
+    if district?
+      return district if geographicLevel.match(/district/i)
+      GeoHierarchy.getAncestorAtLevel(district, "DISTRICT", geographicLevel)
+    else
+      console.warn "No district for case: #{@caseId}"
 
   namesOfAdministrativeLevels: () =>
-    [@shehia()].concat(_(GeoHierarchy.findFirst(@shehia(), "SHEHIA")?.ancestors()).pluck "name").reverse().join(",")
+    shehia = @shehia()
+    district = @district()
+    if district
+      districtAncestors = _(GeoHierarchy.findFirst(district, "DISTRICT")?.ancestors()).pluck "name"
+      result = districtAncestors.reverse()
+      if shehia
+        result.concat(shehia)
+      result.join(",")
 
   possibleQuestions: ->
     ["Case Notification", "Facility","Household","Household Members"]
@@ -264,6 +299,7 @@ class Case
       return true if fourteenToTwentyOneDays isnt ""
     else
       return false
+
 
   indexCaseSuspectedImportedCase: =>
     personTravelledInLast3Weeks(@.Household) or @indexCaseHasTravelHistory()
@@ -417,7 +453,9 @@ class Case
       return moment(@["Case Notification"].createdAt).format("YYYY-MM-DD")
 
   IndexCaseDiagnosisDateIsoWeek: =>
-    moment(@IndexCaseDiagnosisDate()).isoWeek()
+    indexCaseDiagnosisDate = @IndexCaseDiagnosisDate()
+    if indexCaseDiagnosisDate
+      moment(indexCaseDiagnosisDate).format("GGGG-WW")
 
   householdMembersDiagnosisDates: =>
     @householdMembersDiagnosisDate()
@@ -613,6 +651,24 @@ class Case
     if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
+  classificationsByHouseholdMemberType: =>
+    _(for householdMember in @["Household Members"]
+      if householdMember.CaseCategory 
+        "#{householdMember.HouseholdMemberType}: #{householdMember.CaseCategory}"
+    ).compact().join(", ")
+
+  classificationsByDiagnosisDate: =>
+    _(for householdMember in @["Household Members"]
+      if householdMember.CaseCategory 
+        "#{householdMember.DateOfPositiveResults}: #{householdMember.CaseCategory}"
+    ).compact().join(", ")
+
+  evidenceForClassifications: =>
+    _(for householdMember in @["Household Members"]
+      if householdMember.CaseCategory 
+        "#{householdMember.CaseCategory}: #{householdMember.SummarizeEvidenceUsedForClassification}"
+    ).compact().join(", ")
+
   createOrUpdateOnDhis2: (options = {}) =>
     options.malariaCase = @
     Coconut.dhis2.createOrUpdateMalariaCase(options)
@@ -708,7 +764,7 @@ class Case
 
     return {"#{property}": result}
 
-  summaryCollection: ->
+  summaryCollection: =>
     result = {}
     _(Case.summaryProperties).each (options, property) =>
       summaryResult = @summaryResult(property, options)
@@ -738,6 +794,7 @@ class Case
   Case.summaryProperties = {
 
     # TODO Document how the different options work
+    # For now just look up at summaryResult function
     # propertyName is used to change the column name at the top of the CSV
     # otherPropertyNames is an array of other values to try and check
 
@@ -748,6 +805,10 @@ class Case
     IndexCaseDiagnosisDateIsoWeek:
       propertyName: "Index Case Diagnosis Date ISO Week"
 
+    classificationsByHouseholdMemberType: {}
+    classificationsByDiagnosisDate: {}
+    evidenceForClassifications: {}
+
     # LostToFollowup: {}
     #
     namesOfAdministrativeLevels: {}
@@ -756,7 +817,7 @@ class Case
       propertyName: "District (if no household district uses facility)"
     facility: {}
     facilityType: {}
-    facility_district:
+    facilityDistrict:
       propertyName: "District of Facility"
     shehia: {}
     isShehiaValid: {}
@@ -1244,7 +1305,11 @@ Case.getLatestChangeForDatabase = ->
 Case.getLatestChangeForCurrentSummaryDataDocs = ->
   Coconut.reportingDatabase.get "CaseSummaryData"
   .catch (error) ->
-    return Promise.resolve(null)
+    console.error "Error while getLatestChangeForCurrentSummaryDataDocs: #{error}"
+    if error.reason is "missing"
+      return Promise.resolve(null)
+    else
+      return Promise.reject("Non-missing error when getLatestChangeForCurrentSummaryDataDocs")
   .then (caseSummaryData) ->
     return Promise.resolve(caseSummaryData?.lastChangeSequenceProcessed or null)
 
@@ -1275,7 +1340,7 @@ Case.resetAllCaseSummaryDocs = (options)  =>
 
       Coconut.database.query "cases/cases"
       .then (result) =>
-        allCases = _(result.rows).chain().pluck("key").uniq(true).value()
+        allCases = _(result.rows).chain().pluck("key").uniq(true).reverse().value()
         console.log "Updating #{allCases.length} cases"
 
         await Case.updateSummaryForCases
@@ -1294,8 +1359,17 @@ Case.updateCaseSummaryDocs = (options) ->
   latestChangeForDatabase = await Case.getLatestChangeForDatabase()
   latestChangeForCurrentSummaryDataDocs = await Case.getLatestChangeForCurrentSummaryDataDocs()
   #latestChangeForCurrentSummaryDataDocs = "3490519-g1AAAACseJzLYWBgYM5gTmEQTM4vTc5ISXIwNDLXMwBCwxygFFMiQ1JoaGhIVgZzEoPg_se5QDF2S3MjM8tkE2x68JgEMic0j4Vh5apVq7KAhu27jkcxUB1Q2Sog9R8IQMqPyGYBAJk5MBA"
-
+  #
   console.log "latestChangeForDatabase: #{latestChangeForDatabase?.replace(/-.*/, "")}, latestChangeForCurrentSummaryDataDocs: #{latestChangeForCurrentSummaryDataDocs?.replace(/-.*/,"")}"
+
+  if latestChangeForCurrentSummaryDataDocs
+    numberLatestChangeForDatabase = parseInt(latestChangeForDatabase?.replace(/-.*/,""))
+    numberLatestChangeForCurrentSummaryDataDocs = parseInt(latestChangeForCurrentSummaryDataDocs?.replace(/-.*/,""))
+
+    if numberLatestChangeForDatabase - numberLatestChangeForCurrentSummaryDataDocs > 10000
+      console.log "Large number of changes, so just resetting since this is more efficient that reviewing every change."
+      return Case.resetAllCaseSummaryDocs()
+
   unless latestChangeForCurrentSummaryDataDocs 
     console.log "No recorded change for current summary data docs, so resetting"
     Case.resetAllCaseSummaryDocs()
@@ -1492,25 +1566,5 @@ Case.createObjectTable = (name,object) ->
       </tbody>
     </table>
   "
-
-Case.showCaseDialog = (options) ->
-  caseId = options.caseID
-
-  Coconut.case = new Case
-    caseID: caseId
-  Coconut.case.fetch
-    success: ->
-      Case.createCaseView
-        case: Coconut.case
-        success: ->
-          $('#caseDialog').html(Coconut.caseview)
-          if (Env.is_chrome)
-             caseDialog.showModal() if !caseDialog.open
-          else
-             caseDialog.show() if !caseDialog.open
-          options?.success()
-      return false
-
-
 
 module.exports = Case

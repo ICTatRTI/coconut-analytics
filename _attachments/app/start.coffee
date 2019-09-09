@@ -101,23 +101,25 @@ Coconut.promptUntilCredentialsWork().then =>
           .then (result) ->
             Coconut[docId] = result
 
+      global.GeoHierarchy = new GeoHierarchyClass()
+      global.FacilityHierarchy = GeoHierarchy # These have been combined
+      await GeoHierarchy.load()
 
-      Coconut.dhis2 = new Dhis2()
-      Coconut.dhis2.loadFromDatabase
+      Coconut.questions = new QuestionCollection()
+      Coconut.questions.fetch
         error: (error) -> console.error error
         success: ->
-          dhisOrganisationUnits = new DhisOrganisationUnits()
-          dhisOrganisationUnits.rawData = Coconut.dhis2.dhis2Doc
-          dhisOrganisationUnits.extendExport
-            error: (error) -> console.error error
-            success: (result) ->
-              global.GeoHierarchy = new GeoHierarchyClass(result)
-              global.FacilityHierarchy = GeoHierarchy # These have been combined
-              Coconut.questions = new QuestionCollection()
-              Coconut.questions.fetch
-                error: (error) -> console.error error
-                success: ->
-                  Backbone.history.start()
-                  checkBrowser()
+
+          Coconut.database.allDocs
+            startkey: "user"
+            endkey: "user\uf000"
+            include_docs: true
+          .then (result) =>
+            Coconut.nameByUsername = {}
+            for row in result.rows
+              Coconut.nameByUsername[row.id.replace(/user./,"")] = row.doc.name
+
+            Backbone.history.start()
+            checkBrowser()
 
       global.Issues = require './models/Issues'

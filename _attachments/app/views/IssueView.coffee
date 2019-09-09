@@ -1,4 +1,4 @@
-Case = require '../models/Case'
+CaseView = require './CaseView'
 Issue = require '../models/Issue'
 
 class IssueView extends Backbone.View
@@ -12,7 +12,7 @@ class IssueView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
-    Case.showCaseDialog
+    CaseView.showCaseDialog
       caseID: caseID
       success: ->
     return false

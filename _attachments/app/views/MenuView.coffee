@@ -71,13 +71,15 @@ class MenuView extends Backbone.View
           reportLinks = {
             Analysis: "Analysis"
             Casefollowup: "Case Follow-ups Status"
+            Individualclassification: "Individual Classification"
             Compareweekly: "Compare Weekly Facility Reports With Case Follow-ups"
             Epidemicthreshold: "Epidemic Thresholds"
             Systemerrors: "Errors Detected By System"
             Periodtrends: "Period Trends Compared To Previous 3 Weeks"
             Rainfallreport: "Rainfall Submission"
             Usersreport: "Users Report - How Fast are Follow-ups Occurring"
-            Weeklyreports: "Weekly Facility Reports"
+            WeeklyMeetingReport: "Morning Meeting Weekly Report"
+            WeeklyFacilityReports: "Weekly Facility Reports"
             #Weeklysummary: "Weekly Trends Compared To Previous 3 Weeks"
           }
           _(reportLinks).map (linkText, linkUrl) ->

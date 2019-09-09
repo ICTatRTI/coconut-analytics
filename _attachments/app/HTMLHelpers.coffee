@@ -1,3 +1,5 @@
+global.copy = require('copy-text-to-clipboard');
+
 class HTMLHelpers
 
   @createDashboardLinkForResult = (malariaCase,resultType,iconText, buttonText = "", buttonClass = "") ->
@@ -27,8 +29,7 @@ class HTMLHelpers
 
   # Can handle either full case object or just array of caseIDs
   @createCasesLinks = (cases) ->
-    _.map(cases, (malariaCase) =>
-      caseID = if typeof malariaCase == 'object' then (malariaCase.caseID or malariaCase.MalariaCaseID) else malariaCase
+    _.map(@caseIds(cases), (caseID) =>
       @createCaseLink
         caseID: caseID
         iconOnly: false
@@ -37,12 +38,18 @@ class HTMLHelpers
         caseBtn: 'caseBtn'
     ).join("")
 
+  @caseIds = (cases) ->
+    _.map cases, (malariaCase) =>
+      if typeof malariaCase == 'object' then (malariaCase.caseID or malariaCase.MalariaCaseID) else malariaCase
+
   @createDisaggregatableCaseGroup = (cases, text) ->
     text = cases.length unless text?
     "
       <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
       <div class='cases' style='padding:10px; display:none'>
         #{@createCasesLinks cases}
+        <button onClick='copy(\"#{@caseIds(cases).join("\\n")}\")'>copy</button>
+        #
       </div>
     "
 

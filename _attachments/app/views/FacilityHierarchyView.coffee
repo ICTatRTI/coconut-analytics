@@ -15,6 +15,40 @@ class FacilityHierarchyView extends Backbone.View
     @$el.html "
       <h1>Facilities</h1>
       <div id='facility-table'></div>
+      <div id='edit-facility'>
+        <table>
+        #{
+          (for field in ["Region", "District","Name","Phone Numbers"]
+            "
+            <tr>
+              <td>
+                <label for='#{field}'>#{field}</lable>
+              </td>
+              <td>
+                <input name='#{field}'></input>
+              </td>
+            </tr>
+            "
+          ).join("")
+        }
+          <tr>
+            <td>
+              <label for='Type'>Facility Ty[e</lable>
+            </td>
+            <td>
+              <select name='Type'>
+                <option>Public</option>
+                <option>Private</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><button id='save'>Save</button></td>
+          </tr>
+        </table>
+      </div>
+
+
     "
     privateFacilities = GeoHierarchy.allPrivateFacilities()
     facilities = _(GeoHierarchy.findAllForLevel("FACILITY")).map (facilityUnit) =>
@@ -37,5 +71,8 @@ class FacilityHierarchyView extends Backbone.View
         {title: "Phone Numbers", field: "Phone Numbers", headerFilter: true}
         {title: "Type", field: "Type", headerFilter: "select", headerFilterParams: {values:true}}
       ]
+
+  events:
+    "click #save": "save"
 
 module.exports = FacilityHierarchyView

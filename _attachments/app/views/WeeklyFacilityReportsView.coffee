@@ -6,9 +6,9 @@ Backbone.$  = $
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 HTMLHelpers = require '../HTMLHelpers'
-Case = require '../models/Case'
+CaseView = require './CaseView'
 
-class WeeklyReportsView extends Backbone.View
+class WeeklyFacilityReportsView extends Backbone.View
   el: "#content"
     
   events:
@@ -25,7 +25,7 @@ class WeeklyReportsView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
-    Case.showCaseDialog
+    CaseView.showCaseDialog
       caseID: caseID
       success: ->
     return false
@@ -160,4 +160,4 @@ class WeeklyReportsView extends Backbone.View
             
         $("#analysis-spinner").hide()
         
-module.exports = WeeklyReportsView
+module.exports = WeeklyFacilityReportsView

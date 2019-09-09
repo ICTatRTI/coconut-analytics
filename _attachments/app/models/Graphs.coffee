@@ -125,6 +125,58 @@ Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,
 
   callback(true)
 
+
+
+Graphs.yearlyTrends = (trends, composite, container, options,callback) ->
+  dimensions = {}
+  groups = {}
+
+  for trendName, trendData of trends
+    dimensions[trendName] = crossfilter(trendData).dimension (d) ->
+      moment(d.key[0]).isoWeek() # TODO I don't think we need this
+    groups[trendName] = dimensions[trendName].group()
+
+  composite
+    .width($('.chart_container').width()-options.adjustX)
+    .height($('.chart_container').height())
+    .x(d3.scale.linear())
+    .y(d3.scale.linear())
+    .xUnits(d3.time.weeks)
+    .yAxisLabel("Number of Cases")
+    .xAxisLabel("Weeks")
+    .elasticY(true)
+    .elasticX(true)
+    .shareTitle(false)
+    .renderHorizontalGridLines(true)
+    .legend(dc.legend().x(70).y($('.chart_container').height()).horizontal(true).gap(25).autoItemWidth(true))
+    .on('renderlet',(chart) =>
+      Graphs.axis_adjust(chart, container)
+      chart.selectAll('g.x text')
+        .attr('transform', 'translate(0,0) rotate(0)')
+    )
+    .compose( for trendName of trends
+      dc.lineChart(composite)
+        .dimension(dimensions[trendName])
+        .colors(colorScale(1))
+        .group(groups[trendName], trendName)
+        .xyTipsOn(true)
+        .renderArea(true)
+        .renderDataPoints(false)
+        .title((d) ->
+          return 'Week: ' +d.key + ": " + d.value
+        )
+    )
+    .brushOn(false)
+    .render()
+
+  Graphs.compositeResize(composite, 'chart_container', options)
+
+  callback(true)
+
+
+
+
+
 Graphs.positiveCases = (dataForGraph, composite, container, options) ->
 
   data1 = _.filter(dataForGraph, (d) ->

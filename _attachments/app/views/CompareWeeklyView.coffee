@@ -35,170 +35,170 @@ class CompareWeeklyView extends Backbone.View
   renderFacilityTimeliness: =>
     $('#analysis-spinner').show()
     $('table#facilityTimeliness tbody').html "
-            #{
-              quartilesAndMedian = (values)->
-                [median,h1Values,h2Values] = getMedianWithHalves(values)
-                [
-                  getMedian(h1Values)
-                  median
-                  getMedian(h2Values)
-                ]
+      #{
+        quartilesAndMedian = (values)->
+          [median,h1Values,h2Values] = getMedianWithHalves(values)
+          [
+            getMedian(h1Values)
+            median
+            getMedian(h2Values)
+          ]
 
-              getMedianWithHalves = (values) ->
+        getMedianWithHalves = (values) ->
 
-                return [ values[0], [values[0]], [values[0]] ] if values.length is 1
+          return [ values[0], [values[0]], [values[0]] ] if values.length is 1
 
-                values.sort  (a,b)=> return a - b
-                half = Math.floor values.length/2
-                if values.length % 2 #odd
-                  median = values[half]
-                  return [median,values[0..half],values[half...]]
-                else # even
-                  median = (values[half-1] + values[half]) / 2.0
-                  return [median, values[0..half],values[half+1...]]
+          values.sort  (a,b)=> return a - b
+          half = Math.floor values.length/2
+          if values.length % 2 #odd
+            median = values[half]
+            return [median,values[0..half],values[half...]]
+          else # even
+            median = (values[half-1] + values[half]) / 2.0
+            return [median, values[0..half],values[half+1...]]
 
 
-              getMedian = (values)->
-                getMedianWithHalves(values)[0]
+        getMedian = (values)->
+          getMedianWithHalves(values)[0]
 
-              getMedianOrEmptyFormatted = (values)->
-                return "-" unless values?
-                Math.round(getMedian(values)*10)/10
+        getMedianOrEmptyFormatted = (values)->
+          return "-" unless values?
+          Math.round(getMedian(values)*10)/10
 
-              getMedianAndQuartilesElement = (values)->
-                return "-" unless values?
-                [q1,median,q3] = _(quartilesAndMedian(values)).map (value) ->
-                  Math.round(value*10)/10
-                "#{median} (#{q1}-#{q3})"
+        getMedianAndQuartilesElement = (values)->
+          return "-" unless values?
+          [q1,median,q3] = _(quartilesAndMedian(values)).map (value) ->
+            Math.round(value*10)/10
+          "#{median} (#{q1}-#{q3})"
 
-              getNumberAndPercent = (numerator,denominator) ->
-                return "-" unless numerator? and denominator?
-                "#{numerator} (#{Math.round(numerator/denominator*100)}%)"
+        getNumberAndPercent = (numerator,denominator) ->
+          return "-" unless numerator? and denominator?
+          "#{numerator} (#{Math.round(numerator/denominator*100)}%)"
 
-              allPrivateFacilities = FacilityHierarchy.allPrivateFacilities()
+        allPrivateFacilities = FacilityHierarchy.allPrivateFacilities()
 
-              _(@results.data).map (aggregationAreas, aggregationPeriod) =>
-                _(aggregationAreas).map (data,aggregationArea) =>
+        _(@results.data).map (aggregationAreas, aggregationPeriod) =>
+          _(aggregationAreas).map (data,aggregationArea) =>
 
-                  # TODO fix this - we shouldn't skip unknowns
-                  return if aggregationArea is "Unknown"
-                  "
-                    <tr>
-                      <td>#{aggregationPeriod}</td>
-                      #{
-                        if @aggregationArea is "Facility"
-                          "
-                          <td>#{FacilityHierarchy.getZone(aggregationArea)}</td>
-                          <td>#{FacilityHierarchy.getDistrict(aggregationArea)}</td>
-                          "
-                        else if @aggregationArea is "District"
-                          "
-                          <td>#{GeoHierarchy.getZoneForDistrict(aggregationArea)}</td>
-                          "
-                        else ""
-                      }
-                      <td>
-                        #{aggregationArea}
-                        #{if @aggregationArea is "Facility" and _(allPrivateFacilities).contains(aggregationArea) then "(private)" else ""}
-                      </td>
-                      <td>
+            # TODO fix this - we shouldn't skip unknowns
+            return if aggregationArea is "Unknown"
+            "
+              <tr>
+                <td>#{aggregationPeriod}</td>
+                #{
+                  if @aggregationArea is "Facility"
+                    "
+                    <td>#{FacilityHierarchy.getZone(aggregationArea)}</td>
+                    <td>#{FacilityHierarchy.getDistrict(aggregationArea)}</td>
+                    "
+                  else if @aggregationArea is "District"
+                    "
+                    <td>#{GeoHierarchy.getZoneForDistrict(aggregationArea)}</td>
+                    "
+                  else ""
+                }
+                <td>
+                  #{aggregationArea}
+                  #{if @aggregationArea is "Facility" and _(allPrivateFacilities).contains(aggregationArea) then "(private)" else ""}
+                </td>
+                <td>
+                  #{
+                    numberOfFaciltiesMultiplier = if @aggregationArea is "Zone"
+                      FacilityHierarchy.facilitiesForZone(aggregationArea).length
+                    else if @aggregationArea is "District"
+                      FacilityHierarchy.facilitiesForDistrict(aggregationArea).length
+                    else
+                      1
+
+                    expectedNumberOfReports = switch @aggregationPeriod
+                      when "Year" then 52
+                      when "Month" then "4"
+                      when "Quarter" then "13"
+                      when "Week" then "1"
+                    expectedNumberOfReports = expectedNumberOfReports * numberOfFaciltiesMultiplier
+                  }
+                </td>
+                <td>#{numberReportsSubmitted = data["Reports submitted for period"] or 0}</td>
+                <td>
+                  #{
+                    if Number.isNaN(numberReportsSubmitted) or Number.isNaN(expectedNumberOfReports) or expectedNumberOfReports is 0
+                      '-'
+                    else
+                      Math.round(numberReportsSubmitted/expectedNumberOfReports * 1000)/10 + "%"
+                  }
+                </td>
+                <td>#{data["Report submitted within 1 day"] or 0}</td>
+                <td>#{data["Report submitted within 1-3 days"] or 0}</td>
+                <td>#{data["Report submitted within 3-5 days"] or 0}</td>
+                <td>#{data["Report submitted 5+ days"] or 0}</td>
+                <td>
+                  <!-- Total Tested -->
+                  #{
+                    totalTested = data["Mal POS < 5"]+data["Mal POS >= 5"]+data["Mal NEG < 5"]+data["Mal NEG >= 5"]
+                    if Number.isNaN(totalTested) then '-' else HTMLHelpers.numberWithCommas(totalTested)
+                  }
+
+                </td>
+                <td class='total-positive'>
+                  #{
+                    totalPositive = data["Mal POS < 5"]+data["Mal POS >= 5"]
+                    if Number.isNaN(totalPositive) then '-' else totalPositive
+                  }
+                  (#{
+                    if Number.isNaN(totalTested) or Number.isNaN(totalPositive) or totalTested is 0
+                      '-'
+                    else
+                      Math.round(totalPositive/totalTested * 1000)/10 + "%"
+                  })
+                </td>
+                #{
+                  _(["casesNotified","hasCompleteFacility","followedUpWithin48Hours"]).map (property) =>
+                    "
+                      <td class='#{property}'>
                         #{
-                          numberOfFaciltiesMultiplier = if @aggregationArea is "Zone"
-                            FacilityHierarchy.facilitiesForZone(aggregationArea).length
-                          else if @aggregationArea is "District"
-                            FacilityHierarchy.facilitiesForDistrict(aggregationArea).length
+                          if @csvMode
+                            data[property]?.length or "-"
                           else
-                            1
+                            if data[property] then HTMLHelpers.createDisaggregatableCaseGroup data[property] else '-'
+                        }
+                      </td>
+                    "
+                  .join ""
+                }
 
-                          expectedNumberOfReports = switch @aggregationPeriod
-                            when "Year" then 52
-                            when "Month" then "4"
-                            when "Quarter" then "13"
-                            when "Week" then "1"
-                          expectedNumberOfReports = expectedNumberOfReports * numberOfFaciltiesMultiplier
-                        }
-                      </td>
-                      <td>#{numberReportsSubmitted = data["Reports submitted for period"] or 0}</td>
-                      <td>
-                        #{
-                          if Number.isNaN(numberReportsSubmitted) or Number.isNaN(expectedNumberOfReports) or expectedNumberOfReports is 0
-                            '-'
-                          else
-                            Math.round(numberReportsSubmitted/expectedNumberOfReports * 1000)/10 + "%"
-                        }
-                      </td>
-                      <td>#{data["Report submitted within 1 day"] or 0}</td>
-                      <td>#{data["Report submitted within 1-3 days"] or 0}</td>
-                      <td>#{data["Report submitted within 3-5 days"] or 0}</td>
-                      <td>#{data["Report submitted 5+ days"] or 0}</td>
-                      <td>
-                        <!-- Total Tested -->
-                        #{
-                          totalTested = data["Mal POS < 5"]+data["Mal POS >= 5"]+data["Mal NEG < 5"]+data["Mal NEG >= 5"]
-                          if Number.isNaN(totalTested) then '-' else HTMLHelpers.numberWithCommas(totalTested)
-                        }
-
-                      </td>
-                      <td class='total-positive'>
-                        #{
-                          totalPositive = data["Mal POS < 5"]+data["Mal POS >= 5"]
-                          if Number.isNaN(totalPositive) then '-' else totalPositive
-                        }
-                        (#{
-                          if Number.isNaN(totalTested) or Number.isNaN(totalPositive) or totalTested is 0
-                            '-'
-                          else
-                            Math.round(totalPositive/totalTested * 1000)/10 + "%"
-                        })
-                      </td>
-                      #{
-                        _(["casesNotified","hasCompleteFacility","followedUpWithin48Hours"]).map (property) =>
-                          "
-                            <td class='#{property}'>
-                              #{
-                                if @csvMode
-                                  data[property]?.length or "-"
-                                else
-                                  if data[property] then HTMLHelpers.createDisaggregatableCaseGroup data[property] else '-'
-                              }
-                            </td>
-                          "
-                        .join ""
-                      }
-
-                      <td>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotificationFromFacility"]}</td>
-                      <td>#{getMedianAndQuartilesElement data["daysFromCaseNotificationToCompleteFacility"]}</td>
-                      <td>
-                      #{
-                        if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["Facility Followed-Up Positive Cases"]
-                          Math.round(data["Facility Followed-Up Positive Cases"].length / data["casesNotified"].length * 1000)/10 + "%"
-                        else
-                          "-"
-                      }
-                      </td>
-                      <td>#{getMedianAndQuartilesElement data["daysFromSMSToCompleteHousehold"]}</td>
-                      <td>
-                      #{
-                        if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["householdFollowedUp"]
-                          Math.round(data["householdFollowedUp"] / data["casesNotified"].length * 1000)/10 + "%"
-                        else
-                          "-"
-                      }
-                      </td>
-                      <td>
-                        #{data["numberHouseholdOrNeighborMembers"] || "-"}
-                      </td>
-                      <td>
-                        #{getNumberAndPercent(data["numberHouseholdOrNeighborMembersTested"],data["numberHouseholdOrNeighborMembers"])}
-                      </td>
-                      <td>
-                        #{getNumberAndPercent(data["numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"],data["numberHouseholdOrNeighborMembersTested"])}
-                      </td>
-                    </tr>
-                  "
-                .join("")
-              .join("")
-            }
+                <td>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotificationFromFacility"]}</td>
+                <td>#{getMedianAndQuartilesElement data["daysFromCaseNotificationToCompleteFacility"]}</td>
+                <td>
+                #{
+                  if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["Facility Followed-Up Positive Cases"]
+                    Math.round(data["Facility Followed-Up Positive Cases"].length / data["casesNotified"].length * 1000)/10 + "%"
+                  else
+                    "-"
+                }
+                </td>
+                <td>#{getMedianAndQuartilesElement data["daysFromSMSToCompleteHousehold"]}</td>
+                <td>
+                #{
+                  if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["householdFollowedUp"]
+                    Math.round(data["householdFollowedUp"] / data["casesNotified"].length * 1000)/10 + "%"
+                  else
+                    "-"
+                }
+                </td>
+                <td>
+                  #{data["numberHouseholdOrNeighborMembers"] || "-"}
+                </td>
+                <td>
+                  #{getNumberAndPercent(data["numberHouseholdOrNeighborMembersTested"],data["numberHouseholdOrNeighborMembers"])}
+                </td>
+                <td>
+                  #{getNumberAndPercent(data["numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"],data["numberHouseholdOrNeighborMembersTested"])}
+                </td>
+              </tr>
+            "
+          .join("")
+        .join("")
+      }
     "
     if !( $.fn.dataTable.isDataTable( '#facilityTimeliness' ))
       $("#facilityTimeliness").dataTable

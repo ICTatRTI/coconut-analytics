@@ -6,7 +6,7 @@ Backbone.$  = $
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 UserCollection = require '../models/UserCollection'
-Case = require '../models/Case'
+CaseView = require './CaseView'
 
 class UsersReportView extends Backbone.View
   el: "#content"
@@ -27,7 +27,7 @@ class UsersReportView extends Backbone.View
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
-    Case.showCaseDialog
+    CaseView.showCaseDialog
       caseID: caseID
       success: ->
     return false

@@ -39,6 +39,7 @@ FindCaseView = require './views/FindCaseView'
 reportViews = {
   "Analysis": require './views/AnalysisView'
   "Casefollowup": require './views/CaseFollowupView'
+  "Individualclassification": require './views/IndividualClassificationView'
   "Compareweekly": require './views/CompareWeeklyView'
   "Epidemicthreshold": require './views/EpidemicThresholdView'
   "Systemerrors": require './views/SystemErrorsView'
@@ -46,7 +47,8 @@ reportViews = {
   "Periodtrends": require './views/PeriodTrendsView'
   "Rainfallreport": require './views/RainfallReportView'
   "Usersreport": require './views/UsersReportView'
-  "Weeklyreports": require './views/WeeklyReportsView'
+  "WeeklyMeetingReport": require './views/WeeklyMeetingReportView'
+  "WeeklyFacilityReports": require './views/WeeklyFacilityReportsView'
   "Weeklysummary": require './views/WeeklySummaryView'
 }
 
@@ -111,6 +113,7 @@ class Router extends Backbone.Router
     "find/case": "findCase"
     "find/case/:caseID": "findCase"
     "show/case/:caseID": "showCase"
+    "show/cases/:caseID": "showCase"
     "show/case/:caseID/:docID": "showCase"
     "delete/result/:resultId": "deleteResult"
     "new/issue": "newIssue"
@@ -425,9 +428,15 @@ class Router extends Backbone.Router
       error: =>
         callback.error()
 
+  defaultStartDate: =>
+    moment().subtract(1,'week').startOf('isoWeek').format("YYYY-MM-DD")
+
+  defaultEndDate: =>
+    moment().subtract(1,'week').endOf('isoWeek').format("YYYY-MM-DD")
+
   setStartEndDateIfMissing: (startDate,endDate) =>
-    startDate = Coconut.router.reportViewOptions.startDate || moment().subtract("7","days").format("YYYY-MM-DD")
-    endDate = Coconut.router.reportViewOptions.endDate || moment().format("YYYY-MM-DD")
+    startDate = Coconut.router.reportViewOptions.startDate || @defaultStartDate()
+    endDate = Coconut.router.reportViewOptions.endDate || @defaultEndDate()
     [startDate, endDate]
 
   showDateFilter: (startDate, endDate, reportView, reportType) ->
@@ -442,8 +451,8 @@ class Router extends Backbone.Router
   setDefaultOptions: () ->
     return {
        type: "Analysis"
-       startDate:  moment().subtract("7","days").format("YYYY-MM-DD")
-       endDate: moment().format("YYYY-MM-DD")
+       startDate:  @defaultStartDate()
+       endDate: @defaultEndDate()
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
