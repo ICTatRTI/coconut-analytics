@@ -301,7 +301,6 @@ class Router extends Backbone.Router
 
 
   maps: (options) =>
-    console.log("Options = ", options)
     options = _(options?.split(/\//)).map (option) -> unescape(option)
     # remove type option
     options.splice(0,2)
@@ -315,10 +314,19 @@ class Router extends Backbone.Router
       @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
     type = @reportViewOptions["type"]
     @mapView = new MapView unless @mapView
+
+    @mapView.setElement "#content"
     #@mapView.render()
     @appView.showView(@mapView)
     @reportType = 'maps'
+
+    dateSelectorView = new DateSelectorView()
+    dateSelectorView.setElement('#date-selector')
+    dateSelectorView.reportType = 'maps'
+    dateSelectorView.render()
     @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @mapView, @reportType)
+
+    HTMLHelpers.ChangeTitle("Maps")
 
   FacilityHierarchy: =>
     @adminLoggedIn

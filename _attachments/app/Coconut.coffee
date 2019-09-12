@@ -1,7 +1,5 @@
-global.PouchDB = require 'pouchdb-core'
+global.PouchDB = require 'pouchdb-browser'
 PouchDB.plugin(require('pouchdb-upsert'))
-PouchDB.plugin(require('pouchdb-adapter-http'))
-PouchDB.plugin(require('pouchdb-mapreduce'))
 BackbonePouch = require 'backbone-pouch'
 global.Cookie = require 'js-cookie'
 moment = require 'moment'
@@ -31,6 +29,7 @@ class Coconut
 
     @database = new PouchDB("#{databaseURL}/zanzibar", databaseOptions)
     @reportingDatabase = new PouchDB("#{databaseURL}/zanzibar-reporting", databaseOptions)
+    @cachingDatabase = new PouchDB("coconut-zanzibar-caching")
 
   promptUntilCredentialsWork: =>
     @setupDatabases()

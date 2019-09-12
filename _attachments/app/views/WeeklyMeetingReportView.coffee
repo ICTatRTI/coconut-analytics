@@ -7,18 +7,24 @@ global.copy = require('copy-text-to-clipboard')
 dc = require 'dc'
 Chart = require 'chart.js'
 Html2Pdf = require 'html2pdf.js'
+Capitalize = require 'underscore.string/capitalize'
 
 Reports = require '../models/Reports'
 HTMLHelpers = require '../HTMLHelpers'
 CaseView = require './CaseView'
 Dialog = require './Dialog'
 Graphs = require '../models/Graphs'
+MapView = require './MapView'
 
 
 class WeeklyMeetingReportView extends Backbone.View
   el: "#content"
+
+
+  mapControls: ".mapView .leaflet-control-zoom-in, .mapView .leaflet-control-zoom-out, .mapView .zoom, .mapView .leaflet-control-attribution, .mapView .controls"
         
   render: =>
+
     @tabulators = []
     options = $.extend({},Coconut.router.reportViewOptions)
     HTMLHelpers.ChangeTitle("Reports: Weekly Meeting Report")
@@ -36,6 +42,36 @@ class WeeklyMeetingReportView extends Backbone.View
     @generatedAtText = "#{moment().format("DD MMM YYYY HH:mm")}"
 
     @$el.html "
+      <style>
+        .mapViewWrapper{
+          width: 410px;
+          height: 590px;
+          position: relative;
+          display:inline-block;
+          border: 1px solid black;
+          padding: 10px;
+        }
+        .mapView{
+          width: 100%%;
+          height: 100%;
+          position: relative;
+        }
+        .mapView #mapElement{
+          background-color: white;
+        }
+        #{@mapControls}{
+          display:none;
+        }
+        #map-UNGUJA .legend{
+          display:none;
+        }
+        .mapView .controls .controlBox{
+          padding-top: 0px;
+          padding-bottom: 0px;
+          border: 1px solid black;
+          display:block;
+        }
+      </style>
       <div style='float:right'>
         Generated at: #{@generatedAtText}
         <br/>
@@ -73,8 +109,25 @@ class WeeklyMeetingReportView extends Backbone.View
       </div>
 
       <div id='charts'/>
-
       <hr/>
+
+      <div style='page-break-before: always' id='maps'>
+        <h2>Sprayed Shehias And Cases</h2>
+        <div>
+          <button id='mapControls'>Map Controls</button>
+        </div>
+        #{
+          (for zone in GeoHierarchy.allZones()
+            "
+              <div class='mapViewWrapper'>
+                <h3 class='map-title' style='text-align:center; margin:0'>#{Capitalize zone, true}</h3>
+                <div class='mapView' id='map-#{zone}'></div>
+              </div>
+            "
+          ).join("")
+        }
+      </div>
+
       <div style='page-break-before: always' id='districtSummary'>
         <h2>District Summary</h2>
       </div>
@@ -82,6 +135,16 @@ class WeeklyMeetingReportView extends Backbone.View
 
     await @summaryData()
     await @malariaTrends()
+    #
+
+    for zone in GeoHierarchy.allZones()
+      mapView = new MapView()
+      mapView.setElement "#map-#{zone}"
+      await mapView.render().then (map) =>
+        mapView.showBoundary("Shehias")
+        @$(".showSprayedShehias").prop "checked", true
+        mapView.showSprayedShehias()
+      mapView.zoom(zone)
 
     $("#analysis-spinner").hide()
 
@@ -92,6 +155,13 @@ class WeeklyMeetingReportView extends Backbone.View
     "click .downloadCSV": "downloadCSV"
     "click .toggle-details": "toggleDetails"
     "click #download": "download"
+    "click #download": "download"
+    "click #mapControls": "toggleMapControls"
+
+  toggleMapControls: =>
+    for mapControl in @mapControls.split(", ")
+      @$(mapControl).toggle()
+      @$(".map-title").toggle()
 
   download: =>
     alert("You may need to resize the browser window to make each element fit on the PDF.")
@@ -99,6 +169,9 @@ class WeeklyMeetingReportView extends Backbone.View
     $(".hide-for-printing, .downloadCSV").hide()
     $(".date").css("background-color", "white")
     $(".date").css("border", "none")
+    $("#mapControls").hide()
+    for mapControl in @mapControls.split(", ")
+      @$(mapControl).hide()
 
     await Html2Pdf $("#content")[0],
       filename: "Weekly-#{@generatedAtText}.pdf"
@@ -106,6 +179,7 @@ class WeeklyMeetingReportView extends Backbone.View
     $(".hide-for-printing, .downloadCSV").show()
     $(".date").css("background-color", "")
     $(".date").css("border", "")
+    $("#mapControls").hide()
 
 
 

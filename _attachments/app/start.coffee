@@ -44,8 +44,9 @@ Coconut.promptUntilCredentialsWork().then =>
   username = Cookie.get("username")
   password = Cookie.get("password")
 
+  Coconut.plainCouchURL = Coconut.database.name.replace(/\/\/.*@/,"//").replace(/[^\/]+$/, "")
   # This sets a couchdb session which is necessary for lists, aka spreadsheet downloads
-  fetch '/_session',
+  fetch "#{Coconut.plainCouchURL}/_session",
     method: 'POST',
     credentials: 'include',
     headers:
@@ -67,9 +68,9 @@ Coconut.promptUntilCredentialsWork().then =>
     if !Env.is_chrome
       chromeView = new ChromeView()
       chromeView.render()
-      callback.success()
+      callback?.success()
     else
-      callback.success()
+      callback?.success()
 
   User.isAuthenticated
     success: ->
@@ -109,6 +110,10 @@ Coconut.promptUntilCredentialsWork().then =>
       Coconut.questions.fetch
         error: (error) -> console.error error
         success: ->
+
+          Coconut.CaseClassifications = Coconut.questions.get("Household Members").questions().filter( (question) => 
+            question.get("label") is "Case Category"
+          )[0].get("radio-options").split(/, */)
 
           Coconut.database.allDocs
             startkey: "user"

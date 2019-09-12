@@ -3,7 +3,7 @@
   "version": "0.9.0",
   "scripts": {
     "start": "npm run watch & npm run livereload & npm run static",
-    "watch": "./node_modules/watchify/bin/cmd.js -v -t coffeeify --debug --extension='.coffee' app/start.coffee -o bundle.js",
+    "watch": "./node_modules/watchify/bin/cmd.js -v -t coffeeify --debug --extension='.coffee' app/start.coffee -x moment -x jquery -x backbone -x pouchdb-core -x pouchdb-adapter-http -x pouchdb-mapreduce -x pouchdb-upsert -x underscore  -o bundle.js",
     "livereload": "./node_modules/livereloadify/cli.js ./",
     "static": "./node_modules/node-static/bin/cli.js --port 8082 ./"
   },
@@ -38,7 +38,9 @@
     "minimist": "^1.2.0",
     "moment": "^2.10.3",
     "moment-range": "^2.2.0",
+    "polylabel": "^1.0.2",
     "pouchdb-adapter-http": "^7.0.0",
+    "pouchdb-browser": "^7.1.1",
     "pouchdb-core": "^7.0.0",
     "pouchdb-mapreduce": "^7.0.0",
     "pouchdb-upsert": "^2.2.0",
