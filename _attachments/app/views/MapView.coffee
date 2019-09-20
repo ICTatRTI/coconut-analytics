@@ -42,7 +42,7 @@ class MapView extends Backbone.View
 
   showSprayedShehias: =>
     if @$('#showSprayedShehias').is(":checked")
-      @$(".sprayed-shehia").css("fill","pink")
+      @$(".sprayed-shehia").css("fill","lightgreen")
     else
       @$(".sprayed-shehia").css("fill","")
 
@@ -289,11 +289,11 @@ class MapView extends Backbone.View
 
 
   colorByClassification = {
-    Indigenous: "orange"
+    Indigenous: "red"
     Imported: "blue"
-    Introduced: "red"
-    Induced: "red"
-    Relapsing: "red"
+    Introduced: "darkgreen"
+    Induced: "purple"
+    Relapsing: "orange"
   }
 
   getCases: =>

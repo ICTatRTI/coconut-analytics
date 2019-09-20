@@ -252,9 +252,12 @@ class Case
     result = {}
     _.each @possibleQuestions(), (question) =>
       if question is "Household Members"
-        result["Household Members"] = true
-        _.each @["Household Members"]?, (member) ->
-          result["Household Members"] = false if (member.complete is "false" or member.complete is false)
+        if @["Household Members"].length is 0
+          result["Household Members"] = false
+        else
+          result["Household Members"] = true
+          _.each @["Household Members"]?, (member) ->
+            result["Household Members"] = false if (member.complete is "false" or member.complete is false)
       else
         result[question] = (@[question]?.complete is "true" or @[question]?.complete is true)
     return result
