@@ -20,6 +20,17 @@ MapView = require './MapView'
 class WeeklyMeetingReportView extends Backbone.View
   el: "#content"
 
+  classifications:
+    Indigenous: 
+      color: "red"
+    Imported:
+      color: "blue"
+    Introduced:
+      color: "darkgreen"
+    Induced: 
+      color: "purple"
+    Relapsing:
+      color: "orange"
 
   mapControls: ".mapView .leaflet-control-zoom-in, .mapView .leaflet-control-zoom-out, .mapView .zoom, .mapView .leaflet-control-attribution, .mapView .controls"
         
@@ -512,19 +523,14 @@ class WeeklyMeetingReportView extends Backbone.View
           backgroundColor: "gray"
         }
       ]
-      classificationDatasets[zone] = [
-        {
-          label: "Indigenous"
-          sparseData: {}
-          backgroundColor: "blue"
-        }
-        {
-          label: "Imported"
-          sparseData: {}
-          backgroundColor: "orange"
-        }
 
-      ]
+      classificationDatasets[zone] = for classification, configuration of @classifications
+        {
+          label: classification
+          sparseData: {}
+          backgroundColor: configuration.color
+        }
+      console.log classificationDatasets
 
     Coconut.reportingDatabase.query "summaryCaseAggregatorWeekly",
       startkey: [startLastYearYearWeek]
@@ -554,10 +560,20 @@ class WeeklyMeetingReportView extends Backbone.View
         if year is currentYear and indicator is "Complete Household Visit"
           datasets[zone][2].data.push {x:week, y:amount}
 
+        index = 0
+        for classification of @classifications
+          console.log classification
+          console.log index
+          if year is currentYear and indicator is "Classification: #{classification}"
+            classificationDatasets[zone][index].sparseData[week] = amount
+          index+=1
+
+        ###
         if year is currentYear and indicator is "Classification: Indigenous"
           classificationDatasets[zone][0].sparseData[week] = amount
         if year is currentYear and indicator is "Classification: Imported"
           classificationDatasets[zone][1].sparseData[week] = amount
+        ###
 
       for zone in GeoHierarchy.allZones()
         @$("#case-count-#{zone}").html("#{caseCountUntilCurrentWeekCurrentYear[zone]} total cases notified this year compared with #{caseCountUntilCurrentWeekLastYear[zone]} by this time the previous year.")

@@ -309,7 +309,7 @@ class MapView extends Backbone.View
           weight: 0.3
           radius: 12
           fill: true
-          fillOpacity: 0.5
+          fillOpacity: 0.8
           fillColor: if row.value.classification
               colorByClassification[row.value.classification]
             else

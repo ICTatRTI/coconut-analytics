@@ -12,26 +12,25 @@ class Issues
         $("body").html result
 
   @updateEpidemicAlertsAndAlarmsForLastXDays = (days, options) =>
-    endDate = moment().subtract(days, 'days').format("YYYY-MM-DD")
-    days -=1
     allResults = {}
-    Issues.updateEpidemicAlertsAndAlarms
-      endDate: endDate
-      error: (error) -> console.error error
-      success: (result) =>
-        allResults.extend result
-        if days > 0
-          @updateEpidemicAlertsAndAlarmsForLastXDays(days)
-        else
-          options?.success?(allResults)
+    for daysAgo in [days..0]
+      console.log daysAgo
+      endDate = moment().subtract(daysAgo, 'days').format("YYYY-MM-DD")
+      await Issues.updateEpidemicAlertsAndAlarms
+        endDate: endDate
+        error: (error) -> console.error error
+        success: (result) =>
+          allResults = _(allResults).extend result
+    options?.success?(allResults)
+
 
   @updateEpidemicAlertsAndAlarms = (options) =>
+    console.log "District level threshold detection is disabled"
     endDate = options?.endDate   or moment().subtract(2,'days').format("YYYY-MM-DD")
 
     lookupDistrictThreshold = (district, alarmOrAlert, recurse=false) =>
       if @districtThresholds.data[district] is undefined
-        return null if recurse # Stop infinite loops
-        lookupDistrictThreshold(GeoHierarchy.alternativeDistrictName(district),alarmOrAlert,true)
+        return null
       else
         isoWeek = moment(endDate).isoWeek()
         result = @districtThresholds.data[district][isoWeek]
@@ -57,9 +56,9 @@ class Issues
           "village":
             "total": 10
       "7-days":
-        "Alarm":
-          "district": (district) =>
-            lookupDistrictThreshold(district,"alarm")
+        #"Alarm":
+        #  "district": (district) =>
+        #    lookupDistrictThreshold(district,"alarm")
         "Alert":
           "facility":
             "<5": 5
@@ -69,17 +68,12 @@ class Issues
             "total": 10
           "village":
             "total": 5
-          "district": (district) =>
-            lookupDistrictThreshold(district,"alert")
+          #"district": (district) =>
+          #  lookupDistrictThreshold(district,"alert")
     }
 
     docsToSave = {}
 
-    afterAllThresholdRangesProcessed = _.after _(thresholds).size(), ->
-      Coconut.database.bulkDocs _(docsToSave).values()
-      .then ->
-          options.success(docsToSave)
-      .catch (error) -> console.error error
     
     # Load the district thresholds so that they can be used in the above function
     Coconut.database.get "district_thresholds"
@@ -87,12 +81,12 @@ class Issues
     .then (result) =>
       @districtThresholds = result
 
-      _(thresholds).each (alarmOrAlertData, range) ->
+      for range, alarmOrAlertData of thresholds
         [amountOfTime,timeUnit] = range.split(/-/)
 
         startDate = moment(endDate).subtract(amountOfTime,timeUnit).format("YYYY-MM-DD")
 
-        Reports.positiveCasesAggregated
+        await Reports.positiveCasesAggregated
           startDate: startDate
           endDate: endDate
           ignoreHouseholdNeighborForDistrict: true
@@ -160,8 +154,16 @@ class Issues
                   return false
                 )
                   delete docsToSave[docToSave._id]            
-              afterAllThresholdRangesProcessed()
+              Promise.resolve()
             .catch (error) -> console.error error
+
+
+        unless _(docsToSave).isEmpty()
+          console.log docsToSave
+          Coconut.database.bulkDocs _(docsToSave).values()
+          .then ->
+              options.success(docsToSave)
+          .catch (error) -> console.error error
 
 
 module.exports = Issues

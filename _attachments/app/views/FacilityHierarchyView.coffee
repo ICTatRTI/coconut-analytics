@@ -15,6 +15,7 @@ class FacilityHierarchyView extends Backbone.View
     @$el.html "
       <h1>Facilities</h1>
       <div id='facility-table'></div>
+      <!--
       <div id='edit-facility'>
         <table>
         #{
@@ -33,7 +34,7 @@ class FacilityHierarchyView extends Backbone.View
         }
           <tr>
             <td>
-              <label for='Type'>Facility Ty[e</lable>
+              <label for='Type'>Facility Type</lable>
             </td>
             <td>
               <select name='Type'>
@@ -47,6 +48,7 @@ class FacilityHierarchyView extends Backbone.View
           </tr>
         </table>
       </div>
+      -->
 
 
     "

@@ -172,7 +172,6 @@ class Case
     return returnVal if returnVal?
 
     console.warn "No valid shehia found for case: #{@MalariaCaseID()} result will be either null or unknown."
-    #console.warn @
 
     # If no valid shehia is found, then return whatever was entered (or null)
     @.Household?.Shehia || @.Facility?.Shehia || @["Case Notification"]?.shehia || @["USSD Notification"]?.shehia
@@ -263,7 +262,7 @@ class Case
     return result
 
   complete: =>
-    @questionStatus()["Household Members"] is true or @questionStatus()["Household Members"] is "true"
+    @questionStatus()["Household Members"] is true
 
   hasCompleteFacility: =>
     @.Facility?.complete is "true" or @.Facility?.complete is true
@@ -317,7 +316,7 @@ class Case
     return result
 
   completeHouseholdVisit: =>
-    @.Household?.complete is "true" or @.Household?.complete is true or @.Facility?.HasSomeoneFromTheSameHouseholdRecentlyTestedPositiveAtAHealthFacility is "Yes" or @.Facility?.Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility is "Yes"
+    @complete()
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
@@ -642,16 +641,27 @@ class Case
     if (@["Facility"]?.complete is "true" or @["Facility"]?.complete is true) and @["Case Notification"]?
       moment.duration(@timeFromCaseNotificationToCompleteFacility()).asDays()
 
+  householdComplete: =>
+    @complete()
+
+  timeOfHouseholdComplete: =>
+    return null unless @householdComplete()
+    latestLastModifiedTimeOfHouseholdMemberRecords = ""
+    for householdMember in @["Household Members"]
+      if householdMember.lastModifiedAt > latestLastModifiedTimeOfHouseholdMemberRecords
+        latestLastModifiedTimeOfHouseholdMemberRecords = householdMember.lastModifiedAt
+    latestLastModifiedTimeOfHouseholdMemberRecords
+
   timeFromFacilityToCompleteHousehold: =>
-    if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["Facility"]?
-      return moment(@["Household"].lastModifiedAt.replace(/\+0\d:00/,"")).diff(@["Facility"]?.lastModifiedAt)
+    if @householdComplete() and @["Facility"]?
+      return moment(@timeOfHouseholdComplete().replace(/\+0\d:00/,"")).diff(@["Facility"]?.lastModifiedAt)
 
   timeFromSMSToCompleteHousehold: =>
-    if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["USSD Notification"]?
-      return moment(@["Household"].lastModifiedAt.replace(/\+0\d:00/,"")).diff(@["USSD Notification"]?.date)
+    if @householdComplete() and @["USSD Notification"]?
+      return moment(@timeOfHouseholdComplete().replace(/\+0\d:00/,"")).diff(@["USSD Notification"]?.date)
 
   daysFromSMSToCompleteHousehold: =>
-    if (@["Household"]?.complete is "true" or @["Household"]?.complete is true) and @["USSD Notification"]?
+    if @householdComplete() and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
   classificationsByHouseholdMemberType: =>

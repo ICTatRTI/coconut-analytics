@@ -89,6 +89,8 @@ class GeoHierarchyView extends Backbone.View
     return false
 
   render: ->
+    @$el.html "Waiting for update from DHIS2"
+    return 
     options = $.extend({},Coconut.router.reportViewOptions)
     @fields = "Region,District,Shehia".split(/,/)
     @document_id = "Geo Hierarchy"

@@ -49,12 +49,11 @@ class HTMLHelpers
       <div class='cases' style='padding:10px; display:none'>
         #{@createCasesLinks cases}
         <button onClick='copy(\"#{@caseIds(cases).join("\\n")}\")'>copy</button>
-        #
       </div>
     "
 
   @createDisaggregatableCaseGroupWithLength = (cases) ->
-    text = if cases then cases.length else "-"
+    text = if cases then cases.length or _(cases).size() else "-"
     @createDisaggregatableCaseGroup cases, text
 
   @createDocLinks = (docs) ->

@@ -171,8 +171,9 @@ class GeoHierarchy
   swahiliDistrictName: (districtName) =>
     @findFirst(districtName, "DISTRICT")?.name
 
-  englishDistrictName: (districtName) => 
-    _(@findFirst(districtName, "DISTRICT")?.aliases).findWhere({description:"English"}).name
+  districtNameEnglishIfPossible: (districtName) => 
+    districtUnit = @findFirst(districtName, "DISTRICT")
+    _(districtUnit?.aliases).findWhere({description:"English"})?.name or districtUnit?.name
 
   findShehia: (shehiaName) => @find(shehiaName, "SHEHIA")
 

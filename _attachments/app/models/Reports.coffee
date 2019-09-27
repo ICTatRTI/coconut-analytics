@@ -343,17 +343,25 @@ class Reports
         return [median,values[0..half],values[half...]]
       else # even
         median = (values[half-1] + values[half]) / 2.0
-        return [median, values[0..half],values[half+1...]]
+        return [median, values[0..half-1],values[half...]]
 
     Coconut.medianTime = (values)=>
       Coconut.medianTimeWithHalves(values)[0]
 
     Coconut.medianTimeFormatted = (times) ->
       duration = moment.duration(Coconut.medianTime(times))
-      if duration.seconds() is 0 then "-" else duration.humanize()
+      unless duration.isValid() then "-" else duration.humanize()
 
     Coconut.quartiles = (values) ->
       [median,h1Values,h2Values] = Coconut.medianTimeWithHalves(values)
+      ###
+      console.log values
+      console.log h1Values
+      console.log h2Values
+      console.log Coconut.medianTime(h1Values)
+      console.log Coconut.medianTime(h2Values)
+      console.log "***"
+      ###
       [
         Coconut.medianTime(h1Values)
         median
@@ -365,11 +373,11 @@ class Reports
 
     Coconut.quartile1TimeFormatted = (times) ->
       duration = moment.duration(Coconut.quartile1Time(times))
-      if duration.seconds() is 0 then "-" else duration.humanize()
+      unless duration.isValid() then "-" else duration.humanize()
 
     Coconut.quartile3TimeFormatted = (times) ->
       duration = moment.duration(Coconut.quartile3Time(times))
-      if duration.seconds() is 0 then "-" else duration.humanize()
+      unless duration.isValid() then "-" else duration.humanize()
 
     Coconut.averageTime = (times) ->
       sum = 0
@@ -384,10 +392,10 @@ class Reports
 
     Coconut.averageTimeFormatted = (times) ->
       duration = moment.duration(Coconut.averageTime(times))
-      if duration.seconds() is 0
-        return "-"
-      else
+      if duration.isValid()
         return duration.humanize()
+      else
+        return "-"
 
     # Initialize the dataByUser object
     dataByUser = {}
@@ -421,6 +429,8 @@ class Reports
       timesFromSMSToCompleteHousehold: []
     }
 
+    dataByCase = {}
+
     # Get the the caseids for all of the results in the data range with the user id
     Coconut.database.query "resultsByDateWithUserAndCaseId",
       startkey: options.startDate
@@ -445,6 +455,7 @@ class Reports
         options.success
           dataByUser: dataByUser
           total: total
+          dataByCase: dataByCase
 
       #return if no users with cases
       successWhenDone() if _.isEmpty(dataByUser)
@@ -475,7 +486,7 @@ class Reports
               if malariaCase.notCompleteFacilityAfter24Hours()
                 userData.casesWithoutCompleteFacilityAfter24Hours[caseId] = malariaCase
                 total.casesWithoutCompleteFacilityAfter24Hours[caseId] = malariaCase
-              unless malariaCase.hasCompleteFacility
+              unless malariaCase.hasCompleteFacility()
                 userData.casesWithoutCompleteFacility[caseId] = malariaCase
                 total.casesWithoutCompleteFacility[caseId] = malariaCase
 
@@ -497,8 +508,12 @@ class Reports
                 "SMSToCompleteHousehold"
               ]).each (property) ->
 
-                userData["timesFrom#{property}"].push malariaCase["timeFrom#{property}"]()
-                total["timesFrom#{property}"].push malariaCase["timeFrom#{property}"]()
+                result = malariaCase["timeFrom#{property}"]()
+                if result
+                  userData["timesFrom#{property}"].push result
+                  total["timesFrom#{property}"].push result
+                  dataByCase[malariaCase.caseID] or= {}
+                  dataByCase[malariaCase.caseID]["timesFrom#{property}"] = result
 
             caseResults.push row.doc
             caseId = row.key
@@ -509,8 +524,8 @@ class Reports
               "FacilityToCompleteHousehold"
               "SMSToCompleteHousehold"
             ]).each (property) ->
-              _(["quartile1","median","quartile3"]).each (dataPoint) ->
 
+              _(["quartile1","median","quartile3"]).each (dataPoint) ->
                 try
                   userData["#{dataPoint}TimeFrom#{property}"] = Coconut["#{dataPoint}TimeFormatted"](userData["timesFrom#{property}"])
                   userData["#{dataPoint}TimeFrom#{property}Seconds"] = Coconut["#{dataPoint}Time"](userData["timesFrom#{property}"])
@@ -611,7 +626,6 @@ class Reports
     processCases = (cases) ->
       result = {}
       _(cases).each (malariaCase) ->
-        console.log "!"
         diagnosisDate = malariaCase.IndexCaseDiagnosisDate()
         if diagnosisDate is null
           console.error "Invalid date for malariaCase:"
@@ -649,7 +663,7 @@ class Reports
           # This is because the historic threshold calculations don't use them
           # This will be a problem if this aggregation code is used for something else
           if options.ignoreHouseholdNeighborForDistrict? and options.ignoreHouseholdNeighborForDistrict is true and aggregationArea is "district"
-            console.log "Skipping neighbors and households for district"
+            #console.log "Skipping neighbors and households for district"
           else
             # Under 5
             _(malariaCase.positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5()).each (householdOrNeighbor) ->
@@ -666,9 +680,6 @@ class Reports
               householdOrNeighborResult.householdOrNeighbor = householdOrNeighbor._id
               householdOrNeighborResult.link = "#show/case/#{malariaCase.caseID}/#{householdOrNeighbor._id}"
               results[aggregationArea][indexCaseResult[aggregationArea]]["total"].push householdOrNeighborResult
-
-      console.log "EZZZ"
-      console.log results
 
       options.success results,cases
 

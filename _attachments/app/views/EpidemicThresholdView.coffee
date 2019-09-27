@@ -34,7 +34,9 @@ class EpidemicThresholdView extends Backbone.View
                     <th class='threshold'>Facility</th>
                     <th class='threshold'>Shehia</th>
                     <th class='threshold'>Village</th>
+                    <!--
                     <th class='threshold'>District</th>
+                    -->
                  </tr>
               </thead>
               <tbody>
@@ -69,7 +71,9 @@ class EpidemicThresholdView extends Backbone.View
                     <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
                     <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
                     <td class='threshold'>5 or more total cases within 7 days</td>
+                    <!--
                     <td class='threshold' rowspan='2'>Specific for each district and week, based on 5 years of previous data</td>
+                    -->
                  </tr>
                  <tr>
                     <td style='background:#eee'>
@@ -107,15 +111,19 @@ class EpidemicThresholdView extends Backbone.View
 
               </tbody>
            </table>
+           <!--
            <p>(Note that cases counted for district thresholds don't include household and neighbor cases)</p>
+           -->
         </div>
         <!--<button class='btn' style='margin-top: 10px; float: right;'>Reset Table</button>-->
         <div class='epi-summary'>
+            <!--
             <div id='districtStat' class='mdl-card--expand'>
               <h5>DISTRICTS:</h5>
               <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i><span id='districtAlert'>0</span>
               <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i><span id='districtAlarm'>0</span>
             </div>
+            -->
             <div id='facilityStat' class='mdl-card--expand'>
               <h5>FACILITIES:</h5>
               <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i><span id='facilityAlert'>0</span>
@@ -213,6 +221,7 @@ class EpidemicThresholdView extends Backbone.View
                                     priorityIcon = "<i class='mdi mdi-alert-outline mdi-24px visited''></i>"
 
                                   tileTitle = threshold.Description.split(',')[0].toUpperCase()
+                                  console.log threshold
                                   "
                                   <button class='mdl-card__media btn_th'>
                                    <a href='#show/issue/#{threshold._id}' title='#{tileTitle}'>
@@ -221,7 +230,7 @@ class EpidemicThresholdView extends Backbone.View
                                       #{notifyIcon}
                                     </div>
                                     <div class='two'>
-                                      <span class='alarm-badge mdl-badge'>Cases: #{threshold.Cases?.length || 0}</span>
+                                      <span class='alarm-badge mdl-badge'>Cases: #{threshold.Amount}</span>
                                     </div>
                                     <div class='clearfix'></div>
                                     <div class='three'>
