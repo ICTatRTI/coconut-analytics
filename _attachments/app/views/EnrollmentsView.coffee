@@ -19,6 +19,10 @@ class EnrollmentsView extends Backbone.View
   events:
     "change #selectedYear": "updateYear"
     "change #selectedTerm": "updateTerm"
+    "click #downloadCSV": "downloadCSV"
+
+  downloadCSV: =>
+    @table.download "csv", "enrollments-#{@term}.csv"
 
   updateYear: =>
     @year = @$("#selectedYear").val()
@@ -82,6 +86,7 @@ class EnrollmentsView extends Backbone.View
 
       </h3>
       (Click an enrollment for more details)<br/>
+      <button id='downloadCSV'>Download as CSV</button>
       <div id='table-enrollments'/>
     "
     unless @year and @term
@@ -99,6 +104,16 @@ class EnrollmentsView extends Backbone.View
       _(result.rows).each (row) =>
         nameByUsername[row.key.replace(/user\./,"")] = row.doc.name
 
+    schools = await Coconut.schoolsDb.allDocs
+      include_docs: true
+    .catch (error) => console.error error
+    .then (result) => Promise.resolve(result.rows)
+
+    schoolNameById = {}
+
+    for school in schools
+      schoolNameById[school.id] = school.doc.Name
+
     Coconut.enrollmentsDb.query "enrollmentsByYearTermRegion",
       startkey: ["#{@year}","#{@term}"]
       endkey: ["#{@year}","#{@term}", "\uf000"]
@@ -111,7 +126,7 @@ class EnrollmentsView extends Backbone.View
         doc.region = row.key[2]
         doc.id = doc._id
         doc["created-by"] = nameByUsername[doc["created-by"]] or "-"
-        doc["school-name"] = nameByUsername[doc["created-by"]] or "-"
+        doc["school-name"] = schoolNameById["school-#{doc["school-id"]}"]
         doc["# of Students"] = _(doc.students).size()
         doc["updated-by"] = _(doc["updated-by"]).map( (username) => nameByUsername[username] or "-").join(",")
         doc["update-time"] = _(doc['update-time']).last() or "-"
@@ -120,15 +135,18 @@ class EnrollmentsView extends Backbone.View
         delete doc.students
         doc
 
-      console.log data
+      columns = for property, value of data[0]
+        title: property
+        field: property
+        headerFilter: "input"
 
-      table = new Tabulator "#table-enrollments", 
+      @table = new Tabulator "#table-enrollments", 
         height: "400"
-        autoColumns: true
+        columns: columns
         data: data
         layout: "fitColumns"
         rowClick: (e, row) =>
-          router.navigate "enrollment/#{row.getData().id}", trigger: true
+          Coconut.router.navigate "enrollment/#{row.getData().id}", trigger: true
 
 
     .catch (error) => console.error error

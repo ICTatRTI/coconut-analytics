@@ -20,6 +20,7 @@ DashboardView = require './views/DashboardView'
 #AttendanceView = require './views/AttendanceView'
 AggregatingAverageView = require './views/AggregatingAverageView'
 EnrollmentView = require './views/EnrollmentView'
+PersonView = require './views/PersonView'
 ExportView = require './views/ExportView'
 NewLearnersView = require './views/NewLearnersView'
 NewLearnerView = require './views/NewLearnerView'
@@ -66,6 +67,7 @@ class Router extends Backbone.Router
     "attendance": "attendance"
     "performance": "performance"
     "enrollment/:enrollment_id": "enrollment"
+    "person/:person_id": "person"
     "export": "export"
     "login": "login"
     "logout": "logout"
@@ -111,6 +113,13 @@ class Router extends Backbone.Router
     @enrollmentView.setElement("#content")
     @enrollmentView.enrollmentId = enrollmentId
     @enrollmentView.render()
+
+  person: (personId) =>
+    @personView = @personView or new PersonView()
+    @personView.setElement("#content")
+    Person.get(personId).then (person) =>
+      @personView.person= person
+      @personView.render()
 
   export: =>
     @exportView = @exportView or new ExportView()

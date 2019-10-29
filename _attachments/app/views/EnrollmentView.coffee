@@ -29,21 +29,8 @@ class EnrollmentView extends Backbone.View
         Coconut.router.navigate("reports/type/enrollments", {trigger:true})
 
   personDetails: (event) =>
-    event.stopPropagation()
-    Person.get(@$(event.target).attr("data-id")).then (person) =>
-      SweetAlert(
-        title: "#{person.name()}"
-        html: " "
-        showCloseButton: false
-        focusConfirm: true
-        confirmButtonText: 'Close'
-      )
-
-      expandableObject = new ExpandableObjectView(person.doc)
-      expandableObject.setElement $("<div/>") # Make an element not on the DOM
-      expandableObject.render()
-      $("#swal2-content").append expandableObject.$el
-
+    personId = @$(event.target).attr("data-id")
+    Coconut.router.navigate "person/#{personId}", trigger:true
 
   headers: [
     "creation-time"
@@ -100,7 +87,7 @@ class EnrollmentView extends Backbone.View
                         data = @enrollment.doc[header]
                         if header is "students"
                           _(peopleByRegistrationNumber).map (person, registrationNumber) =>
-                            "#{registrationNumber}: #{person.name()} <span class='person-details' data-id='#{person.id()}'>?</span><br/>"
+                            "#{registrationNumber}: <a href='#person/#{person.id()}'>#{person.name()}</a> <br/>"
                           .join("")
                         else if header is "attendance"
                           _(@enrollment.attendanceSummary()).map (value, property) =>

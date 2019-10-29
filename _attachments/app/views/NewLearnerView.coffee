@@ -20,10 +20,40 @@ class NewLearnerView extends Backbone.View
           <div class='side-by-side' id='targetPerson'></div>
           <div class='side-by-side' id='potentialPerson'></div>
         </div>
-        <hr/>
-        <div id='actions'>
-          <div class='side-by-side' style='width:40%;' id='followupActions'></div>
-          <div class='side-by-side' style='width:40%;' id='linkActions'></div>
+        <div style='border: 1px solid #ff4081; margin:0px; padding:5px' id='actions'>
+          <h3 style='text-align:center;margin-bottom:0px;'>Available Actions</h3>
+          #{
+            if @person.isConfirmed()
+              ""
+            else
+              "
+                <div class='side-by-side' style='width:30%;' id='confirmNewLearner'>
+                  <h4>Confirm New Learner</h4>
+                  Comments:<br/>
+                  <textarea id='newLearnerComments'></textarea><br/>
+                  <button id='confirmNewLearner'>Confirm as new learner</button>
+                </div>
+              "
+          }
+          <div class='side-by-side' style='width:30%;' id='followupActions'>
+            <h4>Request Followup</h4>
+            If more information is needed, then a followup action may be requested here.
+            Responsible people:<br/>
+            <select id='responsible-people' multiple>
+            </select>
+            Comments:<br/>
+            <textarea id='followupComments'>
+              Followup #{@person.shortId()}
+            </textarea>
+            <br/>
+            <button id='followup-action'>
+              Request Followup
+            </button>
+          </div>
+
+          <div class='side-by-side' style='width:30%;' id='linkActions'>
+            <h4>Link People (select a person below to link)</h4>
+          </div>
         </div>
         <div style='margin-top:10px' id='searchArea'>
           <button id='automatedSearchButton'>Automated Search</button> 
@@ -32,11 +62,28 @@ class NewLearnerView extends Backbone.View
         </div>
       "
 
+
       personView = new PersonView()
       personView.person = @person
       personView.setElement $("#targetPerson")
       personView.render()
       personView.showSummary()
+
+      Coconut.database.allDocs
+        startkey: "user.",
+        endkey: "user.\ufff0"
+        include_docs: true
+      .then (result) =>
+        @$("#responsible-people").html(
+          (for row in result.rows
+            "<option value='#{row.doc._id}'>#{row.doc.name}</option>"
+          ).join("")
+        )
+
+        @peopleSelector = new SlimSelect 
+          select: "#responsible-people"
+          allowDeselect: true,
+          deselectLabel: '<span class="red">✖</span>'
 
       @automatedSearch()
 
@@ -53,7 +100,7 @@ class NewLearnerView extends Backbone.View
           #{
             (for result in results
               "
-              <li id='#{result.item.id}' class='searchResult' style='background-color:RGBA(240,255,0,#{1-(result.score)}'>
+              <li id='#{result.item.id}' class='searchResult' style='background-color:RGBA(240,255,0,#{1-(1.5*result.score)}'>
                 #{result.item.value.Name}
               </li>
               "
@@ -102,6 +149,8 @@ class NewLearnerView extends Backbone.View
     "click button#followup-action": "createFollowupAction"
     "click #automatedSearchButton": "automatedSearch"
     "click #manualSearchButton": "manualSearch"
+    "click #confirmNewLearner": "confirmNewLearner"
+
 
   showPotentialMatchDetails: (event) =>
     @showPotentialMatchDetailsForPerson(@$(event.target).attr("id"))
@@ -114,34 +163,9 @@ class NewLearnerView extends Backbone.View
       personView.render()
       personView.showSummary()
 
-      Coconut.database.allDocs
-        startkey: "user.",
-        endkey: "user.\ufff0"
-        include_docs: true
-      .then (result) =>
-
-        @$("#followupActions").html "
-          If more information is needed for this link, then a followup action may be requested here.
-          Responsible people:<br/>
-          <select id='responsible-people' multiple>
-            #{
-              (for row in result.rows
-                "<option value='#{row.doc._id}'>#{row.doc.name}</option>"
-              ).join("")
-            }
-          </select>
-          Comments:<br/>
-          <textarea id='followupComments'></textarea><br/>
-          <button id='followup-action'>
-            Request Followup
-          </button>
-        "
-        @peopleSelector = new SlimSelect 
-          select: "#responsible-people"
-          allowDeselect: true,
-          deselectLabel: '<span class="red">✖</span>'
 
       @$("#linkActions").html "
+        <h4>Link People</h4>
         To create a link between #{@selectedPerson.shortId()} with #{@person.shortId()} you may enter comments and then click the link button:<br/>
         Comments:<br/>
         <textarea id='linkComments'></textarea><br/>
@@ -149,28 +173,31 @@ class NewLearnerView extends Backbone.View
           Link #{@selectedPerson.shortId()} with #{@person.shortId()}
         </button>
       "
+      @$("#followupComments").html "
+        Followup regarding #{@person.shortId()} and #{@selectedPerson.shortId()}
+      "
+
+  confirmNewLearner: =>
+    if confirm "Are you sure you want to confirm #{@person.shortId()}?"
+      @person.confirm(@$("#newLearnerComments").val()).then =>
+        Coconut.router.navigate "person/#{@person.id()}", trigger:true
 
   link: =>
     if confirm "Are you sure you want to link #{@selectedPerson.shortId()} and #{@person.shortId()}?"
-      Coconut.peopleDB.put
-        _id: "link_#{@person.longId()}_#{@selectedPerson.longId()}_#{moment().format("YYYY-MM-DD:HH:mm:ss")}"
-        link: [
-          @person.longId()
-          @selectedPerson.longId()
-        ]
-        "created-by": Coconut.currentUser.id
-        date: moment().format("YYYY-MM-DD")
-        comments: @$("#linkComments").val()
+      @person.createLink(@selectedPerson, @$("#linkComments").val()).then =>
+        Coconut.router.navigate "person/#{@person.id()}", trigger:true
 
   # create followup action document
   createFollowupAction: =>
+
+    id = "followup_#{@person.doc._id}_"
+    if @selectedPerson?._id # include the selected person if one has been clicked
+      id += "#{@selectedPerson._id}_"
+    id += moment().format("YYYY-MM-DD:HH:mm:ss")
+
     Coconut.peopleDB.put
-      _id: "followup_#{@person.doc._id}_#{@selectedPerson._id}_#{moment().format("YYYY-MM-DD:HH:mm:ss")}"
+      _id: id
       peopleToFollowup: @peopleSelector.selected()
-      "relevant-learners": [
-        @selectedPerson._id
-        @person.doc._id
-      ]
       date: moment().format("YYYY-MM-DD")
       comments: @$("#followupComments").val()
       followedUpComplete: false
