@@ -49,6 +49,7 @@ class ExportView extends Backbone.View
     "Spotchecks - # Performed"
     "Spotchecks - # Present For"
     "Spotchecks - Attendance Mismatches"
+    "Spotchecks - Attendance Mismatch Dates"
     "Performance - English"
     "Performance - Kiswahili"
     "Performance - Maths"

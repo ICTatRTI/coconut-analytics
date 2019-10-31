@@ -31,6 +31,7 @@
       "Spotchecks - # Performed"
       "Spotchecks - # Present For"
       "Spotchecks - Attendance Mismatches"
+      "Spotchecks - Attendance Mismatch Dates"
       "Performance - english"
       "Performance - kiswahili"
       "Performance - maths"
@@ -142,6 +143,7 @@
       result["Spotchecks - # Performed"] = 0
       result["Spotchecks - # Present For"] = 0
       result["Spotchecks - Attendance Mismatches"] = 0
+      result["Spotchecks - Attendance Mismatch Dates"] = []
       result["Spotcheck - Jan"] = null
       result["Spotcheck - Feb"] = null
       result["Spotcheck - Mar"] = null
@@ -181,7 +183,11 @@
           result["Spotcheck - #{monthAbbreviation}"] = if spotcheckResult is "present" then "P" else "A"
           result["Spotchecks - # Performed"] +=1
           result["Spotchecks - # Present For"] +=1 if spotcheckResult is "present"
-          result["Spotchecks - Attendance Mismatches"] +=1 if doc.attendance?[enrollment]?[date]?.toLowerCase() isnt spotcheckResult
+          if doc.attendance?[enrollment]?[date]?.toLowerCase() isnt spotcheckResult
+            result["Spotchecks - Attendance Mismatches"] +=1
+            result["Spotchecks - Attendance Mismatch Dates"].push date
+
+      result["Spotchecks - Attendance Mismatch Dates"] = result["Spotchecks - Attendance Mismatch Dates"].join(", ")
 
       performance = doc.performance?[enrollment]
       if performance
