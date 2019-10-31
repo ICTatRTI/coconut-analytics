@@ -16,6 +16,18 @@
       "Attendance - Days Eligible"
       "Attendance - Days Present"
       "Attendance - Percent"
+      "Spotcheck - Jan"
+      "Spotcheck - Feb"
+      "Spotcheck - Mar"
+      "Spotcheck - Apr"
+      "Spotcheck - May"
+      "Spotcheck - Jun"
+      "Spotcheck - Jul"
+      "Spotcheck - Aug"
+      "Spotcheck - Sep"
+      "Spotcheck - Oct"
+      "Spotcheck - Nov"
+      "Spotcheck - Dec"
       "Spotchecks - # Performed"
       "Spotchecks - # Present For"
       "Spotchecks - Attendance Mismatches"
@@ -130,6 +142,18 @@
       result["Spotchecks - # Performed"] = 0
       result["Spotchecks - # Present For"] = 0
       result["Spotchecks - Attendance Mismatches"] = 0
+      result["Spotcheck - Jan"] = null
+      result["Spotcheck - Feb"] = null
+      result["Spotcheck - Mar"] = null
+      result["Spotcheck - Apr"] = null
+      result["Spotcheck - May"] = null
+      result["Spotcheck - Jun"] = null
+      result["Spotcheck - Jul"] = null
+      result["Spotcheck - Aug"] = null
+      result["Spotcheck - Sep"] = null
+      result["Spotcheck - Oct"] = null
+      result["Spotcheck - Nov"] = null
+      result["Spotcheck - Dec"] = null
 
       spotchecksPerformed = 0
       spotchecksPresentFor = 0
@@ -138,6 +162,23 @@
       for date, spotcheckResult of doc.spotchecks
         if startDateForEnrollmentTerm < date and date < endDateForEnrollmentTerm
 
+          monthNumber = date[5..-4]
+          monthAbbreviation = {
+            "01":"Jan"
+            "02":"Feb"
+            "03":"Mar"
+            "04":"Apr"
+            "05":"May"
+            "06":"Jun"
+            "07":"Jul"
+            "08":"Aug"
+            "09":"Sep"
+            "10":"Oct"
+            "11":"Nov"
+            "12":"Dec"
+          }[monthNumber]
+
+          result["Spotcheck - #{monthAbbreviation}"] = if spotcheckResult is "present" then "P" else "A"
           result["Spotchecks - # Performed"] +=1
           result["Spotchecks - # Present For"] +=1 if spotcheckResult is "present"
           result["Spotchecks - Attendance Mismatches"] +=1 if doc.attendance?[enrollment]?[date]?.toLowerCase() isnt spotcheckResult

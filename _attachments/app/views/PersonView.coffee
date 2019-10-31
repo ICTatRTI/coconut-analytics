@@ -19,6 +19,12 @@ class PersonView extends Backbone.View
       <div class='summary'/>
       <div class='linkedPeople'/>
       <div class='comments'/>
+      #{
+        if @person.linkedPeople?
+          "<h4>Data for this learner's record (doesn't include linked learner data):</h4>"
+        else
+        "<br/>"
+      }
       <div class='expandableData'/>
     "
     @showSummary()
@@ -59,16 +65,27 @@ class PersonView extends Backbone.View
       <table>
         <tbody>
           <tr>
-            <td class='title'>Name</td>
+            <td class='title'>Name#{if @person.allNames().length > 0 then "s" else ""}</td>
             <td>#{@person.allNames().join(", ")}</td>
           </tr>
           <tr>
-            <td class='title'>School</td>
+            <td class='title'>School#{if @person.allSchools().length > 0 then "s" else ""}</td>
             <td>#{@person.allSchools().join(", ")}</td>
           </tr>
           <tr>
-            <td class='title'>Id</td>
-            <td class='ids'>#{@person.allIds().join(", ")}</a>
+            <td class='title'>Id#{if @person.allIds().length > 0 then "s" else ""}</td>
+            <td class='ids'>#{
+              (for personId in @person.allIds()
+                if personId isnt @person.longId()
+                  "<a href='#person/#{personId}'>#{personId}</a>"
+                else
+                  personId
+              ).join(", ")
+            }</td>
+          </tr>
+          <tr>
+            <td class='title'>Transitions</td>
+            <td>#{_(@person.transitions()).keys().join(", ")}</td>
           </tr>
         </tbody>
       </table>

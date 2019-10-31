@@ -6,7 +6,6 @@ class NewLearnerView extends Backbone.View
 
   render: =>
     Person.get(@personId).then (@person) =>
-      firstTermEnrolled = @person.firstTermEnrolled()
       @$el.html "
         <style>
           .side-by-side{
