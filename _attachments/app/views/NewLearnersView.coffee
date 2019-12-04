@@ -73,8 +73,6 @@ class NewLearnersView extends Backbone.View
         tableData = _(result.rows).chain().map (row) =>
           return unless row.id.match(/-.+-/) # only get unconfirmed people
           if @className isnt "All"
-            console.log row.value["School Class"]
-            console.log @className
             return unless row.value["School Class"] is @className
           row.value.id = row.id
           row.value
@@ -116,7 +114,6 @@ class NewLearnersView extends Backbone.View
           else
             potentialDuplicates = await(person.findPotentialDuplicateFromArrayOfPeople(result.rows))
             if potentialDuplicates.length > 0
-              console.log potentialDuplicates[0]
               if potentialDuplicates[0].score < 0.5
                 @increment("#likelyMatch")
                 rowComponent.getElement().style["background-color"] = "RGBA(240,255,0,#{1-(2*potentialDuplicates[0].score)}"
@@ -144,7 +141,7 @@ class NewLearnersView extends Backbone.View
       data: tableData
       layout:"fitColumns"
       columns: [
-        {title: "Name", field: "Name", headerFilter: true}
+        {title: "Name", field: "Name", headerFilter: true, formatter: "link", formatterParams: {url: (cellComponent) => "#admin/new_learner/#{cellComponent._cell.row.data.id}"}}
         {title: "ID", field: "id", headerFilter: true}
         #{title: "Region", field: "Region", headerFilter: true},
         {title: "School Name", field: "School Name", headerFilter: true}

@@ -79,7 +79,7 @@ class NewLearnerView extends Backbone.View
           ).join("")
         )
 
-        @peopleSelector = new SlimSelect 
+        @usersSelector = new SlimSelect 
           select: "#responsible-people"
           allowDeselect: true,
           deselectLabel: '<span class="red">✖</span>'
@@ -194,12 +194,18 @@ class NewLearnerView extends Backbone.View
       id += "#{@selectedPerson._id}_"
     id += moment().format("YYYY-MM-DD:HH:mm:ss")
 
+    relevantPeople = [@person.doc._id]
+    relevantPeople.push @selectedPerson._id if @selectedPerson?
+
     Coconut.peopleDB.put
       _id: id
-      peopleToFollowup: @peopleSelector.selected()
+      people: relevantPeople
+      usersToFollowup: @usersSelector.selected()
       date: moment().format("YYYY-MM-DD")
       comments: @$("#followupComments").val()
       followedUpComplete: false
+
+    alert "Followup created"
 
   filter: (event) =>
     clickTarget = $(event.target)

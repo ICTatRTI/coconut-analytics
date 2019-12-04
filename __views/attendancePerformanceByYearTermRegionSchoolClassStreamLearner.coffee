@@ -187,7 +187,7 @@
             result["Spotchecks - Attendance Mismatches"] +=1
             result["Spotchecks - Attendance Mismatch Dates"].push date
 
-      result["Spotchecks - Attendance Mismatch Dates"] = result["Spotchecks - Attendance Mismatch Dates"].join(", ")
+      result["Spotchecks - Attendance Mismatch Dates"] = result["Spotchecks - Attendance Mismatch Dates"].join(" ")
 
       performance = doc.performance?[enrollment]
       if performance
