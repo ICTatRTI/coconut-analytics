@@ -138,7 +138,7 @@ class ProgressView extends Backbone.View
     .catch (error) => console.error error
     .then (result) =>
       _(result.rows).map (school) =>
-        return if school.inactive
+        return if school.doc.inactive
         @$("#table-schools tbody").append "
           <tr class='school' id='#{school.id}'>
             <td class='region'>#{school.doc.Region}</td>
