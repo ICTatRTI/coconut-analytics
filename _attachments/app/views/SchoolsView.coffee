@@ -71,12 +71,10 @@ class SchoolsView extends Backbone.View
           _id: "school." + $("#_id").val()
 
       @school.collection = "school"
-      @school.inactive = $("#inactive").is(":checked")
       @school.isApplicationDoc = true
       for field in @fields
         @school[field] = @$("[name='#{field}']").val()
-
-      console.log @school
+      @school.inactive = $("#inactive").is(":checked")
 
       Coconut.schoolsDB.put @school
       .catch (error) ->
@@ -129,7 +127,7 @@ class SchoolsView extends Backbone.View
       .then (result) =>
         schools = _(result.rows).pluck("doc")
         console.log(schools)
-        @fields = {}
+        @fields = {inactive:true} # set inactive as a field manually
         for school in schools
           for field in _(school).keys()
             @fields[field] = true unless field.startsWith "_" or field is "isApplicationDoc"
