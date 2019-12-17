@@ -82,6 +82,9 @@ class WeeklyMeetingReportView extends Backbone.View
           border: 1px solid black;
           display:block;
         }
+        .pdf-page{
+          page-break-before: always;
+        }
       </style>
       <div style='float:right'>
         Generated at: #{@generatedAtText}
@@ -115,14 +118,14 @@ class WeeklyMeetingReportView extends Backbone.View
       </h1>
 
       <hr/>
-      <div id='zoneSummary'>
+      <div class='pdf-page' id='zoneSummary'>
         <h2>Zone Summary</h2>
       </div>
 
-      <div id='charts'/>
+      <div class='pdf-page' id='charts'/>
       <hr/>
 
-      <div style='page-break-before: always' id='maps'>
+      <div class='pdf-page' id='maps'>
         <h2>Sprayed Shehias And Cases</h2>
         <div>
           <button id='mapControls'>Map Controls</button>
@@ -139,7 +142,7 @@ class WeeklyMeetingReportView extends Backbone.View
         }
       </div>
 
-      <div style='page-break-before: always' id='districtSummary'>
+      <div class='pdf-page' id='districtSummary'>
         <h2>District Summary</h2>
       </div>
     "
@@ -183,10 +186,14 @@ class WeeklyMeetingReportView extends Backbone.View
     $("#mapControls").hide()
     for mapControl in @mapControls.split(", ")
       @$(mapControl).hide()
+    #$(".pdf-page").css("width", "820px")
+    #await _.delay(->,2000)
 
     await Html2Pdf $("#content")[0],
       filename: "Weekly-#{@generatedAtText}.pdf"
-      jsPDF: orientation: "landscape"
+      jsPDF: 
+        orientation: "landscape"
+        format: "a4"
     $(".hide-for-printing, .downloadCSV").show()
     $(".date").css("background-color", "")
     $(".date").css("border", "")
@@ -287,8 +294,8 @@ class WeeklyMeetingReportView extends Backbone.View
     @summaryCaseDataById = {}
 
     summaryCaseData = await Coconut.reportingDatabase.query "caseIDsByDate",
-      startkey: @startDate
-      endkey: @endDate
+      startkey: @startDate.format("YYYY-MM-DD")
+      endkey: @endDate.format("YYYY-MM-DD")
       include_docs: true
     .catch (error) -> console.error error
     .then (result) => 
@@ -562,8 +569,6 @@ class WeeklyMeetingReportView extends Backbone.View
 
         index = 0
         for classification of @classifications
-          console.log classification
-          console.log index
           if year is currentYear and indicator is "Classification: #{classification}"
             classificationDatasets[zone][index].sparseData[week] = amount
           index+=1

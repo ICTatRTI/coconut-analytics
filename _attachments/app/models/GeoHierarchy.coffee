@@ -1,32 +1,25 @@
 _ = require 'underscore'
 
-# Note that in order to support more levels than DHIS2 can
-# We load shehia data from "Geo Hierarchy"
-# And we load Facility data from "dhis2"
-# This merging is done by DhisOrganisationUnits
+levelMappings =
+  "MINISTRY OF HEALTH":"NATIONAL"
+  "ZONE":"ISLANDS"
+  "REGION":"REGIONS"
+  "DISTRICT":"DISTRICTS"
+  "FACILITY":"HEALTH FACILITIES"
+  "SHEHIA": "SHEHIAS"
+
+
 class Unit
 
-  constructor: (data) ->
-    @name = data.name
+  constructor: (data, @levelName) ->
+    @name = data.name.toUpperCase()
     @parentId = data.parentId
     @level = data.level
-    @levelName = global.GeoHierarchy.levelNamesForNumber[@level]
     @id = data.id
-    @aliases = data.aliases
+    @aliases = for alias in (data.aliases or [])
+      alias.name = alias.name.toUpperCase()
+      alias
     @phoneNumber = data.phoneNumber
-
-
-  ###
-  constructor: (rawUnit, @geohierarchy) ->
-    @name = rawUnit.name
-    @parentId = rawUnit.parent?.id or rawUnit.parentId
-    @level = rawUnit.level
-    @id = rawUnit.id
-    levelData = _(@geohierarchy.rawData.organisationUnitLevels).find (level) => level.level is @level
-    @levelName = if levelData then levelData.name.toUpperCase() else null
-    @aliases = rawUnit.aliases
-    @phoneNumber = rawUnit.phoneNumber
-  ###
 
   parent: =>
     return null unless @parentId
@@ -41,6 +34,7 @@ class Unit
     return [parent].concat(parent.ancestors())
 
   ancestorAtLevel: (levelName) =>
+    levelName = levelMappings[levelName] or levelName
     _(@ancestors()).find (ancestor) ->
       ancestor.levelName is levelName
 
@@ -64,41 +58,60 @@ class Unit
 
 class GeoHierarchy
 
+  loadAliases: (data) =>
+    aliasesByCurrentName = {}
+    for alias in data
+      aliasesByCurrentName[alias.officialName] = alias.alias
+
+    @externalAliases = _(@externalAliases or= {}).extend aliasesByCurrentName
+
+  loadData: (data) =>
+    @units = []
+    @unitsById = {}
+    @unitsByName = {}
+    @unitsByLevel = {
+      1:[]
+      2:[]
+      3:[]
+      4:[]
+      5:[]
+      6:[]
+    }
+    @unitsByLevelName = {}
+    @levels = for level in data.levels
+      level.name = level.name.toUpperCase()
+      level
+    @levelNamesForNumber = {}
+
+    for level in @levels
+      @levelNamesForNumber[level.number] = level.name
+
+    for unitData in data.units
+      unit = new Unit(unitData, @levelNamesForNumber[unitData.level])
+      @units.push unit
+      @unitsById[unit.id] = unit
+      @unitsByLevel[unit.level].push unit
+      @unitsByLevelName[unit.levelName] or= []
+      @unitsByLevelName[unit.levelName].push unit
+      @unitsByName[unit.name] or= []
+      @unitsByName[unit.name].push unit
+      if unit.aliases
+        for alias in unit.aliases
+          @unitsByName[alias.name] or= []
+          @unitsByName[alias.name].push unit
+      if @externalAliases?[unit.name]
+          @unitsByName[@externalAliases[unit.name]] or= []
+          @unitsByName[@externalAliases[unit.name]].push unit
+
+    @groups = data.groups
+
   load: =>
-    Coconut.database.get("Geographic Hierarchy").then (data) =>
-      @units = []
-      @unitsById = {}
-      @unitsByName = {}
-      @unitsByLevel = {
-        1:[]
-        2:[]
-        3:[]
-        4:[]
-        5:[]
-        6:[]
-      }
-      @unitsByLevelName = {}
-      @levels = data.levels
-      @levelNamesForNumber = {}
-
-      for level in @levels
-        @levelNamesForNumber[level.number] = level.name.toUpperCase()
-
-      for unitData in data.units
-        unit = new Unit(unitData)
-        @units.push unit
-        @unitsById[unit.id] = unit
-        @unitsByLevel[unit.level].push unit
-        @unitsByLevelName[unit.levelName] or= []
-        @unitsByLevelName[unit.levelName].push unit
-        @unitsByName[unit.name] or= []
-        @unitsByName[unit.name].push unit
-        if unit.aliases
-          for alias in unit.aliases
-            @unitsByName[alias.name] or= []
-            @unitsByName[alias.name].push unit
-
-      @groups = data.groups
+    @loadAliases (await Coconut.database.get("Geographic Hierarchy Aliases")
+      .catch (error) => console.error error
+    ).data
+    @loadData (await Coconut.database.get("Geographic Hierarchy")
+      .catch (error) => console.error error
+    )
 
   # function from legacy version #
 
@@ -109,8 +122,14 @@ class GeoHierarchy
   ###
 
   find: (name, levelName) =>
+
     name = name.toUpperCase()
     levelName = levelName.toUpperCase()
+
+    # When Coconut adopted DHIS2 units, we had to map old level names to the DHIS2 ones
+
+    levelName = levelMappings[levelName] or levelName
+
     return [] unless name? and levelName?
     _(@unitsByName[name]).filter (unit) ->
       unit.levelName is levelName
@@ -130,8 +149,16 @@ class GeoHierarchy
       else
         return undefined
 
+  findWithParent: (name, levelName) =>
+    for unit in @find(name,levelName)
+      console.log unit.parent()
+      name: unit.name
+      parentName: unit.parent().name
+
   findAllForLevel: (levelName) =>
-    @unitsByLevelName[levelName.toUpperCase()]
+    levelName = levelName.toUpperCase()
+    levelName = levelMappings[levelName] or levelName
+    @unitsByLevelName[levelName]
 
   findChildrenNames: (targetLevelName, parentName) =>
     parentNode = @find(parentName, targetLevelName)
@@ -139,9 +166,13 @@ class GeoHierarchy
     _(parentNode[0].children()).pluck "name"
 
   findAllDescendantsAtLevel: (name, sourceLevelName, targetLevelName) =>
+    targetLevelName = targetLevelName.toUpperCase()
+    targetLevelName = levelMappings[targetLevelName] or targetLevelName
     @findFirst(name, sourceLevelName)?.descendantsAtLevel(targetLevelName)
 
   findAllAncestorsAtLevel: (name, sourceLevelName, targetLevelName) =>
+    targetLevelName = targetLevelName.toUpperCase()
+    targetLevelName = levelMappings[targetLevelName] or targetLevelName
     ancestors = @findFirst(name, sourceLevelName)?.ancestors()
     _(ancestors).filter (ancestor) -> ancestor.levelName is targetLevelName
 
@@ -162,6 +193,7 @@ class GeoHierarchy
 
   getAncestorAtLevel: (sourceName, sourceLevel, targetLevel) =>
     @findFirst(sourceName, sourceLevel.toUpperCase()).ancestorAtLevel(targetLevel.toUpperCase())?.name
+
 
 
   ###
@@ -208,7 +240,7 @@ class GeoHierarchy
     district = @findOneMatchOrUndefined(districtName,"DISTRICT")
     return null unless district
     _(district.ancestors()).find (unit) ->
-      unit.levelName is "ZONE"
+      unit.levelName is "ISLANDS" or unit.levelName is "ZONE" # Added ISLANDS for DHIS2 unit merge
     .name
 
   getZoneForRegion: (regionName) ->
@@ -223,7 +255,7 @@ class GeoHierarchy
   ## Functions from FacilityHierarchy ##
   # TODO refactor to not use these #
 
-  allFacilities: => _.pluck @findAllForLevel("FACILITY"), "name"
+  allFacilities: => _(@findAllForLevel("FACILITY")).chain().pluck("name").unique().value()
 
   # Warning facilityNames may not be unique
   getDistrict: (facilityName) =>
@@ -242,7 +274,7 @@ class GeoHierarchy
       return null
     zoneForFacility.name
 
-  facilities: (districtName) =>
+  facilities: (districtName) => # Note this is note named well
     _(@findAllDescendantsAtLevel(districtName, "DISTRICT", "FACILITY")).pluck "name"
 
   facilitiesForDistrict: (districtName) => @facilities(districtName)

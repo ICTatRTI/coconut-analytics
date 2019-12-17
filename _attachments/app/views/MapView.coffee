@@ -297,13 +297,18 @@ class MapView extends Backbone.View
   }
 
   getCases: =>
+    caseIds = []
     Coconut.reportingDatabase.query 'keyIndicatorsByDate',
       startkey: Coconut.router.reportViewOptions.startDate
       endkey: Coconut.router.reportViewOptions.endDate
     .then (result) =>
+      console.log result
       for row in result.rows
-        continue unless row.value.latLong?
+        unless row.value.latLong?
+          console.warn "#{row.value} missing latLong, not mapping"
+          continue
         caseId = row.id.replace(/.*_/,"")
+        caseIds.push caseId
         L.circleMarker row.value.latLong,
           color: '#000000'
           weight: 0.3
@@ -317,6 +322,8 @@ class MapView extends Backbone.View
         .addTo(@map)
         .bringToFront()
         .bindPopup "<a href='#show/case/#{caseId}'>#{caseId}</a>"
+
+      console.log caseIds.join("\n")
   
   createMapLegend: =>
     legend = L.control(position: 'bottomright')
