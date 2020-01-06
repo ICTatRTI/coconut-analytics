@@ -39,12 +39,12 @@ class WeeklyMeetingReportView extends Backbone.View
     @tabulators = []
     options = $.extend({},Coconut.router.reportViewOptions)
     HTMLHelpers.ChangeTitle("Reports: Weekly Meeting Report")
-    @startDate = moment(options.startDate) or moment().subtract(1,'week').startOf('isoWeek')
-    @endDate = moment(options.endDate) or moment().subtract(1,'week').endOf('isoWeek')
+    @startDate = moment(options.startDate).startOf('isoWeek') or moment().subtract(1,'week').startOf('isoWeek')
+    @endDate = moment(options.startDate).endOf('isoWeek') or moment().subtract(1,'week').endOf('isoWeek') # Note always do this relative to the startdate - just ignore the end date passed in
 
     $('#analysis-spinner').show()
 
-    @selectedYear or= @startDate.year()
+    @selectedYear or= @startDate.isoWeekYear()
     @selectedWeek or= @startDate.isoWeek()
 
     summaryTableId = "summaryTable-#{@startDate.format('YYYY-MM-DD')}_#{@endDate.format('YYYY-MM-DD')}"
@@ -257,11 +257,11 @@ class WeeklyMeetingReportView extends Backbone.View
         )
 
   updateDate: =>
-    @startDate.year @$("#year").val()
+    @startDate.isoWeekYear @$("#year").val()
     @startDate.isoWeek @$("#week").val()
-    @endDate.year @$("#year").val()
+    @endDate.isoWeekYear @$("#year").val()
     @endDate.isoWeek @$("#week").val()
-    @selectedYear = @startDate.year()
+    @selectedYear = @startDate.isoWeekYear()
     @selectedWeek = @startDate.isoWeek()
 
     Coconut.router.reportViewOptions['startDate'] = @startDate.format("YYYY-MM-DD")
