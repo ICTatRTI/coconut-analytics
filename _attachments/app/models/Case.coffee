@@ -320,7 +320,7 @@ class Case
 
   dateHouseholdVisitCompleted: =>
     if @completeHouseholdVisit()
-      @.Household?.lastModifiedAt or @Facility.lastModifiedAt # When the household has two cases
+      @.Household?.lastModifiedAt or @["Household Members"]?[0]?.lastModifiedAt or @Facility?.lastModifiedAt # When the household has two cases
 
   followedUp: =>
     @completeHouseholdVisit()

@@ -323,7 +323,7 @@ class MapView extends Backbone.View
         .bringToFront()
         .bindPopup "<a href='#show/case/#{caseId}'>#{caseId}</a>"
 
-      console.log caseIds.join("\n")
+      #console.log caseIds.join("\n")
   
   createMapLegend: =>
     legend = L.control(position: 'bottomright')

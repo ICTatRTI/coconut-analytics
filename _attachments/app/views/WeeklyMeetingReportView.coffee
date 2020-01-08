@@ -342,6 +342,7 @@ class WeeklyMeetingReportView extends Backbone.View
       area = area.name
       # All Facilities for the current area
       numberOfFacilitiesByAggregationArea = GeoHierarchy.findAllDescendantsAtLevel(area, aggregationArea, "FACILITY")?.length or 0
+
       row = 
         "#{aggregationArea}": area
         "Reporting Rate Previous Week": (previousAggregatedWeeklyFacilityReport?[area]?["Reports submitted for period"] or 0)/numberOfFacilitiesByAggregationArea
@@ -349,8 +350,15 @@ class WeeklyMeetingReportView extends Backbone.View
         "Cases Notified Previous Week": previousAggregatedCases[area]["Cases Notified"]
         "Cases Notified": aggregatedCases[area]["Cases Notified"]
         "Positive Individuals": aggregatedCases[area]["Positive Individuals"]
-        "Positive Individuals Classified Indigenous": aggregatedCases[area]["Positive Individuals Classified Indigenous"]
-        "Positive Individuals Classified Imported": aggregatedCases[area]["Positive Individuals Classified Imported"]
+        "Positive Individuals Classified Indigenous": 
+          cases: aggregatedCases[area]["Positive Individuals Classified Indigenous"]
+          denominator: aggregatedCases[area]["Positive Individuals"].length
+        "Positive Individuals Classified Imported": 
+          cases: aggregatedCases[area]["Positive Individuals Classified Imported"]
+          denominator: aggregatedCases[area]["Positive Individuals"].length
+        "Positive Individuals Not Classified": 
+          cases: aggregatedCases[area]["Positive Individuals Not Classified"]
+          denominator: aggregatedCases[area]["Positive Individuals"].length
       columnNames or= _(row).keys()
       unless area is "UNKNOWN" and previousAggregatedCases[area]["Cases Notified"]?.length is 0 and aggregatedCases[area]["Cases Notified"]?.length is 0 and aggregatedCases[area]["Positive Individuals"]?.length is 0
         data.push row
@@ -401,10 +409,8 @@ class WeeklyMeetingReportView extends Backbone.View
       "Positive Individuals Indigenous"
     ]
 
-    columns = for name in columnNames
-      field: name
-      title: name.replace(/\s/g,"<br/>")
-      formatter: @tableCellFormatter
+
+    console.log casesAggregatedByDistrict
     
     data = for district, data of casesAggregatedByDistrict
       continue if district is "UNKNOWN" and data["Cases Notified"]?.length is 0
@@ -413,10 +419,24 @@ class WeeklyMeetingReportView extends Backbone.View
         District: district
         "Cases Notified": data["Cases Notified"]
         "Cases Investigated": data["Cases Investigated"]
-        "Positive Individuals Imported": data["Positive Individuals Classified Imported"]
-        "Positive Individuals Indigenous": data["Positive Individuals Classified Indigenous"]
+        "Positive Individuals": data["Positive Individuals"]
+        "Positive Individuals Imported": 
+          cases: data["Positive Individuals Classified Imported"]
+          denominator: data["Positive Individuals"].length
+        "Positive Individuals Indigenous":
+          cases: data["Positive Individuals Classified Indigenous"]
+          denominator: data["Positive Individuals"].length
+        "Positive Individuals Not Classified":
+          cases: data["Positive Individuals Not Classified"]
+          denominator: data["Positive Individuals"].length
       }
 
+    columnNames = _(data[0]).keys()
+
+    columns = for name in columnNames
+      field: name
+      title: name.replace(/\s/g,"<br/>")
+      formatter: @tableCellFormatter
 
     summaryTableByDistrictId = "summaryTableByDistrict-#{@startDate.format('YYYY-MM-DD')}_#{@endDate.format('YYYY-MM-DD')}"
 
@@ -443,7 +463,13 @@ class WeeklyMeetingReportView extends Backbone.View
       if isNaN(value)
         return "N/A"
       else
-        return "#{Math.round(value*100)}%"
+        percentValue = Math.round(value*100)
+        cell._cell.element.style.background = "linear-gradient(-90deg, lightpink #{percentValue}%, white 0%)"
+        return "#{percentValue}%"
+    else if value.cases and value.denominator
+      percentValue = (value.cases.length/value.denominator*100).toFixed()
+      cell._cell.element.style.background = "linear-gradient(-90deg, lightpink #{percentValue}%, white 0%)"
+      "<button class='cases' data-column='#{columnField}' data-cases='#{value.cases.join(',')}'>#{value.cases.length}</button> (#{percentValue}%)"
     else
       "<button class='cases' data-column='#{columnField}' data-cases='#{value?.join(',')}'>#{value?.length}</button>"
 
@@ -458,6 +484,7 @@ class WeeklyMeetingReportView extends Backbone.View
         "Positive Individuals": []
         "Positive Individuals Classified Indigenous": []
         "Positive Individuals Classified Imported": []
+        "Positive Individuals Not Classified": []
 
     for summaryCase in summaryCaseData
       caseAggregationArea = switch aggregationArea
@@ -479,6 +506,7 @@ class WeeklyMeetingReportView extends Backbone.View
         aggregatedCases[caseAggregationArea]["Positive Individuals"].push id
         aggregatedCases[caseAggregationArea]["Positive Individuals Classified Indigenous"].push id if classification is "Indigenous"
         aggregatedCases[caseAggregationArea]["Positive Individuals Classified Imported"].push id if classification is "Imported"
+        aggregatedCases[caseAggregationArea]["Positive Individuals Not Classified"].push id if classification is undefined
 
     return aggregatedCases
 
