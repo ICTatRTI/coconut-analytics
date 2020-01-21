@@ -1,16 +1,14 @@
-argv = require('minimist')(process.argv.slice(2));
+argv = require('minimist')(process.argv.slice(2))
+_ = require 'underscore'
 
 PouchDB = require 'pouchdb-core'
 PouchDB.plugin(require('pouchdb-upsert'))
 PouchDB.plugin(require('pouchdb-adapter-http'))
 PouchDB.plugin(require('pouchdb-mapreduce'))
 
-moment = require 'moment'
 
-Coconut =
-  reportingDatabase: new PouchDB "#{argv.database}-reporting",
-    ajax:
-      timeout: 1000 * 60 * 10
+moment = require 'moment'
+GeoHierarchyClass = require './models/GeoHierarchy'
 
 
 updateShehiaMetadata = (shehiaName, date, classification,shehiaMetadata) =>
@@ -36,34 +34,73 @@ updateShehiaMetadata = (shehiaName, date, classification,shehiaMetadata) =>
       shehiaMetadata[shehiaName]["Focus Classification"] = "Active"
       console.log "ACTIVE"
 
-updateAllCases = =>
+analyzeCases = =>
+  new Promise (resolve, reject) =>
+    console.log "Getting 3 years of cases"
+    Coconut.reportingDatabase.query "caseIDsByDate",
+      startkey: moment().subtract(3,"years").format("YYYY-MM-DD")
+      include_docs: true
+    .catch (error) => console.error error
+    .then (result) =>
+      console.log "Cases loaded"
 
-  #TODO initialize the shehia list to Cleared based on GeoHierarchy, otherwise if a shehia has no cases it won't have an entry
+      shehiaMetadata = (await Coconut.reportingDatabase.get("shehia metadata")).Shehias
 
-  Coconut.reportingDatabase.query "caseIDsByDate",
-    startkey: moment().subtract(3,"years").format("YYYY-MM-DD")
-    include_docs: true
-  .catch (error) => console.error error
-  .then (result) =>
-    console.log "DONE"
+      for row, index in result.rows
+        malariaCase = row.doc
+        shehiaName = malariaCase["Shehia"]?.toUpperCase()
 
-    shehiaMetadata = (await Coconut.reportingDatabase.get("shehia metadata")).Shehias
+        if shehiaName
+          if malariaCase["Classifications By Diagnosis Date"] isnt ""
 
-    for row in result.rows
-      malariaCase = row.doc
-      shehiaName = malariaCase["Shehia"]
+            for dateAndClassification in malariaCase["Classifications By Diagnosis Date"].split(",")
 
-      if malariaCase["Classifications By Diagnosis Date"] isnt ""
+              [date,classification] = dateAndClassification.split(": ")
+              updateShehiaMetadata(shehiaName,date,classification,shehiaMetadata)
+          else
+            updateShehiaMetadata(shehiaName,malariaCase["Index Case Diagnosis Date"],"Indigenous",shehiaMetadata)
 
-        for dateAndClassification in malariaCase["Classifications By Diagnosis Date"].split(",")
+      console.log "Cases analyzed"
 
-          [date,classification] = dateAndClassification.split(": ")
-          updateShehiaMetadata(shehiaName,date,classification,shehiaMetadata)
-      else
-        updateShehiaMetadata(shehiaName,malariaCase["Index Case Diagnosis Date"],"Indigenous",shehiaMetadata)
+      console.log "Setting missing shehias to 'Cleared'"
+      validShehiaNames = _(GeoHierarchy.findAllForLevel("Shehia")).pluck "name"
+      for shehia in validShehiaNames
+        unless shehiaMetadata[shehia.name]
+          console.log "Missing #{shehia.name}"
+          shehiaMetadata[shehia.name] =
+            "Focus Classifications": "Cleared"
 
-    Coconut.reportingDatabase.upsert "shehia metadata", (doc) =>
-      doc.Shehias = shehiaMetadata
-      doc
+      console.log "Making sure all shehia names are upper case and valid"
+      for shehiaName, data of shehiaMetadata
+        if shehiaName isnt shehiaName.toUpperCase()
+          shehiaMetadata[shehiaName.toUpperCase()] = shehiaMetadata[shehiaName]
+          delete shehiaMetadata[shehiaName]
 
-updateAllCases()
+        unless _(validShehiaNames).includes shehiaName.toUpperCase()
+          console.log "#{shehiaName} is not valid"
+          delete shehiaMetadata[shehiaName]
+
+      resolve(shehiaMetadata)
+
+updateDatabaseDocument = (shehiaMetadata) =>
+  Coconut.reportingDatabase.upsert "shehia metadata", (doc) =>
+    doc.Shehias = shehiaMetadata
+    doc
+
+( =>
+  global.Coconut =
+    database: new PouchDB argv.database
+    reportingDatabase: new PouchDB "#{argv.database}-reporting",
+
+  global.GeoHierarchy = new GeoHierarchyClass()
+  await GeoHierarchy.load()
+  console.log "GeoHierarchy loaded"
+
+  shehiaMetadata = await analyzeCases()
+
+  console.log shehiaMetadata
+
+  console.log "Updating shehia metadata"
+  await updateDatabaseDocument(shehiaMetadata)
+  console.log "Process complete"
+)()
