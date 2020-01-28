@@ -341,9 +341,12 @@ class Case
   hasCompleteIndexCaseHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
 
+  # Note that this doesn't include Index
   positiveCasesAtIndexHousehold: ->
     _(@completeIndexCaseHouseholdMembers()).filter (householdMember) ->
-      householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed"
+      householdMember.MalariaTestResult is "PF" or 
+      householdMember.MalariaTestResult is "Mixed" or
+      (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
   numberPositiveCasesAtIndexHousehold: =>
     @positiveCasesAtIndexHousehold().length
@@ -366,20 +369,23 @@ class Case
 
   positiveCasesAtNeighborHouseholds: ->
     _(@completeNeighborHouseholdMembers()).filter (householdMember) ->
-      householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed"
+      householdMember.MalariaTestResult is "PF" or 
+      householdMember.MalariaTestResult is "Mixed" or
+      (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
   positiveCasesAtIndexHouseholdAndNeighborHouseholds: ->
     _(@["Household Members"]).filter (householdMember) =>
-      householdMember.MalariaTestResult is "PF" or householdMember.MalariaTestResult is "Mixed"
+      householdMember.MalariaTestResult is "PF" or 
+      householdMember.MalariaTestResult is "Mixed" or
+      (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
   positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
     _(@positiveCasesAtIndexHouseholdAndNeighborHouseholds()).filter (householdMemberOrNeighbor) =>
-      @ageInYears() < 5
+      @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays) < 5
 
   positiveCasesAtIndexHouseholdAndNeighborHouseholdsOver5: =>
     _(@positiveCasesAtIndexHouseholdAndNeighborHouseholds()).filter (householdMemberOrNeighbor) =>
-      @ageInYears >= 5
-
+      @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays) >= 5
 
   numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: ->
     @positiveCasesAtIndexHouseholdAndNeighborHouseholds().length
@@ -393,6 +399,7 @@ class Case
 
   # TODO this is only filtering for a specific result, not whether or not they are tested
   numberHouseholdOrNeighborMembersTested: ->
+    console.warn "numberHouseholdOrNeighborMembersTested only checks for NPF results"
     _(@["Household Members"]).filter (householdMember) =>
       householdMember.MalariaTestResult is "NPF"
     .length or 0
@@ -409,18 +416,28 @@ class Case
     _(@["Household Members"]).filter (householdMember) =>
       switch householdMember.MalariaTestResult
         when "NPF", "PF", "Mixed"
-          true
+          return true
+      switch householdMember["Malaria test performed"]
+        when "mRDT", "Microscopy"
+          return true
     .length
 
   percentOfHouseholdMembersTested: =>
     (@numberHouseholdMembersTested()/@numberHouseholdMembersTestedAndUntested()*100).toFixed(0)
 
   positiveCasesIncludingIndex: =>
-    if @["Facility"]
-      @positiveCasesAtIndexHouseholdAndNeighborHouseholds().concat(_.extend @["Facility"], @["Household"])
-    else if @["USSD Notification"]
-      @positiveCasesAtIndexHouseholdAndNeighborHouseholds().concat(_.extend @["USSD Notification"], @["Household"], {MalariaCaseID: @MalariaCaseID()})
-    else []
+    # if we have classification then index is in the household member data
+    if @classificationsByHouseholdMemberType() isnt ""
+      _(@completeIndexCaseHouseholdMembers()).filter (householdMember) ->
+        householdMember.CaseCategory
+    # otherwise we have to add the facility data to get the index
+    else
+      # Legacy
+      if @["Facility"]
+        @positiveCasesAtIndexHouseholdAndNeighborHouseholds().concat(_.extend @["Facility"], @["Household"])
+      else if @["USSD Notification"]
+        @positiveCasesAtIndexHouseholdAndNeighborHouseholds().concat(_.extend @["USSD Notification"], @["Household"], {MalariaCaseID: @MalariaCaseID()})
+      else []
 
   numberPositiveCasesIncludingIndex: =>
     @positiveCasesIncludingIndex().length
@@ -467,12 +484,23 @@ class Case
     _.each @["Household Members"]?, (member) ->
       returnVal.push member.lastModifiedAt if member.MalariaTestResult is "PF" or member.MalariaTestResult is "Mixed"
 
-  ageInYears: =>
+  ageInYears: (age = @Facility.Age, ageInMonthsYearsOrDays = (@Facility.AgeinMonthsOrYears or @Facility.AgeInYearsMonthsDays)) =>
+    return null unless age? and ageInMonthsYearsOrDays?
+    if ageInMonthsYearsOrDays is "Months"
+      age / 12.0
+    else if ageInMonthsYearsOrDays is "Days"
+      age / 365.0
+    else
+      age
+
+    ###
     return null unless @Facility
     if @Facility["Age in Months Or Years"]? and @Facility["Age in Months Or Years"] is "Months"
       @Facility["Age"] / 12.0
     else
       @Facility["Age"]
+    ###
+
 
   isUnder5: =>
     @ageInYears() < 5
