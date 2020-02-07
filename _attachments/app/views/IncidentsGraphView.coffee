@@ -7,7 +7,6 @@ Graphs = require '../models/Graphs'
 moment = require 'moment'
 dc = require 'dc'
 d3 = require 'd3'
-crossfilter = require 'crossfilter'
 
 class IncidentsGraphView extends Backbone.View
   el: "#content"

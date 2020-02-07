@@ -6,9 +6,12 @@ Backbone.$  = $
 
 global.jQuery = require 'jquery'
 require 'tablesorter'
+Tabulator = require 'tabulator-tables'
+stripHtml = require("string-strip-html")
 
 Reports = require '../models/Reports'
 CaseView = require './CaseView'
+SetsView = require './SetsView'
 
 class AnalysisView extends Backbone.View
   el: "#content"
@@ -20,6 +23,11 @@ class AnalysisView extends Backbone.View
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
     "change [name=aggregationType]": "updateAnalysis"
+    "click .download-csv": "downloadCSV"
+
+  downloadCSV: (e) =>
+    name = @$(e.target).attr("data-tabulator-name")
+    @tabulators[name].download("csv","#{name}_#{@startDate}_#{@endDate}.csv")
 
   toggleDetails: (e)->
     $(".details").toggle()
@@ -31,9 +39,12 @@ class AnalysisView extends Backbone.View
     $target =  $(e.target).closest('.analysis')
     $target.next(".analysis-report").slideToggle()
     if ($target.find("i").hasClass('mdi-play'))
-       $target.find("i").switchClass('mdi-play','mdi-menu-down-outline')
+       $target.find("i").switchClass?('mdi-play','mdi-menu-down-outline')
     else
-       $target.find("i").switchClass('mdi-menu-down-outline','mdi-play')
+       $target.find("i").switchClass?('mdi-menu-down-outline','mdi-play')
+
+    for name, tabulatorTable of @tabulators # tabulator doesn't initialize properly when hidden
+      tabulatorTable.redraw()
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
@@ -56,6 +67,11 @@ class AnalysisView extends Backbone.View
       <style>
         td button.same-cell-disaggregatable{ float:right;}
         .mdl-data-table th { padding: 0 6px}
+
+        .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+            white-space: normal;
+        }
+
       </style>
       <dialog id='caseDialog'></dialog>
       <div id='dateSelector'></div>
@@ -70,6 +86,9 @@ class AnalysisView extends Backbone.View
     "
 
     options = $.extend({},Coconut.router.reportViewOptions)
+
+    @startDate = options.startDate
+    @endDate = options.endDate
 
     Reports.casesAggregatedForAnalysis
       aggregationLevel:     options.aggregationLevel
@@ -190,38 +209,21 @@ class AnalysisView extends Backbone.View
             Index Household and Neighbors</div>
 		  </div>
         "
-        $("#analysis").append @createTable """
-          #{options.aggregationLevel}
-          No. of cases followed up
-          No. of additional index household members tested
-          No. of additional index household members tested positive
-          % of index household members tested positive
-          % increase in cases found using MCN
-          No. of additional neighbor households visited
-          No. of additional neighbor household members tested
-          No. of additional neighbor household members tested positive
-        """.split(/\n/), "
-          #{
-#            console.log (_.pluck data.passiveCases.ALL.householdMembers, "MalariaCaseID").join("\n")
-            _.map(data.passiveCases, (values,location) =>
-              "
-                <tr>
-                  <td class='mdl-data-table__cell--non-numeric'>#{location}</td>
-                  <td>#{HTMLHelpers.createDisaggregatableCaseGroup(values.indexCases)}</td>
-                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.indexCaseHouseholdMembers.length,values.indexCaseHouseholdMembers)}</td>
-                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtIndexHousehold.length,values.positiveCasesAtIndexHousehold)}</td>
-                  <td>#{HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCaseHouseholdMembers.length)}</td>
-                  <td>#{HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCases.length)}</td>
 
-                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholds.length,values.neighborHouseholds)}</td>
-                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholdMembers.length,values.neighborHouseholdMembers)}</td>
-                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtNeighborHouseholds.length,values.positiveCasesAtNeighborHouseholds)}</td>
 
-                </tr>
-              "
-            ).join("")
-          }
-        ",'index-house-neighbors'
+        @createTabulator "index-house-neighbors", (for location, values of data.passiveCases
+          "#{options.aggregationLevel}": location
+          "No of cases followed up": HTMLHelpers.createDisaggregatableCaseGroup(values.indexCases)
+          "No of additional index household members tested": HTMLHelpers.createDisaggregatableDocGroup(values.indexCaseHouseholdMembers.length,values.indexCaseHouseholdMembers)
+          "No of additional index household members tested positive": HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtIndexHousehold.length,values.positiveCasesAtIndexHousehold)
+          "% of index household members tested positive": HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCaseHouseholdMembers.length)
+          "% increase in cases found using MCN": HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCases.length)
+          "No of additional neighbor households visited": HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholds.length,values.neighborHouseholds)
+          "No of additional neighbor household members tested": HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholdMembers.length,values.neighborHouseholdMembers)
+          "No of additional neighbor household members tested positive": HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtNeighborHouseholds.length,values.positiveCasesAtNeighborHouseholds)
+        )
+
+
 
         $("#analysis").append "
 
@@ -422,6 +424,32 @@ class AnalysisView extends Backbone.View
         buttonClass: buttonClass
         buttonText: buttonText
     else ""
+
+  createTabulator: (id, data) =>
+    @$("#analysis").append "
+      <div class='analysis-report dropdown-section'>
+        <button class='download-csv' data-tabulator-name='#{id}'>Download CSV</button>
+        <div id='#{id}'/>
+      </div>
+    "
+
+    @tabulators or= {}
+    @tabulators[id] = new Tabulator "##{id}",
+      layout: "fitColumns"
+      columns: for columnName in Object.keys(data[0])
+        title: columnName
+        field: columnName
+        sorter: "number"
+        formatter: "html"
+        accessorDownload: (value) =>
+          # Just show the aggregated value in the CSV
+          value = stripHtml(value) # remove html
+          if match = value.match(/(\d+) +\d+/) # remove disaggregated cases
+            match[1]
+          else
+            value
+
+      data: data
 
   createTable: (headerValues, rows, id, colspan = 1) ->
    "

@@ -4,7 +4,8 @@ moment = require 'moment'
 dc = require 'dc'
 d3 = require 'd3'
 d3-scale = require 'd3-scale'
-crossfilter = require 'crossfilter'
+#crossfilter = require 'crossfilter'
+crossfilter = {}
 
 class Graphs
 colorScale = d3.scale.category10()

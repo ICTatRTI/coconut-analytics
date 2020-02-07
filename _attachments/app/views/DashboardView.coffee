@@ -9,7 +9,6 @@ Dialog = require './Dialog'
 Graphs = require '../models/Graphs'
 dc = require 'dc'
 d3 = require 'd3'
-crossfilter = require 'crossfilter'
 
 class DashboardView extends Backbone.View
   el: "#content"

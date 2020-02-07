@@ -46,6 +46,7 @@
     "pouchdb-upsert": "^2.2.0",
     "react": "^0.14.8",
     "sha1": "^1.1.1",
+    "string-strip-html": "^4.3.16",
     "tablesorter": "^2.25.4",
     "tabulator-tables": "^4.1.5",
     "underscore": "^1.8.3",

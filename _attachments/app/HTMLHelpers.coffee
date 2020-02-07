@@ -1,5 +1,30 @@
 global.copy = require('copy-text-to-clipboard');
 
+SetsView = require './views/SetsView'
+
+global.disaggregateSet = (element) ->
+  targetElement = $(element)
+  cases = targetElement.siblings(".cases").children().map((i,element) => element.id).toArray()
+
+  inTabulator = targetElement.closest(".tabulator").length isnt 0
+
+
+  rowName = if inTabulator
+    targetElement.closest("div[role=row]").children().first().text()
+  else
+    targetElement.closest("tr").children().first().text()
+
+  headerName = if inTabulator
+    tableElement = targetElement.closest(".tabulator-cell")
+    targetElement.closest('.tabulator').find('.tabulator-headers').children().eq(tableElement.index()).text()
+  else
+    tableElement = targetElement.closest("td")
+    targetElement.closest('table').find('th').eq(tableElement.index()).text()
+
+  SetsView.showDialog
+    name: "#{rowName} #{headerName}"
+    cases: cases
+
 class HTMLHelpers
 
   @createDashboardLinkForResult = (malariaCase,resultType,iconText, buttonText = "", buttonClass = "") ->
@@ -45,12 +70,21 @@ class HTMLHelpers
   @createDisaggregatableCaseGroup = (cases, text) ->
     text = cases.length unless text?
     "
+      <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='console.log(this);disaggregateSet(this)'>#{text}</button>
+      <div class='cases' style='padding:10px; display:none'>
+        #{@createCasesLinks cases}
+        <button onClick='copy(\"#{@caseIds(cases).join("\\n")}\")'>copy</button>
+      </div>
+    "
+    ###
+    "
       <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
       <div class='cases' style='padding:10px; display:none'>
         #{@createCasesLinks cases}
         <button onClick='copy(\"#{@caseIds(cases).join("\\n")}\")'>copy</button>
       </div>
     "
+    ###
 
   @createDisaggregatableCaseGroupWithLength = (cases) ->
     text = if cases then cases.length or _(cases).size() else "-"
@@ -68,8 +102,16 @@ class HTMLHelpers
     ).join("")
 
   @createDisaggregatableDocGroup = (text,docs) ->
+    ###
     "
       <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='$(this).parent().children(\"div\").toggle()'>#{text}</button>
+      <div class='cases' style='padding:10px;text-align: left; display:none'>
+        #{@createDocLinks docs}
+      </div>
+    "
+    ###
+    "
+      <button class='mdl-button mdl-js-button mdl-button--raised sort-value same-cell-disaggregatable' onClick='console.log(this);disaggregateSet(this)'>#{text}</button>
       <div class='cases' style='padding:10px;text-align: left; display:none'>
         #{@createDocLinks docs}
       </div>

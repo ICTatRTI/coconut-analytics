@@ -219,6 +219,7 @@ class WeeklyMeetingReportView extends Backbone.View
       <button onClick='window.copy(\"#{caseIds.join("\\n")}\")'>Copy list of Case Ids</button>
       #{
         (for caseId in caseIds
+          console.log caseId
           "<div>
             <div>
               <a href='#show/case/#{caseId}'>#{caseId}</a> 
