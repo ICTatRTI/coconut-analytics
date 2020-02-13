@@ -484,7 +484,7 @@ class Case
     _.each @["Household Members"]?, (member) ->
       returnVal.push member.lastModifiedAt if member.MalariaTestResult is "PF" or member.MalariaTestResult is "Mixed"
 
-  ageInYears: (age = @Facility.Age, ageInMonthsYearsOrDays = (@Facility.AgeinMonthsOrYears or @Facility.AgeInYearsMonthsDays)) =>
+  ageInYears: (age = @Facility?.Age, ageInMonthsYearsOrDays = (@Facility?.AgeinMonthsOrYears or @Facility?.AgeInYearsMonthsDays)) =>
     return null unless age? and ageInMonthsYearsOrDays?
     if ageInMonthsYearsOrDays is "Months"
       age / 12.0
