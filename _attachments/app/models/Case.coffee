@@ -842,7 +842,8 @@ class Case
     # Case Notification
     MalariaCaseID:
       propertyName: "Malaria Case ID"
-    indexCaseDiagnosisDate: {}
+    indexCaseDiagnosisDate:
+      propertyName: "Index Case Diagnosis Date"
     IndexCaseDiagnosisDateIsoWeek:
       propertyName: "Index Case Diagnosis Date ISO Week"
 
@@ -1135,10 +1136,11 @@ class Case
       propertyName: "Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     OvernightTraveloutsideofZanzibarinthepastyear:
       propertyName: "Overnight Travel Outside of Zanzibar In The Past Year"
+
+
+
     ReferredtoHealthFacility:
       propertyName: "Referred to Health Facility"
-    indexCaseDiagnosisDate:
-      propertyName: "Index Case Diagnosis Date"
     hasCompleteFacility:
       propertyName: "Has Complete Facility"
     notCompleteFacilityAfter24Hours:

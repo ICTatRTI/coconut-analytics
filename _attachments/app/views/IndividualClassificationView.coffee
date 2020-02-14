@@ -31,10 +31,7 @@ class IndividualClassificationView extends Backbone.View
   showDropDown: (e) =>
     $target =  $(e.target).closest('.analysis')
     $target.next(".analysis-report").slideToggle()
-    if ($target.find("i").hasClass('mdi-play'))
-       $target.find("i").switchClass('mdi-play','mdi-menu-down-outline')
-    else
-       $target.find("i").switchClass('mdi-menu-down-outline','mdi-play')
+    $target.find("i").toggleClass("mdi-play mdi-menu-down-outline")
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
