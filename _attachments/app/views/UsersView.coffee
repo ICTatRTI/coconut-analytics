@@ -238,7 +238,7 @@ class UsersView extends Backbone.View
               <div style='color: rgb(33,150,243)'>Roles:</div>
               <div class='m-l-10 m-b-20'>
                 #{
-                   _.map(["admin","mobile"], (role) =>
+                   _.map(["admin","mobile","school_management","user_management", "new_learners"], (role) =>
                      "
                       <label class='mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect' for='#{role}' id='#{role}_label'>
                         <input type='checkbox' name='role' id='#{role}' class='mdl-checkbox__input' value='#{role}'>

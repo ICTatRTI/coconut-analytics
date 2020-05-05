@@ -194,15 +194,24 @@ class SchoolsView extends Backbone.View
                         <td class='mdl-data-table__cell--non-numeric'>#{school.District || ''}</td>
                         <td class='mdl-data-table__cell--non-numeric'>#{school.Location}</td>
                         <td>
-                         <button id='edit-menu_#{school._id}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
-                            <i class='mdi mdi-dots-vertical mdi-24px'></i>
-                          </button>
-                          <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{school._id}'>
-                            <li class='mdl-menu__item'><a href='#' class='school-edit' data-school-id='#{school._id}'><i class='mdi mdi-pencil mdi-24px'></i> Edit School</a></li>
-                            <!--
-                              <li class='mdl-menu__item'><a href='#' class='school-delete' data-school-id='#{school._id}'><i class='mdi mdi-delete mdi-24px'></i> Delete School</a></li>
-                            -->
-                          </ul>
+                          #{
+                            if Coconut.currentUser.hasRole "admin"
+                              "
+                                <button id='edit-menu_#{school._id}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
+                                  <i class='mdi mdi-dots-vertical mdi-24px'></i>
+                                </button>
+                                <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{school._id}'>
+                                  <li class='mdl-menu__item'><a href='#' class='school-edit' data-school-id='#{school._id}'><i class='mdi mdi-pencil mdi-24px'></i> Edit School</a></li>
+                                  <!--
+                                    <li class='mdl-menu__item'><a href='#' class='school-delete' data-school-id='#{school._id}'><i class='mdi mdi-delete mdi-24px'></i> Delete School</a></li>
+                                  -->
+                                </ul>
+                              "
+
+                            else
+                              ""
+
+                          }
                         </td>
                      </tr>
                      "

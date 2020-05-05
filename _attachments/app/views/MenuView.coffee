@@ -76,6 +76,7 @@ class MenuView extends Backbone.View
           .join ""
           }
         </div>
+        <!--
         <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-ticket mdi-24px'></i>
             Activities
@@ -112,49 +113,38 @@ class MenuView extends Backbone.View
           <i class='mdl-color-text--blue-grey-400 mdi mdi-map mdi-24px'></i>
             <span class='link-title'>Maps</span>
         </a>
+        -->
         <a class='mdl-navigation__link drawer__link' href='#export' id='export' data-title='Data Export' data-category='menuLink'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-export mdi-24px'></i>
             <span class='link-title'>Data Export</span>
         </a>
-<!--
-        <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>
-          <i class='mdl-color-text--blue-grey-400 mdi mdi-settings mdi-24px'>settings</i>
-            User Settings
-        </span>
-        <div class='m-l-20 dropdown' id='drawer-settings'>
-          #{
-             settingLinks = {
-               setting_theme: "User Profile"
-               setting_general: "General"
-             }
-             _(settingLinks).map (linkText, linkUrl) ->
-               "<a class='mdl-navigation__link setting__link' id = '#{linkUrl}' href='#settings/#{linkUrl}' data-title='Settings'>#{linkText}</a>"
-             .join ""
-           }
-        </div>
--->
-        <span class='mdl-navigation__link drawer__subtitle' id='admin-main' data-title='Admin' data-category='menuHeader'>
-          <i class='mdl-color-text--blue-grey-400 mdi mdi-wrench mdi-24px'></i>
-           Admin
-        </span>
-        <div class='m-l-20 dropdown' id='drawer-admin'>
+
         #{
-          adminLinks = {
-            #dhis2: "DHIS2"
-            #facilities: "Facilities"
-            #rainfall_station: "Rainfall Station"
-            #geo_hierarchy: "Regions, Districts & Shehias"
-            #shehias_received_irs: "Shehias Received IRS"
-            schools: "Schools"
-            system_settings: "System Settings"
-            users: "Users"
-            new_learners: "New Learners"
-          }
-          _(adminLinks).map (linkText, linkUrl) ->
-            "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"
-          .join ""
+          if Coconut.currentUser?.hasRole("admin") 
+            "
+              <span class='mdl-navigation__link drawer__subtitle' id='admin-main' data-title='Admin' data-category='menuHeader'>
+                <i class='mdl-color-text--blue-grey-400 mdi mdi-wrench mdi-24px'></i>
+                 Admin
+              </span>
+              <div class='m-l-20 dropdown' id='drawer-admin'>
+              #{
+                adminLinks = {}
+                adminLinks.schools = "Schools" if Coconut.currentUser.hasRole "school_management"
+                adminLinks.users = "Users" if Coconut.currentUser.hasRole "user_management"
+                adminLinks.new_learners = "New Learners" if Coconut.currentUser.hasRole "new_learners"
+
+                _(adminLinks).map (linkText, linkUrl) ->
+                  "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"
+                .join ""
+              }
+              </div>
+
+            "
+          else ""
         }
-        </div>
+
+
+
       </nav>
     </div>
     "

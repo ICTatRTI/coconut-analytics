@@ -1,6 +1,8 @@
 PersonView = require './PersonView'
+Followup = require '../models/Followup'
 Tabulator = require 'tabulator-tables'
 SlimSelect = require 'slim-select'
+
 
 class NewLearnerView extends Backbone.View
 
@@ -94,10 +96,10 @@ class NewLearnerView extends Backbone.View
     .catch (error) => console.error error
     .then (results) =>
       @$("#searchResults").html "
-        (Automated search uses school data, sex and name information. Brighter yellow means a stronger match.)<br/>
+        (#{results.comments}. Brighter yellow means a stronger match.)<br/>
         <ul style='width:50%'>
           #{
-            (for result in results
+            (for result in results.rows
               "
               <li id='#{result.item.id}' class='searchResult' style='background-color:RGBA(240,255,0,#{1-(1.5*result.score)}'>
                 #{result.item.value.Name}
@@ -118,11 +120,11 @@ class NewLearnerView extends Backbone.View
       startkey: [@person.region().toUpperCase()]
       endkey: [@person.region().toUpperCase(),{}]
     .then (result) =>
-      tableData = _(result.rows).chain().map (row) =>
-        return if row.id.match(/-.+-/) # only get confirmed people
+      tableData = _(result.rows).map (row) =>
+        # Removed this filter since we don't really use confirmed people concept
+        #return if row.id.match(/-.+-/) # only get confirmed people
         row.value.id = row.id
         row.value
-      .compact().value()
 
       @table = new Tabulator "#searchResults",
         height:600
@@ -130,7 +132,7 @@ class NewLearnerView extends Backbone.View
         layout:"fitColumns"
         columns: [
           {title: "Name", field: "Name", headerFilter: true}
-          {title: "ID", field: "id"}
+          {title: "ID", field: "id", headerFilter: true}
           #{title: "Region", field: "Region", headerFilter: true},
           {title: "School Name", field: "School Name", headerFilter: true}
           {title: "School Class", field: "School Class", headerFilter: true}
@@ -188,22 +190,11 @@ class NewLearnerView extends Backbone.View
 
   # create followup action document
   createFollowupAction: =>
-
-    id = "followup_#{@person.doc._id}_"
-    if @selectedPerson?._id # include the selected person if one has been clicked
-      id += "#{@selectedPerson._id}_"
-    id += moment().format("YYYY-MM-DD:HH:mm:ss")
-
-    relevantPeople = [@person.doc._id]
-    relevantPeople.push @selectedPerson._id if @selectedPerson?
-
-    Coconut.peopleDB.put
-      _id: id
-      people: relevantPeople
+    await Followup.createFollowupDocAndSave
+      person: @person
+      relevantPeople: [@selectedPerson]
       usersToFollowup: @usersSelector.selected()
-      date: moment().format("YYYY-MM-DD")
       comments: @$("#followupComments").val()
-      followedUpComplete: false
 
     alert "Followup created"
 

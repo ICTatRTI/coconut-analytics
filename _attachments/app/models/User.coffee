@@ -82,7 +82,6 @@ User.login = (options) ->
           $("span#username").html user.username()
           $("a#logout").show()
           $("a#login").hide()
-          if user.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
           options.success()
         else
           options.error("Invalid username/password")

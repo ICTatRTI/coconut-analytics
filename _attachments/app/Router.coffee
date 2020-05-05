@@ -24,6 +24,7 @@ PersonView = require './views/PersonView'
 ExportView = require './views/ExportView'
 NewLearnersView = require './views/NewLearnersView'
 NewLearnerView = require './views/NewLearnerView'
+SendEmailView = require './views/SendEmailView'
 
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -36,6 +37,7 @@ reportViews = {
   "attendance": require './views/AggregatingAverageView'
   "enrollments": require './views/EnrollmentsView'
   "users": require './views/UsersReportView'
+  "followups": require './views/FollowupsView'
 #  "SpotCheck": require './views/SpotCheckView'
 }
 
@@ -76,13 +78,18 @@ class Router extends Backbone.Router
     "reset_password/:token": "reset_password"
     "reset_password": "reset_password"
     "change_password": "change_password"
-    "admin/system_settings": "systemSettings"
+    #"admin/system_settings": "systemSettings"
     "admin/users": "users"
     "admin/schools": "schools"
     "admin/new_learner/:personId": "new_learner"
     "admin/new_learners/:region": "new_learners"
     "admin/new_learners": "new_learners"
+    "admin/send_email": "send_email"
     "*noMatch": "noMatch"
+
+  send_email: =>
+    @sendEmailView or= new SendEmailView()
+    @sendEmailView.render()
 
   noMatch: =>
     console.error "Invalid URL, no matching route: "
@@ -247,7 +254,7 @@ class Router extends Backbone.Router
   userLoggedIn: (callback) =>
     User.isAuthenticated
       success: (user) =>
-        if Coconut.currentUser.isAdmin() then $("#admin-main").show() else $("#admin-main").hide()
+        Coconut.menuView.render()
         callback.success(user)
       error: (error) ->
         callback.error()

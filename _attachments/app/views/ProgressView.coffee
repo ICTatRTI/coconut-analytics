@@ -142,7 +142,8 @@ class ProgressView extends Backbone.View
         @$("#table-schools tbody").append "
           <tr class='school' id='#{school.id}'>
             <td class='region'>#{school.doc.Region}</td>
-            <td class='name'>#{school.doc.Name}
+            <td class='name'>
+              <span style='font-weight:bold'>#{school.doc.Name}</span>
               <div class='responsible'></div>
             </td>
             <td class='score'></td>
