@@ -59,7 +59,7 @@ class FollowupsView extends Backbone.View
 
     @$el.html "
       <h1>Followups</h1>
-      <h2>All Followups</h2>
+      <h2>All Followups (<span id='numberOfExistingFollowups'></span>)</h2>
       <button id='downloadFollowups'>csv</button>
       <div id='followupTable'/>
       <h2>Create New Followups</h2>
@@ -71,7 +71,7 @@ class FollowupsView extends Backbone.View
         <textarea id='followupComment'></textarea>
         <button id='saveFollowups'>Save Followup(s)</button>
       </div>
-      <h3>Learners that might require a followup based on attendance</h3>
+      <h3>Learners that might require a followup based on attendance (<span id='potentialFollowupsCount'></span>)</h3>
       <div>
         <select id='year'>
           #{
@@ -103,6 +103,7 @@ class FollowupsView extends Backbone.View
       endkey: "followup_person\uf000"
       include_docs:true
     .then (result) =>
+      @$("#numberOfExistingFollowups").html result.rows.length
 
       columns = [
         {
@@ -149,11 +150,14 @@ class FollowupsView extends Backbone.View
         for row in result.rows
           @schoolNamesById[row.id[-4..]] = row.key
 
+    @$("#potentialFollowupsCount").html "loading..."
     Coconut.peopleDB.query "peopleNeedingFollowup",
       startkey: ["#{@year}","#{@term}"]
       endkey: ["#{@year}","#{@term}",{}]
       include_docs:false
     .then (result) =>
+
+      @$("#potentialFollowupsCount").html result.rows.length
 
       columns = for column in [
         "Date"
