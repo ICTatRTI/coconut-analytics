@@ -192,7 +192,7 @@ class CompareWeeklyView extends Backbone.View
                   #{getNumberAndPercent(data["numberHouseholdOrNeighborMembersTested"],data["numberHouseholdOrNeighborMembers"])}
                 </td>
                 <td>
-                  #{getNumberAndPercent(data["numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"],data["numberHouseholdOrNeighborMembersTested"])}
+                  #{getNumberAndPercent(data["numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"],data["numberHouseholdOrNeighborMembersTested"])}
                 </td>
               </tr>
             "

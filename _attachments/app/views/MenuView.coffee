@@ -4,6 +4,8 @@ Backbone = require 'backbone'
 Backbone.$  = $
 User = require '../models/User'
 
+camelize = require "underscore.string/camelize"
+
 class MenuView extends Backbone.View
   el: ".coconut-drawer"
 
@@ -120,9 +122,9 @@ class MenuView extends Backbone.View
              TimeToComplete: "Time to Follow-up"
 
            }
-           _(graphLinks).map (linkText, linkUrl) ->
-             "<a class='mdl-navigation__link graph__link' id = '#{linkUrl}' href='#graphs/type/#{linkUrl}' data-title='Graphs'>#{linkText}</a>"
-           .join ""
+           (for title,graph of Graphs.definitions
+             "<a class='mdl-navigation__link graph__link' href='#graphs/#{camelize(title)}' data-title='Graphs'>#{title}</a>"
+           ).join ""
           }
         </div>
         <a class='mdl-navigation__link drawer__link' href='#maps' id='maps' data-title='Maps' data-category='menuLink'>

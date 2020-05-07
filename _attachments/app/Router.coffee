@@ -27,6 +27,8 @@ User = require './models/User'
 Dialog = require './views/Dialog'
 MessagingView = require './views/MessagingView'
 FindCaseView = require './views/FindCaseView'
+Graphs = require './models/Graphs'
+GraphView = require './views/GraphView'
 
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -55,17 +57,6 @@ reportViews = {
 activityViews = {
   Issues: require './views/IssuesView'
   Messaging: require './views/MessagingView'
-}
-
-graphsViews = {
-  IncidentsGraph: require './views/IncidentsGraphView'
-  PositiveCasesGraph: require './views/PositiveCasesGraphView'
-  YearlyTrends: require './views/YearlyTrendsView'
-  AttendanceGraph: require './views/AttendanceGraphView'
-  TestRateGraph: require './views/TestRateGraphView'
-  TimeToNotify: require './views/TimeToNotifyGraphView'
-  TimeToComplete: require './views/TimeToCompleteGraphView'
-  PositivityGraph: require './views/PositivityGraphView'
 }
 
 class Router extends Backbone.Router
@@ -107,7 +98,8 @@ class Router extends Backbone.Router
     "export/*options": "dataExport"
     "maps": "maps"
     "maps/*options": "maps"
-    "graphs/*options": "graphs"
+    "graphs/:type": "graphs"
+    "graphs/:type/:startDate/:endDate": "graphs"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
     "find/case": "findCase"
@@ -242,25 +234,19 @@ class Router extends Backbone.Router
     @reportType = 'activities'
     @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
 
-  graphs: (options) =>
-    console.log("Options = ", options)
-    options = _(options?.split(/\//)).map (option) -> unescape(option)
+  graphs: (type, startDate, endDate) =>
 
-    _.each options, (option,index) =>
-      @reportViewOptions[option] = options[index+1] unless index % 2
+    Coconut.graphView or= new GraphView()
+    Coconut.graphView.render
+      type: type
+      startDate: startDate
+      endDate: endDate
 
-    defaultOptions = @setDefaultOptions()
 
-    _(defaultOptions).each (defaultValue, option) =>
-      @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
 
-    type = @reportViewOptions["type"]
 
-    @views[type] = new graphsViews[type]() unless @views[type]
-#        @views[type].render()
-    @appView.showView(@views[type])
-    @reportType = 'graphs'
-    @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
+
+
 
 
   showCase: (caseID, docID) ->

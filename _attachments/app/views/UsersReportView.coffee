@@ -26,13 +26,13 @@ class UsersReportView extends Backbone.View
     @$(".details").toggle()
 
   showDropDown: (e) =>
-    $target =  $(e.target).closest('.userReports')
-    $target.next(".user-report").slideToggle()
-    if ($target.find("i").text()== "play_arrow")
+    target =  @$(e.target).closest('.userReports')
+    target.next(".user-report").slideToggle()
+    if (target.find("i").text()== "play_arrow")
        iconStatus = "details"
     else
        iconStatus = "play_arrow"
-    $target.find("i").text(iconStatus)
+    target.find("i").text(iconStatus)
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')

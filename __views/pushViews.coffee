@@ -4,7 +4,8 @@ glob = require 'glob'
 _ = require 'underscore'
 CoffeeScript = require 'coffeescript'
 fs = require 'fs'
-PouchDB = require 'pouchdb'
+PouchDB = require 'pouchdb-core'
+.plugin(require('pouchdb-adapter-http'))
 
 database_location = process.argv[2] or "http://admin:password@localhost:5984"
 

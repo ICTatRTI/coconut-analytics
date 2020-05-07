@@ -235,13 +235,10 @@ class Case
       console.warn "No district for case: #{@caseId}"
 
   namesOfAdministrativeLevels: () =>
-    shehia = @shehia()
     district = @district()
     if district
       districtAncestors = _(GeoHierarchy.findFirst(district, "DISTRICT")?.ancestors()).pluck "name"
-      result = districtAncestors.reverse()
-      if shehia
-        result.concat(shehia)
+      result = districtAncestors.reverse().concat(district).concat(@shehia())
       result.join(",")
 
   possibleQuestions: ->
@@ -333,27 +330,36 @@ class Case
   withinLocation: (location) ->
     return @location(location.type) is location.name
 
+  # This is just a count of househhold members not how many are positive
+  # It excludes neighbor households
   completeIndexCaseHouseholdMembers: =>
     return [] unless @["Household"]?
     _(@["Household Members"]).filter (householdMember) =>
-      (householdMember.HeadofHouseholdName is @["Household"].HeadofHouseholdName or householdMember.HeadOfHouseholdName is @["Household"].HeadOfHouseholdName) and (householdMember.complete is "true" or householdMember.complete is true)
+      # HeadOfHouseholdName used to determine if it is neighbor household
+      (householdMember.HeadofHouseholdName is @["Household"].HeadofHouseholdName or householdMember.HeadOfHouseholdName is @["Household"].HeadOfHouseholdName) and 
+      (householdMember.complete is "true" or householdMember.complete is true)
 
   hasCompleteIndexCaseHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
 
-  # Note that this doesn't include Index
-  positiveCasesAtIndexHousehold: ->
+  # Note that this doesn't include Index - this is unclear function name 
+  positiveIndividualsAtIndexHousehold: =>
+    console.warn "Function name not clear consider using positiveIndividualsExcludingIndex instead"
     _(@completeIndexCaseHouseholdMembers()).filter (householdMember) ->
       householdMember.MalariaTestResult is "PF" or 
       householdMember.MalariaTestResult is "Mixed" or
       (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
-  numberPositiveCasesAtIndexHousehold: =>
-    @positiveCasesAtIndexHousehold().length
 
-  hasAdditionalPositiveCasesAtIndexHousehold: =>
-    @numberPositiveCasesAtIndexHousehold() > 0
+  numberPositiveIndividualsAtIndexHousehold: =>
+    throw "Deprecated since name was confusing about whether index case was included, use numberPositiveIndividualsExcludingIndex"
+    @positiveIndividualsAtIndexHousehold().length
 
+  numberPositiveIndividualsExcludingIndex: =>
+    @positiveIndividualsExcludingIndex().length
+
+  hasAdditionalPositiveIndividualsAtIndexHousehold: =>
+    @numberPositiveIndividualsExcludingIndex() > 0
 
   completeNeighborHouseholds: =>
     _(@["Neighbor Households"]).filter (household) =>
@@ -362,33 +368,35 @@ class Case
   completeNeighborHouseholdMembers: =>
     return [] unless @["Household"]?
     _(@["Household Members"]).filter (householdMember) =>
-      (householdMember.HeadofHouseholdName isnt @["Household"].HeadofHouseholdName or householdMember.HeadOfHouseholdName isnt @["Household"].HeadOfHouseholdName) and (householdMember.complete is "true" or householdMember.complete is true)
+      (householdMember.HeadOfHouseholdName isnt @["Household"].HeadOfHouseholdName) and (householdMember.complete is "true" or householdMember.complete is true)
 
   hasCompleteNeighborHouseholdMembers: =>
     @completeIndexCaseHouseholdMembers().length > 0
 
-  positiveCasesAtNeighborHouseholds: ->
+  positiveIndividualsAtNeighborHouseholds: ->
     _(@completeNeighborHouseholdMembers()).filter (householdMember) ->
       householdMember.MalariaTestResult is "PF" or 
       householdMember.MalariaTestResult is "Mixed" or
       (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
-  positiveCasesAtIndexHouseholdAndNeighborHouseholds: ->
+  # Handles pre-2019 and post-2019
+  positiveIndividualsAtIndexHouseholdAndNeighborHouseholds: ->
+    throw "Deprecated"
     _(@["Household Members"]).filter (householdMember) =>
       householdMember.MalariaTestResult is "PF" or 
       householdMember.MalariaTestResult is "Mixed" or
       (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
-  positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
-    _(@positiveCasesAtIndexHouseholdAndNeighborHouseholds()).filter (householdMemberOrNeighbor) =>
+  positiveIndividualsUnder5: =>
+    _(@positiveIndividuals()).filter (householdMemberOrNeighbor) =>
       @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays) < 5
 
-  positiveCasesAtIndexHouseholdAndNeighborHouseholdsOver5: =>
-    _(@positiveCasesAtIndexHouseholdAndNeighborHouseholds()).filter (householdMemberOrNeighbor) =>
+  positiveIndividualsOver5: =>
+    _(@positiveIndividuals()).filter (householdMemberOrNeighbor) =>
       @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays) >= 5
 
-  numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: ->
-    @positiveCasesAtIndexHouseholdAndNeighborHouseholds().length
+  numberPositiveIndividuals: ->
+    @positiveIndividuals().length
 
   numberHouseholdMembers: ->
     @["Household Members"].length
@@ -401,11 +409,18 @@ class Case
   numberHouseholdOrNeighborMembersTested: ->
     console.warn "numberHouseholdOrNeighborMembersTested only checks for NPF results"
     _(@["Household Members"]).filter (householdMember) =>
-      householdMember.MalariaTestResult is "NPF"
+      (
+        householdMember.MalariaTestResult? and
+        householdMember.MalariaTestResult is "NPF"
+      ) or
+      (
+        householdMember.DateofPositiveResults? and 
+        householdMember.DateofPositiveResults isnt ""
+      )
     .length or 0
 
   numberHouseholdMembersTestedAndUntested: =>
-    numberHouseholdMembersFromHousehold = @["Household"]?["TotalNumberofResidentsintheHousehold"]
+    numberHouseholdMembersFromHousehold = @["Household"]?["TotalNumberOfResidentsInTheHousehold"] or @["Household"]?["TotalNumberofResidentsintheHousehold"]
     numberHouseholdMembersWithRecord = @numberHouseholdMembers()
     # Some cases have more member records than TotalNumberofResidentsintheHousehold so use higher
 
@@ -417,33 +432,52 @@ class Case
       switch householdMember.MalariaTestResult
         when "NPF", "PF", "Mixed"
           return true
-      switch householdMember["Malaria test performed"]
+      switch householdMember["MalariaTestPerformed"]
         when "mRDT", "Microscopy"
           return true
     .length
 
   percentOfHouseholdMembersTested: =>
     (@numberHouseholdMembersTested()/@numberHouseholdMembersTestedAndUntested()*100).toFixed(0)
+  
+  positiveIndividuals: =>
+    @positiveIndividualsIncludingIndex()
 
-  positiveCasesIncludingIndex: =>
+  #This function is good - don't use completeIndexCaseHouseholdMembers
+  positiveIndividualsIncludingIndex: =>
+    @positiveIndividualsIndexCasesOnly()?.concat(@positiveIndividualsExcludingIndex())
+
+  positiveIndividualsExcludingIndex: =>
     # if we have classification then index is in the household member data
     if @classificationsByHouseholdMemberType() isnt ""
-      _(@completeIndexCaseHouseholdMembers()).filter (householdMember) ->
-        householdMember.CaseCategory
-    # otherwise we have to add the facility data to get the index
+      # Only positive individuals have a case category e.g. imported, so filter for non null values
+      _(@["Household Members"]).filter (householdMember) => 
+        householdMember.CaseCategory? and householdMember.HouseholdMemberType isnt "Index Case"
     else
-      # Legacy
+      # If there is no classification then there will be no index case in the list of household members (pre 2019 style). This also includes neighbor households.
+      _(@["Household Members"]).filter (householdMember) =>
+        householdMember.MalariaTestResult is "PF" or 
+        householdMember.MalariaTestResult is "Mixed"
+
+  positiveIndividualsIndexCasesOnly: =>
+    # if we have classification then index is in the household member data
+    if @classificationsByHouseholdMemberType() isnt ""
+      # Only positive individuals have a case category e.g. imported, so filter for non null values
+      return @["Household Members"].filter (householdMember) -> 
+        householdMember.CaseCategory isnt null and householdMember.HouseholdMemberType is "Index Case"
+    else
+      # Case hasn't been followed up yet or pre 2019 data which didn't capture index case as a household member, so use facility data for index and then check for positive household members
       if @["Facility"]
-        @positiveCasesAtIndexHouseholdAndNeighborHouseholds().concat(_.extend @["Facility"], @["Household"])
+        [_.extend @["Facility"], @["Household"]]
       else if @["USSD Notification"]
-        @positiveCasesAtIndexHouseholdAndNeighborHouseholds().concat(_.extend @["USSD Notification"], @["Household"], {MalariaCaseID: @MalariaCaseID()})
+        [_.extend @["USSD Notification"], @["Household"], {MalariaCaseID: @MalariaCaseID()}]
       else []
 
-  numberPositiveCasesIncludingIndex: =>
-    @positiveCasesIncludingIndex().length
+  numberPositiveIndividuals: =>
+    @positiveIndividuals().length
 
-  numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5: =>
-    @positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5().length
+  numberPositiveIndividualsUnder5: =>
+    @positiveIndividualsUnder5().length
 
   massScreenCase: =>
     @Household?["Reason for visiting household"]? is "Mass Screen"
@@ -503,7 +537,20 @@ class Case
 
 
   isUnder5: =>
-    @ageInYears() < 5
+    ageInYears = @ageInYears()
+    if ageInYears
+      ageInYears < 5
+    else
+      null
+
+  householdLocationLatitude: =>
+    parseFloat(@Location?["LocationLatitude"] or @Household?["HouseholdLocationLatitude"] or @Household?["Household Location - Latitude"])
+
+  householdLocationLongitude: =>
+    parseFloat(@Location?["LocationLongitude"] or @Household?["HouseholdLocationLongitude"] or @Household?["Household Location - Longitude"])
+
+  householdLocationAccuracy: =>
+    parseFloat(@Location?["LocationAccuracy"] or @Household?["HouseholdLocationAccuracy"] or @Household?["Household Location - Accuracy"])
 
   resultsAsArray: =>
     _.chain @possibleQuestions()
@@ -710,6 +757,16 @@ class Case
         "#{householdMember.CaseCategory}: #{householdMember.SummarizeEvidenceUsedForClassification}"
     ).compact().join(", ")
 
+
+  concatenateHouseholdMembers: (property) =>
+    _(for householdMember in @["Household Members"]
+      if householdMember.CaseCategory
+        "#{householdMember.CaseCategory}: #{householdMember[property]}"
+    ).compact().join(", ")
+
+  occupations: =>
+    @concatenateHouseholdMembers("Occupation")
+
   createOrUpdateOnDhis2: (options = {}) =>
     options.malariaCase = @
     Coconut.dhis2.createOrUpdateMalariaCase(options)
@@ -789,11 +846,14 @@ class Case
 
     result = null
 
+    result = @[options.functionName]() if options.functionName
     result = @[property]() if result is null and @[property]
     result = findPrioritizedProperty() if result is null
 
     if result is null
       result = findPrioritizedProperty(options.otherPropertyNames) if options.otherPropertyNames
+
+    result = JSON.stringify(result) if _(result).isObject()
 
     if options.propertyName
       property = options.propertyName
@@ -842,7 +902,7 @@ class Case
     # Case Notification
     MalariaCaseID:
       propertyName: "Malaria Case ID"
-    indexCaseDiagnosisDate:
+    IndexCaseDiagnosisDate:
       propertyName: "Index Case Diagnosis Date"
     IndexCaseDiagnosisDateIsoWeek:
       propertyName: "Index Case Diagnosis Date ISO Week"
@@ -891,9 +951,6 @@ class Case
       propertyName: "Not Followed Up After X Hours"
     followedUpWithin48Hours:
       propertyName: "Followed Up Within 48 Hours"
-    indexCaseHasTravelHistory: {}
-    indexCaseHasNoTravelHistory: {}
-    indexCaseSuspectedImportedCase: {}
     completeHouseholdVisit:
       propertyName: "Complete Household Visit"
     CompleteHouseholdVisit:
@@ -901,12 +958,12 @@ class Case
     numberHouseholdMembersTestedAndUntested: {}
     numberHouseholdMembersTested: {}
 
-    NumberPositiveCasesAtIndexHousehold: {}
+    NumberPositiveIndividualsAtIndexHousehold: {}
     NumberHouseholdOrNeighborMembers: {}
-    NumberPositiveCasesAtIndexHouseholdAndNeighborHouseholds: {}
+    NumberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds: {}
     NumberHouseholdOrNeighborMembersTested: {}
-    NumberPositiveCasesIncludingIndex: {}
-    NumberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5:
+    NumberPositiveIndividualsIncludingIndex: {}
+    NumberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholdsUnder5:
       propertyName: "Number Positive Cases At Index Household And Neighbor Households Under 5"
     NumberSuspectedImportedCasesIncludingHouseholdMembers: {}
     MassScreenCase: {}
@@ -933,6 +990,7 @@ class Case
     HeadOfHouseholdName: {}
     HouseholdLocationAccuracy:
       propertyName: "Household Location - Accuracy"
+      functionName: "householdLocationAccuracy"
     HouseholdLocationAltitude:
       propertyName: "Household Location - Altitude"
     HouseholdLocationAltitudeAccuracy:
@@ -943,8 +1001,10 @@ class Case
       propertyName: "Household Location - Heading"
     HouseholdLocationLatitude:
       propertyName: "Household Location - Latitude"
+      functionName: "householdLocationLatitude"
     HouseholdLocationLongitude:
       propertyName: "Household Location - Longitude"
+      functionName: "householdLocationLongitude"
     HouseholdLocationTimestamp:
       propertyName: "Household Location - Timestamp"
     IndexCaseIfPatientIsFemale1545YearsOfAgeIsSheIsPregant:
@@ -1118,10 +1178,13 @@ class Case
       propertyName: "Household Location - Description"
     "HouseholdLocation-latitude":
       propertyName: "Household Location - Latitude"
+      functionName: "householdLocationLatitude"
     "HouseholdLocation-longitude":
       propertyName: "Household Location - Longitude"
+      functionName: "householdLocationLongitude"
     "HouseholdLocation-accuracy":
       propertyName: "Household Location - Accuracy"
+      functionName: "householdLocationAccuracy"
     "HouseholdLocation-altitude":
       propertyName: "Household Location - Altitude"
     "HouseholdLocation-altitudeAccuracy":
@@ -1155,18 +1218,18 @@ class Case
       propertyName: "Index Case Has No Travel History"
     completeHouseholdVisit:
       propertyName: "Complete Household Visit"
-    numberPositiveCasesAtIndexHousehold:
-      propertyName: "Number Positive Cases At Index Household"
-    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds:
+    numberPositiveIndividualsExcludingIndex:
+      propertyName: "Number Positive Individuals At Household Excluding Index"
+    numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds:
       propertyName: "Number Positive Cases At Index Household And Neighbor Households"
     numberHouseholdOrNeighborMembersTested:
       propertyName: "Number Household Or Neighbor Members Tested"
-    numberPositiveCasesIncludingIndex:
-      propertyName: "Number Positive Cases Including Index"
+    numberPositiveIndividuals:
+      propertyName: "Number Positive Individuals"
     numberHouseholdOrNeighborMembers:
       propertyName: "Number Household Or Neighbor Members"
-    numberPositiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5:
-      propertyName: "Number Positive Cases At Index Household And Neighbor Households Under 5"
+    numberPositiveIndividualsUnder5:
+      propertyName: "Number Positive Individuals Under 5"
     numberSuspectedImportedCasesIncludingHouseholdMembers:
       propertyName: "Number Suspected Imported Cases Including Household Members"
     NumberofHouseholdMembersTreatedforMalariaWithinPastWeek:
@@ -1197,8 +1260,103 @@ class Case
        propertyName: "Two To Three Days Between Positive Result And Complete Household"
     moreThanThreeDaysBetweenPositiveResultAndCompleteHousehold:
        propertyName: "More Than Three Days Between Positive Result And Complete Household"
+    occupations: {}
+
+    dhis2CasesByTypeOfDetection:
+      propertyName: "DHIS2 Cases by Type of Detection"
+    dhis2CasesByClassification:
+      propertyName: "DHIS2 Cases by Classification"
+    dhis2CasesByAge:
+      propertyName: "DHIS2 Cases by Age"
+    dhis2CasesByGender:
+      propertyName: "DHIS2 Cases by Gender"
 
   }
+
+  dateOfPositiveFromIndividual: (positiveIndividual) =>
+    # First try and get the individuals' date, then the createdAt time (pre-2019) if all fails just use the date for the case or the date that the notification was made
+    date = positiveIndividual.DateOPositiveResults or positiveIndividual.createdAt or @dateOfPositiveResults() or positiveIndividual.date
+    moment(date).format("YYYY-MM-DD")
+
+  dhis2CasesByTypeOfDetection: =>
+    result = {}
+
+    for positiveIndividual in @positiveIndividualsIndexCasesOnly()
+      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      shehia = @shehia()
+      if date and shehia
+        result[date] or= {}
+        result[date][shehia] or= {
+          "Passive": 0
+          "Active": 0
+        }
+        result[date][shehia]["Passive"] += 1
+
+    for positiveIndividual in @positiveIndividualsExcludingIndex()
+      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      shehia = @shehia()
+      if date and shehia
+        result[date] or= {}
+        result[date][shehia] or= {
+          "Passive": 0
+          "Active": 0
+        }
+        result[date][shehia]["Active"] += 1
+
+    result
+
+  dhis2CasesByClassification: =>
+    result = {}
+    for positiveIndividual in @positiveIndividualsIncludingIndex()
+      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      shehia = @shehia()
+      if date and shehia
+        result[date] or= {}
+        result[date][shehia] or= {}
+        result[date][shehia][positiveIndividual.CaseCategory or "Unclassified"] or= 0
+        result[date][shehia][positiveIndividual.CaseCategory or "Unclassified"] += 1
+
+    result
+
+  dhis2CasesByAge: =>
+    result = {}
+    for positiveIndividual in @positiveIndividualsIncludingIndex()
+      age = @ageInYears(positiveIndividual.Age, positiveIndividual.AgeInYearsMonthsDays)
+      ageRange = if age?
+        switch
+          when age < 5 then "<5 yrs"
+          when age < 15 then "5<15 yrs"
+          when age < 25 then "15<25 yrs"
+          when age >= 25 then ">25 yrs"
+          else "Unknown"
+      else
+        "Unknown"
+
+      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      shehia = @shehia()
+      if date and shehia
+        result[date] or= {}
+        result[date][shehia] or= {}
+        result[date][shehia][ageRange] or= 0
+        result[date][shehia][ageRange] += 1
+
+    result
+
+  dhis2CasesByGender: =>
+    result = {}
+    for positiveIndividual in @positiveIndividualsIncludingIndex()
+
+      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      shehia = @shehia()
+      if date and shehia
+        gender = positiveIndividual.Sex
+        if gender isnt "Male" or gender isnt "Female" then gender = "Unknown"
+        result[date] or= {}
+        result[date][shehia] or= {}
+        result[date][shehia][gender] or=0
+        result[date][shehia][gender] += 1
+
+    result
 
 Case.resetSpreadsheetForAllCases = =>
   Coconut.database.get "CaseSpreadsheetData"

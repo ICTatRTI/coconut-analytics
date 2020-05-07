@@ -4,7 +4,6 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Tabulator = require 'tabulator-tables'
 global.copy = require('copy-text-to-clipboard')
-dc = require 'dc'
 Chart = require 'chart.js'
 Html2Pdf = require 'html2pdf.js'
 Capitalize = require 'underscore.string/capitalize'

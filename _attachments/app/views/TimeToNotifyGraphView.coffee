@@ -45,11 +45,13 @@ class TimeToNotifyGraphView extends Backbone.View
     endDate = options.endDate
     Coconut.reportingDatabase.query "caseCounter",
       startkey: [startDate]
-      endkey: [endDate]
+      endkey: [endDate,{}]
       reduce: false
       include_docs: false
     .then (result) =>
-      dataForGraph = result.rows
+      dataForGraph = for row in result.rows
+        row.key = [row.key[0],row.key[2]] # remove district info
+        row
       chart = dc.barChart("#chart")
       options.pct100 = false
       Graphs.timeToNotify(dataForGraph, chart, 'chart_container_1', options)

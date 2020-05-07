@@ -15,26 +15,21 @@ class IndividualClassificationView extends Backbone.View
   el: "#content"
 
   events:
-    "click div.analysis.dropDownBtn": "showDropDown"
+    "click div.classification.dropDownBtn": "showDropDown"
     "click #switch-details": "toggleDetails"
-    "click #switch-unknown": "toggleGenderUnknown"
     "click button.caseBtn": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
-    "change [name=aggregationType]": "updateAnalysis"
 
-  toggleDetails: (e)->
-    $(".details").toggle()
-
-  toggleGenderUnknown: (e)->
-    $('.gender-unknown').toggle()
+  toggleDetails: (e) =>
+    @$(".details").toggle()
 
   showDropDown: (e) =>
-    $target =  $(e.target).closest('.analysis')
-    $target.next(".analysis-report").slideToggle()
-    $target.find("i").toggleClass("mdi-play mdi-menu-down-outline")
+    target =  @$(e.target).closest('.classification')
+    target.next(".classification-report").slideToggle()
+    target.find("i").toggleClass("mdi-play mdi-menu-down-outline")
 
-  showCaseDialog: (e) ->
-    caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
+  showCaseDialog: (e) =>
+    caseID = @$(e.target).parent().attr('id') || $(e.target).attr('id')
     CaseView.showCaseDialog
       caseID: caseID
       success: ->
@@ -42,10 +37,6 @@ class IndividualClassificationView extends Backbone.View
 
   closeDialog: () ->
     caseDialog.close() if caseDialog.open
-
-  updateAnalysis: (e) ->
-    Coconut.router.reportViewOptions.aggregationLevel = $("[name=aggregationType]:checked").val()
-    @render()
 
   render: =>
     @options = $.extend({},Coconut.router.reportViewOptions)
@@ -57,7 +48,7 @@ class IndividualClassificationView extends Backbone.View
       "Relapsing"
     ]
 
-    $('#analysis-spinner').show()
+    $('#classification-spinner').show()
     HTMLHelpers.ChangeTitle("Reports: Individual Classification")
     @$el.html "
       <style>
@@ -68,16 +59,6 @@ class IndividualClassificationView extends Backbone.View
       <dialog id='caseDialog'></dialog>
       <div id='dateSelector'></div>
       <div id='classification'>
-        <!--
-        <hr/>
-        Aggregation Type:
-        <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "None" then "checked='true'" else ""} value='None'>&nbsp; None</input>
-        <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "District" then "checked='true'" else ""} value='District'>&nbsp; District</input>
-        <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Shehia" then "checked='true'" else ""}  value='Shehia'>&nbsp; Shehia</input>
-        <input name='aggregationType' type='radio' #{if Coconut.router.reportViewOptions.aggregationLevel is "Officer" then "checked='true'" else ""}  value='Office'>&nbsp; Malaria Officer</input>
-        <div style='font-style:italic; margin-top: 10px'>Click on arrow button/title to show table.</div>
-        <hr/>
-        -->
       </div>
       <div id='messages'>
       </div>
@@ -100,9 +81,11 @@ class IndividualClassificationView extends Backbone.View
         #@zone()
         @officer()
 
+        @$('.dropdown-section').hide()
+
   dropDownButton: (name) =>
     @$("#classification").append "
-      <div class='analysis dropDownBtn'>
+      <div class='classification dropDownBtn'>
         <div class='report-subtitle'>
           <button class='mdl-button mdl-js-button mdl-button--icon'>
             <i class='mdi mdi-play mdi-24px'></i>
@@ -114,7 +97,7 @@ class IndividualClassificationView extends Backbone.View
 
   all: =>
 
-    $("#analysis-spinner").hide()
+    $("#classification-spinner").hide()
 
     aggregated = {}
 
@@ -298,7 +281,6 @@ class IndividualClassificationView extends Backbone.View
     componentHandler.upgradeAllRegistered()
 
   createDashboardLinkForResult: (malariaCase,resultType,buttonText, buttonClass = "") ->
-
     if malariaCase[resultType]?
       unless malariaCase[resultType].complete?
         unless malariaCase[resultType].complete
@@ -312,7 +294,7 @@ class IndividualClassificationView extends Backbone.View
 
   createTable: (headerValues, rows, id, colspan = 1) ->
    "
-      <div id='#{id}' class='analysis-report dropdown-section'>
+      <div id='#{id}' class='classification-report dropdown-section'>
       <div class='scroll-div'>
        <div style='font-style:italic; padding-right: 30px'>Click on a column heading to sort. <span class='toggle-btn f-right'></span> </div>
         <table #{if id? then "id=#{id}" else ""} class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>

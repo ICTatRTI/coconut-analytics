@@ -34,13 +34,15 @@ class PositiveCasesGraphView extends Backbone.View
     endDate = options.endDate
     Coconut.reportingDatabase.query "caseCounter",
       startkey: [startDate]
-      endkey: [endDate]
+      endkey: [endDate,{}]
       reduce: false
       include_docs: false
     .then (result) =>
-      dataForGraph = result.rows
+      dataForGraph = for row in result.rows
+        row.key = [row.key[0],row.key[2]] # remove district info
+        row
       composite = dc.compositeChart("#chart")
-      Graphs.positiveCases(dataForGraph, composite, 'chart_container_1', options)
+      Graphs.positiveCasesByAge(dataForGraph, composite, 'chart_container_1', options)
 
       window.onresize = () ->
         HTMLHelpers.resizeChartContainer()

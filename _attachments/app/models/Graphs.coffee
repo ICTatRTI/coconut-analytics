@@ -1,612 +1,623 @@
 _ = require 'underscore'
 moment = require 'moment'
+$ = require 'jquery'
 
-dc = require 'dc'
-d3 = require 'd3'
-d3-scale = require 'd3-scale'
-crossfilter = require 'crossfilter'
+Chart = require 'chart.js'
+ChartDataLabels = require 'chartjs-plugin-datalabels'
+Chart.plugins.unregister(ChartDataLabels)
+
+camelize = require "underscore.string/camelize"
 
 class Graphs
-colorScale = d3.scale.category10()
-colorScale.domain([0,1,2,3,4,5,6,7,8,9])
-
-# Example to set customizecolors
-colorScale2 = d3.scale.ordinal()
-  .domain(['green','orange','yellow','red','grey','blue','purple'])
-  .range(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd'])
-
-Graphs.chartResize = (chart, container, options) ->
-  containerHeight = $(".#{container}").height()- options.adjustY
-  containerWidth = $(".#{container}").width()-options.adjustX
-
-  chart
-    .width(containerWidth)
-    .height(containerHeight)
-    .legend(dc.legend().x(50).y(containerHeight+15).horizontal(true).gap(25).autoItemWidth(true))
-    .rescale()
-    .redraw()
-  newHeight = containerHeight+50
-  chart.select('svg').attr('height', newHeight)
-
-Graphs.axis_adjust = (chart, container) ->
-  #this adjust the y-axis title to prevent title overlapping on ticks
-  #unless there is data for date range, there will not be a chart inside container, and hence a null.
-  newHeight = chart.height()+50
-  unless d3.select("##{container} g.x.axis")[0][0] is null
-    xAxis = d3.transform(d3.select("##{container} g.x.axis").attr("transform"))
-    xAxis_x = xAxis.translate[0]
-    xAxis_y = xAxis.translate[1]
-    yAxis = d3.transform(d3.select("##{container} g.y.axis").attr("transform"))
-    yAxis_x = yAxis.translate[0]
-    yAxis_y = yAxis.translate[1]
-    chart.legend(dc.legend().x(50).y($("##{container}").height()+15).horizontal(true).gap(25).autoItemWidth(true))
-    chart.select('.x.axis').attr("transform","translate(55,#{xAxis_y})")
-    chart.select('.y.axis').attr("transform","translate(55,#{yAxis_y})")
-    chart.selectAll('.chart-body').attr("transform","translate(55,#{yAxis_y})")
-    chart.select('svg').attr('height', newHeight)
-    chart.selectAll('g.x text')
-      .attr('transform', 'translate(-10,10) rotate(315)')
-
-Graphs.compositeResize = (composite, container, options) ->
-  containerWidth = $(".#{container}").width() - options.adjustX
-  containerHeight = $(".#{container}").height() - options.adjustY
-  composite
-    .width(containerWidth)
-    .height(containerHeight)
-    .legend(dc.legend().x(70).y(containerHeight+10).horizontal(true).gap(25).autoItemWidth(true))
-    .rescale()
-    .redraw()
-    .on('renderlet',(chart) =>
-      Graphs.axis_adjust(chart, container)
-    )
-  newHeight = containerHeight+50
-  composite.select('svg').attr('height', newHeight)
-
-Graphs.incidents = (dataForGraph1, dataForGraph2, composite, container, options,callback) ->
-  ndx1 = crossfilter(dataForGraph1)
-  ndx2 = crossfilter(dataForGraph2)
-
-  dim1 = ndx1.dimension((d) ->
-    return moment(d.key[0]).isoWeek()
-  )
-
-  dim2 = ndx2.dimension((d) ->
-    return moment(d.key[0]).isoWeek()
-  )
-
-  grp1 = dim1.group()
-  grp2 = dim2.group()
-
-  composite
-    .width($('.chart_container').width()-options.adjustX)
-    .height($('.chart_container').height())
-    .x(d3.scale.linear())
-    .y(d3.scale.linear())
-    .xUnits(d3.time.weeks)
-    .yAxisLabel("Number of Cases")
-    .xAxisLabel("Weeks")
-    .elasticY(true)
-    .elasticX(true)
-    .shareTitle(false)
-    .renderHorizontalGridLines(true)
-    .legend(dc.legend().x(70).y($('.chart_container').height()).horizontal(true).gap(25).autoItemWidth(true))
-    .on('renderlet',(chart) =>
-      Graphs.axis_adjust(chart, container)
-      chart.selectAll('g.x text')
-        .attr('transform', 'translate(0,0) rotate(0)')
-    )
-    .compose([
-      dc.lineChart(composite)
-        .dimension(dim2)
-        .colors(colorScale(1))
-        .group(grp2, "Last Year")
-        .xyTipsOn(true)
-        .renderArea(true)
-        .renderDataPoints(false)
-        .title((d) ->
-          return 'Week: ' +d.key + ": " + d.value
-        ),
-      dc.lineChart(composite)
-        .dimension(dim1)
-        .colors(colorScale(0))
-        .group(grp1, "Current")
-        .xyTipsOn(true)
-        .renderArea(true)
-        .renderDataPoints(false)
-        .title((d) ->
-          return 'Week: ' +d.key + ": " + d.value
-        )
-
-    ])
-    .brushOn(false)
-    .render()
-
-  Graphs.compositeResize(composite, 'chart_container', options)
-
-  callback(true)
-
-
-
-Graphs.yearlyTrends = (trends, composite, container, options,callback) ->
-  dimensions = {}
-  groups = {}
-
-  for trendName, trendData of trends
-    dimensions[trendName] = crossfilter(trendData).dimension (d) ->
-      moment(d.key[0]).isoWeek() # TODO I don't think we need this
-    groups[trendName] = dimensions[trendName].group()
-
-  composite
-    .width($('.chart_container').width()-options.adjustX)
-    .height($('.chart_container').height())
-    .x(d3.scale.linear())
-    .y(d3.scale.linear())
-    .xUnits(d3.time.weeks)
-    .yAxisLabel("Number of Cases")
-    .xAxisLabel("Weeks")
-    .elasticY(true)
-    .elasticX(true)
-    .shareTitle(false)
-    .renderHorizontalGridLines(true)
-    .legend(dc.legend().x(70).y($('.chart_container').height()).horizontal(true).gap(25).autoItemWidth(true))
-    .on('renderlet',(chart) =>
-      Graphs.axis_adjust(chart, container)
-      chart.selectAll('g.x text')
-        .attr('transform', 'translate(0,0) rotate(0)')
-    )
-    .compose( for trendName of trends
-      dc.lineChart(composite)
-        .dimension(dimensions[trendName])
-        .colors(colorScale(1))
-        .group(groups[trendName], trendName)
-        .xyTipsOn(true)
-        .renderArea(true)
-        .renderDataPoints(false)
-        .title((d) ->
-          return 'Week: ' +d.key + ": " + d.value
-        )
-    )
-    .brushOn(false)
-    .render()
-
-  Graphs.compositeResize(composite, 'chart_container', options)
-
-  callback(true)
-
-
-
-
-
-Graphs.positiveCases = (dataForGraph, composite, container, options) ->
-
-  data1 = _.filter(dataForGraph, (d) ->
-    return d.key[1] is "Over 5" and d.value is 1
-  )
-
-  data2 = _.filter(dataForGraph, (d) ->
-    return d.key[1] is "Under 5" and d.value is 1
-  )
-
-  ndx1 = crossfilter(data1)
-  ndx2 = crossfilter(data2)
-
-  dim1 = ndx1.dimension((d) ->
-    return moment(d.key[0])
-  )
-  dim2 = ndx2.dimension((d) ->
-    return moment(d.key[0])
-  )
-  grpGTE5 = dim1.group().reduceSum((d) ->
-      return d.value
-     )
-  grpLT5 = dim2.group().reduceSum((d) ->
-      return d.value
-     )
-
-  composite
-    .width($('.chart_container').width()-options.adjustX)
-    .height($('.chart_container').height()-options.adjustY)
-    .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-    .y(d3.scale.linear())
-    .yAxisLabel("Number of Cases")
-    .elasticY(true)
-    .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
-    .renderHorizontalGridLines(true)
-    .shareTitle(false)
-    .on('renderlet',(chart) =>
-      Graphs.axis_adjust(chart, container)
-    )
-    .compose([
-      dc.lineChart(composite)
-        .dimension(dim1)
-        .colors(colorScale(0))
-        .group(grpGTE5, "Age 5+")
-        .xyTipsOn(true)
-        .renderDataPoints(false)
-        .title((d) ->
-          return d.key.format("YYYY-MM-DD") + ": " + d.value
-        ),
-      dc.lineChart(composite)
-        .dimension(dim2)
-        .colors(colorScale(1))
-        .group(grpLT5, "Age < 5")
-        .xyTipsOn(true)
-        .renderDataPoints(false)
-        .title((d) ->
-          return d.key.format("YYYY-MM-DD") + ": " + d.value
-        )
-    ])
-    .brushOn(false)
-    .render()
-
-
-Graphs.attendance = (dataForGraph, composite2, container, options) ->
-    data3a = _.filter(dataForGraph, (d) ->
-      return d.key[3] is 'All OPD >= 5'
-    )
-
-    data3b = _.filter(dataForGraph, (d) ->
-      return d.key[3] is 'All OPD < 5'
-    )
-
-    ndx3a = crossfilter(data3a)
-    ndx3b = crossfilter(data3b)
-
-    dim3a = ndx3a.dimension((d) ->
-      return moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
-    )
-
-    dim3b = ndx3b.dimension((d) ->
-      return moment(d.key[0] + "-" + d.key[1], "GGGG-WW")
-    )
-
-    grp1 = dim3a.group().reduceSum((d) ->
-      return d.value
-     )
-
-    grp2 = dim3b.group().reduceSum((d) ->
-      return d.value
-     )
-
-    composite2
-      .width($('.chart_container').width()-options.adjustX)
-      .height($('.chart_container').height()-options.adjustY)
-      .x(d3.time.scale())
-      .y(d3.scale.linear())
-      .yAxisLabel("Number of OPD Cases")
-      .elasticX(true)
-      .elasticY(true)
-      .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
-      .renderHorizontalGridLines(true)
-      .shareTitle(false)
-      .xUnits(d3.time.week)
-      .on('renderlet',(chart) =>
-        Graphs.axis_adjust(chart, container)
-       )
-      .compose([
-        dc.lineChart(composite2)
-          .dimension(dim3a)
-          .colors(colorScale(0))
-          .group(grp1, "Age 5+")
-          .xyTipsOn(true)
-          .renderDataPoints(false)
-          .title((d) ->
-            return 'Week: '+ (d.key).isoWeek() + ": " + d.value
-           ),
-        dc.lineChart(composite2)
-          .dimension(dim3b)
-          .colors(colorScale(1))
-          .group(grp2, "Age < 5")
-          .xyTipsOn(true)
-          .renderDataPoints(false)
-          .title((d) ->
-            return 'Week: '+ (d.key).isoWeek()+ ": " + d.value
-           )
-        ])
-      .brushOn(false)
-      .render()
-
- Graphs.testRate = (dataForGraph, composite, container, options) ->
-
-    groupedByDate = {}
-    _(dataForGraph).each (v, index) ->
-      groupedByDate[v.key[0]+v.key[1]] = {} unless groupedByDate[v.key[0]+v.key[1]]
-      groupedByDate[v.key[0]+v.key[1]][v.key[3]] = v.value
-      groupedByDate[v.key[0]+v.key[1]]['dateWeek'] = v.dateWeek
-
-    _(groupedByDate).each (indicatorAndValue, date) ->
-      groupedByDate[date]["Test Rate < 5"] = Math.round(((groupedByDate[date]["Mal NEG < 5"] + groupedByDate[date]["Mal POS < 5"]) / groupedByDate[date]["All OPD < 5"])*100)
-      groupedByDate[date]["Test Rate >= 5"] = Math.round(((groupedByDate[date]["Mal NEG >= 5"] + groupedByDate[date]["Mal POS >= 5"]) / groupedByDate[date]["All OPD >= 5"])*100)
-
-    # convert to array
-    graphData = _.map(groupedByDate, (value, index) ->
-       return value
-    )
-
-    ndx = crossfilter(graphData)
-    dim = ndx.dimension((d) ->
-      return d.dateWeek
-    )
-
-    grpGTE5_3 = dim.group().reduceSum((d) ->
-      return d['Test Rate >= 5']
-    )
-
-    grpLT5_3 = dim.group().reduceSum((d) ->
-      return d['Test Rate < 5']
-    )
-
-    composite
-     .width($('.chart_container').width() - options.adjustX)
-     .height($('.chart_container').height() - options.adjustY)
-     .x(d3.time.scale())
-     .y(d3.scale.linear())
-     .xUnits(d3.time.week)
-     .yAxisLabel("Proportion of OPD Cases Tested Positive [%]")
-     .elasticY(true)
-     .elasticX(true)
-     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
-     .renderHorizontalGridLines(true)
-     .shareTitle(false)
-     .on('renderlet',(chart) =>
-       Graphs.axis_adjust(chart, container)
-     )
-     .compose([
-         dc.lineChart(composite)
-           .dimension(dim)
-           .colors(colorScale(0))
-           .group(grpGTE5_3, "Test rate [5+]")
-           .xyTipsOn(true)
-           .renderDataPoints(false)
-           .title((d) ->
-             return 'Week: '+ (d.key).isoWeek() + ": " + d.value + '%'
-            ),
-         dc.lineChart(composite)
-           .dimension(dim)
-           .colors(colorScale(1))
-           .group(grpLT5_3, "Test rate [< 5]")
-           .xyTipsOn(true)
-           .renderDataPoints(false)
-           .title((d) ->
-             return 'Week: '+ (d.key).isoWeek() + ": " + d.value + '%'
-           )
-     ])
-     .brushOn(false)
-     .render()
-
- Graphs.timeToNotify = (dataGraph, chart, container, options) ->
-     dataForGraph = _.filter(dataGraph, (d) ->
-        return ((d.key[1].match( /Between Positive Result And Notification From Facility/) and d.value is 1) or (d.key[1] is "Has Notification" and d.value is 0))
-     )
-
-     legendLabel = ["Within 24 hrs","24 to 48 hrs","48 to 72 hrs", "72+ hrs",  "No notification"]
-     dataForGraph.forEach((d) ->
-       switch d.key[1]
-         when "Less Than One Day Between Positive Result And Notification From Facility" then return d.series = legendLabel[0]
-         when "One To Two Days Between Positive Result And Notification From Facility" then return d.series = legendLabel[1]
-         when "Two To Three Days Between Positive Result And Notification From Facility" then return d.series = legendLabel[2]
-         when "More Than Three Days Between Positive Result And Notification From Facility" then return d.series = legendLabel[3]
-         when "Has Notification" then return d.series = legendLabel[4]
-     )
-
-     ndx = crossfilter(dataForGraph)
-     dateDimension = ndx.dimension((d) ->
-       moment(d.key[0])
-     )
-
-     sumGroup = dateDimension.group().reduce((p,v) ->
-       p.total = (p.total || 0) + 1
-       p[v.series] = (p[v.series] || 0) + 1
-       return p
-     ,(p,v) ->
-       p.total = (p.total || 0) - 1
-       p[v.series] = (p[v.series] || 0) - 1
-       return p
-     ,() ->
-       #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show.
-       return {"Within 24 hrs":0, "24 to 48 hrs":0, "48 to 72 hrs":0, "72+ hrs":0, "No notification":0}
-     )
-
-     if (options.pct100)
-       sumGroup.all().forEach((d) ->
-          d.value['Within 24 hrs'] = +(((d.value['Within 24 hrs'] / d.value['total']) *100).toFixed(2))
-          d.value['24 to 48 hrs'] = +(((d.value['24 to 48 hrs'] / d.value['total']) *100).toFixed(2))
-          d.value['48 to 72 hrs'] = +(((d.value['48 to 72 hrs'] / d.value['total']) *100).toFixed(2))
-          d.value['72+ hrs'] = +(((d.value['72+ hrs'] / d.value['total']) *100).toFixed(2))
-          d.value['No notification'] = +(((d.value['No notification'] / d.value['total']) *100).toFixed(2))
-       )
-
-     yAxis_label =  if(options.pct100) then "Proportion of Malaria Cases %" else "Number of Cases"
-
-     @sel_stack = (i) ->
-       return (d) ->
-           return d.value[i]
-
-     chart
-       .width($('.chart_container').width() - options.adjustX)
-       .height($('.chart_container').height() - options.adjustY)
-       .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-       .y(d3.scale.linear().domain([0,100]))
-       .yAxisLabel(yAxis_label)
-       .elasticY(true)
-       .xUnits(d3.time.days)
-       .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
-       .brushOn(false)
-       .clipPadding(20)
-       .renderLabel(false)
-       .renderHorizontalGridLines(true)
-       .dimension(dateDimension)
-       .group(sumGroup,legendLabel[0], @sel_stack(legendLabel[0]))
-       .centerBar(true)
-       .gap(1)
-       .title((d) ->
-         return (d.key).format("MMM-DD") + ' : ' + d.value[this.layer]
-         )
-       .ordinalColors(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd'])
-     dc.override(chart, 'legendables', () ->
-       items = chart._legendables()
-       return items.reverse()
-     )
-     chart.stack(sumGroup, legendLabel[i-1], @sel_stack(legendLabel[i-1])) for i in [2..5]
-     chart.render()
-     Graphs.axis_adjust(chart, container)
-
- Graphs.timeToComplete = (dataGraph, chart, container, options) ->
-   dataChart = _.filter(dataGraph, (d) ->
-     return ((d.key[1].match( /Between Positive Result And Complete Household/) and d.value is 1) or (d.key[1] is "Followed Up" and d.value is 0))
-   )
-
-   legendLabel = ["Within 24 hrs","24 to 48 hrs","48 to 72 hrs", "72+ hrs", "Not followed up"]
-   dataChart.forEach((d) ->
-     switch d.key[1]
-       when "Less Than One Day Between Positive Result And Complete Household" then return d.series = legendLabel[0]
-       when "One To Two Days Between Positive Result And Complete Household" then return d.series = legendLabel[1]
-       when "Two To Three Days Between Positive Result And Complete Household" then return d.series = legendLabel[2]
-       when "More Than Three Days Between Positive Result And Complete Household" then return d.series = legendLabel[3]
-       when "Followed Up" then return d.series = legendLabel[4]
-   )
-
-   ndx = crossfilter(dataChart)
-   dateDimension = ndx.dimension((d) ->
-     moment(d.key[0])
-   )
-
-   sumGroup = dateDimension.group().reduce((p,v) ->
-     p.total = (p.total || 0) + 1
-     p[v.series] = (p[v.series] || 0) + 1
-     return p
-   ,(p,v) ->
-     p.total = (p.total || 0) - 1
-     p[v.series] = (p[v.series] || 0) - 1
-     return p
-   ,(p,v) ->
-     #initalize to zero to ensure the same number of stacks on each bar. Otherwise bar will not show.
-     return {'Not followed up': 0, 'Within 24 hrs': 0, '72+ hrs': 0, '24 to 48 hrs': 0, '48 to 72 hrs': 0}
-   )
-
-   if (options.pct100)
-     sumGroup.all().forEach((d) ->
-       d.value['Within 24 hrs'] = +(((d.value['Within 24 hrs'] / d.value['total']) *100).toFixed(2))
-       d.value['24 to 48 hrs'] = +(((d.value['24 to 48 hrs'] / d.value['total']) *100).toFixed(2))
-       d.value['48 to 72 hrs'] = +(((d.value['48 to 72 hrs'] / d.value['total']) *100).toFixed(2))
-       d.value['72+ hrs'] = +(((d.value['72+ hrs'] / d.value['total']) *100).toFixed(2))
-       d.value['Not followed up'] = +(((d.value['Not followed up'] / d.value['total']) *100).toFixed(2))
-     )
-
-   yAxis_label =  if(options.pct100) then "Proportion of Malaria Cases %" else "Number of Cases"
-
-   @sel_stack = (i) ->
-     return (d) ->
-         return d.value[i]
-
-   chart
-     .width($('.chart_container').width() - options.adjustX)
-     .height($('.chart_container').height() - options.adjustY)
-     .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-     .y(d3.scale.linear())
-     .yAxisLabel(yAxis_label)
-     .elasticY(true)
-     .xUnits(d3.time.days)
-     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
-     .brushOn(false)
-     .clipPadding(20)
-     .renderLabel(false)
-     .renderHorizontalGridLines(true)
-     .dimension(dateDimension)
-     .group(sumGroup,legendLabel[0], @sel_stack(legendLabel[0]))
-     .centerBar(true)
-     .gap(1)
-     .title((d) ->
-       return (d.key).format("MMM-DD") + ' : ' + d.value[this.layer]
-       )
-      .ordinalColors(['#2ca02c','#ff9900','#ffff00', '#dc3912', '#808080', '#1f77b4','#9467bd'])
-   dc.override(chart, 'legendables', () ->
-     items = chart._legendables()
-     return items.reverse()
-   )
-   chart.stack(sumGroup, legendLabel[i-1], @sel_stack(legendLabel[i-1])) for i in [2..5]
-   chart.render()
-   Graphs.axis_adjust(chart, container)
-
- Graphs.positivityCases = (dataForGraph, composite, container, options) ->
-
-   data1 = _.filter(dataForGraph, (d) ->
-     return (d.key[1] is "Has Notification" and d.value is 1)
-   )
-
-   data2 = _.filter(dataForGraph, (d) ->
-     return (d.key[1] is "Number Household Members Tested Positive" and d.value > 0)
-   )
-   data3 = _.filter(dataForGraph, (d) ->
-     return (d.key[1] is "Number Household Members Tested" and d.value > 0)
-   )
-
-   ndx1 = crossfilter(data1)
-   ndx2 = crossfilter(data2)
-   ndx3 = crossfilter(data3)
-
-   dim1 = ndx1.dimension((d) ->
-     return moment(d.key[0])
-   )
-   dim2 = ndx2.dimension((d) ->
-     return moment(d.key[0])
-   )
-   dim3 = ndx3.dimension((d) ->
-     return moment(d.key[0])
-   )
-   grp1 = dim1.group().reduceSum((d) ->
-       return d.value
-   )
-   grp2 = dim2.group().reduceSum((d) ->
-       return d.value
-     )
-   grp3 = dim3.group().reduceSum((d) ->
-       return d.value
-     )
-
-   composite
-     .width($('.chart_container').width()-options.adjustX)
-     .height($('.chart_container').height()-options.adjustY)
-     .x(d3.time.scale().domain([new Date(options.startDate), new Date(options.endDate)]))
-     .y(d3.scale.linear())
-     .yAxisLabel("Number of Cases")
-     .elasticY(true)
-     .legend(dc.legend().x(70).y($('.chart_container').height()-20).horizontal(true).gap(25).autoItemWidth(true))
-     .renderHorizontalGridLines(true)
-     .shareTitle(false)
-     .on('renderlet',(chart) =>
-       Graphs.axis_adjust(chart, container)
-     )
-     .compose([
-       dc.lineChart(composite)
-         .dimension(dim1)
-         .colors(colorScale(0))
-         .group(grp1, "Cases Has Notifcation")
-         .xyTipsOn(true)
-         .renderDataPoints(false)
-         .title((d) ->
-           return (d.key).format("YYYY-MM-DD") + ": " + d.value
-         )
-       dc.lineChart(composite)
-         .dimension(dim2)
-         .colors(colorScale(1))
-         .group(grp2, "Positive Hse Member")
-         .xyTipsOn(true)
-         .renderDataPoints(false)
-         .title((d) ->
-           return (d.key).format("YYYY-MM-DD") + ": " + d.value
-         )
-       dc.lineChart(composite)
-         .dimension(dim3)
-         .colors(colorScale(2))
-         .group(grp3, "Tested Hse Member")
-         .xyTipsOn(true)
-         .renderDataPoints(false)
-         .title((d) ->
-           return (d.key).format("YYYY-MM-DD") + ": " + d.value
-         )
-     ])
-     .brushOn(false)
-     .render()
+
+  Graphs.render = (graphName, data, target) ->
+    target or= camelize(graphName)
+    console.log target
+    Graphs.definitions[graphName].render(data, $("##{target}"))
+
+  Graphs.getGraphName = (nameOrCamelizedName) ->
+    return nameOrCamelizedName if Graphs.definitions[nameOrCamelizedName]
+
+    camelizedNameToTile = {}
+    for name of Graphs.definitions
+      camelizedNameToTile[camelize(name)] = name
+    if Graphs.definitions[camelizedNameToTile[nameOrCamelizedName]]
+      camelizedNameToTile[nameOrCamelizedName]
+
+  Graphs.weeklyDataCounter = (options) ->
+    startDate = options.startDate
+    endDate = options.endDate
+    if _(startDate).isString()
+      startDate = moment(startDate)
+    if _(endDate).isString()
+      endDate = moment(endDate)
+
+    await Coconut.database.query "weeklyDataCounter",
+      start_key: startDate.format("GGGG-WW").split(/-/)
+      end_key: endDate.format("GGGG-WW").split(/-/)
+      reduce: true
+      include_docs: false
+      group: true
+    .then (result) =>
+      Promise.resolve(result.rows)
+
+  Graphs.caseCounter = (options) ->
+    startDate = options.startDate
+    endDate = options.endDate
+    unless _(startDate).isString()
+      startDate = startDate.format('YYYY-MM-DD')
+    unless _(endDate).isString()
+      endDate = endDate.format('YYYY-MM-DD')
+
+    data = await Coconut.reportingDatabase.query "caseCounter",
+      startkey: [startDate]
+      endkey: [endDate,{}]
+      reduce: true
+      group_level: 2 # Group District and Shehia
+      include_docs: false
+    .then (result) =>
+      Promise.resolve(result.rows)
+
+  # This is a big data structure that is used to create the graphs on the dashboard as well as the individual graph pages as well as to create the menu options
+  Graphs.definitions =
+    "Positive Individuals by Year":
+      description: "Positive Individuals by Year shows the 'classic' epidemiological curve comparing last year's total cases to this years. This is useful to see if general trends are higher or lower than the previous year."
+      dataQuery: (options) ->
+
+        # Only care about the endDate
+        endDate = options.endDate
+        if _(endDate).isString()
+          endDate = moment(endDate)
+
+        for label, data of {
+          "#{lastYear = endDate.clone().subtract(1,'year').year()}":
+            year: lastYear
+            options:
+              borderColor: "rgba(255, 64, 129,1)"
+              backgroundColor: "rgba(255, 64, 129, 0.1)"
+              pointRadius: 2
+          "#{thisYear = endDate.year()}":
+            year: thisYear
+            options:
+              borderColor: "rgba(25, 118, 210, 1)"
+              backgroundColor: "rgba(25, 118, 210, 0.1)"
+              pointRadius: 2
+        }
+          await Coconut.reportingDatabase.query "epiCurveByWeekAndDistrict",
+            startkey: ["#{data.year}-01"]
+            endkey: ["#{data.year}-52",{}]
+            reduce: true
+            group_level: 1
+          .then (result) =>
+            Promise.resolve _(data.options).extend {
+              label: label
+              data: for row in result.rows
+                x: parseInt(row.key[0].replace(/.*-/,""))
+                y: row.value
+            }
+
+      render: (dataForGraph, target) ->
+        new Chart target,
+          type: "line"
+          data:
+            labels: [1..52]
+            datasets: dataForGraph
+          options:
+            scales:
+              xAxes: [
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+
+    "Positive Individual Classifications":
+      description: "Positive Individual Classifications shows classifications for all individuals that have been followed up. Note that the dates may differ slightly since this graph uses the date of testing for household members, which usually is different than the date that the index case was found positive, and which is used for other graphs on this page."
+      dataQuery: Graphs.caseCounter
+      render: (dataForGraph, target) ->
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        classifications = [
+          "Indigenous"
+          "Imported"
+          "Introduced"
+          "Induced"
+          "Relapsing"
+          "Unclassified"
+        ]
+
+        for data in dataForGraph
+          if _(classifications).contains data.key[1]
+            [date, classification] = data.key
+            week = moment(date).isoWeek()
+            dataAggregated[classification] or= {}
+            dataAggregated[classification][week] or= 0
+            dataAggregated[classification][week] += data.value
+            weeksIncluded[week] = true
+
+        chartOptions = for color in [
+            [255,0, 0] # red
+            [0, 0, 255] # blue
+            [0, 100, 0] # darkgreen
+            [128, 0, 128] # purple
+            [255,128, 0] # orange
+            [192,192, 0] # yellow
+        ]
+          {
+            borderColor: "rgba(#{color.join(",")},1)"
+            backgroundColor: "rgba(#{color.join(",")},0.1)"
+            borderWidth: 2
+          }
+
+        index = -1
+        dataSets = for classification in classifications
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: classification
+            data: for week, value of dataAggregated[classification]
+              value
+
+        xAxisLabels = []
+        for week, index in _(weeksIncluded).keys()
+          xAxisLabels.push week
+
+        new Chart target,
+          type: "bar"
+          data:
+            labels: xAxisLabels
+            datasets: dataSets
+          options:
+            scales:
+              xAxes: [
+                stacked: true
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+              yAxes: [
+                stacked: true
+              ]
+    "Positive Individuals by Age":
+      description: "Positive Individuals by Age counts all malaria positive individuals and classifies them by age. Index case date of positive is used for all individuals."
+      dataQuery: Graphs.caseCounter
+      render: (dataForGraph, target) ->
+        
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        for data in dataForGraph
+          if data.key[1] is "Over 5" or data.key[1] is "Under 5"
+            [date,age] = data.key
+            week = moment(date).isoWeek()
+            dataAggregated[age] or= {}
+            dataAggregated[age][week] or= 0
+            dataAggregated[age][week] += data.value
+            weeksIncluded[week] = true
+
+        chartOptions = [
+          {
+            borderColor: "rgba(25, 118, 210, 1)"
+            backgroundColor: "rgba(25, 118, 210, 0.1)"
+            pointRadius: 2
+          }
+          {
+            borderColor: "rgba(255, 64, 129,1)"
+            backgroundColor: "rgba(255, 64, 129, 0.1)"
+            pointRadius: 2
+          }
+        ]
+
+        index = -1
+        dataSets = for age, weekValue of dataAggregated
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: age
+            data: for week, value of weekValue
+              x: week
+              y: value
+
+        new Chart target,
+          type: "line"
+          data:
+            labels: _(weeksIncluded).keys()
+            datasets: dataSets
+          options:
+            scales:
+              xAxes: [
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+    "OPD Visits By Age":
+      description: "OPD Visits by Age shows data for all malaria and non-malaria visits to facilities."
+      dataQuery: Graphs.weeklyDataCounter
+      render: (dataForGraph, target) ->
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        mappings = 
+          "All OPD >= 5" : "Over 5"
+          "All OPD < 5"  : "Under 5"
+
+        for data in dataForGraph
+          if data.key[3] is "All OPD >= 5" or data.key[3] is "All OPD < 5"
+            [year, week, location, dataType] = data.key
+            dataType = mappings[dataType]
+            week = parseInt(week)
+            dataAggregated[dataType] or= {}
+            dataAggregated[dataType][week] or= 0
+            dataAggregated[dataType][week] += data.value
+            weeksIncluded[week] = true
+
+        chartOptions = [
+          {
+            borderColor: "rgba(25, 118, 210, 1)"
+            backgroundColor: "rgba(25, 118, 210, 0.1)"
+            pointRadius: 2
+          }
+          {
+            borderColor: "rgba(255, 64, 129,1)"
+            backgroundColor: "rgba(255, 64, 129, 0.1)"
+            pointRadius: 2
+          }
+        ]
+
+        index = -1
+        dataSets = for age in _(mappings).values()
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: age
+            data: for week, value of dataAggregated[age]
+              x: week
+              y: value
+
+
+        new Chart target,
+          type: "line"
+          data:
+            labels: _(weeksIncluded).keys()
+            datasets: dataSets
+          options:
+            scales:
+              xAxes: [
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+    "Hours from Positive Test at Facility to Notification":
+      description: "Shows how long it is taking facilities to send a notification once someone has tested positive. Target is less than 24 hours."
+      dataQuery: Graphs.caseCounter
+      render: (dataForGraph, target) ->
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        for data in dataForGraph
+          if (data.value is 0 and data.key[1] is "Has Notification") or (data.value >= 1 and data.key[1].match( /Between Positive Result And Notification From Facility/))
+
+            [datePositive, timeToNotify] = data.key
+            week = moment(datePositive).isoWeek()
+
+            mapping = 
+              "Less Than One Day Between Positive Result And Notification From Facility": "< 24"
+              "One To Two Days Between Positive Result And Notification From Facility": "24 - 48"
+              "Two To Three Days Between Positive Result And Notification From Facility": "48 - 72"
+              "More Than Three Days Between Positive Result And Notification From Facility": "> 72"
+              "Has Notification": "No notification" # This Has Notification = 0
+
+            timeToNotify = mapping[timeToNotify]
+
+            weeksIncluded[week] = true
+            dataAggregated[timeToNotify] or= {}
+            dataAggregated[timeToNotify][week] or= 0
+            if timeToNotify is "No notification"
+              dataAggregated[timeToNotify][week] += 1
+            else
+              dataAggregated[timeToNotify][week] += data.value
+          
+        chartOptions = for color in [
+            [0, 128, 0] # green
+            [192,192, 0] # yellow
+            [255,128, 0] # orange
+            [255,0, 0] # red
+        ]
+          {
+            borderColor: "rgba(#{color.join(",")},1)"
+            backgroundColor: "rgba(#{color.join(",")},0.1)"
+            borderWidth: 2
+          }
+
+        index = -1
+        dataSets = for type in _(mapping).values() # Do this to get the right order
+          continue unless dataAggregated[type]
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: type
+            data: for week, value of dataAggregated[type]
+              value
+
+        xAxisLabels = []
+        onTarget = []
+        for week, index in _(weeksIncluded).keys()
+          xAxisLabels.push week
+          total = 0
+          for dataSet in dataSets
+            total += dataSet.data[index] or 0
+
+          onTarget.push Math.round(dataSets[0].data[index] / total * 100)
+
+        new Chart target,
+          type: "bar"
+          data:
+            labels: xAxisLabels
+            datasets: dataSets
+          plugins: [ChartDataLabels] # Lets us put the percent over the bar
+          options:
+            scales:
+              xAxes: [
+                stacked: true
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+              yAxes: [
+                stacked: true
+              ]
+            plugins:
+              datalabels:
+                align: 'top'
+                anchor: 'start'
+                borderRadius: 4
+                color: 'green'
+                formatter: (value, context) ->
+                  return null if context.datasetIndex > 0 # Only need one percent per dataset since the calculation uses both parts of the bar
+                  "#{onTarget[context.dataIndex]}%"
+
+    "Hours From Positive Test To Complete Follow-up":
+      description: "Shows how long it is taking the entire followup process to take including both the time for the facility to followup as well as time for the surveillance officer to go to the facility and then go to the household. Target is less than 48 hours."
+      dataQuery: Graphs.caseCounter
+      render: (dataForGraph, target) ->
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        for data in dataForGraph
+          if (data.value is 0 and data.key[1] is "Followed Up") or (data.value >= 1 and data.key[1].match( /Between Positive Result And Complete Household/))
+
+            [datePositive, timeToComplete] = data.key
+
+            week = moment(datePositive).isoWeek()
+
+            mapping = 
+              "Less Than One Day Between Positive Result And Complete Household": "< 48"
+              "One To Two Days Between Positive Result And Complete Household": "< 48"
+              "Two To Three Days Between Positive Result And Complete Household": "48 -  72"
+              "More Than Three Days Between Positive Result And Complete Household": "> 72"
+              "Followed Up": "Not followed up" #Confusing but when followed up is 0 then it is not followed up
+
+            timeToComplete = mapping[timeToComplete]
+
+            weeksIncluded[week] = true
+            dataAggregated[timeToComplete] or= {}
+            dataAggregated[timeToComplete][week] or= 0
+            if timeToComplete is "Not followed up"
+              dataAggregated[timeToComplete][week] += 1
+            else
+              dataAggregated[timeToComplete][week] += data.value
+              
+        chartOptions = for color in [
+            [0, 128, 0] # green
+            [192,192, 0] # yellow
+            [255,128, 0] # orange
+            [255,0, 0] # red
+        ]
+          {
+            borderColor: "rgba(#{color.join(",")},1)"
+            backgroundColor: "rgba(#{color.join(",")},0.1)"
+            borderWidth: 2
+          }
+
+        index = -1
+        dataSets = for type in _(mapping).chain().values().uniq().value()
+          continue unless dataAggregated[type]
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: type
+            data: for week, value of dataAggregated[type]
+              value
+
+        xAxisLabels = []
+        onTarget = []
+        for week, index in _(weeksIncluded).keys()
+          xAxisLabels.push week
+          total = 0
+          for dataSet in dataSets
+            total += dataSet.data[index] or 0
+
+          onTarget.push Math.round(dataSets[0].data[index] / total * 100)
+
+        new Chart target,
+          type: "bar"
+          data:
+            labels: xAxisLabels
+            datasets: dataSets
+          plugins: [ChartDataLabels] # Lets us put the percent over the bar
+          options:
+            scales:
+              xAxes: [
+                stacked: true
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+              yAxes: [
+                stacked: true
+              ]
+            plugins:
+              datalabels:
+                align: 'top'
+                anchor: 'start'
+                borderRadius: 4
+                color: 'green'
+                formatter: (value, context) ->
+                  return null if context.datasetIndex > 0 # Only need one percent per dataset since the calculation uses both parts of the bar
+                  "#{onTarget[context.dataIndex]}%"
+
+    "Household Testing and Positivity Rate":
+      description: "How many tests are being given at households, and how many of those end up being positive."
+      dataQuery: Graphs.caseCounter
+      render: (dataForGraph, target) ->
+
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        for data in dataForGraph
+
+          [date, indicator] = data.key
+
+          if indicator is "Number Household Members Tested"
+            week = moment(date).isoWeek()
+            weeksIncluded[week] = true
+            dataAggregated["Negative"] or= {}
+            dataAggregated["Negative"][week] or= -1 # Includes the index case so remove that for this graph
+            dataAggregated["Negative"][week] += data.value
+          else if indicator is "Number Positive Individuals At Household Excluding Index"
+            week = moment(date).isoWeek()
+            weeksIncluded[week] = true
+            dataAggregated["Positive"] or= {}
+            dataAggregated["Positive"][week] or= 0
+            dataAggregated["Positive"][week] += data.value
+            # Subtract these from negative count
+            dataAggregated["Negative"] or= {}
+            dataAggregated["Negative"][week] or= 0
+            dataAggregated["Negative"][week] -= data.value
+
+        chartOptions = [
+          {
+            borderColor: "rgba(25, 118, 210, 1)"
+            backgroundColor: "rgba(25, 118, 210, 0.1)"
+            borderWidth: 2
+          }
+          {
+            borderColor: "rgba(255, 64, 129, 1)"
+            backgroundColor: "rgba(255, 64, 129, 0.5)"
+            borderWidth: 2
+          }
+        ]
+
+        index = -1
+        dataSets = for type, weekValue of dataAggregated
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: type
+            data: for week, value of weekValue
+              value
+
+        xAxisLabels = []
+        positivityRate = []
+        for week, index in _(weeksIncluded).keys()
+          xAxisLabels.push week
+          positivityRate.push Math.round((dataSets[1].data[index]/dataSets[0].data[index])*100)
+
+        new Chart target,
+          type: "bar"
+          data:
+            labels: xAxisLabels
+            datasets: dataSets
+          plugins: [ChartDataLabels] # Lets us put the percent over the bar
+          options:
+            scales:
+              xAxes: [
+                stacked: true
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+              yAxes: [
+                stacked: true
+              ]
+            plugins:
+              datalabels:
+                align: 'top',
+                anchor: 'end',
+                borderRadius: 4,
+                color: 'black',
+                formatter: (value, context) ->
+                  return null if context.datasetIndex > 0 # Only need one percent per dataset since the calculation uses both parts of the bar
+                  "#{positivityRate[context.dataIndex]}%"
+
+    "OPD Testing and Positivity Rate":
+      description: "How many tests are being given at facilities, and how many of those end up positive."
+      dataQuery: Graphs.weeklyDataCounter
+      render: (dataForGraph, target) ->
+        dataAggregated = {}
+        weeksIncluded = {}
+
+        for data in dataForGraph
+          [year, week, location, dataType] = data.key
+          week = parseInt(week)
+          weeksIncluded[week] = true
+
+          if dataType.match /POS/
+            dataAggregated["Positive"] or= {}
+            dataAggregated["Positive"][week] or= 0
+            dataAggregated["Positive"][week] += data.value
+
+          if dataType.match /NEG/
+            dataAggregated["Negative"] or= {}
+            dataAggregated["Negative"][week] or= 0
+            dataAggregated["Negative"][week] += data.value
+
+        chartOptions = [
+          {
+            borderColor: "rgba(25, 118, 210, 1)"
+            backgroundColor: "rgba(25, 118, 210, 0.1)"
+            borderWidth: 2
+          }
+          {
+            borderColor: "rgba(255, 64, 129, 1)"
+            backgroundColor: "rgba(255, 64, 129, 0.5)"
+            borderWidth: 2
+          }
+        ]
+
+        index = -1
+        dataSets = for type, weekValue of dataAggregated
+          index +=1
+          _(chartOptions[index]).extend # Just use an index to get different colors
+            label: type
+            data: for week, value of weekValue
+              value
+
+        xAxisLabels = []
+        positivityRate = []
+        for week, index in _(weeksIncluded).keys()
+          xAxisLabels.push week
+          positivityRate.push Math.round((dataSets[1].data[index]/dataSets[0].data[index])*100)
+
+        new Chart target,
+          type: "bar"
+          data:
+            labels: xAxisLabels
+            datasets: dataSets
+          plugins: [ChartDataLabels] # Lets us put the percent over the bar
+          options:
+            scales:
+              xAxes: [
+                stacked: true
+                scaleLabel:
+                  display: true
+                  labelString: "Week"
+              ]
+              yAxes: [
+                stacked: true
+              ]
+            plugins:
+              datalabels:
+                align: 'top',
+                anchor: 'end',
+                borderRadius: 4,
+                color: 'black',
+                formatter: (value, context) ->
+                  return null if context.datasetIndex > 0 # Only need one percent per dataset since the calculation uses both parts of the bar
+                  "#{positivityRate[context.dataIndex]}%"
 
 module.exports = Graphs

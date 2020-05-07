@@ -222,11 +222,11 @@ class PeriodTrendsView extends Backbone.View
             disaggregated : data.passiveCases[district].indexCaseHouseholdMembers
           ,
             title         : "No. of additional <b>household members tested positive</b>"
-            disaggregated : data.passiveCases[district].positiveCasesAtIndexHousehold
-            appendPercent : data.passiveCases[district].positiveCasesAtIndexHousehold.length / data.passiveCases[district].indexCaseHouseholdMembers.length
+            disaggregated : data.passiveCases[district].positiveIndividualsAtIndexHousehold
+            appendPercent : data.passiveCases[district].positiveIndividualsAtIndexHousehold.length / data.passiveCases[district].indexCaseHouseholdMembers.length
           ,
             title         : "% <b>increase in cases found</b> using MCN"
-            percent       : data.passiveCases[district].positiveCasesAtIndexHousehold.length / data.passiveCases[district].indexCases.length
+            percent       : data.passiveCases[district].positiveIndividualsAtIndexHousehold.length / data.passiveCases[district].indexCases.length
           ,
             title         : "No. of positive cases (index & household) in persons <b>under 5</b>"
             disaggregated : data.ages[district].underFive

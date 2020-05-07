@@ -26,24 +26,24 @@ class AnalysisView extends Backbone.View
     "click .download-csv": "downloadCSV"
 
   downloadCSV: (e) =>
-    name = @$(e.target).attr("data-tabulator-name")
+    name = $(e.target).attr("data-tabulator-name")
     @tabulators[name].download("csv","#{name}_#{@startDate}_#{@endDate}.csv")
 
-  toggleDetails: (e)->
-    $(".details").toggle()
+  toggleDetails: (e) =>
+    @$(".details").toggle()
 
-  toggleGenderUnknown: (e)->
-    $('.gender-unknown').toggle()
+  toggleGenderUnknown: (e) =>
+    @$('.gender-unknown').toggle()
 
   showDropDown: (e) =>
-    $target =  $(e.target).closest('.analysis')
-    $target.next(".analysis-report").slideToggle()
-    $target.find("i").toggleClass('mdi-play mdi-menu-down-outline')
+    target =  $(e.target).closest('.analysis')
+    target.next(".analysis-report").slideToggle()
+    target.find("i").toggleClass('mdi-play mdi-menu-down-outline')
 
     for name, tabulatorTable of @tabulators # tabulator doesn't initialize properly when hidden
       tabulatorTable.redraw()
 
-  showCaseDialog: (e) ->
+  @showCaseDialog: (e) =>
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
     CaseView.showCaseDialog
       caseID: caseID
@@ -53,8 +53,8 @@ class AnalysisView extends Backbone.View
   closeDialog: () ->
     caseDialog.close() if caseDialog.open
 
-  updateAnalysis: (e) ->
-    Coconut.router.reportViewOptions.aggregationLevel = $("[name=aggregationType]:checked").val()
+  updateAnalysis: (e) =>
+    Coconut.router.reportViewOptions.aggregationLevel = @$("[name=aggregationType]:checked").val()
     @render()
 
   render: =>
@@ -212,12 +212,12 @@ class AnalysisView extends Backbone.View
           "#{options.aggregationLevel}": location
           "No of cases followed up": HTMLHelpers.createDisaggregatableCaseGroup(values.indexCases)
           "No of additional index household members tested": HTMLHelpers.createDisaggregatableDocGroup(values.indexCaseHouseholdMembers.length,values.indexCaseHouseholdMembers)
-          "No of additional index household members tested positive": HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtIndexHousehold.length,values.positiveCasesAtIndexHousehold)
-          "% of index household members tested positive": HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCaseHouseholdMembers.length)
-          "% increase in cases found using MCN": HTMLHelpers.formattedPercent(values.positiveCasesAtIndexHousehold.length / values.indexCases.length)
+          "No of additional index household members tested positive": HTMLHelpers.createDisaggregatableDocGroup(values.positiveIndividualsAtIndexHousehold.length,values.positiveIndividualsAtIndexHousehold)
+          "% of index household members tested positive": HTMLHelpers.formattedPercent(values.positiveIndividualsAtIndexHousehold.length / values.indexCaseHouseholdMembers.length)
+          "% increase in cases found using MCN": HTMLHelpers.formattedPercent(values.positiveIndividualsAtIndexHousehold.length / values.indexCases.length)
           "No of additional neighbor households visited": HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholds.length,values.neighborHouseholds)
           "No of additional neighbor household members tested": HTMLHelpers.createDisaggregatableDocGroup(values.neighborHouseholdMembers.length,values.neighborHouseholdMembers)
-          "No of additional neighbor household members tested positive": HTMLHelpers.createDisaggregatableDocGroup(values.positiveCasesAtNeighborHouseholds.length,values.positiveCasesAtNeighborHouseholds)
+          "No of additional neighbor household members tested positive": HTMLHelpers.createDisaggregatableDocGroup(values.positiveIndividualsAtNeighborHouseholds.length,values.positiveIndividualsAtNeighborHouseholds)
         )
 
 

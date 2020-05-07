@@ -25,9 +25,10 @@ class Issues
 
 
   @updateEpidemicAlertsAndAlarms = (options) =>
-    console.log "District level threshold detection is disabled"
     endDate = options?.endDate   or moment().subtract(2,'days').format("YYYY-MM-DD")
 
+    #console.log "District level threshold detection is disabled"
+    ###
     lookupDistrictThreshold = (district, alarmOrAlert, recurse=false) =>
       if @districtThresholds.data[district] is undefined
         return null
@@ -42,6 +43,7 @@ class Issues
           return total: result[alarmOrAlert]
         else
           total: @districtThresholds.data[district][isoWeek][alarmOrAlert]
+    ###
 
     # TODO Consider moving this json into a document in the database
     thresholds = {
@@ -96,6 +98,8 @@ class Issues
             _(alarmOrAlertData).each (thresholdsForRange, alarmOrAlert) ->
               _(thresholdsForRange).each (categories, locationType) ->
                 _(result[locationType]).each (locationData, locationName) ->
+                  if _(categories).isFunction()
+                    calculatedCategories = categories(locationName) # Use the above function to lookup the correct district threshold based on the week for the startdate
                   if _(categories).isFunction()
                     calculatedCategories = categories(locationName) # Use the above function to lookup the correct district threshold based on the week for the startdate
                     thresholdDescription = "#{alarmOrAlert}: #{locationType} #{locationName} with more than #{Math.floor(parseFloat(calculatedCategories.total))} cases within #{range} during week #{moment(startDate).isoWeek()}"
@@ -157,8 +161,6 @@ class Issues
               Promise.resolve()
             .catch (error) -> console.error error
 
-
-        unless _(docsToSave).isEmpty()
           console.log docsToSave
           Coconut.database.bulkDocs _(docsToSave).values()
           .then ->

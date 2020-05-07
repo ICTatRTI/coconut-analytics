@@ -82,7 +82,6 @@ class UsersView extends Backbone.View
       errorMsg = ""
       errorMsg += 'Username, ' if $('#_id').val() == ''
       errorMsg += 'Password, ' if $('input#mode').val() == 'add' and $('#passwd').val() == ''
-      errorMsg += 'District, ' if $('#district').val() == ''
       errorMsg += 'Name, ' if $('#name').val() == ''
 
       if errorMsg != ''

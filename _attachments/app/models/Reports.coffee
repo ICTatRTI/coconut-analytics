@@ -127,10 +127,10 @@ class Reports
             data.passiveCases[aggregationName] =
               indexCases: []
               indexCaseHouseholdMembers: []
-              positiveCasesAtIndexHousehold: []
+              positiveIndividualsAtIndexHousehold: []
               neighborHouseholds: []
               neighborHouseholdMembers: []
-              positiveCasesAtNeighborHouseholds: []
+              positiveIndividualsAtNeighborHouseholds: []
             data.ages[aggregationName] =
               underFive: []
               fiveToFifteen: []
@@ -197,9 +197,9 @@ class Reports
               data.passiveCases[caseLocation].indexCaseHouseholdMembers =  data.passiveCases[caseLocation].indexCaseHouseholdMembers.concat(completeIndexCaseHouseholdMembers)
               data.passiveCases["ALL"].indexCaseHouseholdMembers =  data.passiveCases["ALL"].indexCaseHouseholdMembers.concat(completeIndexCaseHouseholdMembers)
 
-              positiveCasesAtIndexHousehold = malariaCase.positiveCasesAtIndexHousehold()
-              data.passiveCases[caseLocation].positiveCasesAtIndexHousehold = data.passiveCases[caseLocation].positiveCasesAtIndexHousehold.concat positiveCasesAtIndexHousehold
-              data.passiveCases["ALL"].positiveCasesAtIndexHousehold = data.passiveCases["ALL"].positiveCasesAtIndexHousehold.concat positiveCasesAtIndexHousehold
+              positiveIndividualsAtIndexHousehold = malariaCase.positiveIndividualsAtIndexHousehold()
+              data.passiveCases[caseLocation].positiveIndividualsAtIndexHousehold = data.passiveCases[caseLocation].positiveIndividualsAtIndexHousehold.concat positiveIndividualsAtIndexHousehold
+              data.passiveCases["ALL"].positiveIndividualsAtIndexHousehold = data.passiveCases["ALL"].positiveIndividualsAtIndexHousehold.concat positiveIndividualsAtIndexHousehold
 
               completeNeighborHouseholds = malariaCase.completeNeighborHouseholds()
               data.passiveCases[caseLocation].neighborHouseholds =  data.passiveCases[caseLocation].neighborHouseholds.concat(completeNeighborHouseholds)
@@ -209,62 +209,62 @@ class Reports
               data.passiveCases[caseLocation].neighborHouseholdMembers =  data.passiveCases[caseLocation].neighborHouseholdMembers.concat(completeNeighborHouseholdMembers)
               data.passiveCases["ALL"].neighborHouseholdMembers =  data.passiveCases["ALL"].neighborHouseholdMembers.concat(completeNeighborHouseholdMembers)
 
-              _.each malariaCase.positiveCasesIncludingIndex(), (positiveCase) ->
-                data.totalPositiveCases[caseLocation].push positiveCase
-                data.totalPositiveCases["ALL"].push positiveCase
+              _.each malariaCase.positiveIndividualsIncludingIndex(), (positiveIndividual) ->
+                data.totalPositiveCases[caseLocation].push positiveIndividual
+                data.totalPositiveCases["ALL"].push positiveIndividual
 
-                if positiveCase.Age?
-                  age = parseInt(positiveCase.Age)
+                if positiveIndividual.Age?
+                  age = parseInt(positiveIndividual.Age)
                   if age < 5
-                    data.ages[caseLocation].underFive.push positiveCase
-                    data.ages["ALL"].underFive.push positiveCase
+                    data.ages[caseLocation].underFive.push positiveIndividual
+                    data.ages["ALL"].underFive.push positiveIndividual
                   else if age < 15
-                    data.ages[caseLocation].fiveToFifteen.push positiveCase
-                    data.ages["ALL"].fiveToFifteen.push positiveCase
+                    data.ages[caseLocation].fiveToFifteen.push positiveIndividual
+                    data.ages["ALL"].fiveToFifteen.push positiveIndividual
                   else if age < 25
-                    data.ages[caseLocation].fifteenToTwentyFive.push positiveCase
-                    data.ages["ALL"].fifteenToTwentyFive.push positiveCase
+                    data.ages[caseLocation].fifteenToTwentyFive.push positiveIndividual
+                    data.ages["ALL"].fifteenToTwentyFive.push positiveIndividual
                   else if age >= 25
-                    data.ages[caseLocation].overTwentyFive.push positiveCase
-                    data.ages["ALL"].overTwentyFive.push positiveCase
+                    data.ages[caseLocation].overTwentyFive.push positiveIndividual
+                    data.ages["ALL"].overTwentyFive.push positiveIndividual
                 else
-                  data.ages[caseLocation].unknown.push positiveCase unless positiveCase.age
-                  data.ages["ALL"].unknown.push positiveCase unless positiveCase.age
+                  data.ages[caseLocation].unknown.push positiveIndividual unless positiveIndividual.age
+                  data.ages["ALL"].unknown.push positiveIndividual unless positiveIndividual.age
 
-                if positiveCase.Sex is "Male"
-                  data.gender[caseLocation].male.push positiveCase
-                  data.gender["ALL"].male.push positiveCase
-                else if positiveCase.Sex is "Female"
-                  data.gender[caseLocation].female.push positiveCase
-                  data.gender["ALL"].female.push positiveCase
+                if positiveIndividual.Sex is "Male"
+                  data.gender[caseLocation].male.push positiveIndividual
+                  data.gender["ALL"].male.push positiveIndividual
+                else if positiveIndividual.Sex is "Female"
+                  data.gender[caseLocation].female.push positiveIndividual
+                  data.gender["ALL"].female.push positiveIndividual
                 else
-                  data.gender[caseLocation].unknown.push positiveCase
-                  data.gender["ALL"].unknown.push positiveCase
+                  data.gender[caseLocation].unknown.push positiveIndividual
+                  data.gender["ALL"].unknown.push positiveIndividual
 
-                if (positiveCase.SleptunderLLINlastnight is "Yes" || positiveCase.IndexcaseSleptunderLLINlastnight is "Yes")
-                  data.netsAndIRS[caseLocation].sleptUnderNet.push positiveCase
-                  data.netsAndIRS["ALL"].sleptUnderNet.push positiveCase
+                if (positiveIndividual.SleptunderLLINlastnight is "Yes" || positiveIndividual.IndexcaseSleptunderLLINlastnight is "Yes")
+                  data.netsAndIRS[caseLocation].sleptUnderNet.push positiveIndividual
+                  data.netsAndIRS["ALL"].sleptUnderNet.push positiveIndividual
 
-                if (positiveCase.LastdateofIRS and positiveCase.LastdateofIRS.match(/\d\d\d\d-\d\d-\d\d/))
+                if (positiveIndividual.LastdateofIRS and positiveIndividual.LastdateofIRS.match(/\d\d\d\d-\d\d-\d\d/))
                   # if date of spraying is less than X months
-                  if (new moment).subtract(Coconut.IRSThresholdInMonths,'months') < (new moment(positiveCase.LastdateofIRS))
-                    data.netsAndIRS[caseLocation].recentIRS.push positiveCase
-                    data.netsAndIRS["ALL"].recentIRS.push positiveCase
+                  if (new moment).subtract(Coconut.IRSThresholdInMonths,'months') < (new moment(positiveIndividual.LastdateofIRS))
+                    data.netsAndIRS[caseLocation].recentIRS.push positiveIndividual
+                    data.netsAndIRS["ALL"].recentIRS.push positiveIndividual
 
-                if positiveCase.TravelledOvernightInPastMonth?
-                  if positiveCase.TravelledOvernightInPastMonth is "Unknown"
-                    positiveCase.TravelledOvernightInPastMonth = "Not Applicable"
-                  data.travel[caseLocation][positiveCase.TravelledOvernightInPastMonth].push positiveCase
-                  data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
-                  data.travel["ALL"][positiveCase.TravelledOvernightInPastMonth].push positiveCase
-                  data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.TravelledOvernightInPastMonth.match(/Yes/)
-                else if positiveCase.OvernightTravelinpastmonth
-                  if positiveCase.OvernightTravelinpastmonth is "Unknown"
-                    positiveCase.OvernightTravelinpastmonth = "Not Applicable"
-                  data.travel[caseLocation][positiveCase.OvernightTravelinpastmonth].push positiveCase
-                  data.travel[caseLocation]["Any travel"].push positiveCase if positiveCase.OvernightTravelinpastmonth.match(/Yes/)
-                  data.travel["ALL"][positiveCase.OvernightTravelinpastmonth].push positiveCase
-                  data.travel["ALL"]["Any travel"].push positiveCase if positiveCase.OvernightTravelinpastmonth.match(/Yes/)
+                if positiveIndividual.TravelledOvernightInPastMonth?
+                  if positiveIndividual.TravelledOvernightInPastMonth is "Unknown"
+                    positiveIndividual.TravelledOvernightInPastMonth = "Not Applicable"
+                  data.travel[caseLocation][positiveIndividual.TravelledOvernightInPastMonth].push positiveIndividual
+                  data.travel[caseLocation]["Any travel"].push positiveIndividual if positiveIndividual.TravelledOvernightInPastMonth.match(/Yes/)
+                  data.travel["ALL"][positiveIndividual.TravelledOvernightInPastMonth].push positiveIndividual
+                  data.travel["ALL"]["Any travel"].push positiveIndividual if positiveIndividual.TravelledOvernightInPastMonth.match(/Yes/)
+                else if positiveIndividual.OvernightTravelinpastmonth
+                  if positiveIndividual.OvernightTravelinpastmonth is "Unknown"
+                    positiveIndividual.OvernightTravelinpastmonth = "Not Applicable"
+                  data.travel[caseLocation][positiveIndividual.OvernightTravelinpastmonth].push positiveIndividual
+                  data.travel[caseLocation]["Any travel"].push positiveIndividual if positiveIndividual.OvernightTravelinpastmonth.match(/Yes/)
+                  data.travel["ALL"][positiveIndividual.OvernightTravelinpastmonth].push positiveIndividual
+                  data.travel["ALL"]["Any travel"].push positiveIndividual if positiveIndividual.OvernightTravelinpastmonth.match(/Yes/)
 
           options.finished?(data)
           resolve(data)
@@ -666,7 +666,7 @@ class Reports
             #console.log "Skipping neighbors and households for district"
           else
             # Under 5
-            _(malariaCase.positiveCasesAtIndexHouseholdAndNeighborHouseholdsUnder5()).each (householdOrNeighbor) ->
+            _(malariaCase.positiveIndividualsAtIndexHouseholdAndNeighborHouseholdsUnder5()).each (householdOrNeighbor) ->
               householdOrNeighborResult = _(indexCaseResult).clone()
               householdOrNeighborResult.householdOrNeighbor = householdOrNeighbor._id
               householdOrNeighborResult.link = "#show/case/#{malariaCase.caseID}/#{householdOrNeighbor._id}"
@@ -675,7 +675,7 @@ class Reports
               results[aggregationArea][indexCaseResult[aggregationArea]]["total"].push householdOrNeighborResult
 
             # Over 5
-            _(malariaCase.positiveCasesAtIndexHouseholdAndNeighborHouseholdsOver5()).each (householdOrNeighbor) ->
+            _(malariaCase.positiveIndividualsAtIndexHouseholdAndNeighborHouseholdsOver5()).each (householdOrNeighbor) ->
               householdOrNeighborResult = _(indexCaseResult).clone()
               householdOrNeighborResult.householdOrNeighbor = householdOrNeighbor._id
               householdOrNeighborResult.link = "#show/case/#{malariaCase.caseID}/#{householdOrNeighbor._id}"
@@ -775,7 +775,7 @@ class Reports
               "daysFromSMSToCompleteHousehold"
               "numberHouseholdOrNeighborMembers"
               "numberHouseholdOrNeighborMembersTested"
-              "numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"
+              "numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"
               "hasCompleteFacility"
               "casesNotified"
               "householdFollowedUp"
@@ -874,7 +874,7 @@ class Reports
               _([
                 "numberHouseholdOrNeighborMembers"
                 "numberHouseholdOrNeighborMembersTested"
-                "numberPositiveCasesAtIndexHouseholdAndNeighborHouseholds"
+                "numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"
               ]).each (property) ->
                 aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
                 aggregatedData[period][area][property]+= cases[caseId][property]()

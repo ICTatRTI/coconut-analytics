@@ -302,9 +302,11 @@ class MapView extends Backbone.View
       startkey: Coconut.router.reportViewOptions.startDate
       endkey: Coconut.router.reportViewOptions.endDate
     .then (result) =>
-      console.log result
       for row in result.rows
         unless row.value.latLong?
+          console.warn "#{row.value} missing latLong, not mapping"
+          continue
+        unless (row.value.latLong?[0] and row.value.latLong?[1])
           console.warn "#{row.value} missing latLong, not mapping"
           continue
         caseId = row.id.replace(/.*_/,"")
