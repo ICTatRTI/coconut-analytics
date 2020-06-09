@@ -169,7 +169,11 @@ class MapView extends Backbone.View
       [-6.4917667, 39.0945000]
     ]
 
-    @getCases()
+    if @casesWithKeyIndicators
+      @addCasesToMap(@casesWithKeyIndicators)
+    else
+      @getCases()
+
     @createMapLegend()
     @createZoomUngujaPemba()
     promiseWhenBoundariesAreLoaded = @getBoundariesAndLabels
@@ -296,36 +300,35 @@ class MapView extends Backbone.View
     Relapsing: "orange"
   }
 
+  addCasesToMap: (rowsWithKeyIndicators) =>
+    for row in rowsWithKeyIndicators
+      unless row.value.latLong?
+        console.warn "#{row.value} missing latLong, not mapping"
+        continue
+      unless (row.value.latLong?[0] and row.value.latLong?[1])
+        console.warn "#{row.value} missing latLong, not mapping"
+        continue
+      caseId = row.id.replace(/.*_/,"")
+      L.circleMarker row.value.latLong,
+        color: '#000000'
+        weight: 0.3
+        radius: 12
+        fill: true
+        fillOpacity: 0.8
+        fillColor: if row.value.classification
+            colorByClassification[row.value.classification]
+          else
+            "red"
+      .addTo(@map)
+      .bringToFront()
+      .bindPopup "<a href='#show/case/#{caseId}'>#{caseId}</a>"
+
   getCases: =>
-    caseIds = []
     Coconut.reportingDatabase.query 'keyIndicatorsByDate',
       startkey: Coconut.router.reportViewOptions.startDate
       endkey: Coconut.router.reportViewOptions.endDate
     .then (result) =>
-      for row in result.rows
-        unless row.value.latLong?
-          console.warn "#{row.value} missing latLong, not mapping"
-          continue
-        unless (row.value.latLong?[0] and row.value.latLong?[1])
-          console.warn "#{row.value} missing latLong, not mapping"
-          continue
-        caseId = row.id.replace(/.*_/,"")
-        caseIds.push caseId
-        L.circleMarker row.value.latLong,
-          color: '#000000'
-          weight: 0.3
-          radius: 12
-          fill: true
-          fillOpacity: 0.8
-          fillColor: if row.value.classification
-              colorByClassification[row.value.classification]
-            else
-              "red"
-        .addTo(@map)
-        .bringToFront()
-        .bindPopup "<a href='#show/case/#{caseId}'>#{caseId}</a>"
-
-      #console.log caseIds.join("\n")
+      @addCasesToMap(result.rows)
   
   createMapLegend: =>
     legend = L.control(position: 'bottomright')

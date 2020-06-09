@@ -92,14 +92,13 @@ class Router extends Backbone.Router
     "admin/facilities": "FacilityHierarchy"
     "admin/rainfall_station": "rainfallStation"
     "admin/geo_hierarchy": "geoHierarchy"
-    "dashboard/:startDate/:endDate": "dashboard"
     "dashboard": "dashboard"
+    "dashboard/*options": "dashboard"
     "export": "dataExport"
     "export/*options": "dataExport"
     "maps": "maps"
     "maps/*options": "maps"
-    "graphs/:type": "graphs"
-    "graphs/:type/:startDate/:endDate": "graphs"
+    "graph/*options": "graph"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
     "find/case": "findCase"
@@ -207,6 +206,7 @@ class Router extends Backbone.Router
     _(defaultOptions).each (defaultValue, option) =>
       @reportViewOptions[option] = @reportViewOptions[option] or defaultValue
     type = @reportViewOptions["type"]
+    document.title = 'Coconut Surveillance - Reports - #{type}'
     @views[type] = new reportViews[type]() unless @views[type]
     @views[type].setElement "#content"
     #@views[type].render()
@@ -234,22 +234,14 @@ class Router extends Backbone.Router
     @reportType = 'activities'
     @showDateFilter(Coconut.router.reportViewOptions.startDate, Coconut.router.reportViewOptions.endDate, @views[type], @reportType)
 
-  graphs: (type, startDate, endDate) =>
-
+  graph: (optionString) ->
+    document.title = 'Coconut Surveillance - Graph'
     Coconut.graphView or= new GraphView()
-    Coconut.graphView.render
-      type: type
-      startDate: startDate
-      endDate: endDate
-
-
-
-
-
-
-
+    Coconut.graphView.options = @parseOptionsString(optionString)
+    Coconut.graphView.render()
 
   showCase: (caseID, docID) ->
+    document.title = 'Coconut Surveillance - Case #{caseID}'
     Coconut.caseView ?= new CaseView()
     Coconut.caseView.case = new Case
       caseID: caseID
@@ -259,21 +251,25 @@ class Router extends Backbone.Router
       error: (error) ->
         alert "Could not display case: #{error}"
 
-  dashboard: (startDate,endDate) =>
-    @showDashboard(startDate,endDate)
+  dashboard: (options) =>
+    document.title = 'Coconut Surveillance - Dashboard'
+    Coconut.dashboardView or= new DashboardView()
+    options = @parseOptionsString(options)
 
+    Coconut.dashboardView.startDate = options?.startDate or Coconut.dashboardView.startDate or @defaultStartDate()
+    Coconut.dashboardView.endDate = options?.endDate or Coconut.dashboardView.endDate or @defaultEndDate()
+    Coconut.dashboardView.administrativeLevel = options?.administrativeLevel or Coconut.dashboardView.administrativeLevel or "NATIONAL"
+    # Just maps different terms to the ones used by dashboard
+    Coconut.dashboardView.administrativeLevel = {
+      "FACILITY": "HEALTH FACILITIES"
+      "DISTRICT": "DISTRICTS"
+      "SHEHIA": "SHEHIAS"
+    }[Coconut.dashboardView.administrativeLevel.toUpperCase()] or Coconut.dashboardView.administrativeLevel
+    Coconut.dashboardView.administrativeName = options?.administrativeName or Coconut.dashboardView.administrativeName or "ZANZIBAR"
 
-  showDashboard: (startDate,endDate) =>
-    Coconut.dashboardView = new DashboardView() unless Coconut.dashboardView
-    [startDate,endDate] = @setStartEndDateIfMissing()
-    @.navigate "#dashboard/#{startDate}/#{endDate}"
-    Coconut.router.reportViewOptions['startDate'] = startDate
-    Coconut.router.reportViewOptions['endDate'] = endDate
-    @reportType = 'dashboard'
-    #Coconut.dashboardView.render()
-    @appView.showView(Coconut.dashboardView)
-    @showDateFilter(startDate, endDate, Coconut.dashboardView, @reportType)
+    console.log Coconut.dashboardView
 
+    Coconut.dashboardView.render()
 
   dataExport: =>
     [startDate,endDate] = @setStartEndDateIfMissing()
@@ -287,6 +283,7 @@ class Router extends Backbone.Router
 
 
   maps: (options) =>
+    document.title = 'Coconut Surveillance - Maps'
     options = _(options?.split(/\//)).map (option) -> unescape(option)
     # remove type option
     options.splice(0,2)
@@ -450,6 +447,15 @@ class Router extends Backbone.Router
        aggregationLevel: "District"
        mostSpecificLocationSelected: "ALL"
     }
+
+  parseOptionsString: (optionString) ->
+    # Split the string, unescape it, then loop it and put it in a hash
+    options = {}
+    optionsArray = _(optionString?.split(/\//)).map (option) -> unescape(option)
+    for option, index in optionsArray
+      options[option] = optionsArray[index+1] unless index % 2
+
+    return options
 
   parseQueryString: (queryString)->
     params = {}

@@ -65,6 +65,10 @@ glob "*.coffee", (er, files) ->
         console.log "Saving view #{view} in #{database_name}"
 
         db.put(local_view_doc)
-      .catch (error) -> console.error error
+      .catch (error) -> 
+        console.error "Error for #{view}"
+        console.error db
+        console.error local_view_doc
+        console.error error
     else
       console.log "Could not find database target for #{view}"

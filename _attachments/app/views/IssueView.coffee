@@ -1,5 +1,6 @@
 CaseView = require './CaseView'
 Issue = require '../models/Issue'
+CasesTabulatorView = require './CasesTabulatorView'
 
 class IssueView extends Backbone.View
   el: '#content'
@@ -9,6 +10,30 @@ class IssueView extends Backbone.View
     "click button#save" : "save"
     "click button.caseBtnLg": "showCaseDialog"
     "click button#closeDialog": "closeDialog"
+    "click button#addUniqueCases": "addCases"
+
+  addCases: =>
+
+    casesTabulatorView = new CasesTabulatorView()
+
+    casesInFirstIncident = for link in @issue.Links
+      link.replace(/.*\//,"")
+    casesInAdditionalIncidents = _(for incident in @issue.AdditionalIncidents
+      for link in incident.Links
+        link.replace(/.*\//,"")
+    ).chain().flatten().unique().value()
+
+    allCasesIncludingAdditionalIncidents = _(casesInAdditionalIncidents).union(casesInFirstIncident)
+
+    await casesTabulatorView.fetchDataForCases(allCasesIncludingAdditionalIncidents)
+    casesTabulatorView.setElement "#caseDetails"
+    casesTabulatorView.tabulatorFields = [
+      "Malaria Case ID"
+      "Classifications By Household Member Type"
+      "Village"
+    ]
+    casesTabulatorView.render()
+
 
   showCaseDialog: (e) ->
     caseID = $(e.target).parent().attr('id') || $(e.target).attr('id')
@@ -33,7 +58,16 @@ class IssueView extends Backbone.View
         <div style='display:hidden' id='message'></div>
         <h4><a href='javascript:history.back()' title='Prev screen'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i> Issue: #{@issue.Description}</h4>
         #{
-          if @issue["Threshold Description"] then "<h5>Threshold:#{@issue["Threshold Description"]}</h5>" else ""
+          if @issue["Threshold Description"]
+            "
+            <h5>Threshold: #{@issue["Threshold Description"]}</h5>
+
+            <a href='#dashboard/startDate/#{@issue.StartDate}/endDate/#{@issue.EndDate}/administrativeLevel/#{@issue.LocationType.toUpperCase()}/administrativeName/#{@issue.LocationName.toUpperCase()}'>
+              Dashboard for #{@issue.LocationName} #{@issue.StartDate}-#{@issue.EndDate}
+            </a>
+            " 
+          else 
+            ""
         }
 
         <div id='responsibility'>
@@ -61,28 +95,58 @@ class IssueView extends Backbone.View
 -->
         </div>
 
-        <table id='caseTable' class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
-          <thead>
+        <div id='caseDetails'></div>
+
+        #{
+          if @issue.AdditionalIncidents.length > 0
+            "
+            Threshold was also passed for the following date ranges that also end in week #{@issue.YearWeekEndDate}:<br/>
             #{
-              _(["caseId","district","shehia","village","IndexCaseDiagnosisDate","indexCaseHasTravelHistory"]).map (header) ->
-                "<th>#{header}</th>"
-              .join ""
+              (for incident in @issue.AdditionalIncidents
+                "#{incident.StartDate} - #{incident.EndDate} (#{incident.Amount})<br/>"
+              ).join("")
             }
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
+            #{
+              casesInFirstIncident = for link in @issue.Links
+                link.replace(/.*\//,"")
+              casesInAdditionalIncidents = _(for incident in @issue.AdditionalIncidents
+                for link in incident.Links
+                  link.replace(/.*\//,"")
+              ).chain().flatten().unique().value()
+
+              additionalUniqueCases = _(casesInAdditionalIncidents).difference(casesInFirstIncident)
+
+              (for malariaCase in additionalUniqueCases
+                "<a href='#show/case/#{malariaCase}'>#{malariaCase}</a><br/>"
+              ).join("")
+
+              "#{additionalUniqueCases.length} additional unique Cases found from these case (not included in above table). <button id='addUniqueCases'>Add them to the table</button>"
+            }
+            "
+          else 
+            ""
+        }
+
+
         <div><a href='javascript:history.back()' title='Prev screen'><i class='mdi mdi-arrow-left-bold-circle mdi-36px'></a></i></div>
         <ul id='links'></ul>
       "
 
       if @issue.Links?
-        index = 0
-        $("ul#links").append _(@issue.Links).map( (link) =>
-            "<li><a href='#{link}'>#{@issue.Cases?[index++] or link}</li>"
-        ).join("")
+        casesTabulatorView = new CasesTabulatorView()
+        await casesTabulatorView.fetchDataForCases(for link in @issue.Links
+          link.replace(/.*\//,"")
+        )
+        casesTabulatorView.setElement "#caseDetails"
+        casesTabulatorView.tabulatorFields = [
+          "Malaria Case ID"
+          "Classifications By Household Member Type"
+          "Village"
+        ]
+        casesTabulatorView.render()
 
       if @issue.Cases?
+
         $("ul#links").hide()
         Case.getCases
           caseIDs: @issue.Cases

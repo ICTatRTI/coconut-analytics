@@ -34,7 +34,7 @@ class TestRateGraphView extends Backbone.View
     startWeek = ("00" + moment(options.startDate).isoWeek().toString()).slice(-2)
     endYear = moment(options.endDate).isoWeekYear().toString()
     endWeek = ("00" + moment(options.endDate).isoWeek().toString()).slice(-2)
-    Coconut.database.query "weeklyDataCounter",
+    Coconut.weeklyFacilityDatabase.query "weeklyDataCounter",
       startkey: [startYear,startWeek]
       endkey: [endYear,endWeek,{}]
       reduce: true

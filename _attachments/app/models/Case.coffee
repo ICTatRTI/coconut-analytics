@@ -8,6 +8,7 @@ Dhis2 = require './Dhis2'
 CONST = require "../Constants"
 humanize = require 'underscore.string/humanize'
 titleize = require 'underscore.string/titleize'
+PouchDB = require 'pouchdb-core'
 
 class Case
   constructor: (options) ->
@@ -59,8 +60,9 @@ class Case
           this[resultDoc.question] = resultDoc
       else
         @caseID ?= resultDoc["caseid"]
-        if @caseID isnt resultDoc["caseid"]
-          console.error "Inconsistent Case ID. Working on #{@caseID} but current doc has #{resultDoc["caseid"]}: #{JSON.stringify resultDoc}:"
+        if @caseID isnt resultDoc["caseid"] or parseInt(@caseID) isnt parseInt(resultDoc["caseid"])
+          console.error @caseID is resultDoc["caseid"]
+          console.error "Inconsistent Case ID. Working on '#{@caseID}' but current doc has '#{resultDoc["caseid"]}': #{JSON.stringify resultDoc}:"
           console.error resultDoc
           console.error resultDocs
           throw "Inconsistent Case ID. Working on #{@caseID} but current doc has #{resultDoc["caseid"]}: #{JSON.stringify resultDoc}"
@@ -185,6 +187,8 @@ class Case
       facilityUnit = GeoHierarchy.findFirst(@facility(), "FACILITY")
       facilityDistrict = facilityUnit?.ancestorAtLevel("DISTRICT").name
     unless facilityDistrict
+      #if @["USSD Notification"]?.facility_district is "WEST" and _(GeoHierarchy.find(@shehia(), "SHEHIA").map( (u) => u.ancestors()[0].name )).include "MAGHARIBI A" # MEEDS doesn't have WEST split
+      return "WEST A" if @["USSD Notification"]?.facility_district is "WEST" #Always shift to WEST A if we can't get better anything else - better than UNKNOWN. This is due to MEEDS not being updated
       console.warn "Could not find a district for USSD notification: #{JSON.stringify @["USSD Notification"]}"
       return "UNKNOWN"
     GeoHierarchy.swahiliDistrictName(facilityDistrict)
@@ -234,11 +238,15 @@ class Case
     else
       console.warn "No district for case: #{@caseId}"
 
+  # namesOfAdministrativeLevels
+  # Nation, Island, Region, District, Shehia, Facility
+  # Example:
+  #"ZANZIBAR","PEMBA","KUSINI PEMBA","MKOANI","WAMBAA","MWANAMASHUNGI
   namesOfAdministrativeLevels: () =>
     district = @district()
     if district
       districtAncestors = _(GeoHierarchy.findFirst(district, "DISTRICT")?.ancestors()).pluck "name"
-      result = districtAncestors.reverse().concat(district).concat(@shehia())
+      result = districtAncestors.reverse().concat(district).concat(@shehia()).concat(@facility())
       result.join(",")
 
   possibleQuestions: ->
@@ -257,6 +265,12 @@ class Case
       else
         result[question] = (@[question]?.complete is "true" or @[question]?.complete is true)
     return result
+
+  lastQuestionCompleted: =>
+    questionStatus = @questionStatus()
+    for question in @possibleQuestions().reverse()
+      return question if questionStatus[question]
+    return "None"
 
   complete: =>
     @questionStatus()["Household Members"] is true
@@ -351,9 +365,11 @@ class Case
       (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
 
+  ###
   numberPositiveIndividualsAtIndexHousehold: =>
     throw "Deprecated since name was confusing about whether index case was included, use numberPositiveIndividualsExcludingIndex"
     @positiveIndividualsAtIndexHousehold().length
+  ###
 
   numberPositiveIndividualsExcludingIndex: =>
     @positiveIndividualsExcludingIndex().length
@@ -379,6 +395,7 @@ class Case
       householdMember.MalariaTestResult is "Mixed" or
       (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
 
+  ###
   # Handles pre-2019 and post-2019
   positiveIndividualsAtIndexHouseholdAndNeighborHouseholds: ->
     throw "Deprecated"
@@ -386,14 +403,17 @@ class Case
       householdMember.MalariaTestResult is "PF" or 
       householdMember.MalariaTestResult is "Mixed" or
       (householdMember.CaseCategory and householdMember.HouseholdMemberType is "Other Household Member")
+  ###
 
   positiveIndividualsUnder5: =>
     _(@positiveIndividuals()).filter (householdMemberOrNeighbor) =>
-      @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays) < 5
+      age = @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays)
+      age and age < 5
 
   positiveIndividualsOver5: =>
     _(@positiveIndividuals()).filter (householdMemberOrNeighbor) =>
-      @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays) >= 5
+      age = @ageInYears(householdMemberOrNeighbor.Age, householdMemberOrNeighbor.AgeInYearsMonthsDays)
+      age and age >= 5
 
   numberPositiveIndividuals: ->
     @positiveIndividuals().length
@@ -445,14 +465,29 @@ class Case
 
   #This function is good - don't use completeIndexCaseHouseholdMembers
   positiveIndividualsIncludingIndex: =>
-    @positiveIndividualsIndexCasesOnly()?.concat(@positiveIndividualsExcludingIndex())
+    positiveIndividualsExcludingIndex = @positiveIndividualsExcludingIndex()
+    positiveIndividualsIndexCasesOnly = @positiveIndividualsIndexCasesOnly()
+
+    nonIndexHaveCaseCategory = _(positiveIndividualsExcludingIndex).any (positiveIndividual) ->
+      positiveIndividual.CaseCategory?
+
+    indexHaveCaseCategory = _(positiveIndividualsIndexCasesOnly).any (positiveIndividual) ->
+      positiveIndividual.CaseCategory?
+
+    # Don't try and find an index case if there are already classified individuals
+    # Probably these just have the wrong Household Member Type
+    if nonIndexHaveCaseCategory and not indexHaveCaseCategory
+      positiveIndividualsExcludingIndex
+    else
+      positiveIndividualsIndexCasesOnly?.concat(positiveIndividualsExcludingIndex)
 
   positiveIndividualsExcludingIndex: =>
     # if we have classification then index is in the household member data
-    if @classificationsByHouseholdMemberType() isnt ""
-      # Only positive individuals have a case category e.g. imported, so filter for non null values
-      _(@["Household Members"]).filter (householdMember) => 
-        householdMember.CaseCategory? and householdMember.HouseholdMemberType isnt "Index Case"
+    # Only positive individuals have a case category e.g. imported, so filter for non null values
+    classifiedNonIndexCases = _(@["Household Members"]).filter (householdMember) => 
+      householdMember.CaseCategory? and householdMember.HouseholdMemberType isnt "Index Case"
+    if classifiedNonIndexCases.length > 0
+      classifiedNonIndexCases
     else
       # If there is no classification then there will be no index case in the list of household members (pre 2019 style). This also includes neighbor households.
       _(@["Household Members"]).filter (householdMember) =>
@@ -461,10 +496,11 @@ class Case
 
   positiveIndividualsIndexCasesOnly: =>
     # if we have classification then index is in the household member data
-    if @classificationsByHouseholdMemberType() isnt ""
-      # Only positive individuals have a case category e.g. imported, so filter for non null values
-      return @["Household Members"].filter (householdMember) -> 
-        householdMember.CaseCategory isnt null and householdMember.HouseholdMemberType is "Index Case"
+    # Only positive individuals have a case category e.g. imported, so filter for non null values
+    classifiedIndexCases = @["Household Members"].filter (householdMember) -> 
+      householdMember.CaseCategory isnt null and householdMember.HouseholdMemberType is "Index Case"
+    if classifiedIndexCases.length > 0
+      classifiedIndexCases
     else
       # Case hasn't been followed up yet or pre 2019 data which didn't capture index case as a household member, so use facility data for index and then check for positive household members
       if @["Facility"]
@@ -478,6 +514,9 @@ class Case
 
   numberPositiveIndividualsUnder5: =>
     @positiveIndividualsUnder5().length
+
+  numberPositiveIndividualsOver5: =>
+    @numberPositiveIndividuals - @numberPositiveIndividualsUnder5
 
   massScreenCase: =>
     @Household?["Reason for visiting household"]? is "Mass Screen"
@@ -544,10 +583,10 @@ class Case
       null
 
   householdLocationLatitude: =>
-    parseFloat(@Location?["LocationLatitude"] or @Household?["HouseholdLocationLatitude"] or @Household?["Household Location - Latitude"])
+    parseFloat(@Location?["LocationLatitude"] or @Household?["HouseholdLocationLatitude"] or @Household?["Household Location - Latitude"]) or @Household?["HouseholdLocation-latitude"]
 
   householdLocationLongitude: =>
-    parseFloat(@Location?["LocationLongitude"] or @Household?["HouseholdLocationLongitude"] or @Household?["Household Location - Longitude"])
+    parseFloat(@Location?["LocationLongitude"] or @Household?["HouseholdLocationLongitude"] or @Household?["Household Location - Longitude"]) or @Household?["HouseholdLocation-longitude"]
 
   householdLocationAccuracy: =>
     parseFloat(@Location?["LocationAccuracy"] or @Household?["HouseholdLocationAccuracy"] or @Household?["Household Location - Accuracy"])
@@ -643,17 +682,22 @@ class Case
 
 
   lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: =>
-    @daysBetweenPositiveResultAndNotificationFromFacility() <= 1
+    if (daysBetweenPositiveResultAndNotificationFromFacility = @daysBetweenPositiveResultAndNotificationFromFacility())?
+      daysBetweenPositiveResultAndNotificationFromFacility <= 1
 
   oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility: =>
-    @daysBetweenPositiveResultAndNotificationFromFacility() <= 2
+    if (daysBetweenPositiveResultAndNotificationFromFacility = @daysBetweenPositiveResultAndNotificationFromFacility())?
+      daysBetweenPositiveResultAndNotificationFromFacility > 1 and
+      daysBetweenPositiveResultAndNotificationFromFacility <= 2
 
   twoToThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
-    @daysBetweenPositiveResultAndNotificationFromFacility() <= 3
+    if (daysBetweenPositiveResultAndNotificationFromFacility = @daysBetweenPositiveResultAndNotificationFromFacility())?
+      daysBetweenPositiveResultAndNotificationFromFacility > 2 and
+      daysBetweenPositiveResultAndNotificationFromFacility <= 3
 
   moreThanThreeDaysBetweenPositiveResultAndNotificationFromFacility: =>
-    @daysBetweenPositiveResultAndNotificationFromFacility() > 3
-
+    if (daysBetweenPositiveResultAndNotificationFromFacility = @daysBetweenPositiveResultAndNotificationFromFacility())?
+      daysBetweenPositiveResultAndNotificationFromFacility > 3
 
   daysBetweenPositiveResultAndCompleteHousehold: =>
     dateOfPositiveResults = @dateOfPositiveResults()
@@ -663,16 +707,22 @@ class Case
       Math.abs(moment(dateOfPositiveResults).diff(completeHouseholdVisit, 'days'))
 
   lessThanOneDayBetweenPositiveResultAndCompleteHousehold: =>
-    @daysBetweenPositiveResultAndCompleteHousehold() <= 1
+    if (daysBetweenPositiveResultAndCompleteHousehold = @daysBetweenPositiveResultAndCompleteHousehold())?
+      daysBetweenPositiveResultAndCompleteHousehold <= 1
 
   oneToTwoDaysBetweenPositiveResultAndCompleteHousehold: =>
-    @daysBetweenPositiveResultAndCompleteHousehold() <= 2
+    if (daysBetweenPositiveResultAndCompleteHousehold = @daysBetweenPositiveResultAndCompleteHousehold())?
+      daysBetweenPositiveResultAndCompleteHousehold > 1 and
+      daysBetweenPositiveResultAndCompleteHousehold <= 2
 
   twoToThreeDaysBetweenPositiveResultAndCompleteHousehold: =>
-    @daysBetweenPositiveResultAndCompleteHousehold() <= 3
+    if (daysBetweenPositiveResultAndCompleteHousehold = @daysBetweenPositiveResultAndCompleteHousehold())?
+      daysBetweenPositiveResultAndCompleteHousehold > 2 and
+      daysBetweenPositiveResultAndCompleteHousehold <= 3
 
   moreThanThreeDaysBetweenPositiveResultAndCompleteHousehold: =>
-    @daysBetweenPositiveResultAndCompleteHousehold() > 3
+    if (daysBetweenPositiveResultAndCompleteHousehold = @daysBetweenPositiveResultAndCompleteHousehold())?
+      daysBetweenPositiveResultAndCompleteHousehold > 3
 
   timeFacilityNotified: =>
     if @["USSD Notification"]?
@@ -739,17 +789,53 @@ class Case
     if @householdComplete() and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
+  classificationsWithHouseholdMember: =>
+    result = []
+    for positiveIndividual in @positiveIndividualsIncludingIndex()
+      classification = 
+        # post-2019 with classification
+        if positiveIndividual.CaseCategory 
+          positiveIndividual.CaseCategory
+        # pre-2019 so missing classification or in progress classification (not likely)
+        # And return unclassified
+        else if positiveIndividual["IsCaseLostToFollowup"] is "Yes"
+          "Lost to Followup"
+        else
+          # Is household member complete then "Unclassified"
+          if positiveIndividual.question is "Household Members" and positiveIndividual.complete is true
+            "Unclassified"
+          else
+            # If it's been more than 12 months, consider it lost
+            if moment().diff(moment(positiveIndividual.createdAt), 'months') > 12
+              "Lost to Followup"
+            else
+              "In Progress"
+      result.push {
+        classification: classification
+        positiveIndividual: positiveIndividual
+      }
+    result
+
+  classificationsBy: (property) =>
+    (for data in @classificationsWithHouseholdMember()
+      "#{data.positiveIndividual[property]}: #{data.classification}"
+    ).join(", ")
+
   classificationsByHouseholdMemberType: =>
-    _(for householdMember in @["Household Members"]
-      if householdMember.CaseCategory 
-        "#{householdMember.HouseholdMemberType}: #{householdMember.CaseCategory}"
-    ).compact().join(", ")
+    # IF household member type is undefined it is either:
+    # in progress index case
+    # pre 2019 household member
+    (for data in @classificationsWithHouseholdMember()
+      if data.positiveIndividual.question isnt "Household Members"
+        "Index Case: #{data.classification}"
+      else if data.positiveIndividual["HouseholdMemberType"] is undefined
+        "Household Member: #{data.classification}"
+      else
+        "#{data.positiveIndividual["HouseholdMemberType"]}: #{data.classification}"
+    ).join(", ")
 
   classificationsByDiagnosisDate: =>
-    _(for householdMember in @["Household Members"]
-      if householdMember.CaseCategory 
-        "#{householdMember.DateOfPositiveResults}: #{householdMember.CaseCategory}"
-    ).compact().join(", ")
+    @classificationsBy("DateOfPositiveResults")
 
   evidenceForClassifications: =>
     _(for householdMember in @["Household Members"]
@@ -766,6 +852,9 @@ class Case
 
   occupations: =>
     @concatenateHouseholdMembers("Occupation")
+
+  numbersSentTo: =>
+    @["USSD Notification"]?.numbersSentTo?.join(", ")
 
   createOrUpdateOnDhis2: (options = {}) =>
     options.malariaCase = @
@@ -810,7 +899,7 @@ class Case
 
 
   summaryResult: (property,options) =>
-    priorityOrder = options.priorityOrder or [
+    priorityOrder = options?.priorityOrder or [
       "Household"
       "Facility"
       "Case Notification"
@@ -822,7 +911,7 @@ class Case
       priorityOrder = [property.split(/: */)[0]]
 
     # If prependQuestion then we only want to search within that question
-    priorityOrder = [options.prependQuestion] if options.prependQuestion
+    priorityOrder = [options.prependQuestion] if options?.prependQuestion
 
     # Make the labels be human readable by looking up the original question text and using that
     labelMappings = {}
@@ -846,21 +935,23 @@ class Case
 
     result = null
 
-    result = @[options.functionName]() if options.functionName
+    console.log property
+
+    result = @[options.functionName]() if options?.functionName
     result = @[property]() if result is null and @[property]
     result = findPrioritizedProperty() if result is null
 
     if result is null
-      result = findPrioritizedProperty(options.otherPropertyNames) if options.otherPropertyNames
+      result = findPrioritizedProperty(options.otherPropertyNames) if options?.otherPropertyNames
 
     result = JSON.stringify(result) if _(result).isObject()
 
-    if options.propertyName
+    if options?.propertyName
       property = options.propertyName
     else
       property = titleize(humanize(property))
 
-    if options.prependQuestion
+    if options?.prependQuestion
       property = "#{options.prependQuestion}: #{property}"
 
     return {"#{property}": result}
@@ -911,8 +1002,6 @@ class Case
     classificationsByDiagnosisDate: {}
     evidenceForClassifications: {}
 
-    # LostToFollowup: {}
-    #
     namesOfAdministrativeLevels: {}
 
     district:
@@ -941,6 +1030,8 @@ class Case
     source: {}
     source_phone: {}
     type: {}
+
+    lastQuestionCompleted: {}
 
     hasCompleteFacility: {}
     notCompleteFacilityAfter24Hours:
@@ -1106,8 +1197,6 @@ class Case
       propertyName: "All Places Traveled to in Past Month"
     CaseIDforotherhouseholdmemberthattestedpositiveatahealthfacility:
       propertyName: "CaseID For Other Household Member That Tested Positive at a Health Facility"
-    AgeinMonthsorYears:
-      propertyName: "Age in Months or Years"
     TravelledOvernightinpastmonth:
       propertyName: "Travelled Overnight in Past Month"
     Hassomeonefromthesamehouseholdrecentlytestedpositiveatahealthfacility:
@@ -1116,8 +1205,6 @@ class Case
       propertyName: "Reason For Visiting Household"
     Ifyeslistallplacestravelled:
       propertyName: "If Yes List All Places Travelled"
-    AgeinYearsorMonths:
-      propertyName: "Age in Years or Months"
     Fevercurrentlyorinthelasttwoweeks:
       propertyName: "Fever Currently Or In The Last Two Weeks?"
     SleptunderLLINlastnight:
@@ -1168,8 +1255,7 @@ class Case
       propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 43-365 Days Before Positive Test Result"
     ListalllocationsofovernighttravelwithinZanzibar1024daysbeforepositivetestresult:
       propertyName: "All Locations Of Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
-    daysBetweenPositiveResultAndNotificationFromFacility:
-      propertyName: "Days Between Positive Result at Facility and Case Notification"
+    daysBetweenPositiveResultAndNotificationFromFacility: {}
     daysFromCaseNotificationToCompleteFacility:
       propertyName: "Days From Case Notification To Complete Facility"
     daysFromSMSToCompleteHousehold:
@@ -1189,8 +1275,6 @@ class Case
       propertyName: "Household Location - Altitude"
     "HouseholdLocation-altitudeAccuracy":
       propertyName: "Household Location - Altitude Accuracy"
-    "HouseholdLocation-heading":
-      propertyName: "Household Location - Heading"
     "HouseholdLocation-timestamp":
       propertyName: "Household Location - Timestamp"
     travelLocationName:
@@ -1230,6 +1314,8 @@ class Case
       propertyName: "Number Household Or Neighbor Members"
     numberPositiveIndividualsUnder5:
       propertyName: "Number Positive Individuals Under 5"
+    numberPositiveIndividualsOver5:
+      propertyName: "Number Positive Individuals Over 5"
     numberSuspectedImportedCasesIncludingHouseholdMembers:
       propertyName: "Number Suspected Imported Cases Including Household Members"
     NumberofHouseholdMembersTreatedforMalariaWithinPastWeek:
@@ -1240,8 +1326,6 @@ class Case
       propertyName: "Mass Screen Case"
     TotalNumberofResidentsintheHousehold:
       propertyName: "Total Number Of Residents In The Household"
-    daysBetweenPositiveResultAndNotificationFromFacility:
-       propertyName: "Days Between Positive Result at Facility and Case Notification"
     lessThanOneDayBetweenPositiveResultAndNotificationFromFacility:
        propertyName: "Less Than One Day Between Positive Result And Notification From Facility"
     oneToTwoDaysBetweenPositiveResultAndNotificationFromFacility:
@@ -1515,45 +1599,63 @@ Case.getLatestChangeForCurrentSummaryDataDocs = ->
     return Promise.resolve(caseSummaryData?.lastChangeSequenceProcessed or null)
 
 Case.resetAllCaseSummaryDocs = (options)  =>
-  # Delete all existing case_summary_ docs
-  Coconut.reportingDatabase.allDocs
-    startkey: "case_summary_"
-    endkey: "case_summary_\ufff0"
-    include_docs: false
+  # Docs to save
+  designDocs = await Coconut.reportingDatabase.allDocs
+    startkey: "_design"
+    endkey: "_design\uf777"
+    include_docs: true
   .then (result) ->
-    docs = _(result.rows).map (row) ->
-      {
-        _id: row.id
-        _rev: row.value.rev
-        _deleted: true
-      }
+    Promise.resolve _(result.rows).map (row) ->
+      doc = row.doc
+      delete doc._rev
+      doc
 
-    console.log "Deleting #{docs.length} case_summary_ docs"
+  otherDocsToSave = await Coconut.reportingDatabase.allDocs
+    include_docs: true
+    keys: [
+      "shehia metadata"
+    ]
+  .then (result) ->
+    console.log result
+    Promise.resolve( _(result.rows).chain().map (row) ->
+        doc = row.doc
+        delete doc._rev if doc
+        doc
+      .compact().value()
+    )
 
-    try
-      await Coconut.reportingDatabase.bulkDocs(docs)
-      console.log "Existing case_summary_ docs deleted"
+  docsToSave = designDocs.concat(otherDocsToSave)
+  reportingDatabaseNameWithCredentials = Coconut.reportingDatabase.name
 
-      latestChangeForDatabase = await Case.getLatestChangeForDatabase()
+  await Coconut.reportingDatabase.destroy()
+  .catch (error) -> 
+    console.error error
+    throw "Error while destroying database"
 
-      console.log "Latest change: #{latestChangeForDatabase}"
-      console.log "Retrieving all available case IDs"
+  Coconut.reportingDatabase = new PouchDB(reportingDatabaseNameWithCredentials)
+  await Coconut.reportingDatabase.bulkDocs docsToSave
 
-      Coconut.database.query "cases/cases"
-      .then (result) =>
-        allCases = _(result.rows).chain().pluck("key").uniq(true).reverse().value()
-        console.log "Updating #{allCases.length} cases"
+  try
+    latestChangeForDatabase = await Case.getLatestChangeForDatabase()
 
-        await Case.updateSummaryForCases
-          caseIDs: allCases
-        console.log "Updated: #{allCases.length} cases"
+    console.log "Latest change: #{latestChangeForDatabase}"
+    console.log "Retrieving all available case IDs"
 
-        Coconut.reportingDatabase.upsert "CaseSummaryData", (doc) =>
-          doc.lastChangeSequenceProcessed = latestChangeForDatabase
-          doc
+    Coconut.database.query "cases/cases"
+    .then (result) =>
+      allCases = _(result.rows).chain().pluck("key").uniq(true).reverse().value()
+      console.log "Updating #{allCases.length} cases"
 
-    catch error
-      console.error 
+      await Case.updateSummaryForCases
+        caseIDs: allCases
+      console.log "Updated: #{allCases.length} cases"
+
+      Coconut.reportingDatabase.upsert "CaseSummaryData", (doc) =>
+        doc.lastChangeSequenceProcessed = latestChangeForDatabase
+        doc
+
+  catch error
+    console.error 
 
 Case.updateCaseSummaryDocs = (options) ->
 

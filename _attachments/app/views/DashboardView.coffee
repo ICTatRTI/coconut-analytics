@@ -5,6 +5,8 @@ Backbone.$  = $
 
 moment = require 'moment'
 global.Graphs = require '../models/Graphs'
+DateSelectorView = require './DateSelectorView'
+AdministrativeAreaSelectorView = require './AdministrativeAreaSelectorView'
 
 camelize = require "underscore.string/camelize"
 
@@ -20,10 +22,6 @@ class DashboardView extends Backbone.View
 
   render: =>
 
-    options = $.extend({},Coconut.router.reportViewOptions)
-    @startDate = options.startDate
-    @endDate = options.endDate
-
     Coconut.statistics = Coconut.statistics || {}
     # $('#analysis-spinner').show()
     HTMLHelpers.ChangeTitle("Dashboard")
@@ -36,6 +34,9 @@ class DashboardView extends Backbone.View
         </style>
         <div id='dateSelector' style='display:inline-block'></div>
         <div id='dateDescription' style='display:inline-block;vertical-align:top;margin-top:10px'></div>
+        <div id='administrativeAreaSelector'>
+        </div>
+
         <dialog id='dialog'>
           <div id='dialogContent'> </div>
         </dialog>
@@ -46,11 +47,6 @@ class DashboardView extends Backbone.View
           </div>
           <div style='display:none'>
             Alerts and Alarms show the epidemic thresholds, which are automatically checked every night.<br/>
-
-
-
-
-
           </div>
         </div>
         <div id='dashboard-summary'>
@@ -97,13 +93,13 @@ class DashboardView extends Backbone.View
                     </div>
                     <div style='display:none'>
                       #{graph.description} 
-                    <a href='#graphs/#{camelize(title)}/#{@startDate}/#{@endDate}'>
+                    <a href='#graph/type/#{camelize(title)}/startDate/#{@startDate}/endDate/#{@endDate}/administrativeLevel/#{@administrativeLevel}/administrativeName/#{@administrativeName}'>
                      Large version with more details
                     </a>
                       
                     </a>
                     </div>
-                    <a href='#graphs/#{camelize(title)}/#{@startDate}/#{@endDate}'>
+                    <a href='#graph/type/#{camelize(title)}/startDate/#{@startDate}/endDate/#{@endDate}/administrativeLevel/#{@administrativeLevel}/administrativeName/#{@administrativeName}'>
                       <div>
                         <canvas id='#{camelize(title)}'></canvas>
                       </div>
@@ -124,6 +120,36 @@ class DashboardView extends Backbone.View
     adjustButtonSize()
 
 
+    # Always have at least 4 weeks of data, and start at beginning of week so it's comparable data
+    if moment(@endDate).diff(@startDate, 'weeks') < 4
+      @startDate = moment(@endDate).subtract(4, 'weeks').startOf("isoWeek").format("YYYY-MM-DD")
+      @$("#dateDescription").html "
+        Start date shifted to #{@startDate} (week #{moment(@startDate).isoWeek()}) to improve context.
+      "
+    else
+      @$("#dateDescription").html()
+
+    Coconut.router.navigate "dashboard/startDate/#{@startDate}/endDate/#{@endDate}/administrativeLevel/#{@administrativeLevel}/administrativeName/#{@administrativeName}"
+
+    @dateSelectorView or= new DateSelectorView()
+    @dateSelectorView.setElement "#dateSelector"
+    @dateSelectorView.startDate = @startDate
+    @dateSelectorView.endDate = @endDate
+    @dateSelectorView.onChange = (startDate, endDate) =>
+      @startDate = startDate.format("YYYY-MM-DD")
+      @endDate = endDate.format("YYYY-MM-DD")
+      @render()
+    @dateSelectorView.render()
+
+    @administrativeAreaSelectorView or= new AdministrativeAreaSelectorView()
+    @administrativeAreaSelectorView.setElement "#administrativeAreaSelector"
+    @administrativeAreaSelectorView.administrativeLevel = @administrativeLevel
+    @administrativeAreaSelectorView.administrativeName = @administrativeName
+    @administrativeAreaSelectorView.onChange = (@administrativeName, @administrativeLevel) => @render()
+    @administrativeAreaSelectorView.render()
+
+    Coconut.administrativeAreaSelectorView or= new AdministrativeAreaSelectorView()
+
     @showGraphs()
 
   showGraphs: =>
@@ -134,17 +160,11 @@ class DashboardView extends Backbone.View
     data = await Graphs.definitions["Positive Individuals by Year"].dataQuery
       startDate: momentStartDate
       endDate: momentEndDate
+      administrativeLevel: @administrativeLevel
+      administrativeName: @administrativeName
 
     Graphs.render("Positive Individuals by Year", data)
 
-    # Always have at least 4 weeks of data, and start at beginning of week so it's comparable data
-    if momentEndDate.diff(momentStartDate, 'weeks') < 4
-      momentStartDate = momentEndDate.clone().subtract(4, 'weeks').startOf("isoWeek")
-      @$("#dateDescription").html "
-        Start date shifted to #{momentStartDate.format('YYYY-MM-DD')} (week #{momentStartDate.isoWeek()}) to improve context
-      "
-    else
-      @$("#dateDescription").html()
 
     @showOpdGraphs(momentStartDate, momentEndDate)
     @showCaseCounterGraphsAndIndicators(momentStartDate, momentEndDate)
@@ -152,32 +172,23 @@ class DashboardView extends Backbone.View
 
   showOpdGraphs: (momentStartDate, momentEndDate)=>
     # Get data 4 weeks before start date
-    Coconut.database.query "weeklyDataCounter",
-      start_key: momentStartDate.format("GGGG-WW").split(/-/)
-      end_key: momentEndDate.format("GGGG-WW").split(/-/)
-      reduce: true
-      include_docs: false
-      group: true
-    .then (result) =>
-      Graphs.render("OPD Visits By Age", result.rows)
-      Graphs.render("OPD Testing and Positivity Rate", result.rows)
-    .catch (error) ->
-      console.error error
-      $('div.mdl-spinner').hide()
+    opdData = await Graphs.weeklyDataCounter
+      startDate: momentStartDate
+      endDate: momentEndDate
+      administrativeLevel: @administrativeLevel
+      administrativeName: @administrativeName
+
+    Graphs.render("OPD Visits By Age", opdData)
+    Graphs.render("OPD Testing and Positivity Rate", opdData)
 
   showCaseCounterGraphsAndIndicators: (momentStartDate, momentEndDate) =>
 
-    data = await Coconut.reportingDatabase.query "caseCounter",
-      startkey: [momentStartDate.format('YYYY-MM-DD')]
-      endkey: [momentEndDate.format('YYYY-MM-DD'),{}]
-      reduce: true
-      group_level: 2 # Group District and Shehia
-      include_docs: false
-    .then (result) =>
-      Promise.resolve(result.rows)
-    .catch (error) ->
-      console.error error
-      $('div.mdl-spinner').hide()
+    data = await Graphs.caseCounter
+      startDate: momentStartDate
+      endDate: momentEndDate
+      administrativeLevel: @administrativeLevel
+      administrativeName: @administrativeName
+
 
     for graph in [
       "Positive Individuals by Age"
@@ -186,7 +197,13 @@ class DashboardView extends Backbone.View
       "Hours From Positive Test To Complete Follow-up"
       "Household Testing and Positivity Rate"
     ]
-      Graphs.render(graph, data)
+      if data.length is 0
+        canvas = document.getElementById("#{camelize(graph)}");
+        ctx = canvas.getContext("2d");
+        ctx.font = "20px Arial";
+        ctx.fillText("No cases/data for area/dates", 10, 50);
+      else
+        Graphs.render(graph, data)
 
     @renderNotFollowedUpIndicator(data)
 
@@ -194,7 +211,7 @@ class DashboardView extends Backbone.View
     notFollowedUp = 0
     hasNotification = 0
     for data in dataByDate
-      if data.key[1] is "Followed Up"
+      if data.key[1] is "Complete Household Visit"
         notFollowedUp -= data.value
       if data.key[1] is "Has Notification"
         notFollowedUp += data.value

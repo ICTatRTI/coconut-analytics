@@ -1,4 +1,4 @@
-$ = require 'jquery'
+$ = global.jQuery = require 'jquery'
 require('jquery-ui')
 Backbone = require 'backbone'
 Backbone.$  = $
@@ -22,13 +22,18 @@ class DateSelectorView extends Backbone.View
     e.preventDefault
     @startDate = picker.startDate
     @endDate = picker.endDate
-    Coconut.router.reportViewOptions['startDate'] = @startDate.format("YYYY-MM-DD")
-    Coconut.router.reportViewOptions['endDate'] = @endDate.format("YYYY-MM-DD")
-    if @reportType is 'dashboard'
-      url = "#{@reportType}/#{Coconut.router.reportViewOptions['startDate']}/#{Coconut.router.reportViewOptions['endDate']}"
+
+    if @onChange # let the main view handle updates itself
+      @onChange(@startDate, @endDate)
+      return
     else
-      url = "#{@reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
-    Coconut.router.navigate(url,{trigger: true})
+      Coconut.router.reportViewOptions['startDate'] = @startDate.format("YYYY-MM-DD")
+      Coconut.router.reportViewOptions['endDate'] = @endDate.format("YYYY-MM-DD")
+      if @reportType is 'dashboard'
+        url = "#{@reportType}/#{Coconut.router.reportViewOptions['startDate']}/#{Coconut.router.reportViewOptions['endDate']}"
+      else
+        url = "#{@reportType}/"+("#{option}/#{value}" for option,value of Coconut.router.reportViewOptions).join("/")
+      Coconut.router.navigate(url,{trigger: true})
 
   render: =>
     @$el.html "

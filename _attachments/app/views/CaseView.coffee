@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Question = require '../models/Question'
 Case = require '../models/Case'
+MapView = require '../views/MapView'
 
 DataTables = require( 'datatables.net' )()
 
@@ -25,6 +26,8 @@ class CaseView extends Backbone.View
         table#caseTable {width: 95%; margin-bottom: 30px}
         table#caseTable th {width: 47%; font-weight: bold; font-size: 1.1em}
       </style>
+      <div id='map' style='height:400px; width:400px;float:right'>
+      </div>
 
       <h3>Case ID: #{@case.MalariaCaseID()}</h3>
       <h3>Diagnosis Date: #{@case.IndexCaseDiagnosisDate()}</h3>
@@ -54,7 +57,11 @@ class CaseView extends Backbone.View
       if @case[tableType]?
         if tableType is "Household Members"
           _.map(@case[tableType], (householdMember) =>
-            @createObjectTable(tableType,householdMember)
+            console.log householdMember
+            title = "Household Member"
+            title += " Index" if householdMember.HouseholdMemberType is "Index Case"
+            title += ": #{householdMember.CaseCategory}" if householdMember.CaseCategory
+            @createObjectTable(title,householdMember)
           ).join("")
         else
           @createObjectTable(tableType,@case[tableType])
@@ -67,7 +74,26 @@ class CaseView extends Backbone.View
     _.each $('table tr'), (row, index) ->
       $(row).addClass("odd") if index%2 is 1
     #$('html, body').animate({ scrollTop: $("##{scrollTargetID}").offset().top }, 'slow') if scrollTargetID?
-          
+    #
+    @renderMap()
+    @$(".controls").hide()
+
+  renderMap: =>
+    return if @case.householdLocationLatitude() is NaN or @case.householdLocationLongitude() is NaN
+    mapView = new MapView()
+    mapView.setElement "#map"
+    classifications = @case.classificationsByDiagnosisDate()?.split(/, /) or [null]
+    mapView.casesWithKeyIndicators = for classification in classifications
+      {
+        id: @case.caseID
+        value:
+          latLong: [
+            @case.householdLocationLatitude()
+            @case.householdLocationLongitude()
+          ]
+          classification: classification?.split(": ")[1]
+      }
+    mapView.render()
 
 
   createObjectTable: (name,object) =>

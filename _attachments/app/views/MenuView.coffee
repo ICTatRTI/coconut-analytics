@@ -110,20 +110,8 @@ class MenuView extends Backbone.View
         </span>
         <div class='m-l-20 dropdown' id='drawer-graphs'>
           #{
-           graphLinks = {
-             IncidentsGraph: "Number of Cases"
-             PositiveCasesGraph: "Number of Positive Malaria Cases by Age"
-             AttendanceGraph: "Attendance"
-             TestRateGraph: "Test Rate"
-             PositivityGraph: "Number of Persons Tested and Number Positive"
-             # positivity_with_rainfall: "Positivity With Rainfall"
-             # positivity_by_year: "Positivity Cases By Year"
-             TimeToNotify: "Time to Notify"
-             TimeToComplete: "Time to Follow-up"
-
-           }
            (for title,graph of Graphs.definitions
-             "<a class='mdl-navigation__link graph__link' href='#graphs/#{camelize(title)}' data-title='Graphs'>#{title}</a>"
+             "<a class='mdl-navigation__link graph__link' href='#graph/type/#{camelize(title)}' data-title='Graphs'>#{title}</a>"
            ).join ""
           }
         </div>
@@ -159,13 +147,13 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-admin'>
         #{
           adminLinks = {
-            dhis2: "DHIS2"
-            facilities: "Facilities"
-            rainfall_station: "Rainfall Station"
-            geo_hierarchy: "Regions, Districts & Shehias"
+            #dhis2: "DHIS2"
+            #facilities: "Facilities"
+            #rainfall_station: "Rainfall Station"
+            geo_hierarchy: "Regions, Districts, Facilities & Shehias"
             #shehias_received_irs: "Shehias Received IRS"
             #shehias_high_risk: "Shehias High Risk"
-            system_settings: "System Settings"
+            #system_settings: "System Settings"
             users: "Users"
           }
           _(adminLinks).map (linkText, linkUrl) ->

@@ -466,8 +466,8 @@ class WeeklyMeetingReportView extends Backbone.View
         percentValue = Math.round(value*100)
         cell._cell.element.style.background = "linear-gradient(-90deg, lightpink #{percentValue}%, white 0%)"
         return "#{percentValue}%"
-    else if value.cases and value.denominator
-      percentValue = (value.cases.length/value.denominator*100).toFixed()
+    else if value.cases? and value.denominator?
+      percentValue = (value.cases.length/value.denominator*100 or 0).toFixed()
       cell._cell.element.style.background = "linear-gradient(-90deg, lightpink #{percentValue}%, white 0%)"
       "<button class='cases' data-column='#{columnField}' data-cases='#{value.cases.join(',')}'>#{value.cases.length}</button> (#{percentValue}%)"
     else
@@ -581,8 +581,9 @@ class WeeklyMeetingReportView extends Backbone.View
         year = yearWeek[0..3] # "2012-12"  -> 2012
         week = parseInt(yearWeek[-2..])
 
-        if zone is null
-          console.warn "null zone"
+        if zone is null or zone is ""
+          console.warn "null zone for:"
+          console.warn row
           continue
 
         if year is lastYear and indicator is "Has Case Notification"
@@ -598,6 +599,8 @@ class WeeklyMeetingReportView extends Backbone.View
         index = 0
         for classification of @classifications
           if year is currentYear and indicator is "Classification: #{classification}"
+            console.log zone
+            console.log classificationDatasets
             classificationDatasets[zone][index].sparseData[week] = amount
           index+=1
 
@@ -624,7 +627,6 @@ class WeeklyMeetingReportView extends Backbone.View
           dataset.data = for label in classificationLabels
             dataset.sparseData[label] or 0
 
-        console.log classificationDatasets[zone]
         new Chart @$("#caseClassification-#{zone}"),
           type: "bar"
           data:
@@ -635,9 +637,9 @@ class WeeklyMeetingReportView extends Backbone.View
               xAxes:[stacked:true]
               yAxes:[stacked:true]
 
-    .catch (error) ->
-      console.error error
-      $('#analysis-spinner').hide()
+    #.catch (error) ->
+    #  console.error error
+    #  $('#analysis-spinner').hide()
 
 
     #casesNotifiedYearToDateByWeek

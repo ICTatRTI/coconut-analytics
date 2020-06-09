@@ -549,7 +549,7 @@ class Reports
       aggregationArea = options.aggregationArea
       aggregationPeriod = options.aggregationPeriod
       facilityType = options.facilityType or "All"
-      Coconut.database.query "weeklyDataBySubmitDate",
+      Coconut.weeklyFacilityDatabase.query "weeklyDataBySubmitDate",
         startkey: [startYear,startWeek]
         endkey: [endYear,endWeek]
         include_docs: true
@@ -618,80 +618,63 @@ class Reports
           options.success?(result)
           resolve(result)
 
+  @positiveCasesAggregated= (options) =>
+    new Promise (resolve, reject) =>
+      results = {}
 
-  @positiveCasesAggregated = (options) =>
-    aggregationPeriod = options.aggregationPeriod or "#{options.startDate}--#{options.endDate}"
-    results = {}
+      aggregationAreasAndIndicators = {}
 
-    processCases = (cases) ->
-      result = {}
-      _(cases).each (malariaCase) ->
-        diagnosisDate = malariaCase.IndexCaseDiagnosisDate()
-        if diagnosisDate is null
-          console.error "Invalid date for malariaCase:"
-          console.error malariaCase
-          return
+      for threshold in options.thresholds
+        aggregationAreasAndIndicators[threshold.aggregationArea] or= {}
+        aggregationAreasAndIndicators[threshold.aggregationArea][threshold.indicator] = true
+
+      caseCounterData = await Coconut.reportingDatabase.query "caseCounter",
+        startkey: [options.startDate]
+        endkey: [options.endDate,{}]
+        reduce: false
+      .then (result) =>
+        Promise.resolve(result.rows)
+
+      for row in caseCounterData
+        diagnosisDate = row.key[0]
+        indicator = row.key[1]
+
+        caseID = row.id[13..] # slice off the case_summary_ part
 
         indexCaseResult =
-          caseID: malariaCase.caseID
-          link: "#show/case/#{malariaCase.caseID}"
-          district: malariaCase.district()
-          facility: malariaCase.facility()
-          shehia: malariaCase.shehia()
-          village: malariaCase.village()
+          caseID: caseID
+          link: "#show/case/#{caseID}"
+          # namesOfAdministrativeLevels
+          # Nation, Island, Region, District, Shehia, Facility   EXAMPLE:
+          #"ZANZIBAR","PEMBA","KUSINI PEMBA","MKOANI","WAMBAA","MWANAMASHUNGI
+          district: row.key[5]
+          shehia: row.key[6]
+          facility: row.key[7]
 
-        aggregationAreas = ["district","shehia","village","facility"]
+        ###
+        # Example
+        aggregationAreasAndIndicators = 
+        {
+          "shehia":
+            "Number Positive Cases Including Index": true
+            "Number Positive Individuals Under 5": true
+          "facility":
+            "Number Positive Cases Including Index": true
+            "Number Positive Individuals Under 5": true
+        }
+        ###
+        for aggregationArea, indicators of aggregationAreasAndIndicators
+          continue unless indexCaseResult[aggregationArea]
+          for targetIndicator of indicators
+            if indicator is targetIndicator
+              _(row.value).times -> # add the case ID for each positive individual counted for this case
+                results[aggregationArea] or= {}
+                results[aggregationArea][indexCaseResult[aggregationArea]] or= {}
+                results[aggregationArea][indexCaseResult[aggregationArea]][indicator] or= []
+                results[aggregationArea][indexCaseResult[aggregationArea]][indicator].push indexCaseResult
 
-        # Initialize
-        unless results[aggregationAreas[0]]
-          _(aggregationAreas).each (aggregationArea) ->
-            results[aggregationArea] = {}
+      resolve(results)
 
-        _(aggregationAreas).each (aggregationArea) ->
-          return unless indexCaseResult[aggregationArea]
-          results[aggregationArea][indexCaseResult[aggregationArea]] = {
-            "<5": []
-            "total": []
-          } unless results[aggregationArea][indexCaseResult[aggregationArea]]
-
-          results[aggregationArea][indexCaseResult[aggregationArea]]["total"].push indexCaseResult
-
-          if malariaCase.isUnder5()
-            results[aggregationArea][indexCaseResult[aggregationArea]]["<5"].push indexCaseResult
-
-          # Note that we aren't including household and neighbor cases for district aggregations
-          # This is because the historic threshold calculations don't use them
-          # This will be a problem if this aggregation code is used for something else
-          if options.ignoreHouseholdNeighborForDistrict? and options.ignoreHouseholdNeighborForDistrict is true and aggregationArea is "district"
-            #console.log "Skipping neighbors and households for district"
-          else
-            # Under 5
-            _(malariaCase.positiveIndividualsAtIndexHouseholdAndNeighborHouseholdsUnder5()).each (householdOrNeighbor) ->
-              householdOrNeighborResult = _(indexCaseResult).clone()
-              householdOrNeighborResult.householdOrNeighbor = householdOrNeighbor._id
-              householdOrNeighborResult.link = "#show/case/#{malariaCase.caseID}/#{householdOrNeighbor._id}"
-
-              results[aggregationArea][indexCaseResult[aggregationArea]]["<5"].push householdOrNeighborResult
-              results[aggregationArea][indexCaseResult[aggregationArea]]["total"].push householdOrNeighborResult
-
-            # Over 5
-            _(malariaCase.positiveIndividualsAtIndexHouseholdAndNeighborHouseholdsOver5()).each (householdOrNeighbor) ->
-              householdOrNeighborResult = _(indexCaseResult).clone()
-              householdOrNeighborResult.householdOrNeighbor = householdOrNeighbor._id
-              householdOrNeighborResult.link = "#show/case/#{malariaCase.caseID}/#{householdOrNeighbor._id}"
-              results[aggregationArea][indexCaseResult[aggregationArea]]["total"].push householdOrNeighborResult
-
-      options.success results,cases
-
-    # Allows us to reuse case list for different aggregationArea and/or aggregationPeriod - note how the success method returns the case list
-    if options.cases
-      processCases(options.cases)
-    else
-      @getCases
-        startDate: options.startDate
-        endDate: options.endDate
-        error: (error) ->  console.error error
-        success: (cases) -> processCases(cases)
 
   @aggregatePositiveFacilityCases = (options) ->
     aggregationArea = options.aggregationArea
@@ -872,11 +855,15 @@ class Reports
                 aggregatedData[period][area][property].push value if value?
 
               _([
-                "numberHouseholdOrNeighborMembers"
-                "numberHouseholdOrNeighborMembersTested"
-                "numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"
+                "numberHouseholdMembersTestedAndUntested"
+                "numberHouseholdMembersTested"
+                "numberPositiveIndividuals"
               ]).each (property) ->
                 aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
+                console.log cases
+                console.log caseId
+                console.log property
+
                 aggregatedData[period][area][property]+= cases[caseId][property]()
 
               aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]

@@ -9,4 +9,5 @@ css/Chart.min.css
 css/material.css
 css/materialdesignicons.min.css
 css/leaflet.css
+css/choices.min.css
 " | xargs cat | npx uglifycss > css/bundle-css.min.css

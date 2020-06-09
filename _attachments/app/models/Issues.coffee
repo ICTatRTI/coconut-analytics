@@ -6,166 +6,203 @@ Reports = require './Reports'
 
 class Issues
 
+  @resetEpidemicThreshold = =>
+    Coconut.database.allDocs
+      startkey: "threshold-"
+      endkey:   "threshold-\ufff0"
+    .then (result) ->
+      docsToDelete = for row in result.rows
+          _id: row.id
+          _rev: row.value.rev
+          _deleted: true
+
+      console.log "Resetting epidemic thresholds: Removing #{docsToDelete.length} thresholds."
+
+      Coconut.database.bulkDocs docsToDelete
+      .catch (error) -> console.error error
+
+
   @updateEpidemicAlertsAndAlarmsForLastXDaysShowResult = (days) =>
     @updateEpidemicAlertsAndAlarmsForLastXDays days,
       success: (result) ->
         $("body").html result
 
   @updateEpidemicAlertsAndAlarmsForLastXDays = (days, options) =>
-    allResults = {}
-    for daysAgo in [days..0]
-      console.log daysAgo
-      endDate = moment().subtract(daysAgo, 'days').format("YYYY-MM-DD")
-      await Issues.updateEpidemicAlertsAndAlarms
-        endDate: endDate
-        error: (error) -> console.error error
-        success: (result) =>
-          allResults = _(allResults).extend result
-    options?.success?(allResults)
-
+    new Promise (resolve, reject) =>
+      allResults = {}
+      for daysAgo in [days..0]
+        console.log "Days remaining to check: #{daysAgo}"
+        endDate = moment().subtract(daysAgo, 'days').format("YYYY-MM-DD")
+        _(allResults).extend (await Issues.updateEpidemicAlertsAndAlarms
+            save: if options?.save? then options.save else true
+            endDate: endDate
+          .catch (error) -> console.error error
+        )
+      resolve(allResults)
 
   @updateEpidemicAlertsAndAlarms = (options) =>
-    endDate = options?.endDate   or moment().subtract(2,'days').format("YYYY-MM-DD")
+    new Promise (resolve, reject) ->
+      endDate = options?.endDate   or moment().subtract(2,'days').format("YYYY-MM-DD")
 
-    #console.log "District level threshold detection is disabled"
-    ###
-    lookupDistrictThreshold = (district, alarmOrAlert, recurse=false) =>
-      if @districtThresholds.data[district] is undefined
-        return null
-      else
-        isoWeek = moment(endDate).isoWeek()
-        result = @districtThresholds.data[district][isoWeek]
-        if @districtThresholds.data[district][isoWeek] is undefined and isoWeek is 53
-          if isoWeek is 53
-            isoWeek = 52
-            result = @districtThresholds.data[district][isoWeek]
-          return null if result is undefined
-          return total: result[alarmOrAlert]
-        else
-          total: @districtThresholds.data[district][isoWeek][alarmOrAlert]
-    ###
+      thresholds = (await Coconut.reportingDatabase.get "epidemic_thresholds"
+        .catch =>
+          console.log "Thresholds missing, so creating it in the database"
+          thresholds = {
+            "_id": "epidemic_thresholds"
+            "data":
+              "7-days": [
+                {
+                  type: "Alert"
+                  aggregationArea: "facility"
+                  indicator: "Has Notification"
+                  threshold: 10
+                }
+                {
+                  type: "Alert"
+                  aggregationArea: "shehia"
+                  indicator: "Number Positive Individuals Under 5"
+                  threshold: 5
+                }
+                {
+                  type: "Alert"
+                  aggregationArea: "shehia"
+                  indicator: "Number Positive Individuals"
+                  threshold: 10
+                }
+              ]
+              "14-days": [
+                {
+                  type: "Alarm"
+                  aggregationArea: "facility"
+                  indicator: "Has Notification"
+                  threshold: 20
+                }
+                {
+                  type: "Alarm"
+                  aggregationArea: "shehia"
+                  indicator: "Number Positive Individuals Under 5"
+                  threshold: 10
+                }
+                {
+                  type: "Alarm"
+                  aggregationArea: "shehia"
+                  indicator: "Number Positive Individuals"
+                  threshold: 20
+                }
+              ]
+          }
+                
+          await Coconut.reportingDatabase.put thresholds
+          Promise.resolve thresholds
+      ).data
 
-    # TODO Consider moving this json into a document in the database
-    thresholds = {
-      "14-days":
-        "Alarm":
-          "facility":
-            "<5": 10
-            "total": 20
-          "shehia":
-            "<5": 10
-            "total": 20
-          "village":
-            "total": 10
-      "7-days":
-        #"Alarm":
-        #  "district": (district) =>
-        #    lookupDistrictThreshold(district,"alarm")
-        "Alert":
-          "facility":
-            "<5": 5
-            "total": 10
-          "shehia":
-            "<5": 5
-            "total": 10
-          "village":
-            "total": 5
-          #"district": (district) =>
-          #  lookupDistrictThreshold(district,"alert")
-    }
+      docsToSave = {}
 
-    docsToSave = {}
-
-    
-    # Load the district thresholds so that they can be used in the above function
-    Coconut.database.get "district_thresholds"
-    .catch (error) -> console.error error
-    .then (result) =>
-      @districtThresholds = result
-
-      for range, alarmOrAlertData of thresholds
+      for range, thresholdsForRange of thresholds
         [amountOfTime,timeUnit] = range.split(/-/)
 
         startDate = moment(endDate).subtract(amountOfTime,timeUnit).format("YYYY-MM-DD")
+        yearAndIsoWeekOfEndDate = moment(endDate).format("GGGG-WW")
 
-        await Reports.positiveCasesAggregated
+        console.log "#{startDate} - #{endDate}"
+
+        aggregatedResults = await Reports.positiveCasesAggregated
+          thresholds: thresholdsForRange
           startDate: startDate
           endDate: endDate
-          ignoreHouseholdNeighborForDistrict: true
-          error: (error) -> console.error error
-          success: (result,allCases) ->
+        .catch (error) -> 
+          console.error "ERROR"
+          console.error error
 
-            _(alarmOrAlertData).each (thresholdsForRange, alarmOrAlert) ->
-              _(thresholdsForRange).each (categories, locationType) ->
-                _(result[locationType]).each (locationData, locationName) ->
-                  if _(categories).isFunction()
-                    calculatedCategories = categories(locationName) # Use the above function to lookup the correct district threshold based on the week for the startdate
-                  if _(categories).isFunction()
-                    calculatedCategories = categories(locationName) # Use the above function to lookup the correct district threshold based on the week for the startdate
-                    thresholdDescription = "#{alarmOrAlert}: #{locationType} #{locationName} with more than #{Math.floor(parseFloat(calculatedCategories.total))} cases within #{range} during week #{moment(startDate).isoWeek()}"
+        for aggregationAreaType, r1 of aggregatedResults
+          for aggregationArea, r2 of r1
+            for indicator, r3 of r2
+              if r3.length > 9
+                console.log "#{aggregationAreaType} #{aggregationArea} #{indicator} #{r3.length}"
 
-                  _(calculatedCategories or categories).each (thresholdAmount, thresholdName) ->
-                    #console.info "#{locationType}:#{thresholdName} #{locationData[thresholdName].length} > #{thresholdAmount}"
-                    if locationData[thresholdName].length > thresholdAmount
+        for threshold in thresholdsForRange
+          aggregationArea = threshold.aggregationArea
 
-                      id = "threshold-#{startDate}--#{endDate}-#{alarmOrAlert}-#{range}-#{locationType}-#{thresholdName.replace("<", "under")}.#{locationName}"
-                      docsToSave[id] =
-                        _id: id
-                        Range: range
-                        LocationType: locationType
-                        ThresholdName: thresholdName
-                        ThresholdType: alarmOrAlert
-                        LocationName: locationName
-                        District: locationData[thresholdName][0].district
-                        StartDate: startDate
-                        EndDate: endDate
-                        Amount: locationData[thresholdName].length
-                        Threshold: thresholdAmount
-                        "Threshold Description": thresholdDescription or "#{alarmOrAlert}: #{locationType} with #{thresholdAmount} or more #{thresholdName} cases within #{range}"
-                        Description: "#{locationType}: #{locationName}, Cases: #{locationData[thresholdName].length}, Period: #{startDate} - #{endDate}"
-                        Links: _(locationData[thresholdName]).pluck "link"
-                        "Date Created": moment().format("YYYY-MM-DD HH:mm:ss")
-                      docsToSave[id][locationType] = locationName
+          for locationName, indicatorData of aggregatedResults[aggregationArea]
 
-            # In case of alarm, then remove the alert that was also created
-            _(docsToSave).each (docToSave) ->
-              if docToSave.ThresholdType is "Alarm"
-                delete docsToSave[docToSave._id.replace(/Alarm/,"Alert")]
+            # console.log "#{indicatorData[threshold.indicator]?.length} > #{threshold.threshold}"
+            if indicatorData[threshold.indicator]?.length > threshold.threshold
+              id = "threshold-#{yearAndIsoWeekOfEndDate}-#{threshold.type}-#{range}-#{aggregationArea}-#{threshold.indicator}.#{locationName}"
+              console.log id
+              #id = "threshold-#{startDate}--#{endDate}-#{threshold.type}-#{range}-#{aggregationArea}-#{threshold.indicator}.#{locationName}"
+              docsToSave[id] =
+                _id: id
+                Range: range
+                LocationType: aggregationArea
+                ThresholdName: threshold.indicator
+                ThresholdType: threshold.type
+                LocationName: locationName
+                District: indicatorData[threshold.indicator][0].district
+                StartDate: startDate
+                EndDate: endDate
+                YearWeekEndDate: yearAndIsoWeekOfEndDate 
+                Amount: indicatorData[threshold.indicator].length
+                Threshold: threshold.threshold
+                "Threshold Description": "#{threshold.type}: #{aggregationArea} with #{threshold.threshold} or more '#{threshold.indicator}' within #{range}"
+                Description: "#{aggregationArea}: #{locationName}, Cases: #{indicatorData[threshold.indicator].length}, Period: #{startDate} - #{endDate}"
+                Links: _(indicatorData[threshold.indicator]).pluck "link"
+                "Date Created": moment().format("YYYY-MM-DD HH:mm:ss")
+                AdditionalIncidents: []
+              docsToSave[id][aggregationArea] = locationName
 
-            # Note that this is inside the thresholds loop so that we have the right amountOfTime and timeUnit
-            Coconut.database.allDocs
-              startkey: "threshold-#{moment(startDate).subtract(2*amountOfTime,timeUnit).format("YYYY-MM-DD")}"
-              endkey:   "threshold-#{endDate}"
-            .then (result) ->
-              _(docsToSave).each (docToSave) ->
-                #console.debug "Checking for existing thresholds that match #{docToSave._id}"
-                if (_(result.rows).some (existingThreshold) ->
-                  # If after removing the date, the ids match, then it's a duplicate
-                  existingThresholdIdNoDates = existingThreshold.id.replace(/\d\d\d\d-\d\d-\d\d/g,"")
-                  docToSaveIdNoDates = docToSave._id.replace(/\d\d\d\d-\d\d-\d\d/g,"")
+        # In case of alarm, then remove the alert that was also created
+        for id, docToSave of docsToSave
+          #console.log id
+          if docToSave.ThresholdType is "Alarm"
+            #console.log "Removing #{id.replace(/Alarm/, "Alert")} since we also crossed alarm threshold"
+            delete docsToSave[docToSave._id.replace(/Alarm/,"Alert")]
 
-                  ###
-                  if existingThresholdIdNoDates is docToSaveIdNoDates
-                    console.info "***MATCH: \n#{existingThresholdIdNoDates}\n#{docToSaveIdNoDates}"
-                  else
-                    console.info "NO MATCH: \n#{existingThresholdIdNoDates}\n#{docToSaveIdNoDates}"
-                  ###
+          existingThresholdForSameWeek = await Coconut.database.get docToSave._id
+          .catch (error) => # Threshold doesn't exist, so don't do anything
 
-                  return true if existingThresholdIdNoDates is docToSaveIdNoDates
-                  # If an alarm has already been created, don't also create an Alert
-                  if docToSave.ThresholdType is "Alert"
-                    return true if existingThresholdIdNoDates.replace(/Alarm/,"") is docToSaveIdNoDates.replace(/Alert/,"")
-                  return false
-                )
-                  delete docsToSave[docToSave._id]            
-              Promise.resolve()
-            .catch (error) -> console.error error
 
-          console.log docsToSave
-          Coconut.database.bulkDocs _(docsToSave).values()
-          .then ->
-              options.success(docsToSave)
-          .catch (error) -> console.error error
+          if existingThresholdForSameWeek # don't save the new one
+            # Add additional information
+            existingThresholdForSameWeek.AdditionalIncidents.push
+              StartDate: docsToSave[docToSave._id].StartDate
+              EndDate: docsToSave[docToSave._id].EndDate
+              Amount: docsToSave[docToSave._id].Amount
+              Links: docsToSave[docToSave._id].Links
+            docsToSave[docToSave._id] = existingThresholdForSameWeek
 
+
+        ###
+        # Note that this is inside the thresholds loop so that we have the right amountOfTime and timeUnit
+        Coconut.database.allDocs
+          startkey: "threshold-#{moment(startDate).subtract(2*amountOfTime,timeUnit).format("GGGG-WW")}"
+          endkey:   "threshold-#{yearAndIsoWeekOfEndDate}"
+        .then (result) ->
+          _(docsToSave).each (docToSave) ->
+            #console.debug "Checking for existing thresholds that match #{docToSave._id}"
+            if (_(result.rows).some (existingThreshold) ->
+              # If after removing the date, the ids match, then it's a duplicate
+              existingThresholdIdNoDates = existingThreshold.id.replace(/\d\d\d\d-\d\d-\d\d/g,"")
+              docToSaveIdNoDates = docToSave._id.replace(/\d\d\d\d-\d\d-\d\d/g,"")
+
+              return true if existingThresholdIdNoDates is docToSaveIdNoDates
+              # If an alarm has already been created, don't also create an Alert
+              if docToSave.ThresholdType is "Alert"
+                return true if existingThresholdIdNoDates.replace(/Alarm/,"") is docToSaveIdNoDates.replace(/Alert/,"")
+              return false
+            )
+              delete docsToSave[docToSave._id]            
+          Promise.resolve()
+        .catch (error) -> console.error error
+        ###
+
+      unless options.save
+        #console.log "RESULT:"
+        #console.log JSON.stringify docsToSave, null, 1
+        #console.log "Not saving."
+        return resolve(docsToSave)
+
+      await Coconut.database.bulkDocs _(docsToSave).values()
+      .catch (error) -> console.error error
+      resolve(docsToSave)
 
 module.exports = Issues

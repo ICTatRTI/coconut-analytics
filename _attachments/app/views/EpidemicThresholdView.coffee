@@ -24,44 +24,24 @@ class EpidemicThresholdView extends Backbone.View
         </style>
         <div class='clearfix'></div>
         <div id='dateSelector'></div>
-        <h5>Threshold Definitions</h5>
-        <div id='epi-key'>
+        <h5 onClick='$(\"#threshold-definition-descriptions\").toggle()'>Threshold Definitions ▶</h5>
+        <div id='threshold-definition-descriptions' style='display:none'>
+          <div>
+            Every day the system checks to see if there are any places with numbers that exceed the following thresholds for the defined time period. This is an attempt to automatically identify places that might need further attention. These exceeded thresholds are organized by the week of the ending period of the threshold being checked. If the threshold is found to be exceeded more than once during a week, then that separate finding is noted in the previously found threshold.
+          </div>
            <table id='thresholdKey' class='mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
               <thead>
-                 <tr>
-                    <th class='mdl-data-table__cell--non-numeric'></th>
-                    <!-- Removed since assigning alerts is not being used
-                    <th class='threshold'>Your Alerts & Alarms</th>
-                    -->
-                    <th class='threshold'>Facility or Shehia</th>
-                    <th class='threshold'>Village</th>
-                 </tr>
+                <tr>
+                  <th>Type</th>
+                  <th>Range</th>
+                  <th>Aggregation Area</th>
+                  <th>Indicator</th>
+                  <th>Threshold</th>
+                </tr>
               </thead>
               <tbody>
-                 <tr>
-                    <td style='background:#eee'>
-                      Alert <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px'></i>
-                    </td>
-                    <td class='threshold'>5 or more under 5 cases or 10 or more total cases within 7 days</td>
-                    <td class='threshold'>5 or more total cases within 7 days</td>
-                    <!--
-                    <td class='threshold' rowspan='2'>Specific for each district and week, based on 5 years of previous data</td>
-                    -->
-                 </tr>
-                 <tr>
-                    <td style='background:#eee'>
-                      <span>Alarm</span> <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px'></i>
-                    </td>
-                    <td class='threshold'>10 or more under 5 cases or 20 or more total cases within 14 days</td>
-                    <td class='threshold'>10 or more total cases within 14 days</td>
-
-                 </tr>
-
               </tbody>
            </table>
-           <!--
-           <p>(Note that cases counted for district thresholds don't include household and neighbor cases)</p>
-           -->
         </div>
 
         <h5>
@@ -73,16 +53,16 @@ class EpidemicThresholdView extends Backbone.View
             <th></th>
             <th>
               Alert
-              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring-outline mdi-24px alert'></i>
+              <i class='mdi mdi-bell-ring-outline mdi-24px alert'></i>
             </th>
             <th>
               Alarm
-              <i class='mdl-button mdl-js-button mdl-button--icon mdl-button--accent mdi mdi-bell-ring mdi-24px alarm'></i>
+              <i class='mdi mdi-bell-ring mdi-24px alarm'></i>
             </th>
           </tr>
           <tbody>
             #{
-              (for type in ["Facilities", "Shehias", "Villages", "Total"]
+              (for type in ["Facilities", "Shehias", "Total"]
                 "
                 <tr>
                   <td>#{type}</td>
@@ -99,6 +79,34 @@ class EpidemicThresholdView extends Backbone.View
         Thresholds By District and Week
         </h5>
     "
+
+    thresholds = (await Coconut.reportingDatabase.get "epidemic_thresholds").data
+
+    for range, rangeThresholds of thresholds
+      for data in rangeThresholds
+        @$("#thresholdKey tbody").append "
+          <tr>
+            <th>
+              #{data.type}
+              <i class='mdi mdi-bell-ring#{if data.type is "Alert" then "-outline" else ""} mdi-24px alert'></i>
+            </th>
+            <th>
+              #{range}
+            </th>
+            <th>
+              #{data.aggregationArea}
+            </th>
+            <th>
+              #{data.indicator}
+            </th>
+            <th>
+              #{data.threshold}
+            </th>
+          </tr>
+        "
+        
+
+
     startDate = moment(Coconut.router.reportViewOptions.startDate)
     endDate = moment(Coconut.router.reportViewOptions.endDate).endOf("day")
     weekRange = []
@@ -106,28 +114,27 @@ class EpidemicThresholdView extends Backbone.View
       weekRange.push moment.format("GGGG-WW")
 
     # Need to look for any that start or end within our target period - longest alert/alarm range is 14 days
-    startkeyDate = startDate.subtract(14,'days').format("YYYY-MM-DD")
-    endkeyDate = endDate.add(14,'days').format("YYYY-MM-DD")
+    #startkeyDate = startDate.subtract(14,'days').format("YYYY-MM-DD")
+    #endkeyDate = endDate.add(14,'days').format("YYYY-MM-DD")
 
     Coconut.database.allDocs
-      startkey: "threshold-#{startkeyDate}"
-      endkey: "threshold-#{endkeyDate}\ufff0"
+      startkey: "threshold-#{_(weekRange).first()}"
+      endkey: "threshold-#{_(weekRange).last()}\ufff0"
       include_docs: true
     .catch (error) -> console.error error
     .then (result) =>
       thresholdsByDistrictAndWeek = {}
       _(result.rows).each (row) =>
-        # If the threshold is starts or ends during the relevant week, then include it, otherwise ignore it
-        if (row.doc.StartDate >= @startDate and row.doc.StartDate <= @endDate) or (row.doc.EndDate >= @startDate and row.doc.EndDate <= @endDate)
-          district = row.doc.District
-          week = moment(row.doc.EndDate).format "GGGG-WW"
-          thresholdsByDistrictAndWeek[district] = {} unless thresholdsByDistrictAndWeek[district]
-          thresholdsByDistrictAndWeek[district][week] = [] unless thresholdsByDistrictAndWeek[district][week]
-          thresholdsByDistrictAndWeek[district][week].push row.doc
+        console.log row.doc
+        district = row.doc.District
+        week = row.doc.YearWeekEndDate
+        thresholdsByDistrictAndWeek[district] = {} unless thresholdsByDistrictAndWeek[district]
+        thresholdsByDistrictAndWeek[district][week] = [] unless thresholdsByDistrictAndWeek[district][week]
+        thresholdsByDistrictAndWeek[district][week].push row.doc
 
       numAlarms = numAlerts = myAlarms = myAlerts = 0
-      districtAlarms = districtAlerts = facilityAlarms = facilityAlerts = 0
-      shehiasAlarms = shehiasAlerts = villageAlarms = villageAlerts = 0
+      facilityAlarms = facilityAlerts = 0
+      shehiasAlarms = shehiasAlerts = 0
       @$el.append "
          <div class='outer-div'>
            <table class='mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='thresholdTable'>
@@ -169,18 +176,14 @@ class EpidemicThresholdView extends Backbone.View
                                     notifyIcon = "<i class='mdi mdi-bell-ring mdi-24px alert'></i>"
                                     numAlarms += 1
                                     myAlarms += 1 if threshold['Assigned To']?.substring(5) is Coconut.currentlogin
-                                    districtAlarms += 1 if threshold['LocationType'] is 'district'
                                     facilityAlarms += 1 if threshold['LocationType'] is 'facility'
                                     shehiasAlarms += 1 if threshold['LocationType'] is 'shehia'
-                                    villageAlarms += 1 if threshold['LocationType'] is 'village'
                                   else if threshold.ThresholdType is 'Alert'
                                     notifyIcon = "<i class='mdi mdi-bell-ring-outline mdi-24px alert'></i>"
                                     numAlerts += 1
                                     myAlerts += 1 if threshold['Assigned To']?.substring(5) is Coconut.currentlogin
-                                    districtAlerts += 1 if threshold['LocationType'] is 'district'
                                     facilityAlerts += 1 if threshold['LocationType'] is 'facility'
                                     shehiasAlerts += 1 if threshold['LocationType'] is 'shehia'
-                                    villageAlerts += 1 if threshold['LocationType'] is 'village'
                                   else notifyIcon = ""
 
                                   if threshold['Assigned To']?.substring(5) is Coconut.currentlogin
@@ -199,7 +202,7 @@ class EpidemicThresholdView extends Backbone.View
                                       #{notifyIcon}
                                     </div>
                                     <div class='two'>
-                                      <span class='alarm-badge mdl-badge'>Cases: #{threshold.Amount}</span>
+                                      <span class='alarm-badge mdl-badge'>Amount: #{threshold.Amount}</span>
                                     </div>
                                     <div class='clearfix'></div>
                                     <div style='overflow:hidden' class='three'>
@@ -223,14 +226,10 @@ class EpidemicThresholdView extends Backbone.View
       "
       $('#Total-alert').html(numAlerts)
       $('#Total-alarm').html(numAlarms)
-      $('#Districts-alert').html(districtAlerts)
-      $('#District-alarm').html(districtAlarms)
       $('#Facilities-alert').html(facilityAlerts)
       $('#Facilities-alarm').html(facilityAlarms)
       $('#Shehias-alert').html(shehiasAlerts)
       $('#Shehias-alarm').html(shehiasAlarms)
-      $('#Villages-alert').html(villageAlerts)
-      $('#Villages-alarm').html(villageAlarms)
 
       $('#analysis-spinner').hide()
 

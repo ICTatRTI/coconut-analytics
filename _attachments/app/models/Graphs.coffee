@@ -1,6 +1,7 @@
 _ = require 'underscore'
 moment = require 'moment'
 $ = require 'jquery'
+distinctColors = (require 'distinct-colors').default
 
 Chart = require 'chart.js'
 ChartDataLabels = require 'chartjs-plugin-datalabels'
@@ -12,7 +13,6 @@ class Graphs
 
   Graphs.render = (graphName, data, target) ->
     target or= camelize(graphName)
-    console.log target
     Graphs.definitions[graphName].render(data, $("##{target}"))
 
   Graphs.getGraphName = (nameOrCamelizedName) ->
@@ -32,14 +32,26 @@ class Graphs
     if _(endDate).isString()
       endDate = moment(endDate)
 
-    await Coconut.database.query "weeklyDataCounter",
+    groupLevel = 4 # All of Zanzibar
+    if options.administrativeLevel and options.administrativeName
+      for level, index in GeoHierarchy.levels
+        if level.name is options.administrativeLevel.toUpperCase()
+          groupLevel = index + groupLevel
+
+    await Coconut.weeklyFacilityDatabase.query "weeklyDataCounter",
       start_key: startDate.format("GGGG-WW").split(/-/)
       end_key: endDate.format("GGGG-WW").split(/-/)
       reduce: true
       include_docs: false
       group: true
+      group_level: groupLevel
     .then (result) =>
-      Promise.resolve(result.rows)
+      Promise.resolve if options.administrativeName
+        _(result.rows).filter (row) =>
+          _(row.key).last() is options.administrativeName
+      else
+        result.rows
+
 
   Graphs.caseCounter = (options) ->
     startDate = options.startDate
@@ -49,20 +61,79 @@ class Graphs
     unless _(endDate).isString()
       endDate = endDate.format('YYYY-MM-DD')
 
+
+    groupLevel = 3 # All of Zanzibar
+    if options.administrativeLevel and options.administrativeName
+      for level, index in GeoHierarchy.levels
+        if level.name is options.administrativeLevel.toUpperCase()
+          groupLevel = index + groupLevel
+
     data = await Coconut.reportingDatabase.query "caseCounter",
       startkey: [startDate]
       endkey: [endDate,{}]
       reduce: true
-      group_level: 2 # Group District and Shehia
+      group_level: groupLevel
+      include_docs: false
+    .catch (error, foo) =>
+      console.error "This may be caused by non numeric answers"
+    .then (result) =>
+      Promise.resolve if options.administrativeName
+        _(result.rows).filter (row) =>
+          _(row.key).last() is options.administrativeName
+      else
+        result.rows
+
+  Graphs.caseCounterDetails = (options) ->
+    console.log options
+    startDate = options.startDate
+    endDate = options.endDate
+    unless _(startDate).isString()
+      startDate = startDate.format('YYYY-MM-DD')
+    unless _(endDate).isString()
+      endDate = endDate.format('YYYY-MM-DD')
+
+    # We can't use grouping since we want detailed case data but we still need the groupLevel to filter for the cases that correspond to the selected administrative Level/Name.
+    groupLevel = 2 # All of Zanzibar
+    if options.administrativeLevel and options.administrativeName
+      for level, index in GeoHierarchy.levels
+        if level.name is options.administrativeLevel.toUpperCase()
+          groupLevel = index + groupLevel
+
+    # Get all of the keys, 
+    # then query again with those keys to get case details
+    caseKeys = await Coconut.reportingDatabase.query "caseCounter",
+      startkey: [startDate]
+      endkey: [endDate,{}]
+      reduce: false
       include_docs: false
     .then (result) =>
-      Promise.resolve(result.rows)
+      caseIds = {}
+      if options.administrativeName
+        for row in result.rows
+          if row.key[groupLevel] is options.administrativeName
+            caseIds[row.id] = true
+        Promise.resolve(_(caseIds).keys())
+      else
+        Promise.resolve(_(result.rows).pluck "id")
+
+    return await Coconut.reportingDatabase.allDocs
+      keys: caseKeys
+      include_docs: true
+    .then (result) =>
+      Promise.resolve result.rows
+
 
   # This is a big data structure that is used to create the graphs on the dashboard as well as the individual graph pages as well as to create the menu options
   Graphs.definitions =
     "Positive Individuals by Year":
       description: "Positive Individuals by Year shows the 'classic' epidemiological curve comparing last year's total cases to this years. This is useful to see if general trends are higher or lower than the previous year."
       dataQuery: (options) ->
+
+        groupLevel = 2 # All of Zanzibar
+        if options.administrativeLevel and options.administrativeName
+          for level, index in GeoHierarchy.levels
+            if level.name is options.administrativeLevel.toUpperCase()
+              groupLevel = index + groupLevel
 
         # Only care about the endDate
         endDate = options.endDate
@@ -87,13 +158,15 @@ class Graphs
             startkey: ["#{data.year}-01"]
             endkey: ["#{data.year}-52",{}]
             reduce: true
-            group_level: 1
+            group_level: groupLevel
           .then (result) =>
             Promise.resolve _(data.options).extend {
               label: label
-              data: for row in result.rows
-                x: parseInt(row.key[0].replace(/.*-/,""))
-                y: row.value
+              data: _(for row in result.rows
+                if options.administrativeName and _(row.key).last() is options.administrativeName
+                  x: parseInt(row.key[0].replace(/.*-/,""))
+                  y: row.value
+                ).compact()
             }
 
       render: (dataForGraph, target) ->
@@ -113,18 +186,32 @@ class Graphs
     "Positive Individual Classifications":
       description: "Positive Individual Classifications shows classifications for all individuals that have been followed up. Note that the dates may differ slightly since this graph uses the date of testing for household members, which usually is different than the date that the index case was found positive, and which is used for other graphs on this page."
       dataQuery: Graphs.caseCounter
+      detailedDataQuery: (options) -> Graphs.caseCounterDetails(options)
+      tabulatorFields: [
+        "Malaria Case ID"
+        "Classifications By Household Member Type"
+        "Index Case Diagnosis Date ISO Week"
+      ]
       render: (dataForGraph, target) ->
         dataAggregated = {}
         weeksIncluded = {}
 
-        classifications = [
+        classificationsToAlwaysShow = [
           "Indigenous"
           "Imported"
           "Introduced"
           "Induced"
           "Relapsing"
+        ]
+
+        classificationsToShowIfPresent = [
+          "In Progress"
+          "Lost to Followup"
           "Unclassified"
         ]
+
+        classifications = classificationsToAlwaysShow.concat(classificationsToShowIfPresent)
+        presentOptionalClassifications = {}
 
         for data in dataForGraph
           if _(classifications).contains data.key[1]
@@ -134,18 +221,30 @@ class Graphs
             dataAggregated[classification][week] or= 0
             dataAggregated[classification][week] += data.value
             weeksIncluded[week] = true
+            presentOptionalClassifications[classification] = true if _(classificationsToShowIfPresent).contains classification
 
-        chartOptions = for color in [
-            [255,0, 0] # red
-            [0, 0, 255] # blue
-            [0, 100, 0] # darkgreen
-            [128, 0, 128] # purple
-            [255,128, 0] # orange
-            [192,192, 0] # yellow
-        ]
+        classifications = classificationsToAlwaysShow.concat(_(presentOptionalClassifications).keys())
+        weeksIncluded = _(weeksIncluded).keys()
+        firstWeek = _(weeksIncluded).min()
+        lastWeek = _(weeksIncluded).max()
+
+        # Values from https://medialab.github.io/iwanthue/
+        # Colorblind friendly
+        colors = distinctColors(
+          count: classifications.length
+          hueMin: 0
+          hueMax: 360
+          chromaMin: 40
+          chromaMax: 70
+          lightMin: 15
+          lightMax: 85
+        )
+
+        chartOptions = for distinctColor in colors
+          color = distinctColor.rgb()
           {
             borderColor: "rgba(#{color.join(",")},1)"
-            backgroundColor: "rgba(#{color.join(",")},0.1)"
+            backgroundColor: "rgba(#{color.join(",")},0.5)"
             borderWidth: 2
           }
 
@@ -154,11 +253,11 @@ class Graphs
           index +=1
           _(chartOptions[index]).extend # Just use an index to get different colors
             label: classification
-            data: for week, value of dataAggregated[classification]
-              value
+            data: for week in [firstWeek..lastWeek]
+              dataAggregated[classification]?[week] or 0
 
         xAxisLabels = []
-        for week, index in _(weeksIncluded).keys()
+        for week, index in weeksIncluded
           xAxisLabels.push week
 
         new Chart target,
@@ -177,6 +276,16 @@ class Graphs
               yAxes: [
                 stacked: true
               ]
+            onClick: (event,chartElements, z) ->
+              if document.location.hash[0..5] is "#graph"
+                week = this.data.labels[chartElements[0]._index]
+                week = if week < 10 then "0#{week}" else "#{week}"
+                category = classifications[this.getElementAtEvent(event)[0]._datasetIndex]
+                # Using a global variable for this - ugly but works
+                if casesTabulatorView.tabulator and confirm "Do you want to filter the details table to week: #{week} and category: #{category}"
+                  casesTabulatorView.tabulator.setHeaderFilterValue("Index Case Diagnosis Date ISO Week", "-#{week}")
+                  casesTabulatorView.tabulator.setHeaderFilterValue("Classifications By Household Member Type", category)
+
     "Positive Individuals by Age":
       description: "Positive Individuals by Age counts all malaria positive individuals and classifies them by age. Index case date of positive is used for all individuals."
       dataQuery: Graphs.caseCounter
@@ -186,7 +295,7 @@ class Graphs
         weeksIncluded = {}
 
         for data in dataForGraph
-          if data.key[1] is "Over 5" or data.key[1] is "Under 5"
+          if data.key[1] is "Number Positive Individuals Over 5" or data.key[1] is "Number Positive Individuals Under 5"
             [date,age] = data.key
             week = moment(date).isoWeek()
             dataAggregated[age] or= {}
@@ -240,8 +349,8 @@ class Graphs
           "All OPD < 5"  : "Under 5"
 
         for data in dataForGraph
-          if data.key[3] is "All OPD >= 5" or data.key[3] is "All OPD < 5"
-            [year, week, location, dataType] = data.key
+          if data.key[2] is "All OPD >= 5" or data.key[2] is "All OPD < 5"
+            [year, week, dataType] = data.key
             dataType = mappings[dataType]
             week = parseInt(week)
             dataAggregated[dataType] or= {}
@@ -287,6 +396,12 @@ class Graphs
     "Hours from Positive Test at Facility to Notification":
       description: "Shows how long it is taking facilities to send a notification once someone has tested positive. Target is less than 24 hours."
       dataQuery: Graphs.caseCounter
+      detailedDataQuery: (options) -> Graphs.caseCounterDetails(options)
+      tabulatorFields: [
+        "Malaria Case ID"
+        "Days Between Positive Result And Notification From Facility"
+        "Index Case Diagnosis Date ISO Week"
+      ]
       render: (dataForGraph, target) ->
         dataAggregated = {}
         weeksIncluded = {}
@@ -380,7 +495,7 @@ class Graphs
         weeksIncluded = {}
 
         for data in dataForGraph
-          if (data.value is 0 and data.key[1] is "Followed Up") or (data.value >= 1 and data.key[1].match( /Between Positive Result And Complete Household/))
+          if (data.value is 0 and data.key[1] is "Complete Household Visit") or (data.value >= 1 and data.key[1].match( /Between Positive Result And Complete Household/))
 
             [datePositive, timeToComplete] = data.key
 
@@ -391,7 +506,7 @@ class Graphs
               "One To Two Days Between Positive Result And Complete Household": "< 48"
               "Two To Three Days Between Positive Result And Complete Household": "48 -  72"
               "More Than Three Days Between Positive Result And Complete Household": "> 72"
-              "Followed Up": "Not followed up" #Confusing but when followed up is 0 then it is not followed up
+              "Complete Household Visit": "Not followed up" #Confusing but when followed up is 0 then it is not followed up
 
             timeToComplete = mapping[timeToComplete]
 
@@ -402,6 +517,10 @@ class Graphs
               dataAggregated[timeToComplete][week] += 1
             else
               dataAggregated[timeToComplete][week] += data.value
+
+        weeksIncluded = _(weeksIncluded).keys()
+        firstWeek = _(weeksIncluded).min()
+        lastWeek = _(weeksIncluded).max()
               
         chartOptions = for color in [
             [0, 128, 0] # green
@@ -421,12 +540,12 @@ class Graphs
           index +=1
           _(chartOptions[index]).extend # Just use an index to get different colors
             label: type
-            data: for week, value of dataAggregated[type]
-              value
+            data: for week in [firstWeek..lastWeek]
+              dataAggregated[type]?[week] or 0
 
         xAxisLabels = []
         onTarget = []
-        for week, index in _(weeksIncluded).keys()
+        for week, index in weeksIncluded
           xAxisLabels.push week
           total = 0
           for dataSet in dataSets
@@ -462,8 +581,10 @@ class Graphs
                   "#{onTarget[context.dataIndex]}%"
 
     "Household Testing and Positivity Rate":
-      description: "How many tests are being given at households, and how many of those end up being positive."
+      description: "How many tests are being given at households, and how many of those end up being positive. This does not include the index case, since it wasn't tested at the household."
       dataQuery: Graphs.caseCounter
+      detailedDataQuery: (options) -> Graphs.caseCounterDetails(options)
+
       render: (dataForGraph, target) ->
 
         dataAggregated = {}
@@ -490,6 +611,10 @@ class Graphs
             dataAggregated["Negative"][week] or= 0
             dataAggregated["Negative"][week] -= data.value
 
+        weeksIncluded = _(weeksIncluded).keys()
+        firstWeek = _(weeksIncluded).min()
+        lastWeek = _(weeksIncluded).max()
+
         chartOptions = [
           {
             borderColor: "rgba(25, 118, 210, 1)"
@@ -508,12 +633,12 @@ class Graphs
           index +=1
           _(chartOptions[index]).extend # Just use an index to get different colors
             label: type
-            data: for week, value of weekValue
-              value
+            data: for week in [firstWeek..lastWeek]
+              weekValue[week] or 0
 
         xAxisLabels = []
         positivityRate = []
-        for week, index in _(weeksIncluded).keys()
+        for week, index in weeksIncluded
           xAxisLabels.push week
           positivityRate.push Math.round((dataSets[1].data[index]/dataSets[0].data[index])*100)
 
@@ -552,7 +677,7 @@ class Graphs
         weeksIncluded = {}
 
         for data in dataForGraph
-          [year, week, location, dataType] = data.key
+          [year, week, dataType] = data.key
           week = parseInt(week)
           weeksIncluded[week] = true
 
@@ -565,6 +690,10 @@ class Graphs
             dataAggregated["Negative"] or= {}
             dataAggregated["Negative"][week] or= 0
             dataAggregated["Negative"][week] += data.value
+
+        weeksIncluded = _(weeksIncluded).keys()
+        firstWeek = _(weeksIncluded).min()
+        lastWeek = _(weeksIncluded).max()
 
         chartOptions = [
           {
@@ -584,12 +713,12 @@ class Graphs
           index +=1
           _(chartOptions[index]).extend # Just use an index to get different colors
             label: type
-            data: for week, value of weekValue
-              value
+            data: for week in [firstWeek..lastWeek]
+              weekValue[week] or 0
 
         xAxisLabels = []
         positivityRate = []
-        for week, index in _(weeksIncluded).keys()
+        for week, index in weeksIncluded
           xAxisLabels.push week
           positivityRate.push Math.round((dataSets[1].data[index]/dataSets[0].data[index])*100)
 

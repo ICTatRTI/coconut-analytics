@@ -1,4 +1,4 @@
-# db:zanzibar
+# db:zanzibar-weekly-facility
 (doc) ->
   if doc.type is "Weekly Facility Report"
     key = [

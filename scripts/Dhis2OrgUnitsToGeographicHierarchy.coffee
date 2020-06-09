@@ -106,7 +106,7 @@ createGeographicHierarchy = =>
   units = (await dhis2Request "organisationUnits.json").organisationUnits
 
   i=0
-  numberToGetInParallel = 7
+  numberToGetInParallel = 200
 
   while i < units.length
     console.warn "#{i}/#{units.length}"
