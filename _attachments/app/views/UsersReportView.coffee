@@ -166,7 +166,7 @@ class UsersReportView extends Backbone.View
                           "
                           <tr id='#{user.username()}'>
                             <td class='mdl-data-table__cell--non-numeric'>#{user.nameOrUsername()}</td>
-                            <td class='mdl-data-table__cell--non-numeric'>#{user.districtInEnglish() or "-"}</td>
+                            <td class='mdl-data-table__cell--non-numeric'>#{user.district() or "-"}</td>
                           </tr>
                           "
                         else ""

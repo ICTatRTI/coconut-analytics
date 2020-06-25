@@ -21,9 +21,6 @@ class User extends Backbone.Model
   password: ->
     @get("password")
 
-  districtInEnglish: ->
-    GeoHierarchy.districtNameEnglishIfPossible @get("district")
-
   passwordIsValid: (password) ->
     @get("password") is password
 

@@ -22,6 +22,19 @@ class DashboardView extends Backbone.View
 
   render: =>
 
+    # Always have at least 4 weeks of data, and start at beginning of week so it's comparable data
+    if moment(@endDate).diff(@startDate, 'weeks') < 4
+      @startDate = moment(@endDate).subtract(4, 'weeks').startOf("isoWeek").format("YYYY-MM-DD")
+      @$("#dateDescription").html "
+        Start date shifted to #{@startDate} (week #{moment(@startDate).isoWeek()}) to improve context.
+      "
+    else
+      @$("#dateDescription").html()
+
+    Coconut.router.navigate "dashboard/startDate/#{@startDate}/endDate/#{@endDate}/administrativeLevel/#{@administrativeLevel}/administrativeName/#{@administrativeName}"
+
+
+
     Coconut.statistics = Coconut.statistics || {}
     # $('#analysis-spinner').show()
     HTMLHelpers.ChangeTitle("Dashboard")
@@ -118,18 +131,6 @@ class DashboardView extends Backbone.View
         </div>
     "
     adjustButtonSize()
-
-
-    # Always have at least 4 weeks of data, and start at beginning of week so it's comparable data
-    if moment(@endDate).diff(@startDate, 'weeks') < 4
-      @startDate = moment(@endDate).subtract(4, 'weeks').startOf("isoWeek").format("YYYY-MM-DD")
-      @$("#dateDescription").html "
-        Start date shifted to #{@startDate} (week #{moment(@startDate).isoWeek()}) to improve context.
-      "
-    else
-      @$("#dateDescription").html()
-
-    Coconut.router.navigate "dashboard/startDate/#{@startDate}/endDate/#{@endDate}/administrativeLevel/#{@administrativeLevel}/administrativeName/#{@administrativeName}"
 
     @dateSelectorView or= new DateSelectorView()
     @dateSelectorView.setElement "#dateSelector"

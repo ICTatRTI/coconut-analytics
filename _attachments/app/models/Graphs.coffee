@@ -170,6 +170,14 @@ class Graphs
             }
 
       render: (dataForGraph, target) ->
+
+        if dataForGraph.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
         new Chart target,
           type: "line"
           data:
@@ -260,6 +268,13 @@ class Graphs
         for week, index in weeksIncluded
           xAxisLabels.push week
 
+        if dataSets.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
         new Chart target,
           type: "bar"
           data:
@@ -325,6 +340,14 @@ class Graphs
               x: week
               y: value
 
+        if dataSets.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
+
         new Chart target,
           type: "line"
           data:
@@ -381,6 +404,14 @@ class Graphs
               y: value
 
 
+        if dataSets.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
+
         new Chart target,
           type: "line"
           data:
@@ -401,6 +432,7 @@ class Graphs
         "Malaria Case ID"
         "Days Between Positive Result And Notification From Facility"
         "Index Case Diagnosis Date ISO Week"
+        "Facility"
       ]
       render: (dataForGraph, target) ->
         dataAggregated = {}
@@ -460,6 +492,13 @@ class Graphs
 
           onTarget.push Math.round(dataSets[0].data[index] / total * 100)
 
+        if dataSets.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
         new Chart target,
           type: "bar"
           data:
@@ -486,10 +525,25 @@ class Graphs
                 formatter: (value, context) ->
                   return null if context.datasetIndex > 0 # Only need one percent per dataset since the calculation uses both parts of the bar
                   "#{onTarget[context.dataIndex]}%"
+            onClick: (event,chartElements, z) ->
+              if document.location.hash[0..5] is "#graph"
+                week = this.data.labels[chartElements[0]._index]
+                week = if week < 10 then "0#{week}" else "#{week}"
+                # Using a global variable for this - ugly but works
+                if casesTabulatorView.tabulator and confirm "Do you want to filter the details table to week: #{week} and sort by how many days it took?"
+                  casesTabulatorView.tabulator.setHeaderFilterValue("Index Case Diagnosis Date ISO Week", "-#{week}")
+                  casesTabulatorView.tabulator.setSort("Days Between Positive Result And Notification From Facility", "desc")
 
     "Hours From Positive Test To Complete Follow-up":
       description: "Shows how long it is taking the entire followup process to take including both the time for the facility to followup as well as time for the surveillance officer to go to the facility and then go to the household. Target is less than 48 hours."
       dataQuery: Graphs.caseCounter
+      detailedDataQuery: (options) -> Graphs.caseCounterDetails(options)
+      tabulatorFields: [
+        "Malaria Case ID"
+        "Days Between Positive Result And Complete Household"
+        "Index Case Diagnosis Date ISO Week"
+        "Malaria Surveillance Officers"
+      ]
       render: (dataForGraph, target) ->
         dataAggregated = {}
         weeksIncluded = {}
@@ -553,6 +607,14 @@ class Graphs
 
           onTarget.push Math.round(dataSets[0].data[index] / total * 100)
 
+        if dataSets.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
+
         new Chart target,
           type: "bar"
           data:
@@ -579,6 +641,14 @@ class Graphs
                 formatter: (value, context) ->
                   return null if context.datasetIndex > 0 # Only need one percent per dataset since the calculation uses both parts of the bar
                   "#{onTarget[context.dataIndex]}%"
+            onClick: (event,chartElements, z) ->
+              if document.location.hash[0..5] is "#graph"
+                week = this.data.labels[chartElements[0]._index]
+                week = if week < 10 then "0#{week}" else "#{week}"
+                # Using a global variable for this - ugly but works
+                if casesTabulatorView.tabulator and confirm "Do you want to filter the details table to week: #{week} and sort by how many days it took?"
+                  casesTabulatorView.tabulator.setHeaderFilterValue("Index Case Diagnosis Date ISO Week", "-#{week}")
+                  casesTabulatorView.tabulator.setSort("Days Between Positive Result And Complete Household", "desc")
 
     "Household Testing and Positivity Rate":
       description: "How many tests are being given at households, and how many of those end up being positive. This does not include the index case, since it wasn't tested at the household."
@@ -629,6 +699,7 @@ class Graphs
         ]
 
         index = -1
+        console.log dataAggregated
         dataSets = for type, weekValue of dataAggregated
           index +=1
           _(chartOptions[index]).extend # Just use an index to get different colors
@@ -636,11 +707,21 @@ class Graphs
             data: for week in [firstWeek..lastWeek]
               weekValue[week] or 0
 
+        if dataSets.length is 0
+          canvas = target[0]
+          ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText("No cases/data for area/dates", 10, 50);
+          return
+
+        console.log dataSets
+
         xAxisLabels = []
         positivityRate = []
         for week, index in weeksIncluded
           xAxisLabels.push week
           positivityRate.push Math.round((dataSets[1].data[index]/dataSets[0].data[index])*100)
+
 
         new Chart target,
           type: "bar"

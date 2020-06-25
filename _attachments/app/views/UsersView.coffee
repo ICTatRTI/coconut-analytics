@@ -21,6 +21,7 @@ User = require '../models/User'
 UserCollection = require '../models/UserCollection'
 crypto = require('crypto')
 CONST = require "../Constants"
+Tabulator = require 'tabulator-tables'
 
 class UsersView extends Backbone.View
     el:'#content'
@@ -37,98 +38,27 @@ class UsersView extends Backbone.View
       "click a.user-pw-reset": "showResetView"
       "click button#btnSubmit": "resetPassword"
 
-    setMode: (mode) ->
-      $('input#mode').val(mode)
-      if mode == 'edit'
-        $('#div_password').hide()
-        $('form#user input#_id').prop('readonly', true)
-      else
-        $('form#user input#_id').prop('readonly', false)
+      "click button#addUser": "addUser"
 
-    createUser: (e) =>
-      e.preventDefault
-      dialogTitle = "Add New User"
-      Dialog.create(@dialogEdit, dialogTitle)
-      $('form#user input').val('')
-      @user = null
-      @setMode('add')
-      return false
+    addUser: =>
+      username = prompt "What is the new username (phone number for DMSOs)?"
+      username = "user.#{username}"
+      password = prompt "What is the new password?"
+      password = (crypto.pbkdf2Sync password, '', 1000, 256/8, 'sha256').toString('base64')
 
-    editUser: (e) =>
-      e.preventDefault
-      dialogTitle = "Edit User"
-      Dialog.create(@dialogEdit, dialogTitle)
-      @setMode('edit')
-      id = $(e.target).closest("a").attr "data-user-id"
 
-      Coconut.database.get id,
-         include_docs: true
-      .catch (error) -> console.error error
-      .then (user) =>
-         @user = _.clone(user)
-         user._id = user._id.substring(5)
-         Form2js.js2form($('form#user').get(0), user)
-         if(@user.roles)
-           #older doc store this as string and not array
-           @user.roles = @user.roles.split(',') if !($.isArray(@user.roles))
-           for role in @user.roles
-             document.querySelector("##{role}_label").MaterialCheckbox.check() if(role)
-         if(user.inactive)
-           document.querySelector('#switch-1').MaterialSwitch.on()
-         Dialog.markTextfieldDirty()
-       return false
-
-    formSave: (e) =>
-      errorMsg = ""
-      errorMsg += 'Username, ' if $('#_id').val() == ''
-      errorMsg += 'Password, ' if $('input#mode').val() == 'add' and $('#passwd').val() == ''
-      errorMsg += 'Name, ' if $('#name').val() == ''
-
-      if errorMsg != ''
-        errorMsg = 'Required field(s): ' + errorMsg.slice(0, -2)
-        $('#errMsg').html(errorMsg)
-        return false
-      else
-        if not @user
-          @user = {
-            _id: "user." + $("#_id").val()
-          }
-
-        console.log @user
-
-        @user.collection = "user"
-        @user.inactive = $("#inactive").is(":checked")
-        @user.isApplicationDoc = true
-        @user.district = $("select#district").val()
-        @user.name = $('#name').val()
-        @user.email = $('#email').val()
-        @user.roles = $('#roles').val()
-        @user.comments = $('#comments').val()
-        if $('input#mode').val() is 'add'
-          @user.password = (crypto.pbkdf2Sync $('#passwd').val(), '', 1000, 256/8, 'sha256').toString('base64') if @user.password != ""
-        roles_selected = document.getElementsByName("role")
-
-        console.log @user
-
-        roles = []
-        _.map roles_selected, (role) ->
-          roles.push(role.id) if role.checked
-
-        @user.roles = roles
-        Coconut.database.put @user
-        .catch (error) ->
-           console.error error
-           Dialog.confirm( error, 'Error Encountered',['Ok'])
-        .then =>
-          @render()
-        return false
-
-    deleteDialog: (e) =>
-      e.preventDefault
-      dialogTitle = "Are you sure?"
-      Dialog.confirm("This will permanently remove the record.", dialogTitle,['No', 'Yes'])
-      return false
-
+      @tabulator.addRow
+        _id: username
+        district: []
+        name: ""
+        email: ""
+        roles: []
+        comments: ""
+        inactive: false
+        collection: "user"
+        isApplicationDoc: true
+        password: password
+        
     showResetView: (e) ->
       e.preventDefault
       dialogTitle = "Reset Password"
@@ -159,33 +89,81 @@ class UsersView extends Backbone.View
       return false
 
 
-    deleteUser: (e) =>
-      view = @
-      e.preventDefault
-      id = $(e.target).closest("a").attr "data-user-id"
-      dialog.close() if dialog.open
-      dialogTitle = "Are you sure?"
-      Dialog.confirm("This will permanently remove the record id #{id}.", dialogTitle,['No', 'Yes'])
-      dialog.addEventListener 'close', (event) ->
-        if (dialog.returnValue == 'Yes')
-          Coconut.database.get(id).then (doc) ->
-            return Coconut.database.remove(doc)
-          .then (result) =>
-            Dialog.confirm( 'User Successfully Deleted..', 'Delete User',['Ok'])
-#            view.render()
-            Backbone.history.loadUrl(Backbone.history.fragment)
-          .catch (error) ->
-            console.error error
-            Dialog.confirm( error, 'Error Encountered while deleting',['Ok'])
-        dialog.close() if dialog.open
-      return false
-
-    formCancel: (e) =>
-      e.preventDefault
-      dialog.close() if dialog.open
-      return false
-
     render: =>
+      @$el.html "
+        <h2>Users</h2>
+        Click on a cell to edit the user. Districts and roles allow for multiple options to be selected, just press the tab button when you have made your selections.<br/>
+        <button id='addUser'>Add a new user</button>
+
+        <div id='userTabulator'/>
+      "
+
+
+      users = await Coconut.database.query "users",
+        include_docs: true
+      .catch (error) -> console.error error
+      .then (result) =>
+        Promise.resolve _(result.rows).pluck("doc")
+
+      columns = for field in [
+          "_id"
+          "district"
+          "name"
+          "email"
+          "roles"
+          "comments"
+          "inactive"
+        ]
+
+        result = {
+          title: field
+          field: field
+          headerFilter: "input"
+        }
+
+        result.editor = switch field
+          when "_id" then null
+          when "inactive" then "tickCross"
+          when "district"
+            result.editorParams = 
+              values: GeoHierarchy.allDistricts()
+              multiselect: true
+            "select"
+          when "roles"
+            result.editorParams = 
+              values: ["reports","admin","researcher"]
+              multiselect: true
+            "select"
+          else "input"
+
+        result
+
+
+      @tabulator = new Tabulator "#userTabulator",
+        height: 400
+        columns: columns
+        data: users
+        cellEdited: (cell) =>
+          oldValue = cell.getOldValue()
+          value = cell.getValue()
+          isUpdated = if _(value).isArray()
+            not _(oldValue).isEqual(value)
+          else
+            cell.getOldValue() isnt cell.getValue() and
+            cell.getOldValue() isnt null and 
+            cell.getValue() isnt ""
+
+
+          if isUpdated and confirm("Are you sure you want to change #{cell.getField()} for #{cell.getData()._id} from '#{oldValue}' to '#{value}'")
+            data = cell.getRow().getData()
+            delete data._rev
+            Coconut.database.upsert data._id,  =>
+              data
+          else
+            cell.restoreOldValue()
+
+
+    renderOld: =>
       HTMLHelpers.ChangeTitle("Admin: Users")
       Coconut.database.query "users",
         include_docs: true

@@ -19,6 +19,7 @@ class GeoHierarchyView extends Backbone.View
       <h2>Regions, Districts, Facilities and Shehias</h2>
       <button>Show differences with DHIS2</button>
       <button id='updateFromDhis'>Update from DHIS2</button>
+      <button id='addAlias'>Add an alias</button>
       (These buttons are not enabled yet)
       <br/>
       <br/>
@@ -33,6 +34,7 @@ class GeoHierarchyView extends Backbone.View
         "Level"
         "One level up"
         "Two levels up"
+        "Aliases"
       ]
         result = {
           title: field
@@ -52,6 +54,7 @@ class GeoHierarchyView extends Backbone.View
           "One level up": "#{unit.parent()?.levelName or ""}: #{unit.parent()?.name or ""}"
           "Two levels up": "#{unit.parent()?.parent()?.levelName or ""}: #{unit.parent()?.parent()?.name or ""}"
           url: "#dashboard/administrativeLevel/#{unit.levelName}/administrativeName/#{unit.name}"
+          "Aliases": if (alias = GeoHierarchy.externalAliases[unit.name]) then alias else ""
         }
 
 

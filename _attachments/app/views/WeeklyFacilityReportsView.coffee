@@ -86,7 +86,10 @@ class WeeklyFacilityReportsView extends Backbone.View
                 <th class='mdl-data-table__cell--non-numeric'>#{@aggregationArea}</th>
                 #{
                   _.map results.fields, (field) ->
-                    "<th>#{field}</th>"
+                    if field is "Facility Followed-Up Positive Cases"
+                      return # Don't show followup data here, use the compare report instead http://127.0.0.1:8082/#reports/type/Compareweekly
+                    else
+                      "<th>#{field}</th>"
                   .join("")
                 }
                 <th>Weekly Reports Positive Cases</th>
@@ -112,7 +115,9 @@ class WeeklyFacilityReportsView extends Backbone.View
                           #{
                           _.map results.fields, (field) =>
                             if field is "Facility Followed-Up Positive Cases"
-                              "<td>#{if data[field] then HTMLHelpers.createDisaggregatableCaseGroup data[field] else ''}</td>"
+                              #
+                              return # Don't show followup data here, use the compare report instead http://127.0.0.1:8082/#reports/type/Compareweekly
+                              #"<td>#{if data[field] then HTMLHelpers.createDisaggregatableCaseGroup data[field] else ''}</td>"
                             else
                               "<td>#{if data[field]? then data[field] else "-"}</td>"
                           .join("")

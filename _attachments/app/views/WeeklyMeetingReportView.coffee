@@ -34,6 +34,7 @@ class WeeklyMeetingReportView extends Backbone.View
   mapControls: ".mapView .leaflet-control-zoom-in, .mapView .leaflet-control-zoom-out, .mapView .zoom, .mapView .leaflet-control-attribution, .mapView .controls"
         
   render: =>
+    @renderDone = false
 
     @tabulators = []
     options = $.extend({},Coconut.router.reportViewOptions)
@@ -52,6 +53,7 @@ class WeeklyMeetingReportView extends Backbone.View
     @generatedAtText = "#{moment().format("DD MMM YYYY HH:mm")}"
 
     @$el.html "
+      <div class='pdf-page page1'>
       <style>
         .mapViewWrapper{
           width: 410px;
@@ -85,46 +87,47 @@ class WeeklyMeetingReportView extends Backbone.View
           page-break-before: always;
         }
       </style>
-      <div style='float:right'>
-        Generated at: #{@generatedAtText}
-        <br/>
-        <button class='hide-for-printing' id='download'>Download PDF</button>
+        <div style='float:right'>
+          Generated at: #{@generatedAtText}
+          <br/>
+          <button class='hide-for-printing' id='createWindowDownloadPDF'>Download PDF</button>
+        </div>
+        <dialog style='width:80%' id='dialog'>
+          <div id='dialogContent'> </div>
+        </dialog>
+        <h1>Weekly Summary<br/>
+          <h2>
+            <select class='date' id='year'>
+              #{
+                (for year in [2012..moment().year()]
+                  "<option #{if year is @selectedYear then "selected='true'" else ""}>#{year}</option>"
+                ).join("")
+              }
+            </select>
+              Week No. 
+              <select class='date' id='week'>
+              #{
+                (for week in [1..53]
+                  "<option #{if week is @selectedWeek then "selected='true'" else ""}>#{week}</option>"
+                ).join("")
+              }
+            </select>
+            <small>
+              #{@startDate.format('YYYY-MM-DD')} - #{@endDate.format('YYYY-MM-DD')}
+            </small>
+          </h2>
+        </h1>
+
+        <hr/>
+        <div id='zoneSummary'>
+          <h2>Zone Summary</h2>
+        </div>
       </div>
-      <dialog style='width:80%' id='dialog'>
-        <div id='dialogContent'> </div>
-      </dialog>
-      <h1>Weekly Summary<br/>
-        <h2>
-          <select class='date' id='year'>
-            #{
-              (for year in [2012..moment().year()]
-                "<option #{if year is @selectedYear then "selected='true'" else ""}>#{year}</option>"
-              ).join("")
-            }
-          </select>
-            Week No. 
-            <select class='date' id='week'>
-            #{
-              (for week in [1..53]
-                "<option #{if week is @selectedWeek then "selected='true'" else ""}>#{week}</option>"
-              ).join("")
-            }
-          </select>
-          <small>
-            #{@startDate.format('YYYY-MM-DD')} - #{@endDate.format('YYYY-MM-DD')}
-          </small>
-        </h2>
-      </h1>
 
-      <hr/>
-      <div class='pdf-page' id='zoneSummary'>
-        <h2>Zone Summary</h2>
-      </div>
-
-      <div class='pdf-page' id='charts'/>
+      <div id='charts'/>
       <hr/>
 
-      <div class='pdf-page' id='maps'>
+      <div class='pdf-page page6' id='maps'>
         <h2>Sprayed Shehias And Cases</h2>
         <div>
           <button id='mapControls'>Map Controls</button>
@@ -141,7 +144,9 @@ class WeeklyMeetingReportView extends Backbone.View
         }
       </div>
 
-      <div class='pdf-page' id='districtSummary'>
+      <div class='pdf-page page7' id='districtSummary'>
+        <br/>
+        <br/>
         <h2>District Summary</h2>
       </div>
     "
@@ -160,16 +165,28 @@ class WeeklyMeetingReportView extends Backbone.View
       mapView.zoom(zone)
 
     $("#analysis-spinner").hide()
-
+    @renderDone = true
     
   events:
     "change .date":"updateDate"
     "click .cases":"showCases"
     "click .downloadCSV": "downloadCSV"
     "click .toggle-details": "toggleDetails"
-    "click #download": "download"
-    "click #download": "download"
+    "click #createWindowDownloadPDF": "createWindowDownloadPDF"
     "click #mapControls": "toggleMapControls"
+
+  # Open a new window that is the right size for the PDF
+  # Wait until it is done rendering
+  # THen generate the PDF
+  createWindowDownloadPDF: =>
+    pdfWindow = window.open(document.location, "", "width=900, height=200")
+
+    while (not pdfWindow.Coconut?.router?.views?.WeeklyMeetingReport?) or pdfWindow?.Coconut?.router?.views?.WeeklyMeetingReport?.renderDone is false
+      pdfWindow.document.getElementById("createWindowDownloadPDF")?.style.display = 'none'
+      await (new Promise( (resolve) => setTimeout(resolve, 500)))
+
+    pdfWindow.Coconut.router.views.WeeklyMeetingReport.download()
+
 
   toggleMapControls: =>
     for mapControl in @mapControls.split(", ")
@@ -177,8 +194,6 @@ class WeeklyMeetingReportView extends Backbone.View
       @$(".map-title").toggle()
 
   download: =>
-    alert("You may need to resize the browser window to make each element fit on the PDF.")
-
     $(".hide-for-printing, .downloadCSV").hide()
     $(".date").css("background-color", "white")
     $(".date").css("border", "none")
@@ -356,9 +371,6 @@ class WeeklyMeetingReportView extends Backbone.View
         "Positive Individuals Classified Imported": 
           cases: aggregatedCases[area]["Positive Individuals Classified Imported"]
           denominator: aggregatedCases[area]["Positive Individuals"].length
-        "Positive Individuals Not Classified": 
-          cases: aggregatedCases[area]["Positive Individuals Not Classified"]
-          denominator: aggregatedCases[area]["Positive Individuals"].length
       columnNames or= _(row).keys()
       unless area is "UNKNOWN" and previousAggregatedCases[area]["Cases Notified"]?.length is 0 and aggregatedCases[area]["Cases Notified"]?.length is 0 and aggregatedCases[area]["Positive Individuals"]?.length is 0
         data.push row
@@ -426,9 +438,6 @@ class WeeklyMeetingReportView extends Backbone.View
         "Positive Individuals Indigenous":
           cases: data["Positive Individuals Classified Indigenous"]
           denominator: data["Positive Individuals"].length
-        "Positive Individuals Not Classified":
-          cases: data["Positive Individuals Not Classified"]
-          denominator: data["Positive Individuals"].length
       }
 
     columnNames = _(data[0]).keys()
@@ -484,7 +493,6 @@ class WeeklyMeetingReportView extends Backbone.View
         "Positive Individuals": []
         "Positive Individuals Classified Indigenous": []
         "Positive Individuals Classified Imported": []
-        "Positive Individuals Not Classified": []
 
     for summaryCase in summaryCaseData
       caseAggregationArea = switch aggregationArea
@@ -506,7 +514,6 @@ class WeeklyMeetingReportView extends Backbone.View
         aggregatedCases[caseAggregationArea]["Positive Individuals"].push id
         aggregatedCases[caseAggregationArea]["Positive Individuals Classified Indigenous"].push id if classification is "Indigenous"
         aggregatedCases[caseAggregationArea]["Positive Individuals Classified Imported"].push id if classification is "Imported"
-        aggregatedCases[caseAggregationArea]["Positive Individuals Not Classified"].push id if classification is undefined
 
     return aggregatedCases
 
@@ -526,18 +533,22 @@ class WeeklyMeetingReportView extends Backbone.View
 
     for zone in GeoHierarchy.allZones()
       @$("#charts").append "
-        <hr/>
-        <h2 style='page-break-before:always'>
-          Malaria yearly trends by week in #{zone} (#{lastYear}/#{currentYear})<br/>
-          <small id='case-count-#{zone}'></small>
-        </h2>
-        <canvas style='height:300px;width:400px;' id='yearlyTrends-#{zone}'/>
-        <hr/>
+        <div class='pdf-page'>
+          <hr/>
+          <h2>
+            Malaria yearly trends by week in #{zone} (#{lastYear}/#{currentYear})<br/>
+            <small id='case-count-#{zone}'></small>
+          </h2>
+          <canvas style='height:300px;width:400px;' id='yearlyTrends-#{zone}'/>
+        </div>
+        <div class='pdf-page'>
+          <hr/>
 
-        <h2>
-          Case Classification in #{zone} for  #{currentYear}<br/>
-        </h2>
-        <canvas style='height:300px;width:400px;' id='caseClassification-#{zone}'/>
+          <h2>
+            Case Classification in #{zone} for  #{currentYear}<br/>
+          </h2>
+          <canvas style='height:300px;width:400px;' id='caseClassification-#{zone}'/>
+        </div>
       "
       caseCountUntilCurrentWeekLastYear[zone] = 0
       caseCountUntilCurrentWeekCurrentYear[zone] = 0

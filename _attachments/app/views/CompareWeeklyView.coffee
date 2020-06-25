@@ -13,6 +13,11 @@ class CompareWeeklyView extends Backbone.View
   events:
     "click #csv": "toggleCSVMode"
     "change select.aggregatedBy": "updateAggregatedBy"
+    "click #toggleDetails": "toggleDetails"
+
+  toggleDetails: =>
+    console.log "ZZ"
+    @$(".details").toggle()
 
   updateAggregatedBy: (e) =>
     Coconut.router.reportViewOptions['aggregationPeriod'] = $("#aggregationPeriod").val()
@@ -101,7 +106,7 @@ class CompareWeeklyView extends Backbone.View
                   #{aggregationArea}
                   #{if @aggregationArea is "Facility" and _(allPrivateFacilities).contains(aggregationArea) then "(private)" else ""}
                 </td>
-                <td>
+                <td class='details'>
                   #{
                     numberOfFaciltiesMultiplier = if @aggregationArea is "Zone"
                       FacilityHierarchy.facilitiesForZone(aggregationArea).length
@@ -118,8 +123,8 @@ class CompareWeeklyView extends Backbone.View
                     expectedNumberOfReports = expectedNumberOfReports * numberOfFaciltiesMultiplier
                   }
                 </td>
-                <td>#{numberReportsSubmitted = data["Reports submitted for period"] or 0}</td>
-                <td>
+                <td class='details'>#{numberReportsSubmitted = data["Reports submitted for period"] or 0}</td>
+                <td class='details'>
                   #{
                     if Number.isNaN(numberReportsSubmitted) or Number.isNaN(expectedNumberOfReports) or expectedNumberOfReports is 0
                       '-'
@@ -127,11 +132,11 @@ class CompareWeeklyView extends Backbone.View
                       Math.round(numberReportsSubmitted/expectedNumberOfReports * 1000)/10 + "%"
                   }
                 </td>
-                <td>#{data["Report submitted within 1 day"] or 0}</td>
-                <td>#{data["Report submitted within 1-3 days"] or 0}</td>
-                <td>#{data["Report submitted within 3-5 days"] or 0}</td>
-                <td>#{data["Report submitted 5+ days"] or 0}</td>
-                <td>
+                <td class='details'>#{data["Report submitted within 1 day"] or 0}</td>
+                <td class='details'>#{data["Report submitted within 1-3 days"] or 0}</td>
+                <td class='details'>#{data["Report submitted within 3-5 days"] or 0}</td>
+                <td class='details'>#{data["Report submitted 5+ days"] or 0}</td>
+                <td class='details'>
                   <!-- Total Tested -->
                   #{
                     totalTested = data["Mal POS < 5"]+data["Mal POS >= 5"]+data["Mal NEG < 5"]+data["Mal NEG >= 5"]
@@ -144,31 +149,38 @@ class CompareWeeklyView extends Backbone.View
                     totalPositive = data["Mal POS < 5"]+data["Mal POS >= 5"]
                     if Number.isNaN(totalPositive) then '-' else totalPositive
                   }
-                  (#{
+                <td class='percent-positive details'>
+                  #{
                     if Number.isNaN(totalTested) or Number.isNaN(totalPositive) or totalTested is 0
                       '-'
                     else
-                      Math.round(totalPositive/totalTested * 1000)/10 + "%"
-                  })
+                      Math.round(totalPositive/totalTested * 100) + "%"
+                  }
                 </td>
                 #{
                   _(["casesNotified","hasCompleteFacility","followedUpWithin48Hours"]).map (property) =>
                     "
-                      <td class='#{property}'>
+                      <td class='#{property} #{if property is "casesNotified" then "" else "details"}'>
                         #{
                           if @csvMode
                             data[property]?.length or "-"
                           else
-                            if data[property] then HTMLHelpers.createDisaggregatableCaseGroup data[property] else '-'
+                            if data[property] then HTMLHelpers.createDisaggregatableCaseGroup data[property] else '0'
                         }
                       </td>
                     "
                   .join ""
                 }
 
-                <td>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotificationFromFacility"]}</td>
-                <td>#{getMedianAndQuartilesElement data["daysFromCaseNotificationToCompleteFacility"]}</td>
-                <td>
+                <td>#{
+                  totalPositive = data["Mal POS < 5"]+data["Mal POS >= 5"]
+                  totalPositive - data['casesNotified']?.length or '-'
+                }
+                </td>
+
+                <td class='details'>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotificationFromFacility"]}</td>
+                <td class='details'>#{getMedianAndQuartilesElement data["daysFromCaseNotificationToCompleteFacility"]}</td>
+                <td class='details'>
                 #{
                   if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["Facility Followed-Up Positive Cases"]
                     Math.round(data["Facility Followed-Up Positive Cases"].length / data["casesNotified"].length * 1000)/10 + "%"
@@ -176,23 +188,14 @@ class CompareWeeklyView extends Backbone.View
                     "-"
                 }
                 </td>
-                <td>#{getMedianAndQuartilesElement data["daysFromSMSToCompleteHousehold"]}</td>
-                <td>
+                <td class='details'>#{getMedianAndQuartilesElement data["daysFromSMSToCompleteHousehold"]}</td>
+                <td class='details'>
                 #{
                   if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["householdFollowedUp"]
-                    Math.round(data["householdFollowedUp"] / data["casesNotified"].length * 1000)/10 + "%"
+                    Math.round(data["householdFollowedUp"] / data["casesNotified"].length * 100) + "%"
                   else
                     "-"
                 }
-                </td>
-                <td>
-                  #{data["numberHouseholdOrNeighborMembers"] || "-"}
-                </td>
-                <td>
-                  #{getNumberAndPercent(data["numberHouseholdOrNeighborMembersTested"],data["numberHouseholdOrNeighborMembers"])}
-                </td>
-                <td>
-                  #{getNumberAndPercent(data["numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"],data["numberHouseholdOrNeighborMembersTested"])}
                 </td>
               </tr>
             "
@@ -254,6 +257,9 @@ class CompareWeeklyView extends Backbone.View
             padding: 0 4px 12px 4px;
             font-size: 9pt;
           }
+          .details{
+            display:none;
+          }
         </style>
         <div id='dateSelector'></div>
         <h5>Compare Weekly Reports and Coconut cases aggregated by
@@ -292,6 +298,7 @@ class CompareWeeklyView extends Backbone.View
         facilities.
         </h5>
         <div>If the total positive cases from the weekly reports don't match the number of cases notified, the <span class='mismatch'>mismatched values are colored</span>.
+        <button id='toggleDetails'>Toggle Details</button>
         <button class='mdl-button mdl-js-button mdl-button--raised' id='csv'>#{if @csvMode then "Table Mode" else "CSV Mode"}</button></div>
         <br/><br/>
         <div class='scroll-div'>
@@ -301,26 +308,25 @@ class CompareWeeklyView extends Backbone.View
               <th>Zone</th>
               #{if @aggregationArea is "District" or @aggregationArea is "Facility" then "<th>District</th>" else ""}
               #{if @aggregationArea is "Facility" then "<th>Facility</th>"  else ""}
-              <th>Reports expected for period</th>
-              <th>Reports submitted for period</th>
-              <th>Percent submitted for period</th>
-              <th>Reports submitted within 1 day of period end (Monday)</th>
-              <th>Reports submitted within 1-3 days of period end (by Wednesday)</th>
-              <th>Reports submitted within 3-5 days of period end (by Friday)</th>
-              <th>Reports submitted 7 or more days after period end</th>
-              <th>Total Tested</th>
-              <th>Total Positive (%)</th>
+              <th class='details'>Weekly Facility Reports Expected (assumes months expect 4 reports, not always true)</th>
+              <th class='details'># submitted</th>
+              <th class='details'>% submitted</th>
+              <th class='details'>Reports submitted within 1 day of period end (Monday)</th>
+              <th class='details'>Reports submitted within 1-3 days of period end (by Wednesday)</th>
+              <th class='details'>Reports submitted within 3-5 days of period end (by Friday)</th>
+              <th class='details'>Reports submitted 5 or more days after period end</th>
+              <th class='details'>Total Tested</th>
+              <th>Total Positive From Facility Weekly Report</th>
+              <th class='details'>Percent Positive</th>
               <th>Number of cases notified</th>
-              <th>Facility Followed-Up Positive Cases</th>
-              <th>Cases Followed-Up within 48 Hours</th>
-              <th>Median Days from Positive Test Result to Facility Notification (IQR)</th>
-              <th>Median Days from Facility Notification to Complete Facility (IQR)</th>
-              <th>% of Notified Cases with Complete Facility Follow-up</th>
-              <th>Median Days from Facility Notification to Complete Household (IQR)</th>
-              <th>% of Notified Cases with Complete Household Follow-up</th>
-              <th>Number of Household or Neighbor Members</th>
-              <th>Number of Household or Neighbor Members Tested (%)</th>
-              <th>Number of Household or Neighbor Members Tested Positive (%)</th>
+              <th class='details'>Facility Followed-Up Positive Cases</th>
+              <th class='details'>Cases Followed-Up within 48 Hours</th>
+              <th>Difference between weekly reports and notifications</th>
+              <th class='details'>Median Days from Positive Test Result to Facility Notification (IQR)</th>
+              <th class='details'>Median Days from Facility Notification to Complete Facility (IQR)</th>
+              <th class='details'>% of Notified Cases with Complete Facility Follow-up</th>
+              <th class='details'>Median Days from Facility Notification to Complete Household (IQR)</th>
+              <th class='details'>% of Notified with Complete Followup</th>
             </thead>
             <tbody> </tbody>
           </table>

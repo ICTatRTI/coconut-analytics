@@ -20,6 +20,7 @@ class CaseView extends Backbone.View
       "Facility"
       "Household"
       "Household Members"
+      "ODK 2017-2019"
     ]
     @$el.html "
       <style>

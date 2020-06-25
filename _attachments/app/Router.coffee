@@ -42,6 +42,7 @@ reportViews = {
   "Analysis": require './views/AnalysisView'
   "Casefollowup": require './views/CaseFollowupView'
   "Individualclassification": require './views/IndividualClassificationView'
+  "Fociclassification": require './views/FociClassificationView'
   "Compareweekly": require './views/CompareWeeklyView'
   "Epidemicthreshold": require './views/EpidemicThresholdView'
   "Systemerrors": require './views/SystemErrorsView'

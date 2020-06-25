@@ -245,10 +245,7 @@ class CaseFollowupView extends Backbone.View
                 </td>
                 <td class='HealthFacilityDistrict mdl-data-table__cell--non-numeric'>
                   #{
-                    if malariaCase["USSD Notification"]?
-                      FacilityHierarchy.getDistrict(malariaCase["USSD Notification"].hf)
-                    else
-                      ""
+                    malariaCase.facilityDistrict()
                   }
                 </td>
                 <td class='mdl-data-table__cell--non-numeric HealthFacilityDistrict #{if malariaCase.highRiskShehia() then "high-risk-shehia" else ""}'>

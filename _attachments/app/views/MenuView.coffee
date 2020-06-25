@@ -73,6 +73,7 @@ class MenuView extends Backbone.View
           reportLinks = {
             Analysis: "Analysis"
             Individualclassification: "Individual Classification"
+            Fociclassification: "Foci Classification"
             Usersreport: "How Long Are Investigations Taking?"
             Casefollowup: "Case Follow-ups Status"
             Compareweekly: "Compare Weekly Facility Reports With Case Follow-ups"

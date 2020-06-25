@@ -140,6 +140,8 @@ class Case
     for userId in @allUserIds()
       Coconut.nameByUsername[userId] or "Unknown"
 
+  allUserNamesString: => @allUserNames()?.join(", ")
+
   facility: ->
     @["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase() or @["Facility"]?.FacilityName or "UNKNOWN"
 
@@ -421,24 +423,6 @@ class Case
   numberHouseholdMembers: ->
     @["Household Members"].length
 
-  #TODO this name implies neighbor members are counted, but they aren't - should be fixed
-  numberHouseholdOrNeighborMembers: ->
-    @["Household Members"].length
-
-  # TODO this is only filtering for a specific result, not whether or not they are tested
-  numberHouseholdOrNeighborMembersTested: ->
-    console.warn "numberHouseholdOrNeighborMembersTested only checks for NPF results"
-    _(@["Household Members"]).filter (householdMember) =>
-      (
-        householdMember.MalariaTestResult? and
-        householdMember.MalariaTestResult is "NPF"
-      ) or
-      (
-        householdMember.DateofPositiveResults? and 
-        householdMember.DateofPositiveResults isnt ""
-      )
-    .length or 0
-
   numberHouseholdMembersTestedAndUntested: =>
     numberHouseholdMembersFromHousehold = @["Household"]?["TotalNumberOfResidentsInTheHousehold"] or @["Household"]?["TotalNumberofResidentsintheHousehold"]
     numberHouseholdMembersWithRecord = @numberHouseholdMembers()
@@ -448,7 +432,7 @@ class Case
 
 
   numberHouseholdMembersTested: =>
-    _(@["Household Members"]).filter (householdMember) =>
+    numberHouseholdMemberRecordsWithTest = _(@["Household Members"]).filter (householdMember) =>
       switch householdMember.MalariaTestResult
         when "NPF", "PF", "Mixed"
           return true
@@ -456,6 +440,16 @@ class Case
         when "mRDT", "Microscopy"
           return true
     .length
+
+    # Check if we have pre 2019 data by checking for classifications
+    # If there is no classification then either it was pre-2019 or followup is not done, so we need to add on an additional individual that was tested (index case)
+    classifiedNonIndexCases = _(@["Household Members"]).filter (householdMember) => 
+      householdMember.CaseCategory? and householdMember.HouseholdMemberType isnt "Index Case"
+    # If there is at least a case notification then we know the index case was tested
+    if classifiedNonIndexCases.length is 0
+      numberHouseholdMemberRecordsWithTest+1
+    else
+      numberHouseholdMemberRecordsWithTest
 
   percentOfHouseholdMembersTested: =>
     (@numberHouseholdMembersTested()/@numberHouseholdMembersTestedAndUntested()*100).toFixed(0)
@@ -789,6 +783,15 @@ class Case
     if @householdComplete() and @["USSD Notification"]?
       moment.duration(@timeFromSMSToCompleteHousehold()).asDays()
 
+  odkClassification: =>
+    if @["ODK 2017-2019"]
+      switch @["ODK 2017-2019"]["case_classification:case_category"]
+        when 1 then "Imported"
+        when 2,3 then "Indigenous"
+        when 4 then "Induced"
+        when 5 then "Relapsing"
+
+
   classificationsWithHouseholdMember: =>
     result = []
     for positiveIndividual in @positiveIndividualsIncludingIndex()
@@ -802,11 +805,17 @@ class Case
           "Lost to Followup"
         else
           # Is household member complete then "Unclassified"
-          if positiveIndividual.question is "Household Members" and positiveIndividual.complete is true
+          if positiveIndividual.question is "Household Members" and (positiveIndividual.complete is true or positiveIndividual.complete is "true")
             "Unclassified"
           else
-            # If it's been more than 12 months, consider it lost
-            if moment().diff(moment(positiveIndividual.createdAt), 'months') > 12
+            # If we only have a household record, then it's a completed index case from from pre-2019 that wasn't classified
+            if positiveIndividual.question is "Household" and (positiveIndividual.complete is true or positiveIndividual.complete is "true") and moment(positiveIndividual.createdAt).isBefore(moment("2020-01-01"))
+              if odkClassification = @odkClassification()
+                odkClassification
+              else
+                "Unclassified"
+            # Or it's just an old case that won't ever be followed up
+            else if moment().diff(moment(positiveIndividual.createdAt), 'months') > 6
               "Lost to Followup"
             else
               "In Progress"
@@ -945,6 +954,9 @@ class Case
       result = findPrioritizedProperty(options.otherPropertyNames) if options?.otherPropertyNames
 
     result = JSON.stringify(result) if _(result).isObject()
+
+    if _(result).isString()
+      result = result?.trim()
 
     if options?.propertyName
       property = options.propertyName
@@ -1306,12 +1318,8 @@ class Case
       propertyName: "Number Positive Individuals At Household Excluding Index"
     numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds:
       propertyName: "Number Positive Cases At Index Household And Neighbor Households"
-    numberHouseholdOrNeighborMembersTested:
-      propertyName: "Number Household Or Neighbor Members Tested"
     numberPositiveIndividuals:
       propertyName: "Number Positive Individuals"
-    numberHouseholdOrNeighborMembers:
-      propertyName: "Number Household Or Neighbor Members"
     numberPositiveIndividualsUnder5:
       propertyName: "Number Positive Individuals Under 5"
     numberPositiveIndividualsOver5:
@@ -1354,6 +1362,9 @@ class Case
       propertyName: "DHIS2 Cases by Age"
     dhis2CasesByGender:
       propertyName: "DHIS2 Cases by Gender"
+
+    allUserNamesString:
+      propertyName: "Malaria Surveillance Officers"
 
   }
 
