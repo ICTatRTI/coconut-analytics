@@ -81,6 +81,7 @@ class FociClassificationView extends Backbone.View
       </div>
       <button id='download'>CSV ↓</button> <small>Add more fields by clicking the box below</small>
       <div id='tabulator'></div>
+      Labeling the shehias on the map is still a work in progress
       <div class='mapViewWrapper'>
         <div class='mapView' id='map'></div>
       </div>
@@ -101,10 +102,11 @@ class FociClassificationView extends Backbone.View
     @mapView.dontShowCases = true
     @mapView.render()
 
-    #TODO
+    # TODO
     # Color shehias according to classification (red,yellow,green)
     # Add legend for colors
     # Determine how different our shehia list in GeoHierarchy.allShehias is from the boundaries and labels we have for the maps, and see how much can be fixed by adding aliases to make them match
+    # Consider adding this shading feature to the MapView so that it becomes just another option like the way "Sprayed Shehias" appears when you click Shehias in the control at the top of the map
   
 
   renderTabulator: =>
