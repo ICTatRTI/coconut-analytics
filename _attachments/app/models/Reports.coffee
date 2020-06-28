@@ -158,6 +158,12 @@ class Reports
           _.each cases, (malariaCase) ->
             caseLocation = malariaCase.locationBy(options.aggregationLevel) || "UNKNOWN"
 
+            unless data.followups[caseLocation]
+              console.log "Case location #{caseLocation} not found"
+              # Search for it since it may need an alias/translation
+              caseLocation = GeoHierarchy.find(caseLocation,options.aggregationLevel)?[0]?.name or "UNKNOWN"
+              console.log "Updated case location to #{caseLocation}"
+
             data.followups[caseLocation].allCases.push malariaCase
             data.followups["ALL"].allCases.push malariaCase
 

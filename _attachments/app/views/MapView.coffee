@@ -169,12 +169,13 @@ class MapView extends Backbone.View
       [-6.4917667, 39.0945000]
     ]
 
-    if @casesWithKeyIndicators
-      @addCasesToMap(@casesWithKeyIndicators)
-    else
-      @getCases()
+    unless @dontShowCases
+      @createMapLegend()
+      if @casesWithKeyIndicators
+        @addCasesToMap(@casesWithKeyIndicators)
+      else
+        @getCases()
 
-    @createMapLegend()
     @createZoomUngujaPemba()
     promiseWhenBoundariesAreLoaded = @getBoundariesAndLabels
       load: @initialBoundary

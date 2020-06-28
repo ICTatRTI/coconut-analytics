@@ -245,7 +245,7 @@ class AnalysisView extends Backbone.View
                   <td>#{HTMLHelpers.formattedPercent(values.fifteenToTwentyFive.length / data.totalPositiveCases[location].length)}</td>
                   <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.overTwentyFive.length,values.overTwentyFive)}</td>
                   <td>#{HTMLHelpers.formattedPercent(values.overTwentyFive.length / data.totalPositiveCases[location].length)}</td>
-                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.unknown.length,values.overTwentyFive)}</td>
+                  <td>#{HTMLHelpers.createDisaggregatableDocGroup(values.unknown.length,values.unknown)}</td>
                   <td>#{HTMLHelpers.formattedPercent(values.unknown.length / data.totalPositiveCases[location].length)}</td>
 
                 </tr>

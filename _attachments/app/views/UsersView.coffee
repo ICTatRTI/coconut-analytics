@@ -92,7 +92,7 @@ class UsersView extends Backbone.View
     render: =>
       @$el.html "
         <h2>Users</h2>
-        Click on a cell to edit the user. Districts and roles allow for multiple options to be selected, just press the tab button when you have made your selections.<br/>
+        Click on a cell to edit the user. Districts and roles allow for multiple options to be selected, just press the tab button after the selection have been made.<br/>
         <button id='addUser'>Add a new user</button>
 
         <div id='userTabulator'/>
@@ -131,7 +131,7 @@ class UsersView extends Backbone.View
             "select"
           when "roles"
             result.editorParams = 
-              values: ["reports","admin","researcher"]
+              values: ["reports","admin","researcher","DMSO"]
               multiselect: true
             "select"
           else "input"
@@ -161,168 +161,5 @@ class UsersView extends Backbone.View
               data
           else
             cell.restoreOldValue()
-
-
-    renderOld: =>
-      HTMLHelpers.ChangeTitle("Admin: Users")
-      Coconut.database.query "users",
-        include_docs: true
-      .catch (error) -> console.error error
-      .then (result) =>
-        users = _(result.rows).pluck("doc")
-
-        @fields =  "_id,password,district,name".split(",")
-        @dialogEdit = "
-          <form id='user' method='dialog'>
-             <div id='dialog-title'> </div>
-             <div>
-                <ul>
-                  <li>We recommend a username that corresponds to the users phone number.</li>
-                  <li>If a user is no longer working, mark their account as inactive to stop notification messages from being sent to the user.</li>
-                </ul>
-             </div>
-             <div id='errMsg'></div>
-             <input type='hidden' id='mode' value='' />
-             #{
-              _.map( @fields, (field) =>
-                if field is 'district'
-                  selectList = GeoHierarchy.allDistricts()
-                  "
-                  <div class='mdl-select mdl-js-select mdl-select--floating-label'>
-                      <select class='mdl-select__input' id='#{field}' name='#{field}'>
-                        <option value=''></option>
-                        #{
-                          selectList.map (list) =>
-                            "<option value='#{list}'>
-                              #{list}
-                             </option>"
-                          .join ""
-                        }
-                      </select>
-                      <label class='mdl-select__label' for='#{field}'>#{humanize(field)}</label>
-                  </div>
-                  "
-                else
-                  "
-                     <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_#{field}'>
-                       <input class='mdl-textfield__input' type='text' id='#{if field is 'password' then 'passwd' else field }' name='#{field}' #{if (field is "_id" and not @user) then "readonly='true'" else ""} #{ if field is "_id" then "style='text-transform:lowercase;' onkeyup='javascript:this.value=this.value.toLowerCase()'"}></input>
-                       <label class='mdl-textfield__label' for='#{field}'>#{if field is '_id' then 'Username' else humanize(field)}</label>
-                     </div>
-                  "
-                ).join("")
-              }
-              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_email' style='margin-bottom: 10px'>
-                <input class='mdl-textfield__input' type='text' pattern='^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$' id='email' name='email'</input>
-                <label class='mdl-textfield__label' for='email'>Email</label>
-                <span class='mdl-textfield__error'>Email is not valid!</span>
-              </div>
-              <div style='color: rgb(33,150,243)'>Roles:</div>
-              <div class='m-l-10 m-b-20'>
-                #{
-                   _.map(Coconut.config.role_types, (role) =>
-                     "
-                      <label class='mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect' for='#{role}' id='#{role}_label'>
-                        <input type='checkbox' name='role' id='#{role}' class='mdl-checkbox__input' value='#{role}'>
-                        <span class='mdl-checkbox__label'>#{humanize(role)}</span>
-                      </label>
-                     "
-                     ).join("")
-                }
-
-              </div>
-              <label class='mdl-switch mdl-js-switch mdl-js-ripple-effect' for='inactive' id='switch-1'>
-                   <input type='checkbox' id='inactive' class='mdl-switch__input'>
-                   <span class='mdl-switch__label'>Inactive</span>
-              </label>
-              <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label' id='div_comments'>
-                <input class='mdl-textfield__input' type='text' id='comments' name='comments'></input>
-                <label class='mdl-textfield__label' for='comments'>Comments</label>
-              </div>
-              <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='userSave' type='submit' value='save'><i class='mdi mdi-content-save mdi-24px'></i> Save</button> &nbsp;
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='userCancel' type='submit' value='cancel'><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
-              </div>
-          </form>
-        "
-        @dialogPass = "
-          <div id='dialog-title'> </div>
-          <div class='m-b-10'>User: <span id='resetname'></span></div>
-          <form id='resetForm' method='dialog'>
-             <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label'>
-                 <input class='mdl-textfield__input' type='text' id='newPass' name='newPass' autofocus>
-                 <label class='mdl-textfield__label' for='newPass'>New Password*</label>
-             </div>
-             <div class='coconut-mdl-card__title'></div>
-            <div id='dialogActions'>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnSubmit' type='submit' ><i class='mdi mdi-check-circle mdi-24px'></i> Submit</button>
-               <button class='mdl-button mdl-js-button mdl-button--primary' id='btnCancel' type='submit' ><i class='mdi mdi-close-circle mdi-24px'></i> Cancel</button>
-            </div>
-          </form>
-        "
-        @$el.html "
-            <h4>Users <button class='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored' id='new-user-btn'>
-              <i class='mdi mdi-plus mdi-14px'></i>
-            </button></h4>
-            <dialog id='dialog'>
-              <div id='dialogContent'> </div>
-            </dialog>
-
-            <div id='results' class='result'>
-              <table class='summary tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp'>
-                <thead>
-                  <tr>
-                  <th class='header headerSortUp mdl-data-table__cell--non-numeric'>Username</th>
-                  <th class='header mdl-data-table__cell--non-numeric'>District</th>
-                  <th class='header mdl-data-table__cell--non-numeric'>Name</th>
-                  <th class='header mdl-data-table__cell--non-numeric'>Email</th>
-                  <th class='header mdl-data-table__cell--non-numeric'>Roles</th>
-                  <th class='mdl-data-table__cell--non-numeric'>Comments</th>
-                  <th class='header mdl-data-table__cell--non-numeric'>Inactive</th>
-                  <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  #{
-                    _(users).map (user) ->
-                      "
-                      <tr>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user._id.substring(5)}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.district}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.name}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.email || ''}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.roles || ''}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{user.comments || ''}</td>
-                        <td class='mdl-data-table__cell--non-numeric'>#{User.inactiveStatus(user.inactive)}</td>
-                        <td>
-                         <button id='edit-menu_#{user._id}' class='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon'>
-                            <i class='mdi mdi-dots-vertical mdi-24px'></i>
-                          </button>
-                          <ul class='mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect' for='edit-menu_#{user._id}'>
-                            <li class='mdl-menu__item'><a href='#' class='user-pw-reset' data-user-id='#{user._id}'><i class='mdi mdi-key mdi-24px'></i> Reset Passwd</a></li>
-                            <li class='mdl-menu__item'><a href='#' class='user-edit' data-user-id='#{user._id}'><i class='mdi mdi-pencil mdi-24px'></i> Edit User</a></li>
-                            <li class='mdl-menu__item'><a href='#' class='user-delete' data-user-id='#{user._id}'><i class='mdi mdi-delete mdi-24px'></i> Delete User</a></li>
-                          </ul>
-                        </td>
-                     </tr>
-                     "
-                    .join("")
-                  }
-                </tbody>
-              </table>
-            </div>
-        "
-        componentHandler.upgradeDom()
-       # $("table.summary").tablesorter({sortList: [[0,0]]})
-        @dataTable = $("table.summary").dataTable
-          aaSorting: [[0,"asc"]]
-          iDisplayLength: 10
-          dom: 'T<"clear">lfrtip'
-          tableTools:
-            sSwfPath: "js-libraries/copy_csv_xls.swf"
-            aButtons: [
-              "copy",
-              "csv",
-              "print"
-            ]
 
 module.exports = UsersView

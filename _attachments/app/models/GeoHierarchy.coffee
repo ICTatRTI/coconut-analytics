@@ -61,7 +61,8 @@ class GeoHierarchy
   loadAliases: (data) =>
     aliasesByCurrentName = {}
     for alias in data
-      aliasesByCurrentName[alias.officialName] = alias.alias
+      aliasesByCurrentName[alias.officialName] or= []
+      aliasesByCurrentName[alias.officialName].push alias.alias
 
     @externalAliases = _(@externalAliases or= {}).extend aliasesByCurrentName
 
@@ -98,10 +99,12 @@ class GeoHierarchy
       if unit.aliases
         for alias in unit.aliases
           @unitsByName[alias.name] or= []
-          @unitsByName[alias.name].push unit
+          @unitsByName[alias.name].push(unit) unless _(@unitsByName[alias.name]).contains(unit)
+
       if @externalAliases?[unit.name]
-          @unitsByName[@externalAliases[unit.name]] or= []
-          @unitsByName[@externalAliases[unit.name]].push unit
+        for alias in @externalAliases[unit.name]
+          @unitsByName[alias] or= []
+          @unitsByName[alias].push(unit) unless _(@unitsByName[alias]).contains(unit)
 
     @groups = data.groups
 
@@ -112,6 +115,13 @@ class GeoHierarchy
     @loadData (await Coconut.database.get("Geographic Hierarchy")
       .catch (error) => console.error error
     )
+
+  addAlias: (officialName, alias) =>
+    aliases = await Coconut.database.get("Geographic Hierarchy Aliases")
+    aliases.data.push
+      officialName: officialName
+      alias: alias
+    await Coconut.database.put(aliases)
 
   # function from legacy version #
 
