@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Tabulator = require 'tabulator-tables'
 MapView = require './MapView'
+dasherize = require 'underscore.string/dasherize'
 
 class FociClassificationView extends Backbone.View
   el: "#content"
@@ -74,7 +75,7 @@ class FociClassificationView extends Backbone.View
             "Residual non-active"
             "Active"
           ]
-            "# #{classification}: <span id='number#{classification.replace(/\s/,"-")}'></span><br/>"
+            "# #{classification}: <span id='number#{dasherize(classification)}'></span><br/>"
           ).join("")
         }
         </h4>
@@ -94,19 +95,29 @@ class FociClassificationView extends Backbone.View
       "Residual non-active"
       "Active"
     ]
-      @$("#number#{classification.replace(/\s/,"-")}").html @classificationCount[classification]
+      @$("#number#{dasherize(classification)}").html @classificationCount[classification]
+
 
     @mapView = new MapView()
     @mapView.setElement "#map"
     @mapView.initialBoundary = "Shehias"
     @mapView.dontShowCases = true
-    @mapView.render()
+    @mapView.shehiaClassifications = @shehiaClassifications
+    await @mapView.render()
+    @mapView.showFociClassifications()
+    @$(".controlBox").hide() # Remove the map options to simplify
+    @$(".controlBox.labels").show() # Except for the label option
+
+    # Determine how different our shehia list in GeoHierarchy.allShehias is from the boundaries and labels we have for the maps, and see how much can be fixed by adding aliases to make them match
+    if (shehiasInDHIS2NotGIS = _(GeoHierarchy.allShehias()).difference(@mapView.shehiasWithBoundaries)).length > 1
+      @$el.append "
+        <br/></br>
+        Shehias that are in DHIS2 but have no boundary in our GIS map boundaries:<br/>
+        #{shehiasInDHIS2NotGIS.join("<br/>")}
+      "
 
     # TODO
-    # Color shehias according to classification (red,yellow,green)
     # Add legend for colors
-    # Determine how different our shehia list in GeoHierarchy.allShehias is from the boundaries and labels we have for the maps, and see how much can be fixed by adding aliases to make them match
-    # Consider adding this shading feature to the MapView so that it becomes just another option like the way "Sprayed Shehias" appears when you click Shehias in the control at the top of the map
   
 
   renderTabulator: =>
@@ -159,8 +170,12 @@ class FociClassificationView extends Backbone.View
       columns: columns
       data: data
 
+    @shehiaClassifications = {}
     @classificationCount = {}
     for shehiaWithClassification in data
+      @shehiaClassifications[shehiaWithClassification.Classification] or= []
+      @shehiaClassifications[shehiaWithClassification.Classification].push shehiaWithClassification.Shehia
+
       @classificationCount[shehiaWithClassification.Classification] or= 0
       @classificationCount[shehiaWithClassification.Classification] += 1
 
@@ -244,6 +259,7 @@ class FociClassificationView extends Backbone.View
       if @shehiasNotFoundInDHIS2?
         shehias = _(@shehiasNotFoundInDHIS2).uniq().sort()
         @$el.append "
+          <h2>Shehia Issues In Progress</h2>
           Shehias (#{shehias.length}) referred to in cases but not known (not in DHIS2 and or requires aliases to be hooked up here). You can add an alias for the unknown shehia to an actual alias, which will then be reused throughout Coconut.<br/>
           #{
             (for unknownShehia in shehias
@@ -271,6 +287,8 @@ class FociClassificationView extends Backbone.View
           Shehias that are non-unique, and hence not classified:<br/>
           #{shehias.join("<br/>")}
         "
+
+
 
       console.log classificationByDistrictAndShehia
 

@@ -8,6 +8,7 @@ require('leaflet')
 global.CenterOfPolygon = require 'polylabel'
 #require('leaflet.heat')
 HTMLHelpers = require '../HTMLHelpers'
+dasherize = require 'underscore.string/dasherize'
 
 
 class MapView extends Backbone.View
@@ -17,6 +18,7 @@ class MapView extends Backbone.View
     "change #showLabels":"showLabels"
     "change .changeTileSet":"changeTiles"
     "change #showSprayedShehias":"showSprayedShehias"
+    "change #showFociClassifications":"toggleFociClassifications"
     "click #zoomPemba":"zoomPemba"
     "click #zoomUnguja":"zoomUnguja"
 
@@ -45,6 +47,17 @@ class MapView extends Backbone.View
       @$(".sprayed-shehia").css("fill","lightgreen")
     else
       @$(".sprayed-shehia").css("fill","")
+
+  toggleFociClassifications: =>
+    if @$('#showFociClassifications').is(":checked")
+      @showFociClassifications()
+    else
+      @$(".sprayed-shehia").css("fill","")
+
+  showFociClassifications: =>
+    @$(".shehia-cleared").css("fill","lightgreen")
+    @$(".shehia-residual-non-active").css("fill","yellow")
+    @$(".shehia-active").css("fill","red")
 
   changeTiles: =>
     @showTileSet @$('input[name=tileSet]:checked').val()
@@ -126,9 +139,13 @@ class MapView extends Backbone.View
       <div class='mdl-grid' style='height:100%'>
         <div class='mdl-cell mdl-cell--12-col' style='height:100%'>
           <div class='controls' style='float:right'>
-            <span class='controlBox' id='sprayedOption' style='display:none;'>
+            <span class='controlBox' id='shehiaOptions' style='display:none;'>
               <input class='showSprayedShehias' id='showSprayedShehias' type='checkbox' style='margin-left:10px; margin-rght:10px;'></input>
               <label for='showSprayedShehias' class='label'>Sprayed Shehias</label>
+              <div id='showFociClassificationsOptions'>
+                <input class='showFociClassifications' id='showFociClassifications' type='checkbox' style='margin-left:10px; margin-rght:10px;'></input>
+                <label for='showFociClassifications' class='label'>Foci Classifications</label>
+              </div>
             </span>
             <span class='controlBox'>
             #{
@@ -151,7 +168,7 @@ class MapView extends Backbone.View
               ).join("")
             }
             </span>
-            <span class='controlBox' style='padding-right: 10px'>
+            <span class='controlBox labels' style='padding-right: 10px'>
               <input id='showLabels' type='checkbox' style='margin-left:10px; margin-rght:10px;'></input>
               <label for='showLabels' class='label'>Labels</label>
             </span>
@@ -226,8 +243,22 @@ class MapView extends Backbone.View
 
       loadFeatureData = (feature, layer) =>
         if boundaryName is "Shehias"
+
+          # Creating this so that we can compare DHIS2 shehias with the GIS boundaries
+          @shehiasWithBoundaries or= []
+          @shehiasWithBoundaries.push feature.properties["Ward_Name"].toUpperCase()
+
           if _(@sprayedShehias).contains feature.properties["Ward_Name"]
             layer.setStyle className: "boundary sprayed-shehia"
+
+          if @shehiaClassifications
+            for classification in [
+              "Cleared"
+              "Residual non-active"
+              "Active"
+            ]
+              if _(@shehiaClassifications[classification]).contains feature.properties["Ward_Name"].toUpperCase()
+                layer.setStyle className: "boundary shehia#{dasherize(classification)}"
 
         # Would be better to find the one with the largest area, but most vertices is close enough, easy and fast
         # Would also be better to save these into the geoJSON as a feature property but it seems fast enough
@@ -276,9 +307,12 @@ class MapView extends Backbone.View
       @addLabels(boundaryName)
     @activeBoundary.addTo(@map).bringToBack()
     if boundaryName is "Shehias"
-      @$("#sprayedOption").show()
+      @$("#shehiaOptions").show()
+      if @shehiaClassifications
+        @$("#showFociClassificationsOptions").show()
     else
-      @$("#sprayedOption").hide()
+      @$("#shehiaOptions").hide()
+      @$("#showFociClassificationsOptions").hide()
       @$('#showSprayedShehias').prop('checked', false);
 
   addLabels: (boundaryName) =>
