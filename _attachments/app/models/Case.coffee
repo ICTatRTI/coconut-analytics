@@ -190,7 +190,18 @@ class Case
       facilityDistrict = facilityUnit?.ancestorAtLevel("DISTRICT").name
     unless facilityDistrict
       #if @["USSD Notification"]?.facility_district is "WEST" and _(GeoHierarchy.find(@shehia(), "SHEHIA").map( (u) => u.ancestors()[0].name )).include "MAGHARIBI A" # MEEDS doesn't have WEST split
-      return "WEST A" if @["USSD Notification"]?.facility_district is "WEST" #Always shift to WEST A if we can't get better anything else - better than UNKNOWN. This is due to MEEDS not being updated
+      #
+      #
+      # WEST got split, but DHIS2 uses A & B, so use shehia to figure out the right one
+      if @["USSD Notification"]?.facility_district is "WEST"
+        if shehia = @validShehia()
+          for shehia in GeoHierarchy.find(shehia, "SHEHIA")
+            if shehia.ancestorAtLevel("DISTRICT").name.match(/MAGHARIBI/)
+              return shehia.ancestorAtLevel("DISTRICT").name
+        else
+          return "MAGHARIBI A"
+        #Check the shehia to see if it is either MAGHARIBI A or MAGHARIBI B
+
       console.warn "Could not find a district for USSD notification: #{JSON.stringify @["USSD Notification"]}"
       return "UNKNOWN"
     GeoHierarchy.swahiliDistrictName(facilityDistrict)
@@ -204,17 +215,19 @@ class Case
       if findOneShehia
         return findOneShehia.parent().name
       else
-        shehias = GeoHierarchy.findShehia(shehia)
+        return @["Case Notification"].DistrictForShehia if @["Case Notification"].DistrictForShehia
+
         facilityDistrict = @facilityDistrict()
-        shehiaWithSameFacilityDistrict = _(shehias).find (shehia) ->
-          shehia.parent().name is facilityDistrict
-        if shehiaWithSameFacilityDistrict
-          return shehiaWithSameFacilityDistrict.parent().name
+
+        if GeoHierarchy.findShehiaWithAncestor(shehia, facilityDistrict, "DISTRICT")
+          return facilityDistrict
         else
           console.warn "#{@MalariaCaseID()}: Shehia #{shehia} is not unique, and the facility's district '#{facilityDistrict}' doesn't match the possibilities. It's possible districts are: #{(_(shehias).map (shehia) -> shehia.parent().name).join(', ')}. Using Facility District: #{facilityDistrict}." 
           return facilityDistrict
 
     else
+      return @["Case Notification"].DistrictForShehia if @["Case Notification"].DistrictForShehia
+
       console.warn "#{@MalariaCaseID()}: No valid shehia found, using district of reporting health facility (which may not be where the patient lives). Data from USSD Notification: #{JSON.stringify(@["USSD Notification"])}"
 
       facilityDistrict = @facilityDistrict()
@@ -846,6 +859,43 @@ class Case
   classificationsByDiagnosisDate: =>
     @classificationsBy("DateOfPositiveResults")
 
+  classificationsByIsoYearIsoWeekFociDistrictFociShehia: =>
+    (for classificationWithHouseholdMember in @classificationsWithHouseholdMember()
+      classification = classificationWithHouseholdMember.classification
+      positiveIndividual = classificationWithHouseholdMember.positiveIndividual
+      dateOfPositiveResults = positiveIndividual.DateOfPositiveResults or positiveIndividual.DateofPositiveResults
+      date = if dateOfPositiveResults
+        moment(dateOfPositiveResults)
+      else 
+        @dateOfPositiveResults() # Use index case date if we are missing positiveIndividual's date
+      isoYear = date.isoWeekYear()
+      isoWeek = date.isoWeek()
+
+      fociDistrictShehia = if (focus = positiveIndividual["WhereCouldTheMalariaFocusBe"])
+        focus = focus.trim()
+        if focus is "Patient Shehia"
+          [@district(), @shehia()]
+        else if focus is "Other Shehia Within Zanzibar"
+          [
+            positiveIndividual["WhichOtherDistrictWithinZanzibar"] or @district()
+            positiveIndividual["WhichOtherShehiaWithinZanzibar"] or @shehia()
+          ]
+        else
+          [@district(), @shehia()]
+      else if positiveIndividual.HouseholdMemberType is "Index Case" and (odkData = @odkData())
+        #TODO waiting to find out which ODK questions were used for this
+        [@district(), @shehia()]
+      else
+        [@district(), @shehia()]
+
+      console.log fociDistrictShehia
+
+      [fociDistrict,fociShehia] = fociDistrictShehia
+
+      "#{isoYear}:#{isoWeek}:#{fociDistrict}:#{fociShehia}:#{classification}"
+
+    ).join(", ")
+
   evidenceForClassifications: =>
     _(for householdMember in @["Household Members"]
       if householdMember.CaseCategory 
@@ -864,6 +914,17 @@ class Case
 
   numbersSentTo: =>
     @["USSD Notification"]?.numbersSentTo?.join(", ")
+
+
+  # This is the area used for foci classification
+  focalArea: =>
+    if @[Hous]
+      @shehia()
+    @shehia()
+
+
+  # Data properties above #
+  # ------------- #
 
   createOrUpdateOnDhis2: (options = {}) =>
     options.malariaCase = @
@@ -1012,6 +1073,7 @@ class Case
 
     classificationsByHouseholdMemberType: {}
     classificationsByDiagnosisDate: {}
+    classificationsByIsoYearIsoWeekFociDistrictFociShehia: {}
     evidenceForClassifications: {}
 
     namesOfAdministrativeLevels: {}

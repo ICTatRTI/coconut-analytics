@@ -1,6 +1,7 @@
 global.copy = require('copy-text-to-clipboard');
 
 SetsView = require './views/SetsView'
+CasesTabulatorView = require './views/CasesTabulatorView'
 
 global.disaggregateSet = (element) ->
   targetElement = $(element)
@@ -21,9 +22,12 @@ global.disaggregateSet = (element) ->
     tableElement = targetElement.closest("td")
     targetElement.closest('table').find('th').eq(tableElement.index()).text()
 
-  SetsView.showDialog
-    name: "#{rowName} #{headerName}"
+  CasesTabulatorView.showDialog
     cases: cases
+
+  #SetsView.showDialog
+  #  name: "#{rowName} #{headerName}"
+  #  cases: cases
 
 class HTMLHelpers
 

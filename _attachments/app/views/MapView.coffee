@@ -55,7 +55,7 @@ class MapView extends Backbone.View
       @$(".sprayed-shehia").css("fill","")
 
   showFociClassifications: =>
-    @$(".shehia-cleared").css("fill","lightgreen")
+    @$(".shehia-cleared").css("fill","green")
     @$(".shehia-residual-non-active").css("fill","yellow")
     @$(".shehia-active").css("fill","red")
 

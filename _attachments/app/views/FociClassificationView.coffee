@@ -4,6 +4,8 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Tabulator = require 'tabulator-tables'
 MapView = require './MapView'
+CasesTabulatorView = require './CasesTabulatorView'
+
 dasherize = require 'underscore.string/dasherize'
 
 class FociClassificationView extends Backbone.View
@@ -12,6 +14,32 @@ class FociClassificationView extends Backbone.View
   events:
     "click #download": "csv"
     "change .addAlias": "addAliasForShehia"
+    "click .disaggregate": "disaggregate"
+    "click .analyzeCases": "showCases"
+
+  disaggregate: (event) =>
+    keys = for key in $(event.target).attr("data-keys")?.split(";")
+      key.split(",")
+    summaryCases = await Coconut.reportingDatabase.query "shehiasWithLocalCasesByYearWeek",
+      reduce: false
+      keys: keys
+
+    cases = for summaryCase in summaryCases.rows
+      summaryCase.id[-6..]
+    console.log cases
+    CasesTabulatorView.showDialog
+      cases: cases
+    return false
+
+  showCases: (event) =>
+    CasesTabulatorView.showDialog
+      cases: $(event.target).attr("data-caseIds").split(',')
+      fields: [
+        "Malaria Case ID"
+        "District"
+        "Shehia"
+        "Classifications By Iso Year Iso Week Foci District Foci Shehia"
+      ]
 
   addAliasForShehia: (event) =>
     alias = $(event.target)[0].getAttribute("data-unknown-shehia")
@@ -22,12 +50,34 @@ class FociClassificationView extends Backbone.View
 
   csv: => @tabulator.download "csv", "CoconutTableExport.csv"
 
+  classifications: [
+    {
+      name: "Active"
+      longDescription: "If a shehia has had any positive individual classified as indigenous within the past twelve months then that foci is categorized as 'active'."
+      shortDescription: "Indigenous within past 12 months"
+      color: "red"
+    }
+    {
+      name: "Residual non-active"
+      longDescription: "If a shehia's most recent positive individual with an indigenous classification is between 12 and 48 months ago then it is categorized as 'residual non-active'."
+      shortDescription: "Indigenous between 12 and 36 months"
+      color: "yellow"
+    }
+    {
+      name: "Cleared"
+      longDescription: "If a shehia had no positive individuals with has been more than 48 months since an indigenous classification then the focal area is categorized as 'cleared'."
+      shortDescription: "No Indigenous case within 36 months"
+      color: "green"
+    }
+  ]
+
+
   render: =>
     @$el.html "
       <style>
         .mapViewWrapper{
-          width: 810px;
-          height: 1000px;
+          width: 500px;
+          height: 800px;
           position: relative;
           display:inline-block;
           border: 1px solid black;
@@ -41,84 +91,93 @@ class FociClassificationView extends Backbone.View
         }
       </style>
 
-
-
       <h2 onClick='$(\"#foci-classification-description\").toggle()'>Foci Classifications ▶</h2>
       <br/>
       <div id='foci-classification-description' style='display:none'>
         Foci classification is a strategy to identify places that may require extra planning and prioritization in order to achieve elimination goals.<br/>
-        Focal areas in Zanzibar are aligned with shehias. If a shehia has had any positive individual classified as indigenous within the past twelve months then that foci is categorized as 'active'. If a shehia's most recent positive individual with an indigenous classification is between 12 and 48 months ago then it is categorized as 'residual non-active'. If it has been more than 48 months since an indigenous classification then the focal area is categorized as 'cleared'.
-
-
-        <br/>
-        <table
-          <tr>
-            <td>Active</td>
-            <td>Indigenous within past 12 months</td>
-          </tr>
-          <tr>
-            <td>Residual non-active</td>
-            <td>Indigenous between 12 and 36 months</td>
-          </tr>
-          <tr>
-            <td>Cleared</td>
-            <td>No Indigenous case within 36 months</td>
-          </tr>
-        </table>
-        <br/>
-      </div>
-      <div>
-        <h4>
+        Focal areas in Zanzibar are aligned with shehias. <br/>
         #{
-          (for classification in [
-            "Cleared"
-            "Residual non-active"
-            "Active"
-          ]
-            "# #{classification}: <span id='number#{dasherize(classification)}'></span><br/>"
-          ).join("")
+          _(@classifications).pluck("longDescription").join(" ")
         }
-        </h4>
-      </div>
-      <button id='download'>CSV ↓</button> <small>Add more fields by clicking the box below</small>
-      <div id='tabulator'></div>
-      Labeling the shehias on the map is still a work in progress
-      <div class='mapViewWrapper'>
-        <div class='mapView' id='map'></div>
-      </div>
-      <br/>
-    "
+        <br/>
+        Note that while Shehia is used as the focal area, <span style='font-weight:bold'>the shehia of the household is not always the shehia used for foci classification</span>. DMSOs may change the focal area when interviewing the positive individual on the Household Member question set.
+        <br/>
+          <table>
+            #{
+              (for classification in @classifications
+                "
+                <tr>
+                  <td>
+                    <span style='background-color:#{classification.color}'>
+                      &nbsp;
+                      &nbsp;
+                    </span>
+                    <span style='margin:10px;'>
+                      #{classification.name}
+                    </span>
+                  </td>
+                  <td>#{classification.shortDescription}</td>
+                </tr>
+                "
+              ).join("")
+            }
+          </table>
+          <br/>
+        </div>
+        <div>
+          <h4>
+          #{
+            (for classification in @classifications
+              "
+              <span style='margin:20px;'>
+                <span style='background-color: #{classification.color};'>&nbsp;&nbsp;&nbsp;</span> #{classification.name}:
+                <span id='number#{dasherize(classification.name)}'></span>
+              </span>
+              "
+            ).join("")
+          }
+          </h4>
+        </div>
+
+        <div class='mapViewWrapper'>
+          <div class='mapView' id='map-Unguja'></div>
+        </div>
+        <div class='mapViewWrapper'>
+          <div class='mapView' id='map-Pemba'></div>
+        </div>
+
+
+        <button id='download'>CSV ↓</button> <small>Add more fields by clicking the box below</small>
+        <div id='tabulator'></div>
+        <br/>
+      "
 
     await @renderTabulator()
-    for classification in [
-      "Cleared"
-      "Residual non-active"
-      "Active"
-    ]
-      @$("#number#{dasherize(classification)}").html @classificationCount[classification]
+    for classification in @classifications
+      @$("#number#{dasherize(classification.name)}").html @classificationCount[classification.name]
 
+    @maps = for island in ["Unguja","Pemba"]
 
-    @mapView = new MapView()
-    @mapView.setElement "#map"
-    @mapView.initialBoundary = "Shehias"
-    @mapView.dontShowCases = true
-    @mapView.shehiaClassifications = @shehiaClassifications
-    await @mapView.render()
-    @mapView.showFociClassifications()
-    @$(".controlBox").hide() # Remove the map options to simplify
-    @$(".controlBox.labels").show() # Except for the label option
+      mapView = new MapView()
+      mapView.setElement "#map-#{island}"
+      mapView.initialBoundary = "Shehias"
+      mapView.dontShowCases = true
+      mapView.shehiaClassifications = @shehiaClassifications
+      await mapView.render()
+      mapView.showFociClassifications()
+      @$(".controlBox").hide() # Remove the map options to simplify
+      @$(".controlBox.labels").show() # Except for the label option
+      @$("#map-#{island} #zoom#{island}").click()
+
+      mapView
 
     # Determine how different our shehia list in GeoHierarchy.allShehias is from the boundaries and labels we have for the maps, and see how much can be fixed by adding aliases to make them match
-    if (shehiasInDHIS2NotGIS = _(GeoHierarchy.allShehias()).difference(@mapView.shehiasWithBoundaries)).length > 1
+    if (shehiasInDHIS2NotGIS = _(GeoHierarchy.allShehias()).difference(@maps[0].shehiasWithBoundaries)).length > 1
       @$el.append "
         <br/></br>
         Shehias that are in DHIS2 but have no boundary in our GIS map boundaries:<br/>
         #{shehiasInDHIS2NotGIS.join("<br/>")}
       "
-
-    # TODO
-    # Add legend for colors
-  
 
   renderTabulator: =>
     columns = [
@@ -160,6 +219,8 @@ class FociClassificationView extends Backbone.View
         title: "Number Indigenous Positive Individuals"
         field: "Number Indigenous Positive Individuals"
         headerFilter: "input"
+        formatter: (cell, formatterParams, onRendered) ->
+          "<button class='disaggregate' data-keys='#{cell.getRow().getData().keys.join(';')}'>#{cell.getValue()}</button>"
       }
     ]
 
@@ -194,6 +255,7 @@ class FociClassificationView extends Backbone.View
         "Number Indigenous Positive Individuals": 0
         "Most Recent Positive Individual" : null
         Classification: "Cleared"
+        keys: []
       }
 
     dateToday = moment()
@@ -208,6 +270,7 @@ class FociClassificationView extends Backbone.View
     .catch (error) -> console.error error
     .then (result) =>
       for row in result.rows
+        key = row.key
         [year,isoWeek,district,shehia] = row.key
         shehia = shehia.trim()
         localCaseDate = moment("#{year} #{isoWeek}", "YYYY WW")
@@ -227,15 +290,12 @@ class FociClassificationView extends Backbone.View
           if findByAlias.length is 1
             shehia = findByAlias[0].name
           else if findByAlias.length > 1
-            shehiaMatch = null
-            for shehiaUnit in findByAlias
-              if shehiaUnit.ancestorAtLevel("DISTRICT") is district
-                shehiaMatch = shehiaUnit.name
-            if shehiaMatch
-              shehia = shehiaMatch
+            shehia = GeoHierarchy.findShehiaWithAncestor(shehia,district,"DISTRICT")
+            if shehia
+              shehia
             else
-              @nonUniqueShehiasNotFoundInDHIS2 or= []
-              @nonUniqueShehiasNotFoundInDHIS2.push shehia
+              @nonUniqueShehiasWithDistrictNotFoundInDHIS2 or= []
+              @nonUniqueShehiasWithDistrictNotFoundInDHIS2.push "#{shehia}:#{district}:#{key}"
               continue
           else
             @shehiasNotFoundInDHIS2 or= []
@@ -250,6 +310,7 @@ class FociClassificationView extends Backbone.View
 
 
         classificationByDistrictAndShehia[district][shehia]["Months Since Most Recent Positive Individual"] = monthsAgo
+        classificationByDistrictAndShehia[district][shehia].keys.push key
         if classificationByDistrictAndShehia[district][shehia]["Classification"] is currentClassificationRange
           classificationByDistrictAndShehia[district][shehia]["Number Indigenous Positive Individuals"] += row.value
         else # Update the classification and reset the count
@@ -271,24 +332,39 @@ class FociClassificationView extends Backbone.View
                     (for shehia in GeoHierarchy.allShehias()
                       "<option>#{shehia}</option>"
                     ).join("")
-
                   }
                 </select>
               "
             ).join("<br/>")
-
           }
         "
 
-      if @nonUniqueShehiasNotFoundInDHIS2?
-        shehias = _(@nonUniqueShehiasNotFoundInDHIS2).uniq().sort()
+      if @nonUniqueShehiasWithDistrictNotFoundInDHIS2?
+        shehiasWithDistrict = _(@nonUniqueShehiasWithDistrictNotFoundInDHIS2).uniq().sort()
         @$el.append "
           <br/></br>
           Shehias that are non-unique, and hence not classified:<br/>
-          #{shehias.join("<br/>")}
+          #{
+            caseIds = []
+            (for shehiaWithDistrict in shehiasWithDistrict
+              [shehia,district,key] = shehiaWithDistrict.split(":")
+              key = key.split(",")
+
+              caseId = await Coconut.reportingDatabase.query "shehiasWithLocalCasesByYearWeek",
+                reduce: false
+                key: key
+              .then (result) ->
+                caseId = result.rows?[0].id[-6..]
+                Promise.resolve(caseId)
+
+              caseIds.push caseId
+
+              "#{shehia} #{district} <a href='#show/case/#{caseId}'>#{caseId}</a>"
+            ).join("<br/>") + "
+            <button class='analyzeCases' data-caseIds='#{caseIds.join(',')}'>Analyze Cases</button>
+            "
+          }
         "
-
-
 
       console.log classificationByDistrictAndShehia
 

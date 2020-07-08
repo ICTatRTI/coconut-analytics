@@ -219,6 +219,15 @@ class GeoHierarchy
 
   findShehia: (shehiaName) => @find(shehiaName, "SHEHIA")
 
+  findShehiaWithAncestor: (shehiaName,ancestorName, ancestorLevel) => 
+    shehias = @findShehia(shehiaName)
+    targetAncestors = @find(ancestorName, ancestorLevel) # most likely just 1
+
+    for shehia in shehias
+      for ancestor in shehia.ancestors()
+        if _(targetAncestors).contains ancestor
+          return shehia
+
   findOneShehia: (shehiaName) => @findOneMatchOrUndefined(shehiaName, "SHEHIA")
 
   validShehia: (shehiaName) =>  @findShehia(shehiaName)?.length > 0
