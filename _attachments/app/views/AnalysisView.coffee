@@ -12,6 +12,7 @@ stripHtml = require("string-strip-html")
 Reports = require '../models/Reports'
 CaseView = require './CaseView'
 SetsView = require './SetsView'
+IndividualClassificationView = require './IndividualClassificationView'
 
 class AnalysisView extends Backbone.View
   el: "#content"
@@ -223,6 +224,28 @@ class AnalysisView extends Backbone.View
 
 
         $("#analysis").append "
+          <hr>
+          <div class='analysis dropDownBtn'>
+            <div class='report-subtitle'>
+              <button class='mdl-button mdl-js-button mdl-button--icon'>
+                <i class='mdi mdi-play mdi-24px'></i>
+              </button>
+		  		    Individual Classification<small></small>
+		  		  </div>
+          </div>
+
+          <div id='individual-classification' class='analysis-report dropdown-section'>
+          </div>
+        "
+
+        @individualClassificationView = new IndividualClassificationView()
+
+        @individualClassificationView.setElement("#individual-classification")
+        @individualClassificationView.render()
+
+
+
+        $("#analysis").append "
 
           <hr>
           <div class='analysis dropDownBtn'>
@@ -291,6 +314,7 @@ class AnalysisView extends Backbone.View
             <span class='mdl-switch__label'>Toggle Unknown</span>
           </label>
         "
+        ###
 
         $("#analysis").append "
           </div>
@@ -301,7 +325,9 @@ class AnalysisView extends Backbone.View
 		  	</div>
 		  </div>
         "
-        $("#analysis").append @createTable "#{options.aggregationLevel}, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
+    ###
+    #    $("#analysis").append @createTable "#{options.aggregationLevel}, Positive Cases (index & household), Slept under a net night before diagnosis, %, Household has been sprayed within last #{Coconut.IRSThresholdInMonths} months, %".split(/, */), "
+    ###
           #{
             _.map(data.netsAndIRS, (values,location) =>
               "
@@ -375,6 +401,7 @@ class AnalysisView extends Backbone.View
 		  </div>
         "
         , "travel-history-table"
+        ###
 
         ###
         This looks nice but breaks copy/paste

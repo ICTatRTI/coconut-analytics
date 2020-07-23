@@ -260,13 +260,16 @@ class FociClassificationView extends Backbone.View
 
     dateToday = moment()
     dateForClearedPeriod = moment().subtract(36,"months")
-    yearClearedPeriod = dateForClearedPeriod.year()
-    weekClearedPeriod = dateForClearedPeriod.isoWeek()
+    yearClearedPeriod = dateForClearedPeriod.year().toString()
+    weekClearedPeriod = dateForClearedPeriod.isoWeek().toString()
+
+    console.log classificationByDistrictAndShehia
 
     Coconut.reportingDatabase.query "shehiasWithLocalCasesByYearWeek",
       reduce: true
       group_level: 4
       startkey: [yearClearedPeriod, weekClearedPeriod]
+      endkey: [dateToday.year().toString(),dateToday.isoWeek().toString()]
     .catch (error) -> console.error error
     .then (result) =>
       for row in result.rows
@@ -281,33 +284,51 @@ class FociClassificationView extends Backbone.View
         else
           "Active"
 
-
         unless classificationByDistrictAndShehia[district]?
           console.log "DISTRICT not found: #{district}"
+          console.log key
+          continue
 
         unless classificationByDistrictAndShehia[district]?[shehia]?
           findByAlias = GeoHierarchy.find(shehia, "SHEHIA")
           if findByAlias.length is 1
             shehia = findByAlias[0].name
           else if findByAlias.length > 1
-            shehia = GeoHierarchy.findShehiaWithAncestor(shehia,district,"DISTRICT")
-            if shehia
-              shehia
+            shehiaByAncestor = GeoHierarchy.findShehiaWithAncestor(shehia,district,"DISTRICT")
+            if shehiaByAncestor
+              shehia = shehiaByAncestor.name
             else
-              @nonUniqueShehiasWithDistrictNotFoundInDHIS2 or= []
-              @nonUniqueShehiasWithDistrictNotFoundInDHIS2.push "#{shehia}:#{district}:#{key}"
-              continue
+              # Use facility and district to determine which island, then select shehia based on island
+              # Do the district and shehia agree on the levels above district (REGION or ISLAND)? If, so use the shehia that agrees with that level. The non-unique shehias are from different islands so this should work fine
+              islandFromDistrict = GeoHierarchy.findFirst(district, "DISTRICT").ancestorAtLevel("ISLANDS")
+              islandsFromShehia = for shehiaUnit in GeoHierarchy.find(shehia,"SHEHIA")
+                shehiaUnit.ancestorAtLevel("ISLANDS")
+
+              if _(islandsFromShehia).contains(islandFromDistrict)
+                shehiaByAncestor = GeoHierarchy.findShehiaWithAncestor(shehia,islandFromDistrict.name,"ISLANDS")
+                if shehiaByAncestor
+                  district = shehiaByAncestor.ancestorAtLevel("DISTRICT").name
+                  shehia = shehiaByAncestor.name
+              else
+                @nonUniqueShehiasWithDistrictNotFoundInDHIS2 or= []
+                @nonUniqueShehiasWithDistrictNotFoundInDHIS2.push "#{shehia}:#{district}:#{key}"
+                continue
           else
             @shehiasNotFoundInDHIS2 or= []
-            @shehiasNotFoundInDHIS2.push shehia
+            @shehiasNotFoundInDHIS2.push "#{district}: #{shehia}"
             continue
 
         unless classificationByDistrictAndShehia[district]?[shehia]?
-          @shehiasNotFoundInDHIS2 or= []
-          @shehiasNotFoundInDHIS2.push "#{district}: #{shehia}"
-          console.log "#{district}: #{shehia} missing, so skipping"
-          continue
-
+          # Try using the district for the shehia
+          districtForShehia = GeoHierarchy.findFirst(shehia,"SHEHIA").ancestorAtLevel("DISTRICT").name
+          if classificationByDistrictAndShehia[districtForShehia]?[shehia]?
+            district = districtForShehia
+          else
+            @shehiasNotFoundInDHIS2 or= []
+            @shehiasNotFoundInDHIS2.push "#{district}: #{shehia}"
+            console.log "#{district}: #{shehia} missing, so skipping"
+            console.log
+            continue
 
         classificationByDistrictAndShehia[district][shehia]["Months Since Most Recent Positive Individual"] = monthsAgo
         classificationByDistrictAndShehia[district][shehia].keys.push key
@@ -320,7 +341,7 @@ class FociClassificationView extends Backbone.View
       if @shehiasNotFoundInDHIS2?
         shehias = _(@shehiasNotFoundInDHIS2).uniq().sort()
         @$el.append "
-          <h2>Shehia Issues In Progress</h2>
+          <h2>Classification Issues Requiring Cleaning/Updating</h2>
           Shehias (#{shehias.length}) referred to in cases but not known (not in DHIS2 and or requires aliases to be hooked up here). You can add an alias for the unknown shehia to an actual alias, which will then be reused throughout Coconut.<br/>
           #{
             (for unknownShehia in shehias
@@ -343,7 +364,7 @@ class FociClassificationView extends Backbone.View
         shehiasWithDistrict = _(@nonUniqueShehiasWithDistrictNotFoundInDHIS2).uniq().sort()
         @$el.append "
           <br/></br>
-          Shehias that are non-unique, and hence not classified:<br/>
+          Cases with shehias that are non-unique, but the district doesn't have any shehias with that name (shehia, district):<br/>
           #{
             caseIds = []
             (for shehiaWithDistrict in shehiasWithDistrict

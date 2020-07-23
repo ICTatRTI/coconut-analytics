@@ -1,5 +1,8 @@
 _ = require 'underscore'
 
+#Fuse = require 'fuse.js'
+
+
 levelMappings =
   "MINISTRY OF HEALTH":"NATIONAL"
   "ZONE":"ISLANDS"
@@ -106,6 +109,8 @@ class GeoHierarchy
           @unitsByName[alias] or= []
           @unitsByName[alias].push(unit) unless _(@unitsByName[alias]).contains(unit)
 
+    #@fuse = new Fuse(_(@unitsByName).keys(), includeScore: true)
+
     @groups = data.groups
 
   load: =>
@@ -131,18 +136,36 @@ class GeoHierarchy
   update: (region,district,shehias) =>
   ###
 
+  findAll: (name) =>
+    name = name.trim().toUpperCase()
+    return [] unless name?
+    @unitsByName[name]
+
+  findAllNameAndLevel: (name) =>
+    for unit in @findAll(name)
+      "#{unit.name}: #{unit.levelName}"
+
   find: (name, levelName) =>
-
-    name = name.toUpperCase()
-    levelName = levelName.toUpperCase()
-
+    return [] unless levelName?
+    levelName = levelName.trim().toUpperCase()
     # When Coconut adopted DHIS2 units, we had to map old level names to the DHIS2 ones
-
     levelName = levelMappings[levelName] or levelName
 
-    return [] unless name? and levelName?
-    _(@unitsByName[name]).filter (unit) ->
+    _(@findAll(name)).filter (unit) ->
       unit.levelName is levelName
+
+    ###
+    if result.length > 0
+      return result
+    else
+      _(@fuse.search(name)).chain().map (fuseResult) =>
+        console.log fuseResult
+        @unitsByName[fuseResult.item]
+      .flatten()
+      .filter (unit) ->
+        unit.levelName is levelName
+      .value()
+    ###
 
   findFirst: (name, levelName) =>
     result = @find(name,levelName)
@@ -161,7 +184,6 @@ class GeoHierarchy
 
   findWithParent: (name, levelName) =>
     for unit in @find(name,levelName)
-      console.log unit.parent()
       name: unit.name
       parentName: unit.parent().name
 
@@ -237,6 +259,8 @@ class GeoHierarchy
       @find(districtName, "DISTRICT")?.length > 0
     catch
       return false
+
+  validFacility: (facilityName) => @find(facilityName,"HEALTH FACILITIES")?.length > 0
 
   findAllShehiaNamesFor: (name, level) => _(@findAllDescendantsAtLevel(name, level, "SHEHIA")).pluck "name"
 

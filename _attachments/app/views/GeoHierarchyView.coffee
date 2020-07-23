@@ -11,6 +11,15 @@ class GeoHierarchyView extends Backbone.View
   events:
     "click #updateFromDhis": "updateFromDhis"
     "click #download": "csv"
+    "click .addAlias": "addAlias"
+
+  addAlias: (event) =>
+
+    targetForAlias = $(event.target).attr("data-name")
+    newAlias = prompt "What is the new alias for #{targetForAlias}?"
+    if targetForAlias? and newAlias?
+      await GeoHierarchy.addAlias(targetForAlias, newAlias)
+      document.location.reload()
 
   csv: => @tabulator.download "csv", "CoconutTableExport.csv"
     
@@ -35,16 +44,21 @@ class GeoHierarchyView extends Backbone.View
         "One level up"
         "Two levels up"
         "Aliases"
+        "Actions"
       ]
         result = {
           title: field
           field: field
-          headerFilter: "input"
+          headerFilter: "input" unless field is "Actions"
         }
         switch field
           when "Name"
             result["formatterParams"] = urlField: "url"
             result["formatter"] = "link"
+          when "Actions"
+            result["formatter"] = (cell, formatterParams, onRendered) ->
+              "<button class='addAlias' data-name='#{cell.getRow().getData().Name}'>Add Alias</button>"
+
         result
 
       data: for unit in GeoHierarchy.units

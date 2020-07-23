@@ -135,10 +135,8 @@ class IndividualClassificationView extends Backbone.View
       keys: caseDocIdsInReportingDatabase
       include_docs: true
     .then (result) =>
-      console.log result
       for row in result.rows
         malariaCase = row.doc
-        console.log malariaCase
         district = malariaCase["District (if no household district uses facility)"]
         @districtForCase[malariaCase["Malaria Case ID"]] = district
 

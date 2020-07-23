@@ -60,7 +60,7 @@ class Case
           this[resultDoc.question] = resultDoc
       else
         @caseID ?= resultDoc["caseid"]
-        if @caseID isnt resultDoc["caseid"] or parseInt(@caseID) isnt parseInt(resultDoc["caseid"])
+        if @caseID isnt resultDoc["caseid"] or (parseInt(@caseid) and parseInt(@caseID) isnt parseInt(resultDoc["caseid"]))
           console.error @caseID is resultDoc["caseid"]
           console.error "Inconsistent Case ID. Working on '#{@caseID}' but current doc has '#{resultDoc["caseid"]}': #{JSON.stringify resultDoc}:"
           console.error resultDoc
@@ -114,7 +114,7 @@ class Case
   LastModifiedAt: ->
     _.chain(@toJSON())
     .map (question) ->
-      question.lastModifiedAt
+      question?.lastModifiedAt
     .max (lastModifiedAt) ->
       lastModifiedAt?.replace(/[- :]/g,"")
     .value()
@@ -143,7 +143,8 @@ class Case
   allUserNamesString: => @allUserNames()?.join(", ")
 
   facility: ->
-    @["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase() or @["Facility"]?.FacilityName or "UNKNOWN"
+    @facilityUnit()?.name or "UNKNOWN"
+    #@["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase() or @["Facility"]?.FacilityName or "UNKNOWN"
 
   facilityType: =>
     facilityName = @facility()
@@ -158,7 +159,9 @@ class Case
   isShehiaValid: =>
     if @validShehia() then true else false
 
-  validShehia: ->
+  validShehia: =>
+    @shehiaUnit()?.name
+    ###
     # Try and find a shehia is in our database
     if @.Household?.Shehia and GeoHierarchy.validShehia(@.Household.Shehia)
       return @.Household?.Shehia
@@ -170,6 +173,119 @@ class Case
       return @["USSD Notification"]?.shehia
 
     return null
+    ###
+
+  shehiaUnit: (shehiaName, districtName) =>
+    # Can pass in a shehiaName - useful for positive Individuals with different focal area
+    shehiaName = null
+    # Priority order to find the best facilityName
+    for name in [@Household?.Shehia, @Facility?.Shehia,  @["Case Notification"]?.Shehia, @["USSD Notification"]?.shehia]
+      continue unless name?
+      name = name.trim()
+      if GeoHierarchy.validShehia(name)
+        shehiaName = name
+        break
+
+    unless shehiaName?
+      # If we have no valid shehia name, then try and use facility
+      return @facilityUnit()?.ancestorAtLevel("SHEHIA")
+    else
+      shehiaUnits = GeoHierarchy.find(shehiaName,"SHEHIA")
+
+      if shehiaUnits.length is 1
+        return shehiaUnits[0]
+      else if shehiaUnits.length > 1
+        # At this point we have a shehia name, but it is not unique, so we can use any data to select the correct one
+        # Shehia names are not unique across Zanzibar, but they are unique per island
+        # We also have region which is a level between district and island.
+        # Strategy: get another sub-island location from the data, then limit the
+        # list of shehias to that same island
+        # * "District" that was passed in (used for focal areas)
+        #     Is Shehia in district?
+        # * "District" from Household
+        #     Is Shehia in district?
+        # * "District for Shehia" from Case Notification
+        #     Is Shehia in district?
+        # * Facility District
+        #     Is Shehia in District
+        # * Facility Name
+        #     Is Shehia parent of facility
+        # * If REGION for FACILTY unit matches one of the shehia's region
+        # * If ISLAND for FACILTY unit matches one of the shehia's region
+        for district in [districtName, @Household?["District"], @["Case Notification"]?["District for Shehia"], @["Case Notification"]?["District for Facility"], @["USSD Notification"]?.facility_district]
+          continue unless district?
+          district = district.trim()
+          districtUnit = GeoHierarchy.findOneMatchOrUndefined(district, "DISTRICT")
+          if districtUnit?
+            for shehiaUnit in shehiaUnits
+              if shehiaUnit.ancestorAtLevel("DISTRICT") is districtUnit
+                return shehiaUnit
+            # CHECK THE REGION LEVEL
+            for shehiaUnit in shehiaUnits
+              if shehiaUnit.ancestorAtLevel("REGION") is districtUnit.ancestorAtLevel("REGION")
+                return shehiaUnit
+            # CHECK THE ISLAND LEVEL
+            for shehiaUnit in shehiaUnits
+              if shehiaUnit.ancestorAtLevel("ISLAND") is districtUnit.ancestorAtLevel("ISLAND")
+                return shehiaUnit
+
+        # In case we couldn't find a facility district above, try and use the facility unit which comes from the name
+        facilityUnit = @facilityUnit()
+        if facilityUnit?
+          facilityUnitShehia = facilityUnit.ancestorAtLevel("SHEHIA")
+          for shehiaUnit in shehiaUnits
+            if shehiaUnit is facilityUnitShehia
+              return shehiaUnit
+
+          for level in ["DISTRICT", "REGION", "ISLAND"]
+            facilityUnitAtLevel = facilityUnit.ancestorAtLevel(level)
+            for shehiaUnit in shehiaUnits
+              shehiaUnitAtLevel = shehiaUnit.ancestorAtLevel(level)
+              #console.log "shehiaUnitAtLevel: #{shehiaUnitAtLevel.id}: #{shehiaUnitAtLevel.name}"
+              #console.log "facilityUnitAtLevel: #{facilityUnitAtLevel.id}: #{facilityUnitAtLevel.name}"
+              if shehiaUnitAtLevel is facilityUnitAtLevel
+                return shehiaUnit
+
+
+  facilityUnit: =>
+    facilityName = null
+    # Priority order to find the best facilityName
+    for name in [@Facility?.FacilityName, @["Case Notification"]?.FacilityName, @["USSD Notification"]?["hf"]]
+      continue unless name?
+      name = name.trim()
+      if GeoHierarchy.validFacility(name)
+        facilityName = name
+        break
+
+    if facilityName
+      facilityUnits = GeoHierarchy.find(facilityName, "HEALTH FACILITIES")
+      if facilityUnits.length is 1
+        return facilityUnits[0]
+      else if facilityUnits.length is 0
+        return null
+      else if facilityUnits.length > 1
+
+        facilityDistrictName = null
+        for name in [@Facility?.DistrictForFacility, @["Case Notification"]?.DistrictForFacility, @["USSD Notification"]?["facility_district"]]
+          if name? and GeoHierarchy.validDistrict(name)
+            facilityDistrictName = name
+            break
+
+        if facilityDistrictName?
+          facilityDistrictUnits = GeoHierarchy.find(facilityDistrictName, "DISTRICT")
+          for facilityUnit in facilityUnits
+            for facilityDistrictUnit in facilityDistrictUnits
+              if facilityUnit.ancestorAtLevel("DISTRICT") is facilityDistrictUnit
+                return facilityUnit
+
+
+  householdShehiaUnit: =>
+    @shehiaUnit()
+
+  householdShehia: =>
+    @householdShehiaUnit()?.name
+
+
 
   shehia: ->
     returnVal = @validShehia()
@@ -206,8 +322,24 @@ class Case
       return "UNKNOWN"
     GeoHierarchy.swahiliDistrictName(facilityDistrict)
 
+  districtUnit: ->
+    districtUnit = @shehiaUnit()?.ancestorAtLevel("DISTRICT") or @facilityUnit()?.ancestorAtLevel("DISTRICT")
+    return districtUnit if districtUnit?
+
+
+    facilityDistrictName = null
+    for name in [@Facility?.DistrictForFacility, @["Case Notification"]?.DistrictForFacility, @["USSD Notification"]?["facility_district"]]
+      if name? and GeoHierarchy.validDistrict(name)
+        facilityDistrictName = name
+        break
+
+    if facilityDistrictName?
+      GeoHierarchy.findOneMatchOrUndefined(facilityDistrictName, "DISTRICT")
+
   # Want best guess for the district - try and get a valid shehia, if not use district for reporting facility
-  district: ->
+  district: =>
+    @districtUnit()?.name or "UNKNOWN"
+    ###
     shehia = @validShehia()
     if shehia?
 
@@ -215,18 +347,18 @@ class Case
       if findOneShehia
         return findOneShehia.parent().name
       else
-        return @["Case Notification"].DistrictForShehia if @["Case Notification"].DistrictForShehia
+        return @["Case Notification"].DistrictForShehia if @["Case Notification"]?.DistrictForShehia
 
         facilityDistrict = @facilityDistrict()
 
         if GeoHierarchy.findShehiaWithAncestor(shehia, facilityDistrict, "DISTRICT")
           return facilityDistrict
         else
-          console.warn "#{@MalariaCaseID()}: Shehia #{shehia} is not unique, and the facility's district '#{facilityDistrict}' doesn't match the possibilities. It's possible districts are: #{(_(shehias).map (shehia) -> shehia.parent().name).join(', ')}. Using Facility District: #{facilityDistrict}." 
+          console.warn "#{@MalariaCaseID()}: Shehia #{shehia} is not unique, and the facility's district '#{facilityDistrict}' doesn't match the possibilities. It's possible districts are: #{(_(GeoHierarchy.findShehia(shehia)).map (shehia) -> shehia.parent().name).join(', ')}. Using Facility District: #{facilityDistrict}." 
           return facilityDistrict
 
     else
-      return @["Case Notification"].DistrictForShehia if @["Case Notification"].DistrictForShehia
+      return @["Case Notification"].DistrictForShehia if @["Case Notification"]?.DistrictForShehia
 
       console.warn "#{@MalariaCaseID()}: No valid shehia found, using district of reporting health facility (which may not be where the patient lives). Data from USSD Notification: #{JSON.stringify(@["USSD Notification"])}"
 
@@ -236,6 +368,7 @@ class Case
         facilityDistrict
       else
         return "UNKNOWN"
+    ###
 
   highRiskShehia: (date) =>
     date = moment().startOf('year').format("YYYY-MM") unless date
@@ -523,7 +656,7 @@ class Case
     @positiveIndividualsUnder5().length
 
   numberPositiveIndividualsOver5: =>
-    @numberPositiveIndividuals - @numberPositiveIndividualsUnder5
+    @positiveIndividualsOver5().length
 
   massScreenCase: =>
     @Household?["Reason for visiting household"]? is "Mass Screen"
@@ -867,28 +1000,35 @@ class Case
       date = if dateOfPositiveResults
         moment(dateOfPositiveResults)
       else 
-        @dateOfPositiveResults() # Use index case date if we are missing positiveIndividual's date
-      isoYear = date.isoWeekYear()
-      isoWeek = date.isoWeek()
+        # Use index case date if we are missing positiveIndividual's date
+        if dateOfPositiveResults = @dateOfPositiveResults()
+          moment(dateOfPositiveResults)
+
+      if date?
+        isoYear = date.isoWeekYear()
+        isoWeek = date.isoWeek()
 
       fociDistrictShehia = if (focus = positiveIndividual["WhereCouldTheMalariaFocusBe"])
         focus = focus.trim()
         if focus is "Patient Shehia"
           [@district(), @shehia()]
         else if focus is "Other Shehia Within Zanzibar"
+          otherDistrict = positiveIndividual["WhichOtherDistrictWithinZanzibar"]
+          otherShehia = positiveIndividual["WhichOtherShehiaWithinZanzibar"]
+          shehiaUnit = @shehiaUnit(otherShehia, otherDistrict)
           [
-            positiveIndividual["WhichOtherDistrictWithinZanzibar"] or @district()
-            positiveIndividual["WhichOtherShehiaWithinZanzibar"] or @shehia()
+            shehiaUnit?.ancestorAtLevel("DISTRICT")?.name or @district()
+            shehiaUnit?.name or @shehia()
           ]
         else
           [@district(), @shehia()]
-      else if positiveIndividual.HouseholdMemberType is "Index Case" and (odkData = @odkData())
+      else if positiveIndividual.HouseholdMemberType is "Index Case" and (odkData = @["ODK 2017-2019"])
+
+
         #TODO waiting to find out which ODK questions were used for this
         [@district(), @shehia()]
       else
         [@district(), @shehia()]
-
-      console.log fociDistrictShehia
 
       [fociDistrict,fociShehia] = fociDistrictShehia
 
@@ -914,13 +1054,6 @@ class Case
 
   numbersSentTo: =>
     @["USSD Notification"]?.numbersSentTo?.join(", ")
-
-
-  # This is the area used for foci classification
-  focalArea: =>
-    if @[Hous]
-      @shehia()
-    @shehia()
 
 
   # Data properties above #
@@ -1005,8 +1138,6 @@ class Case
 
     result = null
 
-    console.log property
-
     result = @[options.functionName]() if options?.functionName
     result = @[property]() if result is null and @[property]
     result = findPrioritizedProperty() if result is null
@@ -1075,6 +1206,7 @@ class Case
     classificationsByDiagnosisDate: {}
     classificationsByIsoYearIsoWeekFociDistrictFociShehia: {}
     evidenceForClassifications: {}
+    reasonForLostToFollowup: {}
 
     namesOfAdministrativeLevels: {}
 
@@ -1638,7 +1770,7 @@ Case.getCases = (options) ->
   .catch (error) ->
       options?.error(error)
   .then (result) =>
-    options?.success(_.chain(result.rows)
+    cases = _.chain(result.rows)
       .groupBy (row) =>
         row.key
       .map (resultsByCaseID) =>
@@ -1647,7 +1779,9 @@ Case.getCases = (options) ->
         malariaCase
       .compact()
       .value()
-    )
+
+    options?.success?(cases)
+    Promise.resolve(cases)
 
 Case.getLatestChangeForDatabase = ->
   new Promise (resolve,reject) =>

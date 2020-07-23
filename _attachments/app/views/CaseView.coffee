@@ -58,7 +58,6 @@ class CaseView extends Backbone.View
       if @case[tableType]?
         if tableType is "Household Members"
           _.map(@case[tableType], (householdMember) =>
-            console.log householdMember
             title = "Household Member"
             title += " Index" if householdMember.HouseholdMemberType is "Index Case"
             title += ": #{householdMember.CaseCategory}" if householdMember.CaseCategory

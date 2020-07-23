@@ -237,18 +237,20 @@ class MapView extends Backbone.View
       Shehias:
         labelsDocName: 'ShehiaCntrPtsWGS84'
         labelLayer: L.featureGroup()
-        featureName: "Ward_Name"
+        featureName: "Shehia_Nam"
 
     for boundaryName, properties of @boundaries
 
       loadFeatureData = (feature, layer) =>
         if boundaryName is "Shehias"
 
+          shehiaNameFromBoundary = feature.properties["Shehia_Nam"].toUpperCase()
+
           # Creating this so that we can compare DHIS2 shehias with the GIS boundaries
           @shehiasWithBoundaries or= []
-          @shehiasWithBoundaries.push feature.properties["Ward_Name"].toUpperCase()
+          @shehiasWithBoundaries.push shehiaNameFromBoundary
 
-          if _(@sprayedShehias).contains feature.properties["Ward_Name"]
+          if _(@sprayedShehias).contains shehiaNameFromBoundary
             layer.setStyle className: "boundary sprayed-shehia"
 
           if @shehiaClassifications
@@ -257,19 +259,24 @@ class MapView extends Backbone.View
               "Residual non-active"
               "Active"
             ]
-              if _(@shehiaClassifications[classification]).contains feature.properties["Ward_Name"].toUpperCase()
+              if _(@shehiaClassifications[classification]).contains shehiaNameFromBoundary
                 layer.setStyle className: "boundary shehia#{dasherize(classification)}"
 
         # Would be better to find the one with the largest area, but most vertices is close enough, easy and fast
         # Would also be better to save these into the geoJSON as a feature property but it seems fast enough
         polygonWithTheMostVertices = _(layer.feature.geometry.coordinates).max (polygon) => polygon.length
+        #console.log polygonWithTheMostVertices
         labelPosition = CenterOfPolygon(polygonWithTheMostVertices).reverse()
+        #console.log shehiaNameFromBoundary
+        #console.log labelPosition
 
-        @boundaries[boundaryName].labelLayer.addLayer L.marker(labelPosition,
-          icon: L.divIcon
-            className: 'map-marker-labels labels-#{boundaryName}'
-            html: feature.properties[@boundaries[boundaryName].featureName]
-        )
+        unless isNaN(labelPosition[0])
+
+          @boundaries[boundaryName].labelLayer.addLayer L.marker(labelPosition,
+            icon: L.divIcon
+              className: 'map-marker-labels labels-#{boundaryName}'
+              html: feature.properties[@boundaries[boundaryName].featureName]
+          )
  
       # Cache the maps data locally since the files are big - also kick off a replication to keep them up to date
       await Coconut.cachingDatabase.get "#{boundaryName}Adjusted"
@@ -323,7 +330,7 @@ class MapView extends Backbone.View
     @activeLabels.addTo(@map).bringToBack()
 
   removeLabels: =>
-    @activeLabels.removeFrom(@map)
+    @activeLabels?.removeFrom(@map)
     @activeLabels = null
 
 
@@ -512,7 +519,7 @@ Mwera
 Chimba
 Bububu
 Tumbe Magharibi
-    """.split("\n")
+    """.toUpperCase().split("\n")
 
 
 module.exports = MapView
