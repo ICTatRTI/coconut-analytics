@@ -1,4 +1,12 @@
 # db:zanzibar
 (doc) ->
-  emit(doc.MalariaCaseID, null) if doc.MalariaCaseID
-  emit(doc.caseid, null) if doc.caseid
+
+  id = if doc.MalariaCaseID
+    doc.MalariaCaseID
+  else if doc.caseid
+    doc.caseid
+
+  if id
+    id = id.trim()
+    if id.length > 3
+      emit id

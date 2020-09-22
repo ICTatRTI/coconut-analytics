@@ -7,6 +7,7 @@ npx browserify  -r moment -r jquery -r backbone -r pouchdb-core -r pouchdb-adapt
 echo 'Browserifying and uglifying'
 npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee -x moment -x jquery -x backbone -x pouchdb-core -x pouchdb-adapter-http -x pouchdb-mapreduce -x pouchdb-upsert -x underscore -x tabulator-tables| npx terser > bundle.js
 
+echo 'Rsyncing'
 # Note - don't exclude node modules since this is needed for cronjob scripts
 rsync --verbose --progress --recursive --copy-links --exclude=node_modules ./ zanzibar.cococloud.co:/var/www/analytics/
 rsync --verbose --progress --recursive --copy-links --exclude=node_modules ../__views/ zanzibar.cococloud.co:~/analytics-views/

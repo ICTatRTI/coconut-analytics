@@ -3,12 +3,15 @@ $ = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 moment = require 'moment'
-Question = require './Question'
 Dhis2 = require './Dhis2'
 CONST = require "../Constants"
 humanize = require 'underscore.string/humanize'
 titleize = require 'underscore.string/titleize'
 PouchDB = require 'pouchdb-core'
+
+Question = require './Question'
+
+PositiveIndividual = require './PositiveIndividual'
 
 class Case
   constructor: (options) ->
@@ -31,8 +34,7 @@ class Case
           resultDoc[key] = b64_sha1(value) if value? and _.contains(Coconut.identifyingAttributes, key)
 
       if resultDoc.question
-        @caseID ?= resultDoc["MalariaCaseID"]
-        throw "Inconsistent Case ID" if @caseID isnt resultDoc["MalariaCaseID"]
+        @caseID ?= resultDoc["MalariaCaseID"].trim()
         @questions.push resultDoc.question
         if resultDoc.question is "Household Members"
           this["Household Members"].push resultDoc
@@ -53,19 +55,13 @@ class Case
           if this[resultDoc.question]?
             # Duplicate
             if (this[resultDoc.question].complete is "true" or this[resultDoc.question].complete is true) and (resultDoc.complete isnt "true" or resultDoc.complete isnt true)
-              console.warn "Using the result marked as complete"
+              #console.warn "Using the result marked as complete"
               return #  Use the version already loaded which is marked as complete
             else if this[resultDoc.question].complete and resultDoc.complete
               console.warn "Duplicate complete entries for case: #{@caseID}"
           this[resultDoc.question] = resultDoc
       else
-        @caseID ?= resultDoc["caseid"]
-        if @caseID isnt resultDoc["caseid"] or (parseInt(@caseid) and parseInt(@caseID) isnt parseInt(resultDoc["caseid"]))
-          console.error @caseID is resultDoc["caseid"]
-          console.error "Inconsistent Case ID. Working on '#{@caseID}' but current doc has '#{resultDoc["caseid"]}': #{JSON.stringify resultDoc}:"
-          console.error resultDoc
-          console.error resultDocs
-          throw "Inconsistent Case ID. Working on #{@caseID} but current doc has #{resultDoc["caseid"]}: #{JSON.stringify resultDoc}"
+        @caseID ?= resultDoc["caseid"].trim()
         @questions.push "USSD Notification"
         this["USSD Notification"] = resultDoc
 
@@ -111,12 +107,18 @@ class Case
 
   caseId: => @caseID
 
-  LastModifiedAt: ->
+  LastModifiedAt: =>
     _.chain(@toJSON())
-    .map (question) ->
-      question?.lastModifiedAt
+    .map (data, question) ->
+      console.log question
+      console.log data
+      if _(data).isArray()
+        _(data).pluck("lastModifiedAt")
+      else
+        data?.lastModifiedAt
+    .flatten()
     .max (lastModifiedAt) ->
-      lastModifiedAt?.replace(/[- :]/g,"")
+      lastModifiedAt?.replace(/[- :]/g,"") or ""
     .value()
 
   Questions: ->
@@ -441,39 +443,6 @@ class Case
   followedUpWithinXHours: =>
     not @notFollowedUpAfterXHours()
 
-  # Includes any kind of travel including only within Zanzibar
-  indexCaseHasTravelHistory: =>
-    @.Facility?.TravelledOvernightInPastMonth?.match(/Yes/)? or false
-
-  indexCaseHasNoTravelHistory: =>
-    not @indexCaseHasTravelHistory()
-
-  personTravelledInLast3Weeks = (householdOrHouseholdMember) ->
-    zeroToSevenDays = householdOrHouseholdMember?["AlllocationsandentrypointsfromovernighttraveloutsideZanzibar07daysbeforepositivetestresult"]
-    eightToFourteenDays = householdOrHouseholdMember?["AlllocationsandentrypointsfromovernighttraveloutsideZanzibar814daysbeforepositivetestresult"]
-    fourteenToTwentyOneDays = householdOrHouseholdMember?["AlllocationsandentrypointsfromovernighttraveloutsideZanzibar1421daysbeforepositivetestresult"]
-    if zeroToSevenDays?
-      return true if zeroToSevenDays isnt ""
-    else if eightToFourteenDays?
-      return true if eightToFourteenDays isnt ""
-    else if fourteenToTwentyOneDays?
-      return true if fourteenToTwentyOneDays isnt ""
-    else
-      return false
-
-
-  indexCaseSuspectedImportedCase: =>
-    personTravelledInLast3Weeks(@.Household) or @indexCaseHasTravelHistory()
-
-  numberSuspectedImportedCasesIncludingHouseholdMembers: =>
-    result = 0
-    # Check index case
-    result +=1 if @indexCaseSuspectedImportedCase()
-    # Check household cases
-    _(@["Household Members"]).each (householdMember) ->
-      result +=1 if personTravelledInLast3Weeks(householdMember)
-    return result
-
   completeHouseholdVisit: =>
     @complete()
 
@@ -600,6 +569,10 @@ class Case
   percentOfHouseholdMembersTested: =>
     (@numberHouseholdMembersTested()/@numberHouseholdMembersTestedAndUntested()*100).toFixed(0)
   
+  positiveIndividualObjects: =>
+    for positiveIndividual in @positiveIndividuals()
+      new PositiveIndividual(positiveIndividual, @)
+
   positiveIndividuals: =>
     @positiveIndividualsIncludingIndex()
 
@@ -939,37 +912,11 @@ class Case
 
 
   classificationsWithHouseholdMember: =>
-    result = []
-    for positiveIndividual in @positiveIndividualsIncludingIndex()
-      classification = 
-        # post-2019 with classification
-        if positiveIndividual.CaseCategory 
-          positiveIndividual.CaseCategory
-        # pre-2019 so missing classification or in progress classification (not likely)
-        # And return unclassified
-        else if positiveIndividual["IsCaseLostToFollowup"] is "Yes"
-          "Lost to Followup"
-        else
-          # Is household member complete then "Unclassified"
-          if positiveIndividual.question is "Household Members" and (positiveIndividual.complete is true or positiveIndividual.complete is "true")
-            "Unclassified"
-          else
-            # If we only have a household record, then it's a completed index case from from pre-2019 that wasn't classified
-            if positiveIndividual.question is "Household" and (positiveIndividual.complete is true or positiveIndividual.complete is "true") and moment(positiveIndividual.createdAt).isBefore(moment("2020-01-01"))
-              if odkClassification = @odkClassification()
-                odkClassification
-              else
-                "Unclassified"
-            # Or it's just an old case that won't ever be followed up
-            else if moment().diff(moment(positiveIndividual.createdAt), 'months') > 6
-              "Lost to Followup"
-            else
-              "In Progress"
-      result.push {
-        classification: classification
-        positiveIndividual: positiveIndividual
+    for positiveIndividual in @positiveIndividualObjects()
+      {
+        classification: positiveIndividual.classification()
+        positiveIndividual: positiveIndividual.data
       }
-    result
 
   classificationsBy: (property) =>
     (for data in @classificationsWithHouseholdMember()
@@ -1274,10 +1221,6 @@ class Case
     ParasiteSpecies: {}
     ReferenceInOpdRegister:
       propertyName: "Reference In OPD Register"
-    TravelledOvernightInPastMonth:
-      propertyName: "Travelled Overnight in Past Month"
-    IfYesListAllPlacesTravelled:
-      propertyName: "All Places Traveled to in Past Month"
     TreatmentGiven: {}
 
     #Household
@@ -1306,23 +1249,6 @@ class Case
       propertyName: "Household Location - Timestamp"
     IndexCaseIfPatientIsFemale1545YearsOfAgeIsSheIsPregant:
       propertyName: "Is Index Case Pregnant"
-    IndexCaseOvernightTravelOutsideOfZanzibarInThePastYear:
-      propertyName: "Has Index Case had Overnight Travel Outside of Zanzibar in the Past Year"
-    IndexCaseOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult:
-      propertyName: "Index Case Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
-    TravelLocationName: {}
-    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar07DaysBeforePositiveTestResult:
-      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 0-7 Days Before Positive Test Result"
-    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar814DaysBeforePositiveTestResult:
-      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 8-14 Days Before Positive Test Result"
-    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar1521DaysBeforePositiveTestResult:
-      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 15-21 Days Before Positive Test Result"
-    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar2242DaysBeforePositiveTestResult:
-      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 22-42 Days Before Positive Test Result"
-    AllLocationsAndEntryPointsFromOvernightTravelOutsideZanzibar43365DaysBeforePositiveTestResult:
-      propertyName: "All Locations and Entry Points From Overnight Travel Outside Zanzibar 43-365 Days Before Positive Test Result"
-    ListAllLocationsOfOvernightTravelWithinZanzibar1024DaysBeforePositiveTestResult:
-      propertyName: "All Locations Of Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     IndexCasePatient: {}
     IndexCasePatientSCurrentStatus:
       propertyName: "Index Case Patient's Current Status"
@@ -1502,10 +1428,6 @@ class Case
       propertyName: "Not Followed Up After 48 Hours"
     followedUpWithin48Hours:
       propertyName: "Followed Up Within 48Hours"
-    indexCaseHasTravelHistory:
-      propertyName: "Index Case Has Travel History"
-    indexCaseHasNoTravelHistory:
-      propertyName: "Index Case Has No Travel History"
     completeHouseholdVisit:
       propertyName: "Complete Household Visit"
     numberPositiveIndividualsExcludingIndex:
@@ -1518,8 +1440,6 @@ class Case
       propertyName: "Number Positive Individuals Under 5"
     numberPositiveIndividualsOver5:
       propertyName: "Number Positive Individuals Over 5"
-    numberSuspectedImportedCasesIncludingHouseholdMembers:
-      propertyName: "Number Suspected Imported Cases Including Household Members"
     NumberofHouseholdMembersTreatedforMalariaWithinPastWeek:
       propertyName: "Number of Household Members Treated for Malaria Within Past Week"
     NumberofHouseholdMemberswithFeverorHistoryofFeverWithinPastWeek:
@@ -1876,7 +1796,7 @@ Case.updateCaseSummaryDocs = (options) ->
     numberLatestChangeForDatabase = parseInt(latestChangeForDatabase?.replace(/-.*/,""))
     numberLatestChangeForCurrentSummaryDataDocs = parseInt(latestChangeForCurrentSummaryDataDocs?.replace(/-.*/,""))
 
-    if numberLatestChangeForDatabase - numberLatestChangeForCurrentSummaryDataDocs > 10000
+    if numberLatestChangeForDatabase - numberLatestChangeForCurrentSummaryDataDocs > 50000
       console.log "Large number of changes, so just resetting since this is more efficient that reviewing every change."
       return Case.resetAllCaseSummaryDocs()
 
@@ -1954,6 +1874,7 @@ Case.updateSummaryForCases = (options) =>
           console.error error
         docsToSave.length = 0 # Clear the array: https://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
 
+    console.log docsToSave
     try
       await Coconut.reportingDatabase.bulkDocs(docsToSave)
       resolve()

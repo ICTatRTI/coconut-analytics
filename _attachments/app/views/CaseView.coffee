@@ -31,9 +31,18 @@ class CaseView extends Backbone.View
       </div>
 
       <h3>Case ID: #{@case.MalariaCaseID()}</h3>
-      <h3>Diagnosis Date: #{@case.IndexCaseDiagnosisDate()}</h3>
-      <h3>Classification: #{@case.classificationsByHouseholdMemberType()}</h3>
-      <h5>Last Modified: #{@case.LastModifiedAt()}</h5>
+      <h4>Diagnosis Date: #{@case.IndexCaseDiagnosisDate()}</h4>
+      <h4>Classification#{if @case.classificationsByHouseholdMemberType().split(/, /).length > 1 then "s:<br/>" else ":"} 
+        <h5>#{
+          (for typeClassification in @case.classificationsByHouseholdMemberType().split(/, /)
+            console.log typeClassification
+            [type, classification] = typeClassification.split(/: /) 
+            "&nbsp;#{type}: #{classification}<br/>"
+          ).join("")
+          }
+        </small>
+      </h5>
+      <h5>Last Modified: #{@case.LastModifiedAt()?[0..9] or "-"}</h5>
       <h5>Saved By: #{@case.allUserNames().join(", ")}</h5>
     "
 
@@ -50,7 +59,7 @@ class CaseView extends Backbone.View
       question = new Question(id: question)
       continue if question.id is "Summary" or question.id is "USSD Notification"
       await question.fetch()
-      .catch (error) => console.error "Can't find question: #{question}"
+      .catch (error) => console.error "Can't find question: #{JSON.stringify question}"
       _.extend(@mappings, question.safeLabelsToLabelsMappings())
 
     # USSD Notification doesn't have a mapping
@@ -97,6 +106,7 @@ class CaseView extends Backbone.View
 
 
   createObjectTable: (name,object) =>
+    console.log object
     "
     <div style='height: 40px; font-size:xx-large; cursor:pointer' class='toggleNext'>#{name} ⇩</div>
     <div style='display:none' class='objectTable'>

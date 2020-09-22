@@ -123,6 +123,10 @@ class MenuView extends Backbone.View
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-export mdi-24px'></i>
             <span class='link-title'>Data Export</span>
         </a>
+        <a class='mdl-navigation__link drawer__link' href='#positiveIndividuals' id='positiveIndividuals' data-title='Positive Individuals' data-category='menuLink'>
+          <i class='mdl-color-text--blue-grey-400 mdi mdi-file-export mdi-24px'></i>
+            <span class='link-title'>Positive Individuals</span>
+        </a>
 <!--
         <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-settings mdi-24px'>settings</i>

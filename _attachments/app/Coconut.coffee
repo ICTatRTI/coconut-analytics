@@ -21,16 +21,17 @@ class Coconut
 
     databaseOptions = {ajax: timeout: 1000 * 60 * 10} # Ten minutes
 
-    databaseURL =
+    @databaseURL =
       if window.location.origin.startsWith "http://localhost"
         "http://#{username}:#{password}@localhost:5984/"
       else
         "https://#{username}:#{password}@zanzibar.cococloud.co/"
 
-    @database = new PouchDB("#{databaseURL}/zanzibar", databaseOptions)
-    @reportingDatabase = new PouchDB("#{databaseURL}/zanzibar-reporting", databaseOptions)
+    @database = new PouchDB("#{@databaseURL}/zanzibar", databaseOptions)
+    @reportingDatabase = new PouchDB("#{@databaseURL}/zanzibar-reporting", databaseOptions)
     @cachingDatabase = new PouchDB("coconut-zanzibar-caching")
-    @weeklyFacilityDatabase = new PouchDB("#{databaseURL}/zanzibar-weekly-facility")
+    @weeklyFacilityDatabase = new PouchDB("#{@databaseURL}/zanzibar-weekly-facility")
+    @positiveIndividualIndexDatabase = new PouchDB("#{@databaseURL}/zanzibar-index-positiveindividual")
 
   promptUntilCredentialsWork: =>
     @setupDatabases()

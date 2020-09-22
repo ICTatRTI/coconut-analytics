@@ -137,6 +137,7 @@ class IndividualClassificationView extends Backbone.View
     .then (result) =>
       for row in result.rows
         malariaCase = row.doc
+        console.log row
         district = malariaCase["District (if no household district uses facility)"]
         @districtForCase[malariaCase["Malaria Case ID"]] = district
 
