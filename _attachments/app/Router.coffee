@@ -30,6 +30,7 @@ FindCaseView = require './views/FindCaseView'
 Graphs = require './models/Graphs'
 GraphView = require './views/GraphView'
 PositiveIndividualsView = require './views/PositiveIndividualsView'
+CasesView = require './views/CasesView'
 
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -103,6 +104,8 @@ class Router extends Backbone.Router
     "graph/*options": "graph"
     "positiveIndividuals": "positiveIndividuals"
     "positiveIndividuals/*options": "positiveIndividuals"
+    "cases": "cases"
+    "cases/*options": "cases"
     "reports": "reports"
     "reports/*options": "reports"  ##reports/type/Analysis/startDate/2016-01-01/endDate/2016-01-01 ->
     "find/case": "findCase"
@@ -249,6 +252,12 @@ class Router extends Backbone.Router
     Coconut.positiveIndividualsView or= new PositiveIndividualsView()
     Coconut.positiveIndividualsView.options = @parseOptionsString(optionString)
     Coconut.positiveIndividualsView.render()
+
+  cases: (optionString) ->
+    document.title = 'Coconut Surveillance - Cases'
+    Coconut.casesView or= new CasesView()
+    Coconut.casesView.options = @parseOptionsString(optionString)
+    Coconut.casesView.render()
 
   showCase: (caseID, docID) ->
     document.title = "Coconut Surveillance - Case #{caseID}"

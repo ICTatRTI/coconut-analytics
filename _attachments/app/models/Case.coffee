@@ -178,15 +178,17 @@ class Case
     ###
 
   shehiaUnit: (shehiaName, districtName) =>
-    # Can pass in a shehiaName - useful for positive Individuals with different focal area
-    shehiaName = null
-    # Priority order to find the best facilityName
-    for name in [@Household?.Shehia, @Facility?.Shehia,  @["Case Notification"]?.Shehia, @["USSD Notification"]?.shehia]
-      continue unless name?
-      name = name.trim()
-      if GeoHierarchy.validShehia(name)
-        shehiaName = name
-        break
+    if shehiaName? and GeoHierarchy.validShehia(shehiaName)
+      # Can pass in a shehiaName - useful for positive Individuals with different focal area
+    else
+      shehiaName = null
+      # Priority order to find the best facilityName
+      for name in [@Household?.Shehia, @Facility?.Shehia,  @["Case Notification"]?.Shehia, @["USSD Notification"]?.shehia]
+        continue unless name?
+        name = name.trim()
+        if GeoHierarchy.validShehia(name)
+          shehiaName = name
+          break
 
     unless shehiaName?
       # If we have no valid shehia name, then try and use facility
@@ -248,6 +250,11 @@ class Case
               if shehiaUnitAtLevel is facilityUnitAtLevel
                 return shehiaUnit
 
+  shehiaFromGPS: =>
+    longitude = @householdLocationLongitude()
+    latitude = @householdLocationLatitude()
+
+    GeoHierarchy.findByGPS(longitude, latitude, "SHEHIA")
 
   facilityUnit: =>
     facilityName = null

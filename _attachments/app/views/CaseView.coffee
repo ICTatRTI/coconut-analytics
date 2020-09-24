@@ -106,7 +106,6 @@ class CaseView extends Backbone.View
 
 
   createObjectTable: (name,object) =>
-    console.log object
     "
     <div style='height: 40px; font-size:xx-large; cursor:pointer' class='toggleNext'>#{name} ⇩</div>
     <div style='display:none' class='objectTable'>

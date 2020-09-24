@@ -1,4 +1,7 @@
 _ = require 'underscore'
+titleize = require 'underscore.string/titleize'
+
+GeoJsonLookup = require 'geojson-geometries-lookup'
 
 #Fuse = require 'fuse.js'
 
@@ -38,7 +41,7 @@ class Unit
 
   ancestorAtLevel: (levelName) =>
     levelName = levelMappings[levelName] or levelName
-    _(@ancestors()).find (ancestor) ->
+    _([@].concat(@ancestors())).find (ancestor) -> # include this in the list to check
       ancestor.levelName is levelName
 
   descendants: =>
@@ -113,6 +116,34 @@ class GeoHierarchy
 
     @groups = data.groups
 
+  loadPolygonBoundaries: =>
+    @boundaries =
+      Villages:
+        labelsDocName: 'VillageCntrPtsWGS84'
+        featureName: "Vil_Mtaa_N"
+      Shehias:
+        labelsDocName: 'ShehiaCntrPtsWGS84'
+        featureName: "Shehia_Nam"
+      Districts:
+        labelsDocName: 'DistrictsCntrPtsWGS84'
+        featureName: "District_N"
+
+    for boundaryName, properties of @boundaries
+      await Coconut.cachingDatabase.get "#{boundaryName}Adjusted"
+      .catch (error) =>
+        new Promise (resolve, reject) =>
+          Coconut.cachingDatabase or= new PouchDB("coconut-zanzibar-caching")
+          Coconut.cachingDatabase.replicate.from Coconut.database,
+            doc_ids: ["#{boundaryName}Adjusted"]
+          .on "complete", =>
+            resolve(Coconut.cachingDatabase.get "#{boundaryName}Adjusted"
+            .catch (error) => console.log error
+            )
+      .then (data) =>
+        @boundaries[boundaryName]["query"] = new GeoJsonLookup(data)
+        console.info "GeoHierarchy loadPolygonBoundaries complete"
+        Promise.resolve()
+
   load: =>
     @loadAliases (await Coconut.database.get("Geographic Hierarchy Aliases")
       .catch (error) => console.error error
@@ -120,6 +151,7 @@ class GeoHierarchy
     @loadData (await Coconut.database.get("Geographic Hierarchy")
       .catch (error) => console.error error
     )
+    await @loadPolygonBoundaries()
 
   addAlias: (officialName, alias) =>
     aliases = await Coconut.database.get("Geographic Hierarchy Aliases")
@@ -137,7 +169,7 @@ class GeoHierarchy
   ###
 
   findAll: (name) =>
-    name = name.trim().toUpperCase()
+    name = name?.trim().toUpperCase()
     return [] unless name?
     @unitsByName[name]
 
@@ -181,6 +213,10 @@ class GeoHierarchy
       when 1 then return matches[0]
       else
         return undefined
+
+  findHavingAncestor: (name, levelName, ancestorUnit) =>
+    _(@find(name, levelName)).filter (unit) =>
+      _(unit.ancestors()).includes ancestorUnit
 
   findWithParent: (name, levelName) =>
     for unit in @find(name,levelName)
@@ -227,7 +263,6 @@ class GeoHierarchy
     @findFirst(sourceName, sourceLevel.toUpperCase()).ancestorAtLevel(targetLevel.toUpperCase())?.name
 
 
-
   ###
     Zanzibar Specific Functions - should have generic equivalent above
   ###
@@ -251,6 +286,14 @@ class GeoHierarchy
           return shehia
 
   findOneShehia: (shehiaName) => @findOneMatchOrUndefined(shehiaName, "SHEHIA")
+
+  valid: (type,name) =>
+    if type.match(/shehia/i)
+      @validShehia(name)
+    else if type.match(/district/i)
+      @validDistrict(name)
+    else if type.match(/facility/i)
+      @validFacility(name)
 
   validShehia: (shehiaName) =>  @findShehia(shehiaName)?.length > 0
 
@@ -354,5 +397,58 @@ class GeoHierarchy
     _(group.unitIds).map (unitId) =>
       @unitsById[unitId].name
 
+  boundaryPropertiesFromGPS: (longitude, latitude) =>
+    throw "Longitude or latitude missing for locationFromGPS" unless longitude? and latitude?
+
+    properties = {}
+
+    for boundaryName of @boundaries
+      for feature in @boundaries[boundaryName].query.getContainers(
+        type: "Point"
+        coordinates: [longitude, latitude]
+      ).features
+        for property, value of feature.properties
+          if properties[property] and property[property] is value
+            console.log "Confliciting property: #{property}: #{properties[property]} and #{value}"
+          else
+            properties[property] = value
+            
+    properties
+
+  mostPreciseUnitFromGPS: (longitude, latitude) =>
+    locationProperty = {
+      "VILLAGE": "Vil_Mtaa_N"
+      "WARD": "Ward_Name"
+      "SHEHIA": "Shehia_Nam"
+      "DISTRICT": "District_N"
+      "REGION": "Region_Nam"
+    }
+
+    # Use the district or region if need be eliminate more precise place names that are not unique
+    properties = @boundaryPropertiesFromGPS(longitude, latitude)
+    #Shehia names are unique by district, so first try and get the district
+    unless properties[locationProperty.DISTRICT]?
+      console.log "No district for #{longitude} #{latitude}, here are the properties: #{JSON.stringify(properties)}"
+      return null
+    ancestor = if properties[locationProperty.DISTRICT] is "Magharibi"
+      @findFirst("MJINI MAGHARIBI", "REGION")
+    else
+      @findFirst(properties[locationProperty.DISTRICT], "DISTRICT")
+
+    console.log "Can't find district for #{properties[locationProperty.DISTRICT]}" unless ancestor?
+
+    for locationType, locationTypeProperty of locationProperty
+      unit = @findHavingAncestor(properties[locationTypeProperty], locationType, ancestor)
+      if unit.length is 1
+        return unit[0]
+      if unit.length > 1
+        console.error "Multiple units for GPS location with ancestor: #{ancestor.name}\n #{JSON.stringify unit}"
+
+  findByGPS: (longitude, latitude, levelName) =>
+    unit = @mostPreciseUnitFromGPS(longitude,latitude)
+    if unit?.levelName is levelName
+      unit
+    else
+      unit?.ancestorAtLevel(levelName)
 
 module.exports = GeoHierarchy

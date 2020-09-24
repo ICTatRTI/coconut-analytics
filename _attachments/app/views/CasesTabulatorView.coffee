@@ -41,6 +41,7 @@ class CasesTabulatorView extends Backbone.View
         availableFields[key] = true
 
     availableFields = _(availableFields).keys()
+    console.log availableFields
 
     @tabulatorFields or= [
       "Malaria Case ID"
