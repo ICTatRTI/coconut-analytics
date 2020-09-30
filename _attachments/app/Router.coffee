@@ -29,7 +29,7 @@ MessagingView = require './views/MessagingView'
 FindCaseView = require './views/FindCaseView'
 Graphs = require './models/Graphs'
 GraphView = require './views/GraphView'
-PositiveIndividualsView = require './views/PositiveIndividualsView'
+IndividualsView = require './views/IndividualsView'
 CasesView = require './views/CasesView'
 
 
@@ -102,8 +102,8 @@ class Router extends Backbone.Router
     "maps": "maps"
     "maps/*options": "maps"
     "graph/*options": "graph"
-    "positiveIndividuals": "positiveIndividuals"
-    "positiveIndividuals/*options": "positiveIndividuals"
+    "individuals": "individuals"
+    "individuals/*options": "individuals"
     "cases": "cases"
     "cases/*options": "cases"
     "reports": "reports"
@@ -247,11 +247,11 @@ class Router extends Backbone.Router
     Coconut.graphView.options = @parseOptionsString(optionString)
     Coconut.graphView.render()
 
-  positiveIndividuals: (optionString) ->
-    document.title = 'Coconut Surveillance - Positive Individuals'
-    Coconut.positiveIndividualsView or= new PositiveIndividualsView()
-    Coconut.positiveIndividualsView.options = @parseOptionsString(optionString)
-    Coconut.positiveIndividualsView.render()
+  individuals: (optionString) ->
+    document.title = 'Coconut Surveillance - Individuals'
+    Coconut.individualsView or= new IndividualsView()
+    Coconut.individualsView.options = @parseOptionsString(optionString)
+    Coconut.individualsView.render()
 
   cases: (optionString) ->
     document.title = 'Coconut Surveillance - Cases'

@@ -1,7 +1,7 @@
 global.copy = require('copy-text-to-clipboard');
 
 SetsView = require './views/SetsView'
-CasesTabulatorView = require './views/CasesTabulatorView'
+TabulatorView = require './views/TabulatorView'
 
 global.disaggregateSet = (element) ->
   targetElement = $(element)
@@ -22,7 +22,7 @@ global.disaggregateSet = (element) ->
     tableElement = targetElement.closest("td")
     targetElement.closest('table').find('th').eq(tableElement.index()).text()
 
-  CasesTabulatorView.showDialog
+  TabulatorView.showCasesDialog
     cases: cases
 
   #SetsView.showDialog

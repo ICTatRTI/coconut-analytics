@@ -4,7 +4,7 @@ Backbone = require 'backbone'
 Backbone.$  = $
 Tabulator = require 'tabulator-tables'
 MapView = require './MapView'
-CasesTabulatorView = require './CasesTabulatorView'
+TabulatorView = require './TabulatorView'
 
 dasherize = require 'underscore.string/dasherize'
 
@@ -27,12 +27,12 @@ class FociClassificationView extends Backbone.View
     cases = for summaryCase in summaryCases.rows
       summaryCase.id[-6..]
     console.log cases
-    CasesTabulatorView.showDialog
+    TabulatorView.showCasesDialog
       cases: cases
     return false
 
   showCases: (event) =>
-    CasesTabulatorView.showDialog
+    TabulatorView.showCasesDialog
       cases: $(event.target).attr("data-caseIds").split(',')
       fields: [
         "Malaria Case ID"

@@ -11,7 +11,7 @@ PouchDB = require 'pouchdb-core'
 
 Question = require './Question'
 
-PositiveIndividual = require './PositiveIndividual'
+Individual = require './Individual'
 
 class Case
   constructor: (options) ->
@@ -250,11 +250,19 @@ class Case
               if shehiaUnitAtLevel is facilityUnitAtLevel
                 return shehiaUnit
 
-  shehiaFromGPS: =>
+  villageFromGPS: =>
     longitude = @householdLocationLongitude()
     latitude = @householdLocationLatitude()
+    GeoHierarchy.villagePropertyFromGPS(longitude, latitude)
 
+
+  shehiaUnitFromGPS: =>
+    longitude = @householdLocationLongitude()
+    latitude = @householdLocationLatitude()
     GeoHierarchy.findByGPS(longitude, latitude, "SHEHIA")
+
+  shehiaFromGPS: =>
+    @shehiaUnitFromGPS()?.name
 
   facilityUnit: =>
     facilityName = null
@@ -345,39 +353,14 @@ class Case
     if facilityDistrictName?
       GeoHierarchy.findOneMatchOrUndefined(facilityDistrictName, "DISTRICT")
 
-  # Want best guess for the district - try and get a valid shehia, if not use district for reporting facility
   district: =>
     @districtUnit()?.name or "UNKNOWN"
-    ###
-    shehia = @validShehia()
-    if shehia?
 
-      findOneShehia = GeoHierarchy.findOneShehia(shehia)
-      if findOneShehia
-        return findOneShehia.parent().name
-      else
-        return @["Case Notification"].DistrictForShehia if @["Case Notification"]?.DistrictForShehia
+  islandUnit: =>
+    @districtUnit()?.ancestorAtLevel("ISLANDS")
 
-        facilityDistrict = @facilityDistrict()
-
-        if GeoHierarchy.findShehiaWithAncestor(shehia, facilityDistrict, "DISTRICT")
-          return facilityDistrict
-        else
-          console.warn "#{@MalariaCaseID()}: Shehia #{shehia} is not unique, and the facility's district '#{facilityDistrict}' doesn't match the possibilities. It's possible districts are: #{(_(GeoHierarchy.findShehia(shehia)).map (shehia) -> shehia.parent().name).join(', ')}. Using Facility District: #{facilityDistrict}." 
-          return facilityDistrict
-
-    else
-      return @["Case Notification"].DistrictForShehia if @["Case Notification"]?.DistrictForShehia
-
-      console.warn "#{@MalariaCaseID()}: No valid shehia found, using district of reporting health facility (which may not be where the patient lives). Data from USSD Notification: #{JSON.stringify(@["USSD Notification"])}"
-
-      facilityDistrict = @facilityDistrict()
-
-      if facilityDistrict
-        facilityDistrict
-      else
-        return "UNKNOWN"
-    ###
+  island: =>
+    @islandUnit()?.name or "UNKNOWN"
 
   highRiskShehia: (date) =>
     date = moment().startOf('year').format("YYYY-MM") unless date
@@ -578,7 +561,7 @@ class Case
   
   positiveIndividualObjects: =>
     for positiveIndividual in @positiveIndividuals()
-      new PositiveIndividual(positiveIndividual, @)
+      new Individual(positiveIndividual, @)
 
   positiveIndividuals: =>
     @positiveIndividualsIncludingIndex()
@@ -596,23 +579,41 @@ class Case
 
     # Don't try and find an index case if there are already classified individuals
     # Probably these just have the wrong Household Member Type
-    if nonIndexHaveCaseCategory and not indexHaveCaseCategory
+    results = if nonIndexHaveCaseCategory and not indexHaveCaseCategory
       positiveIndividualsExcludingIndex
     else
       positiveIndividualsIndexCasesOnly?.concat(positiveIndividualsExcludingIndex)
 
+    for result in results
+      result["Malaria Positive"] = true
+      result
+
+  positiveAndNegativeIndividuals: =>
+    for individual in @positiveIndividuals().concat(@negativeIndividuals())
+      individual["Date Of Malaria Results"] = @dateOfMalariaResultFromIndividual(individual)
+      individual
+
+  positiveAndNegativeIndividualObjects: =>
+    for individual in @positiveAndNegativeIndividuals()
+      new Individual(individual, @)
+
   positiveIndividualsExcludingIndex: =>
     # if we have classification then index is in the household member data
     # Only positive individuals have a case category e.g. imported, so filter for non null values
-    classifiedNonIndexCases = _(@["Household Members"]).filter (householdMember) => 
+    classifiedNonIndexIndividuals = _(@["Household Members"]).filter (householdMember) => 
       householdMember.CaseCategory? and householdMember.HouseholdMemberType isnt "Index Case"
-    if classifiedNonIndexCases.length > 0
-      classifiedNonIndexCases
+    results = if classifiedNonIndexIndividuals.length > 0
+      classifiedNonIndexIndividuals
     else
       # If there is no classification then there will be no index case in the list of household members (pre 2019 style). This also includes neighbor households.
       _(@["Household Members"]).filter (householdMember) =>
         householdMember.MalariaTestResult is "PF" or 
         householdMember.MalariaTestResult is "Mixed"
+
+    for result in results
+      # Make sure 
+      result.HouseholdMemberType = "Other Household Member"
+      result
 
   positiveIndividualsIndexCasesOnly: =>
     # if we have classification then index is in the household member data
@@ -623,11 +624,47 @@ class Case
       classifiedIndexCases
     else
       # Case hasn't been followed up yet or pre 2019 data which didn't capture index case as a household member, so use facility data for index and then check for positive household members
+      extraProperties = {
+        MalariaCaseID: @MalariaCaseID()
+        HouseholdMemberType: "Index Case"
+      }
       if @["Facility"]
-        [_.extend @["Facility"], @["Household"]]
+        [_.extend @["Facility"], @["Household"], extraProperties]
       else if @["USSD Notification"]
-        [_.extend @["USSD Notification"], @["Household"], {MalariaCaseID: @MalariaCaseID()}]
+        [_.extend @["USSD Notification"], @["Household"], extraProperties]
       else []
+
+
+
+  negativeIndividuals: =>
+    # I've reversed the logic of positiveIndividualsExcludingIndex
+    # if we have classification then index is in the household member data
+    # Only positive individuals have a case category e.g. imported, so filter for non null values
+    classifiedIndividuals = []
+    unclassifiedNonIndexIndividuals = []
+    _(@["Household Members"]).map (householdMember) => 
+      if householdMember.CaseCategory?
+        classifiedIndividuals.push householdMember
+      else if householdMember.HouseholdMemberType isnt "Index Case"
+        # These are the ones we want but only if others are classified
+        unclassifiedNonIndexIndividuals.push householdMember
+
+    # if we have classification then index is in the household member data
+    # So we can return the unclassified cases which must all be negative
+    results = if classifiedIndividuals.length > 0
+      unclassifiedNonIndexIndividuals
+    else
+      # If there is no classification then there will be no index case in the list of household members (pre 2019 style). This also includes neighbor households.
+      _(@["Household Members"]).filter (householdMember) =>
+        (householdMember.complete is true or householdMember.complete is "true") and
+        householdMember.MalariaTestResult isnt "PF" and
+        householdMember.MalariaTestResult isnt "Mixed"
+
+    for result in results
+      result["Date Of Malaria Results"] = @dateOfMalariaResultFromIndividual(result)
+      result["Malaria Positive"] = false
+      result
+
 
   numberPositiveIndividuals: =>
     @positiveIndividuals().length
@@ -1164,6 +1201,8 @@ class Case
 
     namesOfAdministrativeLevels: {}
 
+    island: {}
+
     district:
       propertyName: "District (if no household district uses facility)"
     facility: {}
@@ -1171,10 +1210,12 @@ class Case
     facilityDistrict:
       propertyName: "District of Facility"
     shehia: {}
+    shehiaFromGPS: {}
     isShehiaValid: {}
     highRiskShehia: {}
     village:
       propertyName: "Village"
+    villageFromGPS: {}
 
     IndexCasePatientName:
       propertyName: "Patient Name"
@@ -1489,16 +1530,16 @@ class Case
 
   }
 
-  dateOfPositiveFromIndividual: (positiveIndividual) =>
+  dateOfMalariaResultFromIndividual: (positiveIndividual) =>
     # First try and get the individuals' date, then the createdAt time (pre-2019) if all fails just use the date for the case or the date that the notification was made
-    date = positiveIndividual.DateOPositiveResults or positiveIndividual.createdAt or @dateOfPositiveResults() or positiveIndividual.date
+    date = positiveIndividual.DateOfPositiveResults or positiveIndividual.createdAt or @dateOfPositiveResults() or positiveIndividual.date
     moment(date).format("YYYY-MM-DD")
 
   dhis2CasesByTypeOfDetection: =>
     result = {}
 
     for positiveIndividual in @positiveIndividualsIndexCasesOnly()
-      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      date = @dateOfMalariaResultFromIndividual(positiveIndividual)
       shehia = @shehia()
       if date and shehia
         result[date] or= {}
@@ -1509,7 +1550,7 @@ class Case
         result[date][shehia]["Passive"] += 1
 
     for positiveIndividual in @positiveIndividualsExcludingIndex()
-      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      date = @dateOfMalariaResultFromIndividual(positiveIndividual)
       shehia = @shehia()
       if date and shehia
         result[date] or= {}
@@ -1524,7 +1565,7 @@ class Case
   dhis2CasesByClassification: =>
     result = {}
     for positiveIndividual in @positiveIndividualsIncludingIndex()
-      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      date = @dateOfMalariaResultFromIndividual(positiveIndividual)
       shehia = @shehia()
       if date and shehia
         result[date] or= {}
@@ -1548,7 +1589,7 @@ class Case
       else
         "Unknown"
 
-      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      date = @dateOfMalariaResultFromIndividual(positiveIndividual)
       shehia = @shehia()
       if date and shehia
         result[date] or= {}
@@ -1562,7 +1603,7 @@ class Case
     result = {}
     for positiveIndividual in @positiveIndividualsIncludingIndex()
 
-      date = @dateOfPositiveFromIndividual(positiveIndividual)
+      date = @dateOfMalariaResultFromIndividual(positiveIndividual)
       shehia = @shehia()
       if date and shehia
         gender = positiveIndividual.Sex

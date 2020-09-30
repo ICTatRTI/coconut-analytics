@@ -1,6 +1,6 @@
 CaseView = require './CaseView'
 Issue = require '../models/Issue'
-CasesTabulatorView = require './CasesTabulatorView'
+TabulatorView = require './TabulatorView'
 
 class IssueView extends Backbone.View
   el: '#content'
@@ -12,9 +12,18 @@ class IssueView extends Backbone.View
     "click button#closeDialog": "closeDialog"
     "click button#addUniqueCases": "addCases"
 
+  fetchDataForCases: (caseids) =>
+
+    Coconut.reportingDatabase.allDocs
+      keys: for id in caseids
+        "case_summary_#{id}"
+      include_docs: true
+    .then (result) => 
+      Promise.resolve(result.rows)
+
   addCases: =>
 
-    casesTabulatorView = new CasesTabulatorView()
+    casesTabulatorView = new TabulatorView()
 
     casesInFirstIncident = for link in @issue.Links
       link.replace(/.*\//,"")
@@ -25,7 +34,7 @@ class IssueView extends Backbone.View
 
     allCasesIncludingAdditionalIncidents = _(casesInAdditionalIncidents).union(casesInFirstIncident)
 
-    await casesTabulatorView.fetchDataForCases(allCasesIncludingAdditionalIncidents)
+    casesTabulatorView.data = await @fetchDataForCases(allCasesIncludingAdditionalIncidents)
     casesTabulatorView.setElement "#caseDetails"
     casesTabulatorView.tabulatorFields = [
       "Malaria Case ID"
@@ -133,8 +142,8 @@ class IssueView extends Backbone.View
       "
 
       if @issue.Links?
-        casesTabulatorView = new CasesTabulatorView()
-        await casesTabulatorView.fetchDataForCases(for link in @issue.Links
+        casesTabulatorView = new TabulatorView()
+        casesTabulatorView.data = await @fetchDataForCases(for link in @issue.Links
           link.replace(/.*\//,"")
         )
         casesTabulatorView.setElement "#caseDetails"

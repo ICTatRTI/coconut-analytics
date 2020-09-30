@@ -89,21 +89,6 @@ class MenuView extends Backbone.View
           .join ""
         }
         </div>
-        <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>
-          <i class='mdl-color-text--blue-grey-400 mdi mdi-ticket mdi-24px'></i>
-            Activities
-        </span>
-        <div class='m-l-20 dropdown' id='drawer-activities'>
-        #{
-             activityLinks = {
-               Issues: "Issues"
-               Messaging: "Send SMS To Users"
-             }
-             _(activityLinks).map (linkText, linkUrl) ->
-               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/type/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
-             .join ""
-        }
-        </div>
         <span class='mdl-navigation__link drawer__subtitle' id='graphs-main' data-title='Graphs' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-chart mdi-24px'></i>
             Graphs
@@ -119,14 +104,45 @@ class MenuView extends Backbone.View
           <i class='mdl-color-text--blue-grey-400 mdi mdi-map mdi-24px'></i>
             <span class='link-title'>Maps</span>
         </a>
-        <a class='mdl-navigation__link drawer__link' href='#export' id='export' data-title='Data Export' data-category='menuLink'>
+
+
+        <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Data' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-file-export mdi-24px'></i>
-            <span class='link-title'>Data Export</span>
-        </a>
-        <a class='mdl-navigation__link drawer__link' href='#positiveIndividuals' id='positiveIndividuals' data-title='Positive Individuals' data-category='menuLink'>
-          <i class='mdl-color-text--blue-grey-400 mdi mdi-file-export mdi-24px'></i>
-            <span class='link-title'>Positive Individuals</span>
-        </a>
+            Data
+        </span>
+        <div class='m-l-20 dropdown' id='drawer-activities'>
+        #{
+             activityLinks = {
+               cases: "Index Cases"
+               individuals: "Tested Individuals"
+               export: "All Index Case Fields"
+             }
+             _(activityLinks).map (linkText, linkUrl) ->
+               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='##{linkUrl}' data-title='Data'>#{linkText}</a>"
+             .join ""
+        }
+        </div>
+
+
+
+        <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>
+          <i class='mdl-color-text--blue-grey-400 mdi mdi-ticket mdi-24px'></i>
+            Activities
+        </span>
+        <div class='m-l-20 dropdown' id='drawer-activities'>
+        #{
+             activityLinks = {
+               Issues: "Issues"
+               Messaging: "Send SMS To Users"
+             }
+             _(activityLinks).map (linkText, linkUrl) ->
+               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='#activities/type/#{linkUrl}' data-title='Activities'>#{linkText}</a>"
+             .join ""
+        }
+        </div>
+
+
+
 <!--
         <span class='mdl-navigation__link drawer__subtitle' id='setting-main' data-title='Settings' data-category='menuHeader'>
           <i class='mdl-color-text--blue-grey-400 mdi mdi-settings mdi-24px'>settings</i>

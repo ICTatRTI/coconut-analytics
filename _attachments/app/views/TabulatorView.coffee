@@ -6,22 +6,12 @@ Backbone.$  = $
 Tabulator = require 'tabulator-tables'
 Choices = require 'choices.js'
 
-class CasesTabulatorView extends Backbone.View
+class TabulatorView extends Backbone.View
 
   events:
     "click #download": "csv"
 
   csv: => @tabulator.download "csv", "CoconutTableExport.csv"
-
-  fetchDataForCases: (caseids) =>
-
-    Coconut.reportingDatabase.allDocs
-      keys: for id in caseids
-        "case_summary_#{id}"
-      include_docs: true
-    .then (result) => 
-      @data = result.rows
-      Promise.resolve @data
 
   render: =>
     @$el.html "
@@ -31,28 +21,32 @@ class CasesTabulatorView extends Backbone.View
       </div>
       <div id='selector'>
       </div>
-      <div id='tabulatorForCaseTabulatorView'></div>
+      <div id='tabulatorForTabulatorView'></div>
     "
 
-    # Take a sample of all of the possible fields to keep things fast and hopefully not miss any important ones
-    availableFields = {}
-    for doc in _(@data).chain().sample(50).pluck("doc").value()
-      for key in _(doc).keys()
-        availableFields[key] = true
+    unless @availableFields?
+      # Take a sample of all of the possible fields to keep things fast and hopefully not miss any important ones
+      @availableFields = {}
+      # Support passing direct result of query or array of docs
+      if @data[0].id? and @data[0].key? and @data[0].value? and @data[0].doc?
+        @data = _(@data).pluck "doc" 
+      for doc in _(@data).sample(50)
+        for key in _(doc).keys()
+          @availableFields[key] = true
 
-    availableFields = _(availableFields).keys()
-    console.log availableFields
+      @availableFields = _(@availableFields).keys()
 
     @tabulatorFields or= [
-      "Malaria Case ID"
+      "Malaria Case ID" # default if no other defined
     ]
 
-    choicesData = for field in availableFields
+    choicesData = for field in @availableFields
       value: field
       selected: if _(@tabulatorFields).contains field then true else false
 
     @selector = new Choices "#availableFields",
       choices: choicesData
+      shouldSort: false
       removeItemButton: true
 
     @$("#availableFields")[0].addEventListener 'change', (event) =>
@@ -72,16 +66,20 @@ class CasesTabulatorView extends Backbone.View
         result["formatter"] = "link"
       result
 
+    # Support passing direct result of query or array of docs
+    if @data[0].id? and @data[0].key? and @data[0].value? and @data[0].doc?
+      @data = _(@data).pluck "doc" 
+
     if @tabulator
       @tabulator.setColumns(columns)
-      @tabulator.setData _(@data).pluck "doc"
+      @tabulator.setData @data
     else
-      @tabulator = new Tabulator "#tabulatorForCaseTabulatorView",
+      @tabulator = new Tabulator "#tabulatorForTabulatorView",
         height: 400
         columns: columns
-        data: _(@data).pluck "doc"
+        data: @data
 
-CasesTabulatorView.showDialog = (options) =>
+TabulatorView.showCasesDialog = (options) =>
   unless casesTabulatorDialog?
     $("body").append "
       <style>
@@ -98,7 +96,7 @@ CasesTabulatorView.showDialog = (options) =>
         <div id='casesTabulator'></div>
       </dialog>
     "
-  tabulatorView = new CasesTabulatorView()
+  tabulatorView = new TabulatorView()
   tabulatorView.data = await Coconut.reportingDatabase.allDocs
       keys: for malariaCase in options.cases
         "case_summary_#{malariaCase}"
@@ -113,4 +111,4 @@ CasesTabulatorView.showDialog = (options) =>
   else
      casesTabulatorDialog.show() if !casesTabulatorDialog.open
 
-module.exports = CasesTabulatorView
+module.exports = TabulatorView

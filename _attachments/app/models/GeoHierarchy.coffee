@@ -129,10 +129,11 @@ class GeoHierarchy
         featureName: "District_N"
 
     for boundaryName, properties of @boundaries
+      unless Coconut.cachingDatabase
+        Coconut.cachingDatabase = Coconut.database # Useful when on node on the server instead of in the browser
       await Coconut.cachingDatabase.get "#{boundaryName}Adjusted"
       .catch (error) =>
         new Promise (resolve, reject) =>
-          Coconut.cachingDatabase or= new PouchDB("coconut-zanzibar-caching")
           Coconut.cachingDatabase.replicate.from Coconut.database,
             doc_ids: ["#{boundaryName}Adjusted"]
           .on "complete", =>
@@ -414,6 +415,9 @@ class GeoHierarchy
             properties[property] = value
             
     properties
+
+  villagePropertyFromGPS: (longitude, latitude) => #Note that we don't have villages as units in the hierarchy yet
+    @boundaryPropertiesFromGPS(longitude, latitude)?["Vil_Mtaa_N"]
 
   mostPreciseUnitFromGPS: (longitude, latitude) =>
     locationProperty = {

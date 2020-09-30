@@ -5,7 +5,7 @@ Backbone.$  = $
 camelize = require "underscore.string/camelize"
 
 Graphs = require '../models/Graphs'
-CasesTabulatorView = require './CasesTabulatorView'
+TabulatorView = require './TabulatorView'
 DateSelectorView = require './DateSelectorView'
 AdministrativeAreaSelectorView = require './AdministrativeAreaSelectorView'
 
@@ -80,7 +80,7 @@ class GraphView extends Backbone.View
 
   renderTabulator: =>
     if @graph.detailedDataQuery
-      global.casesTabulatorView = new CasesTabulatorView()
+      global.casesTabulatorView = new TabulatorView()
       casesTabulatorView.data = await @graph.detailedDataQuery(@options)
       casesTabulatorView.tabulatorFields = @graph.tabulatorFields
       casesTabulatorView.setElement("#tabulatorView")

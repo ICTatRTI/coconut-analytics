@@ -32,26 +32,30 @@ BackbonePouch = require 'backbone-pouch'
 _ = require 'underscore'
 moment = require 'moment'
 
+TertiaryIndex = require './models/TertiaryIndex'
 
 global.Coconut =
-  database: new PouchDB argv.database,
+  databaseURL: argv.database
+  database: new PouchDB "#{argv.database}/zanzibar",
     ajax:
       timeout: 1000 * 60 * 10
   reportingDatabase: new PouchDB "#{argv.database}-reporting",
     ajax:
       timeout: 1000 * 60 * 10
 
-
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
   db: Coconut.database
   fetch: 'query'
+
+console.log "Getting config"
 
 Coconut.database.get "coconut.config"
 .then (doc) ->
   Coconut.config = doc
   Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
 
+  console.log "Getting users"
 
   await Coconut.database.allDocs
     startkey: "user"
@@ -64,13 +68,7 @@ Coconut.database.get "coconut.config"
     Promise.resolve()
 
   QuestionCollection = require './models/QuestionCollection'
-  #DhisOrganisationUnits = require './models/DhisOrganisationUnits'
   GeoHierarchyClass = require './models/GeoHierarchy'
-  #dhisOrganisationUnits = new DhisOrganisationUnits()
-  #dhisOrganisationUnits.loadExtendExport
-  #  dhisDocumentName: "dhis2" # This is the document that was exported from DHIS2
-  #  error: (error) -> console.error error
-  #  success: (result) ->
   global.GeoHierarchy = new GeoHierarchyClass()
   await GeoHierarchy.load()
   global.FacilityHierarchy = GeoHierarchy # These have been combined
@@ -79,13 +77,19 @@ Coconut.database.get "coconut.config"
     error: (error) -> console.error error
     success: ->
       try
-        Case = require './models/Case'
+        console.log "Loading classes"
       catch error
         console.error error
 
+      tertiaryIndex = new TertiaryIndex(
+        name: "Individual"
+        docsToSaveOnReset: []
+      )
+
       if argv.update
         process.stdout.write "Update: #{moment().format("YYYY-MM-DD hh:mm")} "
-        Case.updateCaseSummaryDocs()
+
+        tertiaryIndex.updateIndexDocs()
           .catch (error) ->
             console.error "ERROR"
             console.error error
@@ -95,7 +99,7 @@ Coconut.database.get "coconut.config"
       else if argv.reset
         console.log "Resetting"
 
-        Case.resetAllCaseSummaryDocs()
+        tertiaryIndex.reset()
         .catch (error) => 
           console.error "ERROR"
           console.error error
