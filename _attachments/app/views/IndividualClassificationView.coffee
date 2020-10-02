@@ -138,7 +138,7 @@ class IndividualClassificationView extends Backbone.View
       for row in result.rows
         malariaCase = row.doc
         console.log row
-        district = malariaCase["District (if no household district uses facility)"]
+        district = malariaCase["District"]
         @districtForCase[malariaCase["Malaria Case ID"]] = district
 
         #@zoneForCase[malariaCase["Malaria Case ID"]] = GeoHierarchy.getZoneForDistrict(district)

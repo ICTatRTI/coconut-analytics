@@ -1,5 +1,7 @@
 DateSelectorView = require './DateSelectorView'
+AdministrativeAreaSelectorView = require './AdministrativeAreaSelectorView'
 TabulatorView = require './TabulatorView'
+titleize = require 'underscore.string/titleize'
 
 class CasesView extends Backbone.View
 
@@ -9,11 +11,12 @@ class CasesView extends Backbone.View
     "click .shortcut": "shortcut"
 
   shortcut: (event) =>
-    target = $(event.target).attr("data-target")
+    columnName = $(event.target).attr("data-columnName")
+    value = $(event.target).attr("data-value")
     switch target 
-      when "All" then @tabulatorView.tabulator.setHeaderFilterValue("Island","")
+      when "All" then @tabulatorView.tabulator.setHeaderFilterValue(columnName,"")
       else
-        @tabulatorView.tabulator.setHeaderFilterValue("Island",target)
+        @tabulatorView.tabulator.setHeaderFilterValue(columnName,value)
 
   render: =>
     @options.startDate or= Coconut.router.defaultStartDate()
@@ -22,13 +25,8 @@ class CasesView extends Backbone.View
     @$el.html "
       <div id='dateSelector' style='display:inline-block'></div>
       <div id='dateDescription' style='display:inline-block;vertical-align:top;margin-top:10px'></div>
-      <div style='display:inline;vertical-align:top'>
-        Island: #{
-          (for place in ["All","Pemba","Unguja"]
-            "<button class='shortcut' data-target='#{place}'>#{place}</button>"
-          ).join("")
-        }
-      </div>
+      <div id='administrativeAreaSelector' style='display:inline-block;vertical-align:top;' />
+      <div class='shortcuts' style='display:inline;vertical-align:top'></div>
       <div id='tabulatorView'>
       </div>
     "
@@ -42,6 +40,24 @@ class CasesView extends Backbone.View
       @options.endDate = endDate.format("YYYY-MM-DD")
       @renderData()
     @dateSelectorView.render()
+
+
+    @administrativeAreaSelectorView = new AdministrativeAreaSelectorView()
+    @administrativeAreaSelectorView.setElement "#administrativeAreaSelector"
+    @administrativeAreaSelectorView.onChange = (administrativeName, administrativeLevel) => 
+      administrativeLevel = titleize(administrativeLevel.toLowerCase().replace(/ies$/,"y").replace(/s$/,""))
+      unless @tabulatorView.tabulator.setHeaderFilterValue(administrativeLevel,administrativeName) is undefined
+        if _(@tabulatorView.availableFields).contains administrativeLevel
+          #Add it
+          @tabulatorView.selector.setValue([{
+            label: administrativeLevel
+            value: administrativeLevel
+          }])
+          @tabulatorView.renderTabulator()
+          @tabulatorView.tabulator.setHeaderFilterValue(administrativeLevel,administrativeName)
+        else
+          alert "#{administrativeLevel} is not an available field in the data"
+    @administrativeAreaSelectorView.render()
 
     @renderData()
 
@@ -62,17 +78,6 @@ class CasesView extends Backbone.View
       startkey: @dateSelectorView.startDate
       endkey: @dateSelectorView.endDate
       include_docs: true
-    .then (result) =>
-      console.log "Adding GPS Shehias"
-      for row in result.rows
-        longitude = row.doc["Household Location - Longitude"]
-        latitude = row.doc["Household Location - Latitude"]
-        if longitude? and latitude?
-          row.doc["Shehia From GPS"] = GeoHierarchy.findByGPS(longitude, latitude, "SHEHIA")?.name
-          row.doc["Village From GPS"] = GeoHierarchy.villagePropertyFromGPS(longitude, latitude)
-        row.doc
-      console.log "DONE"
-      Promise.resolve result.rows
 
     @tabulatorView.setElement("#tabulatorView")
     @tabulatorView.render()

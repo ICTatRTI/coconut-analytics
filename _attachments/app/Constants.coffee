@@ -504,7 +504,7 @@ module.exports =
       "facility": "Facility"
       "FacilityType": "Facility Type"
       "facility_district": "District of Facility"
-      "district": "District (if no household district uses facility)"
+      "district": "District"
       "SMSSent": "SMS Sent"
       "numbersSentTo": "Numbers Sent To"
       "HasCaseNotification": "Has Case Notification"

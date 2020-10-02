@@ -497,13 +497,13 @@ class WeeklyMeetingReportView extends Backbone.View
     for summaryCase in summaryCaseData
       caseAggregationArea = switch aggregationArea
         when "Zone"
-          district = summaryCase["District (if no household district uses facility)"]
+          district = summaryCase["District"]
           if district
             GeoHierarchy.getZoneForDistrict(district)
           else
             "UNKNOWN"
         when "District"
-          summaryCase["District (if no household district uses facility)"] or "UNKNOWN"
+          summaryCase["District"] or "UNKNOWN"
         when "Facility"
           summaryCase.Facility or "UNKNOWN"
       id = summaryCase["Malaria Case ID"]

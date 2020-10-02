@@ -18,6 +18,7 @@ class AdministrativeAreaSelectorView extends Backbone.View
     @onChange(@administrativeName, @administrativeLevel)
 
   optionsForAdministrativeNames: =>
+    @administrativeLevel or= "National"
     names = _(GeoHierarchy.findAllForLevel(@administrativeLevel)).pluck "name"
     if names.length is 1 # Select the first one if there is only one choice
       @administrativeName is names[0]

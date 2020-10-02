@@ -13,6 +13,13 @@ class TabulatorView extends Backbone.View
 
   csv: => @tabulator.download "csv", "CoconutTableExport.csv"
 
+  # Support passing direct result of query or array of docs
+  normalizeData: =>
+    if @data.rows? and @data.total_rows?
+      @data = @data.rows
+    if @data[0].id? and @data[0].key? and @data[0].value? and @data[0].doc?
+      @data = _(@data).pluck "doc" 
+
   render: =>
     @$el.html "
       <button id='download'>CSV ↓</button> <small>Add more fields by clicking the box below</small>
@@ -27,10 +34,8 @@ class TabulatorView extends Backbone.View
     unless @availableFields?
       # Take a sample of all of the possible fields to keep things fast and hopefully not miss any important ones
       @availableFields = {}
-      # Support passing direct result of query or array of docs
-      if @data[0].id? and @data[0].key? and @data[0].value? and @data[0].doc?
-        @data = _(@data).pluck "doc" 
-      for doc in _(@data).sample(50)
+      @normalizeData()
+      for doc in _(@data).sample(1000)
         for key in _(doc).keys()
           @availableFields[key] = true
 
@@ -66,16 +71,14 @@ class TabulatorView extends Backbone.View
         result["formatter"] = "link"
       result
 
-    # Support passing direct result of query or array of docs
-    if @data[0].id? and @data[0].key? and @data[0].value? and @data[0].doc?
-      @data = _(@data).pluck "doc" 
+    @normalizeData()
 
     if @tabulator
       @tabulator.setColumns(columns)
       @tabulator.setData @data
     else
       @tabulator = new Tabulator "#tabulatorForTabulatorView",
-        height: 400
+        height: 500
         columns: columns
         data: @data
 

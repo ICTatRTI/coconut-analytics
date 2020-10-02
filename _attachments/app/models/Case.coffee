@@ -1203,8 +1203,7 @@ class Case
 
     island: {}
 
-    district:
-      propertyName: "District (if no household district uses facility)"
+    district: {}
     facility: {}
     facilityType: {}
     facilityDistrict:
