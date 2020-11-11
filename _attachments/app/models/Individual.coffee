@@ -89,10 +89,12 @@ class Individual
     "isUnder5"
     "relevantTravelOutsideZanzibar"
     "relevantTravelWithinZanzibar"
-    "shehia" # Could require different focus
-    "district" # Could require different focus
-    "island" # Could require different focus
-
+    "householdShehia"
+    "householdDistrict"
+    "householdIsland"
+    "focalShehia"
+    "focalDistrict"
+    "focalIsland"
     "name" # Hand first Name, name, etc
     "dateOfPositiveResults"
     "classification"
@@ -149,9 +151,11 @@ class Individual
   relevantTravelWithinZanzibar: =>
     @data["OvernightTravelWithinZanzibar1030DaysBeforePositiveTestResult"] is "Yes"
 
-  shehiaUnit: =>
-    if (focus = @data["WhereCouldTheMalariaFocusBe"])
-      focus = focus.trim()
+  malariaFocus: =>
+    @data["WhereCouldTheMalariaFocusBe"]?.trim()
+
+  focalShehiaUnit: =>
+    if focus = @malariaFocus()
       if focus is "Patient Shehia"
         @case.householdShehiaUnit()
       else if focus is "Other Shehia Within Zanzibar"
@@ -159,25 +163,42 @@ class Individual
         otherShehia = positiveIndividual["WhichOtherShehiaWithinZanzibar"]
         shehiaUnit = @shehiaUnit(otherShehia, otherDistrict)
         shehiaUnit or @case.householdShehiaUnit
+      # If outside Zanzibar will return null since there are no units outside Zanzibar
     else if @data["HouseholdMemberType"] is "Index Case" and (odkData = @["ODK 2017-2019"])
 
       #TODO waiting to find out which ODK questions were used for this
-      @case.householdShehiaUnit()
+      @householdShehiaUnit()
     else
-      @case.householdShehiaUnit()
+      @householdShehiaUnit()
 
-  shehia: =>
-    @shehiaUnit()?.name
+  focalShehia: =>
+    @focalShehiaUnit()?.name or @malariaFocus()
 
-  district: =>
-    @shehiaUnit()?.ancestorAtLevel("DISTRICT")?.name
+  focalDistrict: =>
+    @focalShehiaUnit()?.ancestorAtLevel("DISTRICT")?.name or @malariaFocus()
 
-  island: =>
-    @shehiaUnit()?.ancestorAtLevel("ISLANDS")?.name
+  focalIsland: =>
+    @focalShehiaUnit()?.ancestorAtLevel("ISLANDS")?.name or @malariaFocus()
 
+  householdShehiaUnit: =>
+    @case.householdShehiaUnit()
+
+  householdShehia: =>
+    @householdShehiaUnit()?.name
+
+  householdDistrict: =>
+    @householdShehiaUnit()?.ancestorAtLevel("DISTRICT")?.name
+
+  householdIsland: =>
+    @householdShehiaUnit()?.ancestorAtLevel("ISLANDS")?.name
 
   name: =>
-    "#{@data["FirstName"]} #{@data["MiddleName"] or ""} #{@data["LastName"]}" or @findFirst(["name"])
+    name = "#{@data["FirstName"] or ""} #{@data["MiddleName"] or ""} #{@data["LastName"] or ""}"
+    name = name?.replace(/  /g," ").trim()
+    if name is ""
+      @findFirst(["name"])
+    else
+      name
 
   dateOfPositiveResults: =>
     return null unless @data["Malaria Positive"] is true
