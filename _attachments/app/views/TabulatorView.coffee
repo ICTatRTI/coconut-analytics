@@ -41,11 +41,17 @@ class TabulatorView extends Backbone.View
 
       @availableFields = _(@availableFields).keys()
 
+    if @excludeFields
+      @availableFields = @availableFields.filter (field) => 
+        not @excludeFields.includes(field)
+
     @tabulatorFields or= [
       "Malaria Case ID" # default if no other defined
     ]
 
-    choicesData = for field in @availableFields
+    #console.log @tabulatorFields
+
+    choicesData = for field in _(@tabulatorFields.concat(_(@availableFields).sort())).uniq() # This preserves order of tabulatorFields and alphabetizes the rest
       value: field
       selected: if _(@tabulatorFields).contains field then true else false
 

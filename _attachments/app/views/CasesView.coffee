@@ -74,6 +74,11 @@ class CasesView extends Backbone.View
       "Index Case Diagnosis Date"
       "Classifications By Household Member Type"
     ]
+    @tabulatorView.excludeFields = [
+      "_id"
+      "_rev"
+      "Ussd Notification: Created At"
+    ]
     @tabulatorView.data = await Coconut.reportingDatabase.query "caseIDsByDate",
       startkey: @dateSelectorView.startDate
       endkey: @dateSelectorView.endDate
