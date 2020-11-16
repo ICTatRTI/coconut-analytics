@@ -8,6 +8,8 @@ CONST = require "../Constants"
 humanize = require 'underscore.string/humanize'
 titleize = require 'underscore.string/titleize'
 PouchDB = require 'pouchdb-core'
+radix64 = require('radix-64')()
+HouseholdMember = require './HouseholdMember'
 
 Question = require './Question'
 
@@ -38,6 +40,9 @@ class Case
         @questions.push resultDoc.question
         if resultDoc.question is "Household Members"
           this["Household Members"].push resultDoc
+          householdMember = new HouseholdMember()
+          householdMember.load(resultDoc)
+          (@householdMembers or= []).push(householdMember)
         else if resultDoc.question is "Household" and resultDoc.Reasonforvisitinghousehold is "Index Case Neighbors"
           this["Neighbor Households"].push resultDoc
         else
@@ -149,11 +154,11 @@ class Case
     #@["Case Notification"]?.FacilityName.toUpperCase() or @["USSD Notification"]?.hf.toUpperCase() or @["Facility"]?.FacilityName or "UNKNOWN"
 
   facilityType: =>
-    facilityName = @facility()
-    unless facilityName
-      console.warn "No facility name found"
-    else
-      FacilityHierarchy.facilityType(@facility())
+    facilityUnit = @facilityUnit()
+    unless facilityUnit?
+      console.warn "Unknown facility name for: #{@caseID}. Returning UNKNOWN for facilityType."
+      return "UNKNOWN"
+    GeoHierarchy.facilityTypeForFacilityUnit(@facilityUnit())
 
   facilityDhis2OrganisationUnitId: =>
     GeoHierarchy.findFirst(@facility(), "FACILITY")?.id
@@ -253,13 +258,15 @@ class Case
   villageFromGPS: =>
     longitude = @householdLocationLongitude()
     latitude = @householdLocationLatitude()
-    GeoHierarchy.villagePropertyFromGPS(longitude, latitude)
+    if longitude? and latitude?
+      GeoHierarchy.villagePropertyFromGPS(longitude, latitude)
 
 
   shehiaUnitFromGPS: =>
     longitude = @householdLocationLongitude()
     latitude = @householdLocationLatitude()
-    GeoHierarchy.findByGPS(longitude, latitude, "SHEHIA")
+    if longitude? and latitude?
+      GeoHierarchy.findByGPS(longitude, latitude, "SHEHIA")
 
   shehiaFromGPS: =>
     @shehiaUnitFromGPS()?.name
@@ -302,16 +309,21 @@ class Case
   householdShehia: =>
     @householdShehiaUnit()?.name
 
-
-
   shehia: ->
     returnVal = @validShehia()
     return returnVal if returnVal?
 
-    console.warn "No valid shehia found for case: #{@MalariaCaseID()} result will be either null or unknown."
 
     # If no valid shehia is found, then return whatever was entered (or null)
-    @.Household?.Shehia || @.Facility?.Shehia || @["Case Notification"]?.shehia || @["USSD Notification"]?.shehia
+    returnVal = @.Household?.Shehia || @.Facility?.Shehia || @["Case Notification"]?.shehia || @["USSD Notification"]?.shehia
+
+    if @hasCompleteFacility()
+      if @complete()
+        console.warn "Case was followed up to household, but shehia name: #{returnVal} is not a valid shehia. #{@MalariaCaseID()}."
+      else
+        console.warn "Case was followed up to facility, but shehia name: #{returnVal} is not a valid shehia: #{@MalariaCaseID()}."
+
+    return returnVal
 
   village: ->
     @["Facility"]?.Village
@@ -319,8 +331,7 @@ class Case
   facilityDistrict: ->
     facilityDistrict = @["USSD Notification"]?.facility_district
     unless facilityDistrict and GeoHierarchy.validDistrict(facilityDistrict)
-      facilityUnit = GeoHierarchy.findFirst(@facility(), "FACILITY")
-      facilityDistrict = facilityUnit?.ancestorAtLevel("DISTRICT").name
+      facilityDistrict = @facilityUnit()?.ancestorAtLevel("DISTRICT").name
     unless facilityDistrict
       #if @["USSD Notification"]?.facility_district is "WEST" and _(GeoHierarchy.find(@shehia(), "SHEHIA").map( (u) => u.ancestors()[0].name )).include "MAGHARIBI A" # MEEDS doesn't have WEST split
       #
@@ -343,15 +354,9 @@ class Case
     districtUnit = @shehiaUnit()?.ancestorAtLevel("DISTRICT") or @facilityUnit()?.ancestorAtLevel("DISTRICT")
     return districtUnit if districtUnit?
 
-
-    facilityDistrictName = null
     for name in [@Facility?.DistrictForFacility, @["Case Notification"]?.DistrictForFacility, @["USSD Notification"]?["facility_district"]]
       if name? and GeoHierarchy.validDistrict(name)
-        facilityDistrictName = name
-        break
-
-    if facilityDistrictName?
-      GeoHierarchy.findOneMatchOrUndefined(facilityDistrictName, "DISTRICT")
+        return GeoHierarchy.findOneMatchOrUndefined(name, "DISTRICT")
 
   district: =>
     @districtUnit()?.name or "UNKNOWN"
@@ -376,7 +381,7 @@ class Case
       return district if geographicLevel.match(/district/i)
       GeoHierarchy.getAncestorAtLevel(district, "DISTRICT", geographicLevel)
     else
-      console.warn "No district for case: #{@caseId}"
+      console.warn "No district for case: #{@caseID}"
 
   # namesOfAdministrativeLevels
   # Nation, Island, Region, District, Shehia, Facility
@@ -400,8 +405,9 @@ class Case
           result["Household Members"] = false
         else
           result["Household Members"] = true
-          _.each @["Household Members"]?, (member) ->
-            result["Household Members"] = false if (member.complete is "false" or member.complete is false)
+          for member in @["Household Members"]
+            unless member.complete? and (member.complete is true or member.complete is "true")
+              result["Household Members"] = false 
       else
         result[question] = (@[question]?.complete is "true" or @[question]?.complete is true)
     return result
@@ -412,8 +418,66 @@ class Case
       return question if questionStatus[question]
     return "None"
 
+  hasHouseholdMembersWithRepeatedNames: =>
+    @repeatedNamesInSameHousehold() isnt null
+
+  repeatedNamesInSameHousehold: =>
+    names = {}
+
+    for individual in @positiveAndNegativeIndividualObjects()
+      name = individual.name()
+      if name? and name isnt ""
+        names[name] or= 0
+        names[name] += 1
+
+    repeatedNames = []
+    for name, frequency of names
+      if frequency > 1
+        repeatedNames.push name
+
+    if repeatedNames.length > 0
+      return repeatedNames.join(", ")
+    else
+      return null
+
+  oneAndOnlyOneIndexCase: =>
+    numberOfIndexCases = 0
+    for individual in @positiveIndividualObjects()
+      if individual.data.HouseholdMemberType is "Index Case"
+        numberOfIndexCases+=1
+    console.log "numberOfIndexCases: #{numberOfIndexCases}" if numberOfIndexCases isnt 1
+    return numberOfIndexCases is 1
+
+  hasIndexCaseClassified: =>
+    @classificationsByHouseholdMemberType().match(/Index Case/)
+
   complete: =>
     @questionStatus()["Household Members"] is true
+
+  status: =>
+    if @["Facility"]?["Lost To Followup"] is "Yes"
+      return "Lost To Followup"
+    else
+      if @complete()
+        return "Followed up"
+      else
+        returnVal = ""
+        for question, status of @questionStatus()
+          if status is false
+            returnVal = if question is "Household Members" and not @hasIndexCaseClassified()
+              "Household Members does not have a classified Index Case"
+            else
+              if question is "Household Member"
+                "<a href='##{Coconut.databaseName}/show/results/Household%20Members'>#{question}</a> in Progress"
+              else
+                url = if @[question]?._id
+                  "##{Coconut.databaseName}/edit/result/#{@[question]._id}"
+                else
+                  "##{Coconut.databaseName}/show/results/#{question}"
+                "<a href='#{url}'>#{question}</a> in Progress"
+            break
+        returnVal
+
 
   hasCompleteFacility: =>
     @.Facility?.complete is "true" or @.Facility?.complete is true
@@ -442,6 +506,13 @@ class Case
 
   followedUp: =>
     @completeHouseholdVisit()
+
+  # Includes any kind of travel including only within Zanzibar
+  indexCaseHasTravelHistory: =>
+    @.Facility?.TravelledOvernightinpastmonth?.match(/Yes/) or false
+
+  indexCaseHasNoTravelHistory: =>
+    not @indexCaseHasTravelHistory()
 
   location: (type) ->
     # Not sure how this works, since we are using the facility name with a database of shehias
@@ -686,6 +757,9 @@ class Case
     if @["Case Notification"]?
       return @["Case Notification"]?.Name
 
+  # Not sure why the casing is weird - put this in to support mobile client
+  indexCaseDiagnosisDate: => @IndexCaseDiagnosisDate()
+
   IndexCaseDiagnosisDate: ->
     if @["Facility"]?.DateOfPositiveResults?
       date = @["Facility"].DateOfPositiveResults
@@ -837,6 +911,19 @@ class Case
     if dateOfPositiveResults? and notificationDate?
       Math.abs(moment(dateOfPositiveResults).diff(notificationDate, 'days'))
 
+  # Since we don't have the hour/minute of the positive result
+  # Assume that everyone gets tested at 8am
+  estimatedHoursBetweenPositiveResultAndNotificationFromFacility: =>
+    dateOfPositiveResults = @dateOfPositiveResults()
+
+    notificationDate = @["USSD Notification"]?.date or @["Case Notification"]?.createdAt
+
+    if dateOfPositiveResults? and notificationDate?
+      timeOfPositiveResults = moment(dateOfPositiveResults)
+      if timeOfPositiveResults.hour() is 0
+        timeOfPositiveResults.hour(8)
+      Math.abs(moment(timeOfPositiveResults).diff(notificationDate, 'hours'))
+
 
   lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: =>
     if (daysBetweenPositiveResultAndNotificationFromFacility = @daysBetweenPositiveResultAndNotificationFromFacility())?
@@ -941,6 +1028,9 @@ class Case
   timeFromSMSToCompleteHousehold: =>
     if @householdComplete() and @["USSD Notification"]?
       return moment(@timeOfHouseholdComplete().replace(/\+0\d:00/,"")).diff(@["USSD Notification"]?.date)
+
+  hoursFromNotificationToCompleteHousehold: => 
+    Math.floor(moment.duration(@timeFromSMSToCompleteHousehold()).asHours())
 
   daysFromSMSToCompleteHousehold: =>
     if @householdComplete() and @["USSD Notification"]?
@@ -1435,6 +1525,7 @@ class Case
     ListalllocationsofovernighttravelwithinZanzibar1024daysbeforepositivetestresult:
       propertyName: "All Locations Of Overnight Travel Within Zanzibar 10-24 Days Before Positive Test Result"
     daysBetweenPositiveResultAndNotificationFromFacility: {}
+    estimatedHoursBetweenPositiveResultAndNotificationFromFacility: {}
     daysFromCaseNotificationToCompleteFacility:
       propertyName: "Days From Case Notification To Complete Facility"
     daysFromSMSToCompleteHousehold:
@@ -1614,11 +1705,141 @@ class Case
 
     result
 
+  saveAndAddResultToCase: (result) =>
+    if @[result.question]?
+      console.error "#{result.question} already exists for:"
+      console.error @
+      return
+    resultQuestion = result.question
+    Coconut.database.put result
+    .then (result) =>
+      console.log "saved:"
+      console.log result
+      @questions.push result.question
+      @[result.question] = result
+      Coconut.headerView.update()
+      Coconut.showNotification( "#{resultQuestion} record created")
+    .catch (error) ->
+      console.error error
+
+  createNextResult: =>
+    @fetch
+      error: -> console.error error
+      success: =>
+        if @["Household Members"] and @["Household Members"].length > 0
+          console.log "Household Members exists, no result created"
+          # Don't create anything
+        else if @Household?.complete
+          console.log "Creating Household members and neighbor households if necessary"
+          @createHouseholdMembers()
+          @createNeighborHouseholds()
+        else if @Facility?.complete and @Facility?.IsCaseLostToFollowup is "No"
+          console.log "Creating Household"
+          @createHousehold()
+        else if @["Case Notification"]?.complete
+          console.log "Creating Facility"
+          @createFacility()
+        _.delay(Coconut.menuView.render, 500)
+
+  createFacility: =>
+    @saveAndAddResultToCase
+      _id: "result-case-#{@caseID}-Facility-#{radix64.encodeInt(moment().format('x'))}-#{Coconut.instanceId}"
+      question: "Facility"
+      MalariaCaseID: @caseID
+      DistrictForFacility: @facilityDistrict()
+      FacilityName: @facility()
+      DistrictForShehia: @shehiaUnit().ancestorAtLevel("DISTRICT")?.name
+      Shehia: @shehia()
+      collection: "result"
+      createdAt: moment(new Date()).format(Coconut.config.get "date_format")
+      lastModifiedAt: moment(new Date()).format(Coconut.config.get "date_format")
+
+  createHousehold: =>
+    @saveAndAddResultToCase
+      _id: "result-case-#{@caseID}-Household-#{radix64.encodeInt(moment().format('x'))}-#{Coconut.instanceId}"
+      question: "Household"
+      Reasonforvisitinghousehold: "Index Case Household"
+      MalariaCaseID: @caseID
+      HeadOfHouseholdName: @Facility.HeadOfHouseholdName
+      District: @district()
+      Shehia: @shehia()
+      Village: @Facility.Village
+      ShehaMjumbe: @Facility.ShehaMjumbe
+      ContactMobilePatientRelative: @Facility.ContactMobilePatientRelative
+      collection: "result"
+      createdAt: moment(new Date()).format(Coconut.config.get "date_format")
+      lastModifiedAt: moment(new Date()).format(Coconut.config.get "date_format")
+
+  createHouseholdMembers: =>
+    unless _(@questions).contains 'Household Members'
+      _(@Household.TotalNumberOfResidentsInTheHousehold).times (index) =>
+        result = {
+          _id: "result-case-#{@caseID}-Household-Members-#{radix64.encodeInt(moment().format('x'))}-#{radix64.encodeInt(Math.round(Math.random()*100000))}-#{Coconut.instanceId}" # There's a chance moment will be the same so add some randomness
+          question: "Household Members"
+          MalariaCaseID: @caseID
+          HeadOfHouseholdName: @Household.HeadOfHouseholdName
+          collection: "result"
+          createdAt: moment(new Date()).format(Coconut.config.get "date_format")
+          lastModifiedAt: moment(new Date()).format(Coconut.config.get "date_format")
+        }
+
+        if index is 0
+          _(result).extend
+            HouseholdMemberType: "Index Case"
+            FirstName: @Facility?.FirstName
+            LastName: @Facility?.LastName
+            DateOfPositiveResults: @Facility?.DateOfPositiveResults
+            Sex: @Facility?.Sex
+            Age: @Facility?.Age
+            AgeInYearsMonthsDays: @Facility?.AgeInYearsMonthsDays
+            MalariaMrdtTestResults: @Facility?.MalariaMrdtTestResults
+            MalariaTestPerformed: @Facility?.MalariaTestPerformed
+
+        Coconut.database.put result
+        .then =>
+          @questions.push result.question
+          @[result.question] = [] unless @[result.question]
+          @[result.question].push result
+        .catch (error) ->
+          console.error error
+
+      Coconut.headerView.update()
+      Coconut.showNotification( "Household member record(s) created")
+
+  createNeighborHouseholds: =>
+    # If there is more than one Household for this case, then Neighbor households must already have been created
+    unless (_(@questions).filter (question) -> question is 'Household').length is 1
+      _(@Household.NumberOfOtherHouseholdsWithin50StepsOfIndexCaseHousehold).times =>
+
+        result = {
+          _id: "result-case-#{@caseID}-Household-#{radix64.encodeInt(moment().format('x'))}-#{radix64.encodeInt(Math.round(Math.random()*100000))}-#{Coconut.instanceId}" # There's a chance moment will be the same so add some randomness
+          ReasonForVisitingHousehold: "Index Case Neighbors"
+          question: "Household"
+          MalariaCaseID: @result.get "MalariaCaseID"
+          Shehia: @result.get "Shehia"
+          Village: @result.get "Village"
+          ShehaMjumbe: @result.get "ShehaMjumbe"
+          collection: "result"
+          createdAt: moment(new Date()).format(Coconut.config.get "date_format")
+          lastModifiedAt: moment(new Date()).format(Coconut.config.get "date_format")
+        }
+
+        Coconut.database.put result
+        .then =>
+          Coconut.headerView.update()
+        .catch (error) ->
+          console.error error
+
+      Coconut.showNotification( "Neighbor Household created")
+
+
+
 Case.resetSpreadsheetForAllCases = =>
   Coconut.database.get "CaseSpreadsheetData"
   .then (caseSpreadsheetData) ->
     Case.updateCaseSpreadsheetDocs(0,caseSpreadsheetData)
   .catch (error) -> console.error error
+
 
 Case.loadSpreadsheetHeader = (options) ->
   if Coconut.spreadsheetHeader
@@ -1750,6 +1971,28 @@ Case.getCases = (options) ->
     options?.success?(cases)
     Promise.resolve(cases)
 
+
+# Used on mobile client
+Case.getCasesSummaryData = (startDate, endDate) =>
+  Coconut.database.query "casesWithSummaryData",
+    startDate: startDate
+    endDate: endDate
+    descending: true
+    include_docs: true
+  .catch (error) =>
+    console.error JSON.stringify error
+  .then (result) =>
+    _(result.rows).chain().map (row) =>
+      row.doc.MalariaCaseID ?= row.key  # For case docs without MalariaCaseID add it (caseid etc)
+      row.doc
+    .groupBy "MalariaCaseID"
+    .map (resultDocs, malariaCaseID) =>
+      new Case
+        caseID: malariaCaseID
+        results: resultDocs
+    .value()
+
+
 Case.getLatestChangeForDatabase = ->
   new Promise (resolve,reject) =>
     Coconut.database.changes
@@ -1878,56 +2121,53 @@ Case.updateCaseSummaryDocs = (options) ->
         console.log "CaseSummaryData updated through sequence: #{latestChangeForDatabase}"
 
 
+
 Case.updateSummaryForCases = (options) =>
   new Promise (resolve, reject) =>
     
-    docsToSave = []
     return resolve() if options.caseIDs.length is 0
 
-    for caseID, counter in options.caseIDs
-      console.log "#{caseID}: (#{counter+1}/#{options.caseIDs.length} #{Math.floor(((counter+1) / options.caseIDs.length) * 100)}%)"
+    numberOfCasesToProcess = options.caseIDs.length
+    numberOfCasesProcessed = 0
+    numberOfCasesToProcessPerIteration = 100
 
-      malariaCase = new Case
-        caseID: caseID
-      try
-        await malariaCase.fetch()
-      catch
-        console.error "ERROR fetching case: #{caseID}"
-        console.error error
+    while options.caseIDs.length > 0
+      caseIDs = options.caseIDs.splice(0,numberOfCasesToProcessPerIteration) # remove 100 caseids
 
-      docId = "case_summary_#{caseID}"
+      cases = await Case.getCases
+        caseIDs: caseIDs
 
-      currentCaseSummaryDoc = null
-      try 
-         currentCaseSummaryDoc = await Coconut.reportingDatabase.get(docId)
-      catch
-        # Ignore if there is no document
+      docsToSave = []
+      for malariaCase in cases
+        caseID = malariaCase.caseID
 
-      try
-        updatedCaseSummaryDoc = malariaCase.summaryCollection()
-      catch error
-        console.error error
+        docId = "case_summary_#{caseID}"
 
-      updatedCaseSummaryDoc["_id"] = docId
-      updatedCaseSummaryDoc._rev = currentCaseSummaryDoc._rev if currentCaseSummaryDoc?
-
-      docsToSave.push updatedCaseSummaryDoc
-
-      if docsToSave.length > 500
-        try
-          await Coconut.reportingDatabase.bulkDocs(docsToSave)
+        currentCaseSummaryDoc = null
+        try 
+           currentCaseSummaryDoc = await Coconut.reportingDatabase.get(docId)
         catch
-          console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
-          console.error error
-        docsToSave.length = 0 # Clear the array: https://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
+          # Ignore if there is no document
 
-    console.log docsToSave
-    try
-      await Coconut.reportingDatabase.bulkDocs(docsToSave)
-      resolve()
-    catch error
-      console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
-      console.error error
+        try
+          updatedCaseSummaryDoc = malariaCase.summaryCollection()
+        catch error
+          console.error error
+
+        updatedCaseSummaryDoc["_id"] = docId
+        updatedCaseSummaryDoc._rev = currentCaseSummaryDoc._rev if currentCaseSummaryDoc?
+
+        docsToSave.push updatedCaseSummaryDoc
+
+      try
+        await Coconut.reportingDatabase.bulkDocs(docsToSave)
+      catch error
+        console.error "ERROR SAVING #{docsToSave.length} case summaries: #{caseIDs.join ","}"
+        console.error error
+
+      numberOfCasesProcessed += caseIDs.length
+      console.log "#{numberOfCasesProcessed}/#{numberOfCasesToProcess} #{Math.floor(numberOfCasesProcessed/numberOfCasesToProcess*100)}% (last ID: #{caseIDs.pop()})"
+    resolve()
 
 
 ### I think this can be removed
@@ -2044,5 +2284,51 @@ Case.createObjectTable = (name,object) ->
       </tbody>
     </table>
   "
+  
+Case.setup = =>
+  new Promise (resolve) =>
+
+    for docId in ["shehias_high_risk","shehias_received_irs"]
+      await Coconut.database.get docId
+      .catch (error) -> console.error JSON.stringify error
+      .then (result) ->
+        Coconut[docId] = result
+        Promise.resolve()
+
+    designDocs = {
+      cases: (doc) ->
+        emit(doc.MalariaCaseID, null) if doc.MalariaCaseID
+        emit(doc.caseid, null) if doc.caseid
+
+      casesWithSummaryData: (doc) ->
+        if doc.MalariaCaseID
+          date = doc.DateofPositiveResults or doc.lastModifiedAt
+          match = date.match(/^(\d\d).(\d\d).(2\d\d\d)/)
+          if match?
+            date = "#{match[3]}-#{match[2]}-#{match[1]}"
+
+          if doc.transferred?
+            lastTransfer = doc.transferred[doc.transferred.length-1]
+
+          if date.match(/^2\d\d\d\-\d\d-\d\d/)
+            emit date, [doc.MalariaCaseID,doc.question,doc.complete,lastTransfer]
+
+        if doc.caseid
+          if document.transferred?
+            lastTransfer = doc.transferred[doc.transferred.length-1]
+          if doc.date.match(/^2\d\d\d\-\d\d-\d\d/)
+            emit doc.date, [doc.caseid, "Facility Notification", null, lastTransfer]
+
+    }
+
+    for name, designDocFunction of designDocs
+      designDoc = Utils.createDesignDoc name, designDocFunction
+      await Coconut.database.upsert designDoc._id, (existingDoc) =>
+        return false if _(designDoc.views).isEqual(existingDoc?.views)
+        console.log "Creating Case view: #{name}"
+        designDoc
+      .catch (error) => 
+        console.error error
+    resolve()
 
 module.exports = Case
