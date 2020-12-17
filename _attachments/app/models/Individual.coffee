@@ -196,13 +196,14 @@ class Individual
     name = "#{@data["FirstName"] or ""} #{@data["MiddleName"] or ""} #{@data["LastName"] or ""}"
     name = name?.replace(/  /g," ").trim()
     if name is ""
-      @findFirst(["name"])
+      @findFirst(["name"])?.trim()
     else
       name
 
   dateOfPositiveResults: =>
     return null unless @data["Malaria Positive"] is true
     date = @findFirst([
+      "DateAndTimeOfPositiveResults"
       "DateOfPositiveResults"
       "createdAt"
       "date"

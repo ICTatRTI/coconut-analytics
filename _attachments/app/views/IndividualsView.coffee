@@ -72,8 +72,8 @@ class IndividualsView extends Backbone.View
   renderTabulator: =>
     @tabulatorView = new TabulatorView()
     @tabulatorView.tabulatorFields = [
-      "Island"
-      "District"
+      "Household Island"
+      "Household District"
       "Malaria Case ID"
       "Date Of Malaria Results"
       "Malaria Positive"

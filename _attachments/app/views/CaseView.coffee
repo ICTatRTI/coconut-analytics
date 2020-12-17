@@ -13,6 +13,7 @@ class CaseView extends Backbone.View
 
   render: (scrollTargetID) =>
 
+
     Coconut.case = @case
     tables = [
       "USSD Notification"
@@ -35,7 +36,6 @@ class CaseView extends Backbone.View
       <h4>Classification#{if @case.classificationsByHouseholdMemberType().split(/, /).length > 1 then "s:<br/>" else ":"} 
         <h5>#{
           (for typeClassification in @case.classificationsByHouseholdMemberType().split(/, /)
-            console.log typeClassification
             [type, classification] = typeClassification.split(/: /) 
             "&nbsp;#{type}: #{classification}<br/>"
           ).join("")
@@ -59,7 +59,8 @@ class CaseView extends Backbone.View
       question = new Question(id: question)
       continue if question.id is "Summary" or question.id is "USSD Notification"
       await question.fetch()
-      .catch (error) => console.error "Can't find question: #{JSON.stringify question}"
+      .catch (error) => 
+        console.error "Can't find question: #{JSON.stringify question}" unless question is "ODK 2017-2019"
       _.extend(@mappings, question.safeLabelsToLabelsMappings())
 
     # USSD Notification doesn't have a mapping
@@ -110,8 +111,8 @@ class CaseView extends Backbone.View
     <div style='height: 40px; font-size:xx-large; cursor:pointer' class='toggleNext'>#{name} ⇩</div>
     <div style='display:none' class='objectTable'>
       #{
-        if object._id?
-          "<small><a href='#delete/result/#{object._id}'>Delete</a></small>"
+        if object._id? and Coconut.currentUser.isAdmin()
+          "<small><span style='color:gray'>#{object._id}</span> <a href='#delete/result/#{object._id}'>Delete</a></small>"
         else ""
       }
       <table class='mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp' id='caseTable'>
@@ -132,7 +133,20 @@ class CaseView extends Backbone.View
                       @mappings[field] or field
                     }
                   </td>
-                  <td class='mdl-data-table__cell--non-numeric'>#{value}</td>
+                  <td class='mdl-data-table__cell--non-numeric'>
+                    #{
+                      if field is "transferred" and _(value).isObject() # transferred data is an object that doesn't print nicely
+                        "
+                        <pre style='font-size:small'>
+                          #{JSON.stringify value, null, 2}
+                        </pre>
+                        "
+                      else if ["name", "first name", "middle name", "last name", "headofhouseholdname"].includes(field.toLowerCase())
+                        "<span style='display:none'>#{value}</span> <button class='showName'>Show</button>"
+                      else
+                        value
+                    }
+                  </td>
                 </tr>
               "
             ).join("")
@@ -145,6 +159,10 @@ class CaseView extends Backbone.View
 
   events:
     "click .toggleNext": "toggleNext"
+    "click .showName": "showName"
+
+  showName: (event) =>
+    $(event.target).prev().toggle()
 
   toggleNext: (event) =>
     $(event.target).next(".objectTable").toggle()

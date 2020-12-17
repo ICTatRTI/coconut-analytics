@@ -21,7 +21,8 @@ resultsById = {}
 
 
 dhis2Request = (query) =>
-  apiUrl = "http://173.255.223.117/api/"
+  #apiUrl = "http://173.255.223.117/api/"
+  apiUrl = "https://mohzn.go.tz/api/"
   console.error "#{apiUrl}#{query}"
   Request.get
     uri: "#{apiUrl}#{query}"
@@ -106,7 +107,7 @@ createGeographicHierarchy = =>
   units = (await dhis2Request "organisationUnits.json").organisationUnits
 
   i=0
-  numberToGetInParallel = 200
+  numberToGetInParallel = 20
 
   while i < units.length
     console.warn "#{i}/#{units.length}"

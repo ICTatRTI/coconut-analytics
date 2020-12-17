@@ -115,8 +115,6 @@ class Case
   LastModifiedAt: =>
     _.chain(@toJSON())
     .map (data, question) ->
-      console.log question
-      console.log data
       if _(data).isArray()
         _(data).pluck("lastModifiedAt")
       else
@@ -686,6 +684,9 @@ class Case
       result.HouseholdMemberType = "Other Household Member"
       result
 
+  # TODO FIX
+  # # c = new Case({caseID:"142315"});await c.fetch()
+  # Call this and c.facility changes to household
   positiveIndividualsIndexCasesOnly: =>
     # if we have classification then index is in the household member data
     # Only positive individuals have a case category e.g. imported, so filter for non null values
@@ -700,9 +701,10 @@ class Case
         HouseholdMemberType: "Index Case"
       }
       if @["Facility"]
-        [_.extend @["Facility"], @["Household"], extraProperties]
+        # Note that if you don't start with an empty object then the first argument gets mutated
+        [_.extend {}, @["Facility"], @["Household"], extraProperties]
       else if @["USSD Notification"]
-        [_.extend @["USSD Notification"], @["Household"], extraProperties]
+        [_.extend {}, @["USSD Notification"], @["Household"], extraProperties]
       else []
 
 
@@ -760,20 +762,30 @@ class Case
   # Not sure why the casing is weird - put this in to support mobile client
   indexCaseDiagnosisDate: => @IndexCaseDiagnosisDate()
 
-  IndexCaseDiagnosisDate: ->
+  IndexCaseDiagnosisDateAndTime: ->
+    # If we don't have the hour/minute of the diagnosis date
+    # Then assume that everyone gets tested at 8am
+    if @["Facility"]?.DateAndTimeOfPositiveResults?
+      return moment(@["Facility"]?.DateAndTimeOfPositiveResults).format("YYYY-MM-DD HH:mm")
+
     if @["Facility"]?.DateOfPositiveResults?
       date = @["Facility"].DateOfPositiveResults
       momentDate = if date.match(/^20\d\d/)
         moment(@["Facility"].DateOfPositiveResults)
       else
         moment(@["Facility"].DateOfPositiveResults, "DD-MM-YYYY")
-      return momentDate.format("YYYY-MM-DD") if momentDate.isValid()
+      if momentDate.isValid()
+        return momentDate.hour(8).min(0).format("YYYY-MM-DD HH:mm")
 
     if @["USSD Notification"]?
-      return moment(@["USSD Notification"].date).format("YYYY-MM-DD")
+      return moment(@["USSD Notification"].date).hour(8).min(0).format("YYYY-MM-DD HH:mm")
 
     else if @["Case Notification"]?
-      return moment(@["Case Notification"].createdAt).format("YYYY-MM-DD")
+      return moment(@["Case Notification"].createdAt).hour(8).min(0).format("YYYY-MM-DD HH:mm")
+
+  IndexCaseDiagnosisDate: =>
+    if indexCaseDiagnosisDateAndTime = @IndexCaseDiagnosisDateAndTime()
+      moment(indexCaseDiagnosisDateAndTime).format("YYYY-MM-DD")
 
   IndexCaseDiagnosisDateIsoWeek: =>
     indexCaseDiagnosisDate = @IndexCaseDiagnosisDate()
@@ -893,13 +905,8 @@ class Case
       console.log _.sort(results, "createdAt")
 
 
-  dateOfPositiveResults: ->
-    if @["Facility"]?.DateOfPositiveResults?
-      date = @["Facility"].DateOfPositiveResults
-      if date.match(/^20\d\d/)
-        moment(@["Facility"].DateOfPositiveResults).format("YYYY-MM-DD")
-      else
-        moment(@["Facility"].DateOfPositiveResults, "DD-MM-YYYY").format("YYYY-MM-DD")
+  dateOfPositiveResults: =>
+    @IndexCaseDiagnosisDate()
 
   daysBetweenPositiveResultAndNotificationFromFacility: =>
 
@@ -911,19 +918,13 @@ class Case
     if dateOfPositiveResults? and notificationDate?
       Math.abs(moment(dateOfPositiveResults).diff(notificationDate, 'days'))
 
-  # Since we don't have the hour/minute of the positive result
-  # Assume that everyone gets tested at 8am
   estimatedHoursBetweenPositiveResultAndNotificationFromFacility: =>
-    dateOfPositiveResults = @dateOfPositiveResults()
+    dateAndTimeOfPositiveResults = @IndexCaseDiagnosisDateAndTime()
 
     notificationDate = @["USSD Notification"]?.date or @["Case Notification"]?.createdAt
 
-    if dateOfPositiveResults? and notificationDate?
-      timeOfPositiveResults = moment(dateOfPositiveResults)
-      if timeOfPositiveResults.hour() is 0
-        timeOfPositiveResults.hour(8)
-      Math.abs(moment(timeOfPositiveResults).diff(notificationDate, 'hours'))
-
+    if dateAndTimeOfPositiveResults? and notificationDate?
+      Math.abs(moment(dateAndTimeOfPositiveResults).diff(notificationDate, 'hours'))
 
   lessThanOneDayBetweenPositiveResultAndNotificationFromFacility: =>
     if (daysBetweenPositiveResultAndNotificationFromFacility = @daysBetweenPositiveResultAndNotificationFromFacility())?
@@ -1282,6 +1283,8 @@ class Case
       propertyName: "Index Case Diagnosis Date"
     IndexCaseDiagnosisDateIsoWeek:
       propertyName: "Index Case Diagnosis Date ISO Week"
+    IndexCaseDiagnosisDateAndTime:
+      propertyName: "Index Case Diagnosis Date And Time"
 
     classificationsByHouseholdMemberType: {}
     classificationsByDiagnosisDate: {}
@@ -1618,6 +1621,8 @@ class Case
     allUserNamesString:
       propertyName: "Malaria Surveillance Officers"
 
+    wasTransferred: {}
+
   }
 
   dateOfMalariaResultFromIndividual: (positiveIndividual) =>
@@ -1789,6 +1794,7 @@ class Case
             FirstName: @Facility?.FirstName
             LastName: @Facility?.LastName
             DateOfPositiveResults: @Facility?.DateOfPositiveResults
+            DateAndTimeOfPositiveResults: @Facility?.DateAndTimeOfPositiveResults
             Sex: @Facility?.Sex
             Age: @Facility?.Age
             AgeInYearsMonthsDays: @Facility?.AgeInYearsMonthsDays
@@ -1832,7 +1838,18 @@ class Case
 
       Coconut.showNotification( "Neighbor Household created")
 
+  wasTransferred: =>
+    @transferData().length > 0
 
+  transferData: =>
+    transferData = []
+    for question in @questions
+      if @[question].transferred
+        data = @[question].transferred
+        data["question"] = question
+        transferData.push data
+
+    transferData
 
 Case.resetSpreadsheetForAllCases = =>
   Coconut.database.get "CaseSpreadsheetData"

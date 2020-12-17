@@ -7,9 +7,9 @@ class TertiaryIndex
     @docsToSaveOnReset = options.docsToSaveOnReset
     @database = new PouchDB("#{Coconut.databaseURL}/zanzibar-index-#{@name.toLowerCase()}")
 
-  latestChange: =>
+  latestChangeForZanzibarDatabase: =>
     new Promise (resolve,reject) =>
-      @database.changes
+      Coconut.database.changes
         descending: true
         include_docs: false
         limit: 1
@@ -64,9 +64,9 @@ class TertiaryIndex
     await @database.bulkDocs docsToSave
 
     try
-      latestChangeForDatabase = await @latestChange()
+      latestChangeForZanzibarDatabase = await @latestChangeForZanzibarDatabase()
 
-      console.log "Latest change: #{latestChangeForDatabase}"
+      console.log "Latest change: #{latestChangeForZanzibarDatabase}"
       console.log "Retrieving all available case IDs"
 
       Coconut.database.query "cases/cases"
@@ -83,20 +83,20 @@ class TertiaryIndex
         console.log "Updated #{@name} index from #{allCases.length} cases"
 
         @database.upsert "IndexData", (doc) =>
-          doc.lastChangeSequenceProcessed = latestChangeForDatabase
+          doc.lastChangeSequenceProcessed = latestChangeForZanzibarDatabase
           doc
     catch error
       console.error 
 
 
   updateIndexDocs: =>
-    latestChangeForDatabase = await @latestChange()
+    latestChangeForZanzibarDatabase = await @latestChangeForZanzibarDatabase()
     latestChangeForCurrentIndexDocs = await @latestChangeForCurrentIndexDocs()
     #
-    console.log "latestChangeForDatabase: #{latestChangeForDatabase?.replace(/-.*/, "")}, latestChangeForCurrentIndexDocs: #{latestChangeForCurrentIndexDocs?.replace(/-.*/,"")}"
+    console.log "latestChangeForZanzibarDatabase: #{latestChangeForZanzibarDatabase?.replace(/-.*/, "")}, latestChangeForCurrentIndexDocs: #{latestChangeForCurrentIndexDocs?.replace(/-.*/,"")}"
 
     if latestChangeForCurrentIndexDocs
-      numberLatestChangeForDatabase = parseInt(latestChangeForDatabase?.replace(/-.*/,""))
+      numberLatestChangeForDatabase = parseInt(latestChangeForZanzibarDatabase?.replace(/-.*/,""))
       numberLatestChangeForCurrentIndexDocs = parseInt(latestChangeForCurrentIndexDocs?.replace(/-.*/,""))
 
       if numberLatestChangeForDatabase - numberLatestChangeForCurrentIndexDocs > 10000
@@ -127,13 +127,11 @@ class TertiaryIndex
         console.log "Updated: #{changedCases.length} cases"
 
         @database.upsert "IndexData", (doc) =>
-          doc.lastChangeSequenceProcessed = latestChangeForDatabase
+          doc.lastChangeSequenceProcessed = latestChangeForZanzibarDatabase
           doc
         .catch (error) => console.error error
         .then =>
-          console.log "Index #{@name} Data updated through sequence: #{latestChangeForDatabase}"
-
-
+          console.log "Index #{@name} Data updated through sequence: #{latestChangeForZanzibarDatabase}"
 
 
   updateIndexForCases: (options) =>
@@ -164,8 +162,9 @@ class TertiaryIndex
           console.error error
 
         numberOfCasesProcessed += caseIDs.length
-
         console.log "#{numberOfCasesProcessed}/#{numberOfCasesToProcess} #{Math.floor(numberOfCasesProcessed/numberOfCasesToProcess*100)}% (last ID: #{caseIDs.pop()})"
+
+      resolve()
 
   ###      
   updateIndexForCases: (options) =>

@@ -180,6 +180,7 @@ class MenuView extends Backbone.View
             "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"
           .join ""
         }
+          <a class='mdl-navigation__link admin__link' href='https://jackfruit.cococloud.co/#server/Zanzibar' data-title='Manage Question'>Manage Questions (Jackfruit)</a>
         </div>
       </nav>
     </div>

@@ -135,15 +135,25 @@ class IndividualClassificationView extends Backbone.View
       keys: caseDocIdsInReportingDatabase
       include_docs: true
     .then (result) =>
+      missingSummaries = [] # Not sure why this happens, as summaries should be created automatically by the cron job, but this will detect them and regenerate them
       for row in result.rows
-        malariaCase = row.doc
-        console.log row
-        district = malariaCase["District"]
-        @districtForCase[malariaCase["Malaria Case ID"]] = district
+        if row.doc
+          malariaCase = row.doc
+          #console.log row
+          district = malariaCase["District"]
+          @districtForCase[malariaCase["Malaria Case ID"]] = district
 
-        #@zoneForCase[malariaCase["Malaria Case ID"]] = GeoHierarchy.getZoneForDistrict(district)
+          #@zoneForCase[malariaCase["Malaria Case ID"]] = GeoHierarchy.getZoneForDistrict(district)
 
-        @officerForCase[malariaCase["Malaria Case ID"]] = Coconut.nameByUsername[(malariaCase["Household: User"])]
+          @officerForCase[malariaCase["Malaria Case ID"]] = Coconut.nameByUsername[(malariaCase["Household: User"])]
+        else
+          missingSummaries.push row.key.replace(/case_summary_/,"")
+
+      if missingSummaries.length > 0
+        console.log missingSummaries
+        await Case.updateSummaryForCases({caseIDs: missingSummaries})
+        return @loadCaseSummaryData()
+
 
 
   district: => 

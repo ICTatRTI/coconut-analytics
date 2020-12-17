@@ -133,16 +133,21 @@ class GeoHierarchy
         Coconut.cachingDatabase = Coconut.database # Useful when on node on the server instead of in the browser
       await Coconut.cachingDatabase.get "#{boundaryName}Adjusted"
       .catch (error) =>
+        $("#content").html "
+          <span style='font-size:3em'>Updating #{boundaryName} details, please wait.</span>
+        "
         new Promise (resolve, reject) =>
-          Coconut.cachingDatabase.replicate.from Coconut.database,
+          Coconut.cachingDatabase.replicate.from (Coconut.cloudDB or Coconut.database), #cloudDB if mobile client, database if cloud
             doc_ids: ["#{boundaryName}Adjusted"]
           .on "complete", =>
             resolve(Coconut.cachingDatabase.get "#{boundaryName}Adjusted"
-            .catch (error) => console.log error
+            .catch (error) => 
+              console.log "Error trying to replicate: #{doc_ids: ["#{boundaryName}Adjusted"]}"
+              console.log error
             )
       .then (data) =>
         @boundaries[boundaryName]["query"] = new GeoJsonLookup(data)
-        console.info "GeoHierarchy loadPolygonBoundaries complete"
+        #console.info "GeoHierarchy loadPolygonBoundaries complete"
         Promise.resolve()
 
   load: =>
@@ -178,14 +183,44 @@ class GeoHierarchy
     for unit in @findAll(name)
       "#{unit.name}: #{unit.levelName}"
 
-  find: (name, levelName) =>
+  find: (name, levelName, tryCorrections = true) =>
     return [] unless levelName?
     levelName = levelName.trim().toUpperCase()
     # When Coconut adopted DHIS2 units, we had to map old level names to the DHIS2 ones
     levelName = levelMappings[levelName] or levelName
 
-    _(@findAll(name)).filter (unit) ->
+    result = _(@findAll(name)).filter (unit) ->
       unit.levelName is levelName
+
+    if result.length isnt 0 or tryCorrections is false
+      return result
+    else
+      if name.match(/\./)
+        return @find(name.replace(/\./g," ", levelName))
+
+      unless levelName is "HEALTH FACILITIES"
+        return []
+      else
+        # Common health facility suffixes
+        suffixes = [
+          # Most common at top
+          "PHCU"
+          "PHCU+"
+          "DISPENSARY"
+          "CLINIC"
+          "CAMP"
+          "CENTER"
+          "CENTRE"
+          "FOUNDATION"
+          "HOSPITAL"
+        ]
+        for suffix in suffixes
+          name = name.replace(new RegExp(suffix, "i"), "")
+        for suffix in suffixes
+          result = @find("#{name} #{suffix}", levelName, false)
+          return result if result.length > 0
+        return []
+          
 
     ###
     if result.length > 0
@@ -373,6 +408,16 @@ class GeoHierarchy
       facility.ancestorAtLevel("DISTRICT").name is districtName
     .phoneNumber
 
+  facilityTypeForFacilityUnit: (facilityUnit) =>
+    return null unless facilityUnit?
+    facilityId = facilityUnit.id
+
+    privateUnitIds = _(@groups).find((group) => group.name is "PRIVATE").unitIds
+    if _(privateUnitIds).contains(facilityId)
+      "PRIVATE"
+    else
+      "PUBLIC"
+
   facilityType: (facilityName) =>
 
     facilities = @find(facilityName, "FACILITY")
@@ -384,13 +429,7 @@ class GeoHierarchy
         console.warn "Non-unique facility name: #{facilityName}. Returning PUBLIC by default"
         "PUBLIC"
     else
-      facilityId = facilities[0].id
-
-      privateUnitIds = _(@groups).find((group) => group.name is "PRIVATE").unitIds
-      if _(privateUnitIds).contains(facilityId)
-        "PRIVATE"
-      else
-        "PUBLIC"
+      @facilityTypeForFacilityUnit(facilities[0])
 
   allPrivateFacilities: =>
     group = _(@groups).find (group) => group.name is "PRIVATE"

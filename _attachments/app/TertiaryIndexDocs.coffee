@@ -39,9 +39,6 @@ global.Coconut =
   database: new PouchDB "#{argv.database}/zanzibar",
     ajax:
       timeout: 1000 * 60 * 10
-  reportingDatabase: new PouchDB "#{argv.database}-reporting",
-    ajax:
-      timeout: 1000 * 60 * 10
 
 # This is a PouchDB - Backbone connector - we only use it for a few things like getting the list of questions
 Backbone.sync = BackbonePouch.sync
@@ -51,6 +48,8 @@ Backbone.sync = BackbonePouch.sync
 console.log "Getting config"
 
 Coconut.database.get "coconut.config"
+.catch (error) -> 
+  console.error error
 .then (doc) ->
   Coconut.config = doc
   Coconut.config.role_types = if Coconut.config.role_types then Coconut.config.role_types.split(",") else ["admin", "reports"]
