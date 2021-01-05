@@ -7,6 +7,7 @@ global.copy = require('copy-text-to-clipboard')
 Chart = require 'chart.js'
 Html2Pdf = require 'html2pdf.js'
 Capitalize = require 'underscore.string/capitalize'
+getISOWeeksInYear = require 'date-fns/getISOWeeksInYear'
 
 Reports = require '../models/Reports'
 HTMLHelpers = require '../HTMLHelpers'
@@ -518,8 +519,11 @@ class WeeklyMeetingReportView extends Backbone.View
     return aggregatedCases
 
   malariaTrends: =>
-    startLastYearYearWeek = @startDate.clone().subtract(1,'year').format('YYYY')+"-01"
-    endDateYearWeek = @endDate.clone().endOf("year").format('YYYY')+"-52"
+    #startLastYearYearWeek = @startDate.clone().subtract(1,'year').format('YYYY')+"-01"
+    #endDateYearWeek = @endDate.clone().endOf("year").format('YYYY')+"-52"
+    # THe above broke at the end of the year
+    startLastYearYearWeek = (@startDate.isoWeekYear()-1)+"-01"
+    endDateYearWeek = @startDate.isoWeekYear()+"-#{getISOWeeksInYear(@startDate)}"
 
     lastYear = startLastYearYearWeek[0..3]
     currentYear = endDateYearWeek[0..3]
@@ -633,7 +637,7 @@ class WeeklyMeetingReportView extends Backbone.View
 
 
         # Can't use sparse data, every x point needs data
-        classificationLabels = [1..moment().isoWeek()]
+        classificationLabels = [1..@startDate.isoWeek()]
         for dataset in classificationDatasets[zone]
           dataset.data = for label in classificationLabels
             dataset.sparseData[label] or 0
@@ -641,7 +645,7 @@ class WeeklyMeetingReportView extends Backbone.View
         new Chart @$("#caseClassification-#{zone}"),
           type: "bar"
           data:
-            labels: [1..moment().isoWeek()]
+            labels: [1..@startDate.isoWeek()]
             datasets: classificationDatasets[zone]
           options: 
             scales:

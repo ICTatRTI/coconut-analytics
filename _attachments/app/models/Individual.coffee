@@ -97,6 +97,7 @@ class Individual
     "focalIsland"
     "name" # Hand first Name, name, etc
     "dateOfPositiveResults"
+    "yearWeekOfPositiveResults"
     "classification"
     "sleptUnderLLINLastNight"
   ]
@@ -214,6 +215,11 @@ class Individual
     if match = date.match(/^(\d\d\d\d-\d\d-\d\d) \d/)
       date = "#{match[1]}"
     date
+
+  yearWeekOfPositiveResults: =>
+    dateOfPositiveResults = @dateOfPositiveResults()
+    if dateOfPositiveResults?
+      moment(@dateOfPositiveResults()).format("GGGG-WW")
 
   classification: =>
     return null unless @data["Malaria Positive"] is true
