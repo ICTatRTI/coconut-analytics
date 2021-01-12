@@ -4,7 +4,6 @@ $ = jQuery = require 'jquery'
 Backbone = require 'backbone'
 Backbone.$  = $
 global.moment = require 'moment'
-PouchDB = require 'pouchdb'
 
 MenuView = require './views/MenuView'
 HeaderView = require './views/HeaderView'
@@ -24,6 +23,7 @@ PersonView = require './views/PersonView'
 ExportView = require './views/ExportView'
 NewLearnersView = require './views/NewLearnersView'
 NewLearnerView = require './views/NewLearnerView'
+TermDatesView = require './views/TermDatesView'
 SendEmailView = require './views/SendEmailView'
 
 
@@ -84,6 +84,7 @@ class Router extends Backbone.Router
     "admin/new_learner/:personId": "new_learner"
     "admin/new_learners/:region": "new_learners"
     "admin/new_learners": "new_learners"
+    "admin/term_dates": "term_dates"
     "admin/send_email": "send_email"
     "*noMatch": "noMatch"
 
@@ -241,6 +242,15 @@ class Router extends Backbone.Router
         @newLearnerView.setElement("#content")
         @newLearnerView.personId = personId
         @newLearnerView.render()
+      error: =>
+        @notAdmin()
+
+  term_dates: =>
+    @adminLoggedIn
+      success: =>
+        @termDatesView ?= new TermDatesView()
+        @termDatesView.setElement("#content")
+        @termDatesView.render()
       error: =>
         @notAdmin()
 

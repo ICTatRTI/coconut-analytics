@@ -7,7 +7,10 @@ global.$ = require 'jquery'
 global._ = require 'underscore'
 global.Backbone = require 'backbone'
 Backbone.$  = $
-global.PouchDB = require 'pouchdb'
+global.PouchDB = require 'pouchdb-core'
+PouchDB.plugin(require('pouchdb-upsert'))
+PouchDB.plugin(require('pouchdb-adapter-http'))
+PouchDB.plugin(require('pouchdb-mapreduce'))
 BackbonePouch = require 'backbone-pouch'
 moment = require 'moment'
 require 'material-design-lite'
@@ -25,6 +28,9 @@ Coconut.promptUntilCredentialsWork().then =>
   MenuView = require './views/MenuView'
   HeaderView = require './views/HeaderView'
   QuestionCollection = require './models/QuestionCollection'
+  require './Calendar.coffee'
+
+  await Calendar.load()
 
 # Coconut is just a global object useful for keeping things in one scope
 #TODO load config from a _local database doc

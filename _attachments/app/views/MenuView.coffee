@@ -132,6 +132,7 @@ class MenuView extends Backbone.View
                 adminLinks.schools = "Schools" if Coconut.currentUser.hasRole "school_management"
                 adminLinks.users = "Users" if Coconut.currentUser.hasRole "user_management"
                 adminLinks.new_learners = "New Learners" if Coconut.currentUser.hasRole "new_learners"
+                adminLinks.term_dates = "Term Dates" if Coconut.currentUser.hasRole "school_management"
 
                 _(adminLinks).map (linkText, linkUrl) ->
                   "<a class='mdl-navigation__link admin__link' id = '#{linkUrl}' href='#admin/#{linkUrl}' data-title='Admin'>#{linkText}</a>"

@@ -8,8 +8,6 @@ humanize = require "underscore.string/humanize"
 
 Chart = require 'chart.js'
 
-Calendar = require '../Calendar.coffee'
-
 class DashboardView extends Backbone.View
   events:
     "change #selectedYear": "updateYear"
