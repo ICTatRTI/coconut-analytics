@@ -154,7 +154,7 @@ class Graphs
               backgroundColor: "rgba(25, 118, 210, 0.1)"
               pointRadius: 2
         }
-          await Coconut.reportingDatabase.query "epiCurveByWeekAndDistrict",
+          await Coconut.individualIndexDatabase.query "epiCurveByWeekAndDistrict",
             startkey: ["#{data.year}-01"]
             endkey: ["#{data.year}-52",{}]
             reduce: true
