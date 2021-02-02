@@ -13,7 +13,7 @@ class CasesView extends Backbone.View
   shortcut: (event) =>
     columnName = $(event.target).attr("data-columnName")
     value = $(event.target).attr("data-value")
-    switch target 
+    switch value
       when "All" then @tabulatorView.tabulator.setHeaderFilterValue(columnName,"")
       else
         @tabulatorView.tabulator.setHeaderFilterValue(columnName,value)

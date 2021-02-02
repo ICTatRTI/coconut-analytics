@@ -9,8 +9,8 @@ npx browserify -v -t coffeeify --extension='.coffee' app/start.coffee -x moment 
 
 echo 'Rsyncing'
 # Note - don't exclude node modules since this is needed for cronjob scripts
-rsync --verbose --progress --recursive --copy-links --exclude=node_modules ./ zanzibar.cococloud.co:/var/www/analytics/
-rsync --verbose --progress --recursive --copy-links --exclude=node_modules ../__views/ zanzibar.cococloud.co:~/analytics-views/
+rsync --quiet --verbose --recursive --copy-links --exclude=node_modules ./ zanzibar.cococloud.co:/var/www/analytics/
+rsync --quiet --verbose --recursive --copy-links --exclude=node_modules ../__views/ zanzibar.cococloud.co:~/analytics-views/
 
 TARGETWITHPASSWORD=$1
 if [ $# -lt 1 ]

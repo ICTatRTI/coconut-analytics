@@ -19,6 +19,7 @@ class Individual
       .concat(@householdMemberSummaryResult())
       .concat(@calculatedPropertiesResult())
 
+  # This is what is called to create the individual index document
   summaryCollection: =>
     result = {}
     for propertyValue in @summary()
@@ -76,6 +77,9 @@ class Individual
         "AgeInMonthsOrYears"
         "SleptUnderLlinLastNight"
         "IndexCaseSleptUnderLlinLastNight"
+        "TypeOfTreatmentProvided"
+        "TypeOfTreatmentPrescribed"
+        "TreatmentProvided"
       ].map( (propertyToSkip) => propertyToSkip.toLowerCase().replace(/\W/,"") ).includes(property.toLowerCase().replace(/\W/,""))
 
       continue if property.match(/^\d+Entry/)
@@ -95,11 +99,14 @@ class Individual
     "focalShehia"
     "focalDistrict"
     "focalIsland"
+    "administrativeLevels"
     "name" # Hand first Name, name, etc
     "dateOfPositiveResults"
     "yearWeekOfPositiveResults"
     "classification"
     "sleptUnderLLINLastNight"
+    "parasiteSpecies"
+    "treatment"
   ]
 
   calculatedPropertiesResult: =>
@@ -172,6 +179,20 @@ class Individual
     else
       @householdShehiaUnit()
 
+  # This uses household shehia if the focal shehia is outside of Zanzibar
+  # Nation, Island, Region, District, Shehia, Facility
+  administrativeLevels: =>
+    shehiaUnit = @focalShehiaUnit()
+    unless shehiaUnit?
+    # This uses household shehia if the focal shehia is outside of Zanzibar
+      shehiaUnit = @householdShehiaUnit()
+
+    if shehiaUnit
+
+      shehiaAncestors = _(shehiaUnit?.ancestors()).pluck "name"
+      result = shehiaAncestors.reverse().concat(shehiaUnit.name).concat(@case.facility())
+      result.join(",")
+
   focalShehia: =>
     @focalShehiaUnit()?.name or @malariaFocus()
 
@@ -180,6 +201,8 @@ class Individual
 
   focalIsland: =>
     @focalShehiaUnit()?.ancestorAtLevel("ISLANDS")?.name or @malariaFocus()
+
+  focalAdministrativeLevels: =>
 
   householdShehiaUnit: =>
     @case.householdShehiaUnit()
@@ -252,6 +275,58 @@ class Individual
       "Slept Under LLIN Last Night"
       "Index Case Slept Under Llin Last Night"
     ], true)
+
+  parasiteSpecies: =>
+    result = @findFirst([
+      "Malaria Microscopy Test Results"
+      "Malaria mRDT Test Results"
+      "Malaria Test Result"
+    ], true)
+    result?.replace(/P.f \+ Pan \(Mixed\)/, "P.f + (P. malariae and/or P. vivax and/or P. ovale)")
+      .replace(/Mixed/, "P.f and/or P. malariae and/or P. vivax and/or P. ovale (at least 2)")
+      .replace(/Pan/, "P. malariae and/or P. vivax and/or P. ovale")
+      .replace(/P.f/, "P. falciparum")
+      .replace(/P.f/, "P. falciparum")
+      .replace(/NF/i, "No Parasite Found")
+      .replace(/NPF/i, "No Parasite Found")
+
+  isIndexCase: =>
+    @data["HouseholdMemberType"] is "Index Case"
+
+  treatment: =>
+    treatment = @findFirst("Type of Treatment Provided")
+    if treatment
+      treatmentDoseAndStrengthFromHouseholdRecord = for property, value of @data
+        if property.match(/DoseAndStrength/)
+          treatment += " #{value}"
+          break
+
+    # Check for treatment at facility if index case
+    else if @isIndexCase()
+      treatment = @case.Facility?.TypeOfTreatmentPrescribed
+      if treatment
+        treatmentDoseAndStrengthFromHouseholdRecord = for property, value of @case.Facility
+          if property.match(/DoseAndStrength/)
+            treatment += " #{value}"
+            break
+
+    primaquineDose = @findFirst("Primaquine Dose")
+    if not primaquineDose and @isIndexCase()
+      primaquineDose = @case.Facility?.PrimaquineDose
+
+    primaquineDose = if primaquineDose is "Not given" or primaquineDose is "Not Applicable" or not primaquineDose?
+      ""
+    else if primaquineDose
+      "Primaquine #{primaquineDose}"
+
+    if treatment and primaquineDose
+      "#{treatment} #{primaquineDose}"
+    else if treatment
+      treatment
+    else if primaquineDose
+      primaquineDose
+    else
+      ""
 
   updateIndex: =>
     tertiaryIndex.indexDocsForCase(@case,false)

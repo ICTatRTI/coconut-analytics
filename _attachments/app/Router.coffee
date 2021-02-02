@@ -54,6 +54,7 @@ reportViews = {
   "Usersreport": require './views/UsersReportView'
   "WeeklyMeetingReport": require './views/WeeklyMeetingReportView'
   "WeeklyFacilityReports": require './views/WeeklyFacilityReportsView'
+  "CleaningReports": require './views/CleaningReportsView'
   "Weeklysummary": require './views/WeeklySummaryView'
 }
 

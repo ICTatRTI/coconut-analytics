@@ -684,9 +684,6 @@ class Case
       result.HouseholdMemberType = "Other Household Member"
       result
 
-  # TODO FIX
-  # # c = new Case({caseID:"142315"});await c.fetch()
-  # Call this and c.facility changes to household
   positiveIndividualsIndexCasesOnly: =>
     # if we have classification then index is in the household member data
     # Only positive individuals have a case category e.g. imported, so filter for non null values
