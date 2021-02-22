@@ -6,242 +6,247 @@ Backbone.$  = $
 DataTables = require( 'datatables.net' )()
 Reports = require '../models/Reports'
 #FacilityHierarchy = require '../models/FacilityHierarchy'
+#
+Tabulator = require 'tabulator-tables'
 
 class CompareWeeklyView extends Backbone.View
   el: "#content"
 
   events:
-    "click #csv": "toggleCSVMode"
     "change select.aggregatedBy": "updateAggregatedBy"
     "click #toggleDetails": "toggleDetails"
+    "click #downloadCsv": "downloadCsv"
 
   toggleDetails: =>
-    console.log "ZZ"
-    @$(".details").toggle()
+    @showDetails = if @showDetails then false else true
+    @renderTabulator()
+
+  getColumns: =>
+
+    columnNames = [
+      "#{@aggregationPeriod}"
+      "Zone"
+    ]
+
+    if @aggregationArea is "District" or @aggregationArea is "Facility"
+      columnNames.push "District"
+    if @aggregationArea is "Facility"
+      columnNames.push "Facility"
+    columnNames = columnNames.concat [
+      "Weekly Facility Report # Positive"
+      "Notified"
+      "Weekly vs Notified Difference"
+    ]
+
+    @showDetails or= false
+
+    if @showDetails
+      columnNames = columnNames.concat [
+        "Weekly Facility Reports Expected (assumes months expect 4 reports, not always true)"
+        "Number submitted"
+        "Reports submitted within 1 day of period end (Monday)"
+        "Reports submitted within 1-3 days of period end (by Wednesday)"
+        "Reports submitted within 3-5 days of period end (by Friday)"
+        "Reports submitted 5 or more days after period end"
+        "Total Tested"
+        "Facility Followed-Up Positive Cases"
+        "Cases Followed-Up within 48 Hours"
+      ]
+
+
+    columns = for name in columnNames
+      columnDetails = {
+        title: name
+        field: name
+        headerFilter: "input"
+      }
+      if name.match(/Facility/)
+        columnDetails.width = 150
+      columnDetails
+
+    return columns
+
+
+  renderTabulator: =>
+    @getColumns() unless @columns?
+
+    @tabulator = new Tabulator "#tabulator",
+      height: 500
+      columns: @getColumns()
+      data: await @getTabulatorData()
+      initialSort: [
+        {
+          column:"Weekly vs Notified Difference"
+          dir: "desc"
+        }
+      ]
+
+    @$("#messages").html "
+      Total Number Positive From Facility Weekly Report: <span id='aggregatedTotalPositiveFromFacilityWeeklyReport'>
+        <b>
+        #{
+          @aggregatedTotalPositiveFromFacilityWeeklyReport
+        }
+        </b>
+      </span><br/>
+      Total Number Cases Notified: <span id='aggregatedNumberCasesNotified'>
+        <b>
+        #{
+          @aggregatedNumberCasesNotified
+        }
+        </b>
+      </span>
+      <br/>
+      <br/>
+      <div id='errors'>
+        Errors: (Admins can add aliases to fix wrongly named facilities)<br/>
+        #{
+          message = ""
+          for errorType, errors of @weeklyReports.errors
+            for name, data of errors
+              message += "
+                #{errorType} #{name} [District-#{data.District}, Facility-#{data.Facility}]
+                <div style='display:none'>
+                  #{JSON.stringify(data)}
+                </div>
+                <br/>
+              "
+          message
+        }
+      </div>
+    "
+    $('#analysis-spinner').hide()
+
+  downloadCsv: =>
+    @tabulator.download "csv", "CompareWeekly.csv"
 
   updateAggregatedBy: (e) =>
     Coconut.router.reportViewOptions['aggregationPeriod'] = $("#aggregationPeriod").val()
     Coconut.router.reportViewOptions['aggregationArea'] = $("#aggregationArea").val()
-    Coconut.router.reportViewOptions['facilityType'] = $("#facilityType").val()
+    #Coconut.router.reportViewOptions['facilityType'] = $("#facilityType").val()
     @render()
     Coconut.dateSelectorView.setElement "#dateSelector"
     Coconut.dateSelectorView.render()
 
-  toggleCSVMode: () =>
-    @csvMode = !@csvMode
-    $('button#csv').text(if @csvMode then 'Table Mode' else 'CSV Mode')
+  getTabulatorData: =>
+    startYearWeek = moment(@options.startDate).format("GGGG-WW")
+    endYearWeek = moment(@options.endDate).format("GGGG-WW")
 
-    if @csvMode
-      $('table#facilityTimeliness').css("display","none")
-    else
-      $('table#facilityTimeliness').css("display","block")
-    @renderFacilityTimeliness()
+    @$("#messages").html "Getting Weekly Data..."
+      
 
-  renderFacilityTimeliness: =>
-    $('#analysis-spinner').show()
-    $('table#facilityTimeliness tbody').html "
-      #{
-        quartilesAndMedian = (values)->
-          [median,h1Values,h2Values] = getMedianWithHalves(values)
-          [
-            getMedian(h1Values)
-            median
-            getMedian(h2Values)
-          ]
+    @weeklyReports = await Reports.aggregateWeeklyReports
+      startDate: @options.startDate
+      endDate: @options.endDate
+      aggregationArea: @aggregationArea
+      aggregationPeriod: @aggregationPeriod
+      facilityType: @facilityType
+    .catch (error) => console.error error
 
-        getMedianWithHalves = (values) ->
+    @$("#messages").html "Getting Weekly Data...Done!<br/>Getting Notification Data..."
+    @indexCasesByAggregationArea = await Coconut.reportingDatabase.query "indexCasesByDateAndAdminLevels",
+      startkey: [startYearWeek]
+      endkey: [endYearWeek,{}]
+      reduce: true
+      group_level: switch @aggregationArea
+        when "Zone" then 2
+        when "District" then 4
+        when "Facility" then 6
+    .then (result) =>
+      data = {}
+      total = 0
+      for row in result.rows
+        yearWeek = row.key[0]
+        aggregationArea = row.key.pop()
+        amount = row.value
+        period = switch @aggregationPeriod
+          when "Year" then moment(yearWeek, "GGGG-WW").format("YYYY")
+          when "Month" then moment(yearWeek, "GGGG-WW").format("YYYY-MM")
+          when "Week" then yearWeek
+        data[period] or= {}
+        data[period][aggregationArea] or= 0
+        data[period][aggregationArea] += amount
+      console.log total
+      Promise.resolve(data)
 
-          return [ values[0], [values[0]], [values[0]] ] if values.length is 1
 
-          values.sort  (a,b)=> return a - b
-          half = Math.floor values.length/2
-          if values.length % 2 #odd
-            median = values[half]
-            return [median,values[0..half],values[half...]]
-          else # even
-            median = (values[half-1] + values[half]) / 2.0
-            return [median, values[0..half],values[half+1...]]
+    console.log @indexCasesByAggregationArea
 
+    @$("#messages").html "Getting Weekly Data...Done!<br/>Getting Notification Data...Done!<br/>"
 
-        getMedian = (values)->
-          getMedianWithHalves(values)[0]
+    @aggregatedTotalPositiveFromFacilityWeeklyReport = 0
+    @aggregatedNumberCasesNotified = 0
 
-        getMedianOrEmptyFormatted = (values)->
-          return "-" unless values?
-          Math.round(getMedian(values)*10)/10
+    combinedData = @weeklyReports.data
+    for period, areaAmount of @indexCasesByAggregationArea
+      for area, amount of areaAmount
+        combinedData[period] or= {}
+        combinedData[period][area] or= {}
+        combinedData[period][area]["Notified Cases"] = amount
 
-        getMedianAndQuartilesElement = (values)->
-          return "-" unless values?
-          [q1,median,q3] = _(quartilesAndMedian(values)).map (value) ->
-            Math.round(value*10)/10
-          "#{median} (#{q1}-#{q3})"
+    #console.log combinedData
 
-        getNumberAndPercent = (numerator,denominator) ->
-          return "-" unless numerator? and denominator?
-          "#{numerator} (#{Math.round(numerator/denominator*100)}%)"
+    tabulatorData = []
+    for aggregationPeriod, aggregationAreaAndData of combinedData
+      for aggregationArea, data of aggregationAreaAndData
+        tabulatorRow = {}
 
-        allPrivateFacilities = FacilityHierarchy.allPrivateFacilities()
+        if aggregationArea is "Unknown"
+          console.error "Unknown aggregationArea: #{data}"
+        tabulatorRow[@aggregationPeriod] = aggregationPeriod
+        tabulatorRow[@aggregationArea] = aggregationArea
 
-        _(@results.data).map (aggregationAreas, aggregationPeriod) =>
-          _(aggregationAreas).map (data,aggregationArea) =>
+        if @aggregationArea is "Facility"
+          tabulatorRow["Zone"] = FacilityHierarchy.getZone(aggregationArea) or data["Zone"]
+          tabulatorRow["District"] = FacilityHierarchy.getDistrict(aggregationArea) or data["District"]
+        else if @aggregationArea is "District"
+          tabulatorRow["Zone"] = GeoHierarchy.getZoneForDistrict(aggregationArea) or data["Zone"]
 
-            # TODO fix this - we shouldn't skip unknowns
-            return if aggregationArea is "Unknown"
-            "
-              <tr>
-                <td>#{aggregationPeriod}</td>
-                #{
-                  if @aggregationArea is "Facility"
-                    "
-                    <td>#{FacilityHierarchy.getZone(aggregationArea)}</td>
-                    <td>#{FacilityHierarchy.getDistrict(aggregationArea)}</td>
-                    "
-                  else if @aggregationArea is "District"
-                    "
-                    <td>#{GeoHierarchy.getZoneForDistrict(aggregationArea)}</td>
-                    "
-                  else ""
-                }
-                <td>
-                  #{aggregationArea}
-                  #{if @aggregationArea is "Facility" and _(allPrivateFacilities).contains(aggregationArea) then "(private)" else ""}
-                </td>
-                <td class='details'>
-                  #{
-                    numberOfFaciltiesMultiplier = if @aggregationArea is "Zone"
-                      FacilityHierarchy.facilitiesForZone(aggregationArea).length
-                    else if @aggregationArea is "District"
-                      FacilityHierarchy.facilitiesForDistrict(aggregationArea).length
-                    else
-                      1
+        numberOfFaciltiesMultiplier = if @aggregationArea is "Zone"
+          GeoHierarchy.facilitiesForZone(aggregationArea).length
+        else if @aggregationArea is "District"
+          GeoHierarchy.facilitiesForDistrict(aggregationArea).length
+        else
+          1
 
-                    expectedNumberOfReports = switch @aggregationPeriod
-                      when "Year" then 52
-                      when "Month" then "4"
-                      when "Quarter" then "13"
-                      when "Week" then "1"
-                    expectedNumberOfReports = expectedNumberOfReports * numberOfFaciltiesMultiplier
-                  }
-                </td>
-                <td class='details'>#{numberReportsSubmitted = data["Reports submitted for period"] or 0}</td>
-                <td class='details'>
-                  #{
-                    if Number.isNaN(numberReportsSubmitted) or Number.isNaN(expectedNumberOfReports) or expectedNumberOfReports is 0
-                      '-'
-                    else
-                      Math.round(numberReportsSubmitted/expectedNumberOfReports * 1000)/10 + "%"
-                  }
-                </td>
-                <td class='details'>#{data["Report submitted within 1 day"] or 0}</td>
-                <td class='details'>#{data["Report submitted within 1-3 days"] or 0}</td>
-                <td class='details'>#{data["Report submitted within 3-5 days"] or 0}</td>
-                <td class='details'>#{data["Report submitted 5+ days"] or 0}</td>
-                <td class='details'>
-                  <!-- Total Tested -->
-                  #{
-                    totalTested = data["Mal POS < 5"]+data["Mal POS >= 5"]+data["Mal NEG < 5"]+data["Mal NEG >= 5"]
-                    if Number.isNaN(totalTested) then '-' else HTMLHelpers.numberWithCommas(totalTested)
-                  }
+        expectedNumberOfReports = switch @aggregationPeriod
+          when "Year" then 52
+          when "Month" then "4"
+          when "Quarter" then "13"
+          when "Week" then "1"
+        tabulatorRow["Weekly Facility Reports Expected (assumes months expect 4 reports, not always true)"] = expectedNumberOfReports * numberOfFaciltiesMultiplier
 
-                </td>
-                <td class='total-positive'>
-                  #{
-                    totalPositive = data["Mal POS < 5"]+data["Mal POS >= 5"]
-                    if Number.isNaN(totalPositive) then '-' else totalPositive
-                  }
-                <td class='percent-positive details'>
-                  #{
-                    if Number.isNaN(totalTested) or Number.isNaN(totalPositive) or totalTested is 0
-                      '-'
-                    else
-                      Math.round(totalPositive/totalTested * 100) + "%"
-                  }
-                </td>
-                #{
-                  _(["casesNotified","hasCompleteFacility","followedUpWithin48Hours"]).map (property) =>
-                    "
-                      <td class='#{property} #{if property is "casesNotified" then "" else "details"}'>
-                        #{
-                          if @csvMode
-                            data[property]?.length or "-"
-                          else
-                            if data[property] then HTMLHelpers.createDisaggregatableCaseGroup data[property] else '0'
-                        }
-                      </td>
-                    "
-                  .join ""
-                }
+        tabulatorRow["Number submitted"] = numberReportsSubmitted = data["Reports submitted for period"] or '-'
+        tabulatorRow["Reports submitted within 1 day of period end (Monday)"] = data["Report submitted within 1 day"] or '-'
+        tabulatorRow["Reports submitted within 1-3 days of period end (by Wednesday)"] = data["Report submitted within 1-3 days"] or '-'
+        tabulatorRow["Reports submitted within 3-5 days of period end (by Friday)"] = data["Report submitted within 3-5 days"] or '-'
+        tabulatorRow["Reports submitted 5 or more days after period end"] = data["Report submitted 5+ days"] or '-'
 
-                <td>#{
-                  totalPositive = data["Mal POS < 5"]+data["Mal POS >= 5"]
-                  totalPositive - data['casesNotified']?.length or '-'
-                }
-                </td>
+        totalTested = data["Mal POS < 5"]+data["Mal POS >= 5"]+data["Mal NEG < 5"]+data["Mal NEG >= 5"]
+        tabulatorRow["Total Tested"] = totalTested
 
-                <td class='details'>#{getMedianAndQuartilesElement data["daysBetweenPositiveResultAndNotificationFromFacility"]}</td>
-                <td class='details'>#{getMedianAndQuartilesElement data["daysFromCaseNotificationToCompleteFacility"]}</td>
-                <td class='details'>
-                #{
-                  if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["Facility Followed-Up Positive Cases"]
-                    Math.round(data["Facility Followed-Up Positive Cases"].length / data["casesNotified"].length * 1000)/10 + "%"
-                  else
-                    "-"
-                }
-                </td>
-                <td class='details'>#{getMedianAndQuartilesElement data["daysFromSMSToCompleteHousehold"]}</td>
-                <td class='details'>
-                #{
-                  if data["casesNotified"] and data["casesNotified"].length isnt 0 and data["householdFollowedUp"]
-                    Math.round(data["householdFollowedUp"] / data["casesNotified"].length * 100) + "%"
-                  else
-                    "-"
-                }
-                </td>
-              </tr>
-            "
-          .join("")
-        .join("")
-      }
-    "
-    if !( $.fn.dataTable.isDataTable( '#facilityTimeliness' ))
-      $("#facilityTimeliness").dataTable
-        aaSorting: [[0,"desc"]]
-        iDisplayLength: 50
-        dom: 'T<"clear">lfrtip'
-        scrollX: true
-        tableTools:
-          sSwfPath: "js-libraries/copy_csv_xls.swf"
-          aButtons: [
-            "csv",
-          ]
-        fnDrawCallback: ->
-          # Check for mismatched cases
-          _($("tr")).each (tr) ->
-            totalPositiveElement = $(tr).find("td.total-positive")
+        totalPositive = (parseInt(data["Mal POS < 5"]) or 0) + (parseInt(data["Mal POS >= 5"]) or 0)
+        tabulatorRow["Weekly Facility Report # Positive"] = totalPositive or '-'
+      
+        @aggregatedTotalPositiveFromFacilityWeeklyReport += totalPositive
 
-            if totalPositiveElement? and totalPositiveElement.text() isnt ""
-              totalPositive = totalPositiveElement.text().match(/[0-9|-]+ /)[0]
+        tabulatorRow["Notified"] = data["Notified Cases"] or '-'
 
-            casesNotified = $(tr).find("td.casesNotified button.sort-value").text() or 0
+        @aggregatedNumberCasesNotified += parseInt(tabulatorRow["Notified"]) or 0
+        tabulatorRow["Facility Followed-Up Positive Cases"] = data.hasCompleteFacility?.length or '-'
+        tabulatorRow["Cases Followed-Up within 48 Hours"] = data.followedUpWithin48Hours?.length or '-'
 
-            if parseInt(totalPositive) isnt parseInt(casesNotified)
-              totalPositiveElement.addClass("mismatch")
-              $(tr).find("td.casesNotified button.sort-value").addClass("mismatch")
-              $(tr).find("td.casesNotified").addClass("mismatch")
+        tabulatorRow["Weekly vs Notified Difference"] = Math.abs((parseInt(tabulatorRow["Weekly Facility Report # Positive"]) or 0) - (parseInt(tabulatorRow["Notified"]) or 0)) or '-'
 
-      if @csvMode
-        $(".dataTables_filter").hide()
-        $(".dataTables_paginate").hide()
-        $(".dataTables_length").hide()
-        $(".dataTables_info").hide()
-      else
-        $(".DTTT_container").hide()
-    $('#analysis-spinner').hide()
+        tabulatorData.push tabulatorRow
+
+    console.log tabulatorData
+    return tabulatorData
 
   render: =>
     @options = $.extend({},Coconut.router.reportViewOptions)
-    @aggregationPeriod = @options.aggregationPeriod or "Month"
-    @aggregationArea = @options.aggregationArea or "Zone"
+    @aggregationPeriod = @options.aggregationPeriod or "Week"
+    @aggregationArea = @options.aggregationArea or "Facility"
     @facilityType = @options.facilityType or "All"
     HTMLHelpers.ChangeTitle("Reports: Compare Weekly Facility Reports With Case Follow-ups")
     @$el.html "
@@ -265,7 +270,8 @@ class CompareWeeklyView extends Backbone.View
         <h5>Compare Weekly Reports and Coconut cases aggregated by
         <select id='aggregationPeriod' class='aggregatedBy'>
           #{
-            _("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
+            _("Year,Month,Week".split(",")).map (aggregationPeriod) =>
+            #_("Year,Quarter,Month,Week".split(",")).map (aggregationPeriod) =>
               "
                 <option #{if aggregationPeriod is @aggregationPeriod then "selected='true'" else ''}>
                   #{aggregationPeriod}
@@ -285,6 +291,8 @@ class CompareWeeklyView extends Backbone.View
           }
         </select>
 
+        <!--
+
         for <select id='facilityType' class='aggregatedBy'>
           #{
             _("All,Private,Public".split(",")).map (facilityType) =>
@@ -296,55 +304,21 @@ class CompareWeeklyView extends Backbone.View
           }
         </select>
         facilities.
+        -->
         </h5>
-        <div>If the total positive cases from the weekly reports don't match the number of cases notified, the <span class='mismatch'>mismatched values are colored</span>.
+        <div>
+          This report compares the number of weekly positive malaria cases that are counted and submitted by facilities on a weekly basis with the number of individual cases that facilities report immediately after finding a positive case. Ideally these numbers should always be the same. If they are different, then the discrepancy should be resolved with the health facility. The initial sort is based on the difference column. The weekly data submitted by facilities can be analysed <a href='#reports/type/WeeklyFacilityReports'>here</a>.
+        </div>
+
+        <button id='downloadCsv'>Download CSV</button>
         <button id='toggleDetails'>Toggle Details</button>
-        <button class='mdl-button mdl-js-button mdl-button--raised' id='csv'>#{if @csvMode then "Table Mode" else "CSV Mode"}</button></div>
         <br/><br/>
-        <div class='scroll-div'>
-          <table class='tablesorter mdl-data-table mdl-js-data-table mdl-shadow--2dp' id='facilityTimeliness' style='#{if @csvMode then "display:none" else ""}'>
-            <thead>
-              <th>#{@aggregationPeriod}</th>
-              <th>Zone</th>
-              #{if @aggregationArea is "District" or @aggregationArea is "Facility" then "<th>District</th>" else ""}
-              #{if @aggregationArea is "Facility" then "<th>Facility</th>"  else ""}
-              <th class='details'>Weekly Facility Reports Expected (assumes months expect 4 reports, not always true)</th>
-              <th class='details'># submitted</th>
-              <th class='details'>% submitted</th>
-              <th class='details'>Reports submitted within 1 day of period end (Monday)</th>
-              <th class='details'>Reports submitted within 1-3 days of period end (by Wednesday)</th>
-              <th class='details'>Reports submitted within 3-5 days of period end (by Friday)</th>
-              <th class='details'>Reports submitted 5 or more days after period end</th>
-              <th class='details'>Total Tested</th>
-              <th>Total Positive From Facility Weekly Report</th>
-              <th class='details'>Percent Positive</th>
-              <th>Number of cases notified</th>
-              <th class='details'>Facility Followed-Up Positive Cases</th>
-              <th class='details'>Cases Followed-Up within 48 Hours</th>
-              <th>Difference between weekly reports and notifications</th>
-              <th class='details'>Median Days from Positive Test Result to Facility Notification (IQR)</th>
-              <th class='details'>Median Days from Facility Notification to Complete Facility (IQR)</th>
-              <th class='details'>% of Notified Cases with Complete Facility Follow-up</th>
-              <th class='details'>Median Days from Facility Notification to Complete Household (IQR)</th>
-              <th class='details'>% of Notified with Complete Followup</th>
-            </thead>
-            <tbody> </tbody>
-          </table>
+
+        <div id='tabulator'></div>
+        <div id='messages'>
         </div>
     "
     $('#analysis-spinner').show()
 
-    Reports.aggregateWeeklyReportsAndFacilityTimeliness
-      startDate: @options.startDate
-      endDate: @options.endDate
-      aggregationArea: @aggregationArea
-      aggregationPeriod: @aggregationPeriod
-      facilityType: @facilityType
-
-      error: (error) ->
-        console.error error
-      success: (results) =>
-        @results = results
-        @renderFacilityTimeliness()
-
+    @renderTabulator()
 module.exports = CompareWeeklyView

@@ -2,6 +2,7 @@ DateSelectorView = require './DateSelectorView'
 AdministrativeAreaSelectorView = require './AdministrativeAreaSelectorView'
 TabulatorView = require './TabulatorView'
 titleize = require 'underscore.string/titleize'
+TertiaryIndex = require '../models/TertiaryIndex'
 
 class IndividualsView extends Backbone.View
 
@@ -9,12 +10,25 @@ class IndividualsView extends Backbone.View
 
   events:
     "click .shortcut": "shortcut"
+    "click #updateIndex": "updateIndex"
+
+  updateIndex: =>
+    @updateIndividualIndexForAllSelectedRows()
 
   shortcut: (event) =>
     columnName = $(event.target).attr("data-columnName")
     value = $(event.target).attr("data-value")
-    value = "" if value is "All"
-    @tabulatorView.tabulator.setHeaderFilterValue(columnName,value)
+    if columnName is "Age In Years"
+      if value is "All"
+        @tabulatorView.tabulator.removeFilter(columnName, "<", 5 )
+        @tabulatorView.tabulator.removeFilter(columnName, ">=", 5 )
+      else if value is "<5"
+        @tabulatorView.tabulator.setFilter(columnName, "<", 5 )
+      else if value is ">=5"
+        @tabulatorView.tabulator.setFilter(columnName, ">=", 5 )
+    else
+      value = "" if value is "All"
+      @tabulatorView.tabulator.setHeaderFilterValue(columnName,value)
 
   render: =>
     @options.startDate or= Coconut.router.defaultStartDate()
@@ -31,7 +45,22 @@ class IndividualsView extends Backbone.View
           ).join("")
         }
       </div>
+      <div class='shortcuts' style='margin-left:10px;display:inline-block;vertical-align:top'>
+        Age:<br/> #{
+          (for value in ["All","<5",">=5"]
+            "<button class='shortcut' data-columnName='Age In Years' data-value='#{value}'>#{value}</button>"
+          ).join("")
+        }
+      </div>
       <div id='tabulatorView'>
+      </div>
+      <div style='margin-top:20px'>
+        #{
+          if Coconut.currentUser.isAdmin()
+            "<button id='updateIndex'>Update Individual Index for Selected Rows</button>"
+          else
+            ""
+        }
       </div>
     "
 
@@ -42,7 +71,8 @@ class IndividualsView extends Backbone.View
     @dateSelectorView.onChange = (startDate, endDate) =>
       @options.startDate = startDate.format("YYYY-MM-DD")
       @options.endDate = endDate.format("YYYY-MM-DD")
-      @renderData()
+      @tabulatorView.tabulator.replaceData([])
+      @tabulatorView.tabulator.replaceData(await @getDataForTabulator())
     @dateSelectorView.render()
 
 
@@ -69,6 +99,14 @@ class IndividualsView extends Backbone.View
     Coconut.router.navigate "individuals/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @renderTabulator()
 
+  getDataForTabulator: =>
+    await Coconut.individualIndexDatabase.query "individualsByDiagnosisDate",
+      startkey: @options.startDate
+      endkey: @options.endDate
+      include_docs: true
+    .then (result) =>
+      Promise.resolve _(result.rows).pluck "doc"
+
   renderTabulator: =>
     @tabulatorView = new TabulatorView()
     @tabulatorView.tabulatorFields = [
@@ -79,10 +117,7 @@ class IndividualsView extends Backbone.View
       "Malaria Positive"
       "Classification"
     ]
-    @tabulatorView.data = await Coconut.individualIndexDatabase.query "individualsByDiagnosisDate",
-      startkey: @options.startDate
-      endkey: @options.endDate
-      include_docs: true
+    @tabulatorView.data = await @getDataForTabulator()
     @tabulatorView.availableFields = await Coconut.individualIndexDatabase.query "individualFields",
       reduce: true
       group: true
@@ -95,5 +130,22 @@ class IndividualsView extends Backbone.View
 
     @tabulatorView.setElement("#tabulatorView")
     @tabulatorView.render()
+
+  selectedCaseIds: =>
+    malariaCaseIds = {}
+    for rowData in @tabulatorView.tabulator.getData("active")
+      malariaCaseIds[rowData["Malaria Case ID"]] = true
+
+    Object.keys(malariaCaseIds)
+
+  updateIndividualIndexForAllSelectedRows: =>
+    caseIDs = @selectedCaseIds()
+    if confirm("Are you sure you want to update the individal index for #{caseIDs.length} cases? Cases changed by DMSOs automatically get updated, but if the GeoHierarchy or something else has changed from a data cleaning exercise, then this process is a good way to updates the values in this table. This process uses a lot of data and bandwidth (100 cases required about 1 minute on a fast connection/computer")
+      @tertiaryIndex or= new TertiaryIndex
+        name: "Individual"
+      await @tertiaryIndex.updateIndexForCases({caseIDs:caseIDs})
+      if confirm("Update complete, would you like to reload this page?")
+        @render()
+
 
 module.exports = IndividualsView

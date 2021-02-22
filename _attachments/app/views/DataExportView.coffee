@@ -75,6 +75,7 @@ class ExportDataView extends Backbone.View
         </style>
         <div id='dateSelector'></div>
         <h4>Download Spreadsheet</h4>
+        This is a data dump of all the fields, including calculated fields based on the index case/household view of the data. This is the same data that appears in the <a href='#cases'>Household Data View</a>, and for most scenarios it will be better to select the data you need on that report instead of downloading everything here. If you are interested in all of the positive individuals, not just the ones that tested positive at a facility go to the <a href='#individuals'>Tested Individuals View</a>.
         <button class='mdl-button mdl-js-button mdl-button--raised mdl-button--colored' id='export'><i class='mdi mdi-cloud-download mdi-24px'></i>&nbsp; Download</button>
         <div id='downloadMsg' class='hide m-t-30'>Downloading file now. Please wait...</div>
     "

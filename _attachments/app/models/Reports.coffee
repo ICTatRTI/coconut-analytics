@@ -571,6 +571,7 @@ class Reports
           }
 
           aggregatedData = {}
+          errors = {}
 
           _(results.rows).each (row) =>
             weeklyReport = row.doc
@@ -580,19 +581,19 @@ class Reports
             if facilityType isnt "All"
               return if GeoHierarchy.facilityType(weeklyReport.Facility) isnt facilityType.toUpperCase()
 
-            area = weeklyReport[aggregationArea]
-            if aggregationArea is "District"
-              area = GeoHierarchy.swahiliDistrictName(area)
+            areaNameFromReport = weeklyReport[aggregationArea]
+            area = GeoHierarchy.findFirst(areaNameFromReport, aggregationArea)?.name
 
-            if aggregationArea is "Facility" # Necessary for handling aliases (facilities with different names)
-              facilityName = area
-              area = GeoHierarchy.findFirst(facilityName, "FACILITY")?.name
-              if area is null
-                console.error "Can't find facility #{facilityName}"
-                console.error row
+            unless area?
+              errors["Missing #{aggregationArea}"] or= {}
+              errors["Missing #{aggregationArea}"][areaNameFromReport] = row.doc
+              console.error "Can't find #{aggregationArea} #{areaNameFromReport}"
+              area = "UNKNOWN: #{weeklyReport.Zone}-#{weeklyReport.District}-#{areaNameFromReport}"
+            #  console.log row.doc
 
             aggregatedData[period] = {} unless aggregatedData[period]
             aggregatedData[period][area] = _(cumulativeFields).clone() unless aggregatedData[period][area]
+
             _(_(cumulativeFields).keys()).each (field) ->
               aggregatedData[period][area][field] += parseInt(weeklyReport[field])
 
@@ -620,6 +621,7 @@ class Reports
           result = 
             fields: _(cumulativeFields).keys()
             data: aggregatedData
+            errors: errors
 
           options.success?(result)
           resolve(result)
@@ -744,38 +746,37 @@ class Reports
     @aggregateWeeklyReports options
 
   @aggregateWeeklyReportsAndFacilityTimeliness = (options) =>
-    options.localSuccess = options.success
-    #Note that the order of the commands below is confusing
-    #
-    # This is what is called after doing the aggregateWeeklyReports
-    options.success = (data) =>
+    new Promise (resolve, reject) =>
+
+      console.log "ASDAS"
+
+      data = await @aggregateWeeklyReports(options)
+        .catch (error) => reject(error)
+
+      facilityCaseData = await @aggregateTimelinessForCases(options)
+        .catch (error) => reject(error)
+
+      _(facilityCaseData).each (areaData, period) ->
+        _(areaData).each (caseData, area) ->
+          data.data[period] = {} unless data.data[period]
+          data.data[period][area] = {} unless data.data[period][area]
+          _([
+            "daysBetweenPositiveResultAndNotificationFromFacility"
+            "daysFromCaseNotificationToCompleteFacility"
+            "daysFromSMSToCompleteHousehold"
+            "numberHouseholdOrNeighborMembers"
+            "numberHouseholdOrNeighborMembersTested"
+            "numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"
+            "hasCompleteFacility"
+            "casesNotified"
+            "householdFollowedUp"
+            "followedUpWithin48Hours"
+          ]).each (property) ->
+            data.data[period][area][property] = caseData[property]
+
       console.log data
-      # This is what is called after doing the aggregateTimelinessForCases
-      options.success = (facilityCaseData) ->
-        console.log facilityCaseData
-        _(facilityCaseData).each (areaData, period) ->
-          _(areaData).each (caseData, area) ->
-            data.data[period] = {} unless data.data[period]
-            data.data[period][area] = {} unless data.data[period][area]
+      resolve(data)
 
-            _([
-              "daysBetweenPositiveResultAndNotificationFromFacility"
-              "daysFromCaseNotificationToCompleteFacility"
-              "daysFromSMSToCompleteHousehold"
-              "numberHouseholdOrNeighborMembers"
-              "numberHouseholdOrNeighborMembersTested"
-              "numberPositiveIndividualsAtIndexHouseholdAndNeighborHouseholds"
-              "hasCompleteFacility"
-              "casesNotified"
-              "householdFollowedUp"
-              "followedUpWithin48Hours"
-            ]).each (property) ->
-              data.data[period][area][property] = caseData[property]
-
-        options.localSuccess data
-
-      @aggregateTimelinessForCases options
-    @aggregateWeeklyReports options
 
   @mostSpecificLocationSelected: ->
     mostSpecificLocationType = "region"
@@ -791,99 +792,101 @@ class Reports
 
 
   @aggregateTimelinessForCases = (options) ->
-    aggregationArea = options.aggregationArea
-    aggregationPeriod = options.aggregationPeriod
-    facilityType = options.facilityType
+    new Promise (resolve, reject) =>
+      aggregationArea = options.aggregationArea
+      aggregationPeriod = options.aggregationPeriod
+      facilityType = options.facilityType
 
-    Coconut.database.query "positiveFacilityCasesByDate",
-      startkey: options.startDate
-      endkey: options.endDate
-      include_docs: false
-    .catch (error) -> console.error
-    .then (result) ->
-      console.log result
-      aggregatedData = {}
+      console.log options
 
-      _.each result.rows, (row) ->
-        date = moment(row.key)
+      Coconut.database.query "positiveFacilityCasesByDate",
+        startkey: options.startDate
+        endkey: options.endDate
+        include_docs: false
+      .catch (error) -> console.error
+      .then (result) ->
+        aggregatedData = {}
 
-        period = Reports.getAggregationPeriodDate(aggregationPeriod,date)
+        _.each result.rows, (row) ->
+          date = moment(row.key)
 
-        caseId = row.value[0]
-        if caseId is null
-          console.log "Case missing case ID: #{row.id}, skipping"
-          return
-        facility = row.value[1]
+          period = Reports.getAggregationPeriodDate(aggregationPeriod,date)
 
-        if facilityType isnt "All"
-          return if GeoHierarchy.facilityType(facility) isnt facilityType.toUpperCase()
+          caseId = row.value[0]
+          if caseId is null
+            console.log "Case missing case ID: #{row.id}, skipping"
+            return
+          facility = row.value[1]
 
-        area = switch aggregationArea
-          when "Zone" then GeoHierarchy.getZone(facility)
-          when "District" then GeoHierarchy.getDistrict(facility)
-          when "Facility" then facility
-        area = "Unknown" if area is null
+          if facilityType isnt "All"
+            return if GeoHierarchy.facilityType(facility) isnt facilityType.toUpperCase()
 
-        aggregatedData[period] = {} unless aggregatedData[period]
-        aggregatedData[period][area] = {} unless aggregatedData[period][area]
-        aggregatedData[period][area]["cases"] = [] unless aggregatedData[period][area]["cases"]
-        aggregatedData[period][area]["cases"].push caseId
+          area = switch aggregationArea
+            when "Zone" then GeoHierarchy.getZone(facility)
+            when "District" then GeoHierarchy.getDistrict(facility)
+            when "Facility" then facility
+          area = "Unknown" if area is null
 
-      caseIdsToFetch = _.chain(aggregatedData).map (areaData,period) ->
-         _(areaData).map (caseData,area) ->
-          caseData.cases
-      .flatten()
-      .uniq()
-      .value()
+          aggregatedData[period] = {} unless aggregatedData[period]
+          aggregatedData[period][area] = {} unless aggregatedData[period][area]
+          aggregatedData[period][area]["cases"] = [] unless aggregatedData[period][area]["cases"]
+          aggregatedData[period][area]["cases"].push caseId
 
-      Coconut.database.query "cases",
-        keys: caseIdsToFetch
-        include_docs: true
-      .catch (error) -> options?.error()
-      .then (result) =>
-        cases = {}
-        _.chain(result.rows).groupBy (row) =>
-          row.key
-        .each (resultsByCaseID) =>
-          cases[resultsByCaseID[0].key] = new Case
-            results: _.pluck resultsByCaseID, "doc"
+        caseIdsToFetch = _.chain(aggregatedData).map (areaData,period) ->
+           _(areaData).map (caseData,area) ->
+            caseData.cases
+        .flatten()
+        .uniq()
+        .value()
 
-        _(aggregatedData).each (areaData,period) ->
-          _(areaData).each (caseData,area) ->
-            _(caseData.cases).each (caseId) ->
-              _([
-                "daysBetweenPositiveResultAndNotificationFromFacility"
-                "daysFromCaseNotificationToCompleteFacility"
-                "daysFromSMSToCompleteHousehold"
-              ]).each (property) ->
-                aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
-                value = cases[caseId][property]()
-                aggregatedData[period][area][property].push value if value?
+        Coconut.database.query "cases",
+          keys: caseIdsToFetch
+          include_docs: true
+        .catch (error) -> reject(error)
+        .then (result) =>
+          cases = {}
+          _.chain(result.rows).groupBy (row) =>
+            row.key
+          .each (resultsByCaseID) =>
+            cases[resultsByCaseID[0].key] = new Case
+              results: _.pluck resultsByCaseID, "doc"
 
-              _([
-                "numberHouseholdMembersTestedAndUntested"
-                "numberHouseholdMembersTested"
-                "numberPositiveIndividuals"
-              ]).each (property) ->
-                aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
-                console.log cases
-                console.log caseId
-                console.log property
+          _(aggregatedData).each (areaData,period) ->
+            _(areaData).each (caseData,area) ->
+              _(caseData.cases).each (caseId) ->
+                _([
+                  "daysBetweenPositiveResultAndNotificationFromFacility"
+                  "daysFromCaseNotificationToCompleteFacility"
+                  "daysFromSMSToCompleteHousehold"
+                ]).each (property) ->
+                  aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
+                  value = cases[caseId][property]()
+                  aggregatedData[period][area][property].push value if value?
 
-                aggregatedData[period][area][property]+= cases[caseId][property]()
+                _([
+                  "numberHouseholdMembersTestedAndUntested"
+                  "numberHouseholdMembersTested"
+                  "numberPositiveIndividuals"
+                ]).each (property) ->
+                  aggregatedData[period][area][property] = 0 unless aggregatedData[period][area][property]
+                  console.log cases
+                  console.log caseId
+                  console.log property
 
-              aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]
-              aggregatedData[period][area]["householdFollowedUp"]+= 1 if cases[caseId].followedUp()
+                  aggregatedData[period][area][property]+= cases[caseId][property]()
 
-              _(["hasCompleteFacility","followedUpWithin48Hours"]).each (property) ->
-                aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
-                aggregatedData[period][area][property].push caseId if cases[caseId][property]()
+                aggregatedData[period][area]["householdFollowedUp"] = 0 unless aggregatedData[period][area]["householdFollowedUp"]
+                aggregatedData[period][area]["householdFollowedUp"]+= 1 if cases[caseId].followedUp()
 
-              aggregatedData[period][area]["casesNotified"] = [] unless aggregatedData[period][area]["casesNotified"]
-              aggregatedData[period][area]["casesNotified"].push caseId
+                _(["hasCompleteFacility","followedUpWithin48Hours"]).each (property) ->
+                  aggregatedData[period][area][property] = [] unless aggregatedData[period][area][property]
+                  aggregatedData[period][area][property].push caseId if cases[caseId][property]()
 
-          console.log aggregatedData
-          options.success aggregatedData
+                aggregatedData[period][area]["casesNotified"] = [] unless aggregatedData[period][area]["casesNotified"]
+                aggregatedData[period][area]["casesNotified"].push caseId
+            console.log aggregatedData
+            resolve(aggregatedData)
+
 
   @getAggregationPeriodDate = (aggregationPeriod,date) ->
     switch aggregationPeriod

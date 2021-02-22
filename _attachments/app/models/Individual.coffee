@@ -1,10 +1,12 @@
 moment = require 'moment'
 humanize = require 'underscore.string/humanize'
 titleize = require 'underscore.string/titleize'
-TertiaryIndex = require './TertiaryIndex'
 
 class Individual
   constructor: (@data, @case) ->
+
+  updateIndex: =>
+    @case.updatedIndividualIndex()
 
   formatProperty: (string) =>
     titleize(humanize(string))

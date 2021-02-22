@@ -113,9 +113,9 @@ class MenuView extends Backbone.View
         <div class='m-l-20 dropdown' id='drawer-activities'>
         #{
              activityLinks = {
-               cases: "Index Cases"
+               cases: "Household"
                individuals: "Tested Individuals"
-               export: "All Index Case Fields"
+               export: "All Household Fields"
              }
              _(activityLinks).map (linkText, linkUrl) ->
                "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='##{linkUrl}' data-title='Data'>#{linkText}</a>"

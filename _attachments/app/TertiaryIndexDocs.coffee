@@ -33,6 +33,7 @@ _ = require 'underscore'
 moment = require 'moment'
 
 TertiaryIndex = require './models/TertiaryIndex'
+global.Case = require './models/Case.coffee'
 
 global.Coconut =
   databaseURL: argv.database

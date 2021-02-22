@@ -1,7 +1,7 @@
 # db:zanzibar-index-individual
 (doc) ->
   if doc._id[0..3] is "ind_"
-    emit doc["Date Of Malaria Results"], [doc["Malaria Case ID"]?.trim(), doc.classification]
+    emit doc["Date Of Malaria Results"], [doc["Malaria Case ID"]?.trim(), doc.Classification]
 
 # db:zanzibar
 #(doc) ->

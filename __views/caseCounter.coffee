@@ -12,7 +12,8 @@
         else
           for positiveIndividual in doc["Classifications By Diagnosis Date"].split(", ")
             [date, classification] = positiveIndividual.split(": ")
-            date or= indexCaseDiagnosisDate # 131449 and others are missing the date so just set it back to the indexCaseDiagnosisDate
+            if date is "undefined" or date is ""
+              date = indexCaseDiagnosisDate # 131449 and others are missing the date so just set it back to the indexCaseDiagnosisDate
             emit [date, classification].concat(administrativeLevels), 1
 
       emit [indexCaseDiagnosisDate, "Has Notification"].concat(administrativeLevels), 1

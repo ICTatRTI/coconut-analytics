@@ -1,5 +1,5 @@
 timestamp = require 'time-stamp'
-Case = require './Case'
+#Case = require './Case'
 
 class TertiaryIndex
   constructor: (options) ->
@@ -147,8 +147,9 @@ class TertiaryIndex
       while options.caseIDs.length > 0
         caseIDs = options.caseIDs.splice(0,numberOfCasesToProcessPerIteration) # remove 100 caseids
 
-        cases = await Case.getCases
+        cases = await (Case.getCases
           caseIDs: caseIDs
+        )
 
         docsToSave = []
         for malariaCase in cases

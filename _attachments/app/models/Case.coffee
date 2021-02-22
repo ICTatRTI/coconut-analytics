@@ -14,6 +14,7 @@ HouseholdMember = require './HouseholdMember'
 Question = require './Question'
 
 Individual = require './Individual'
+TertiaryIndex = require './TertiaryIndex'
 
 class Case
   constructor: (options) ->
@@ -121,7 +122,7 @@ class Case
         data?.lastModifiedAt
     .flatten()
     .max (lastModifiedAt) ->
-      lastModifiedAt?.replace(/[- :]/g,"") or ""
+      moment(lastModifiedAt).unix()
     .value()
 
   Questions: ->
@@ -627,6 +628,11 @@ class Case
 
   percentOfHouseholdMembersTested: =>
     (@numberHouseholdMembersTested()/@numberHouseholdMembersTestedAndUntested()*100).toFixed(0)
+
+  updateIndividualIndex: =>
+    @tertiaryIndex or= new TertiaryIndex
+      name: "Individual"
+    @tertiaryIndex.updateIndexForCases({caseIDs:[@MalariaCaseID()]})
   
   positiveIndividualObjects: =>
     for positiveIndividual in @positiveIndividuals()
@@ -772,13 +778,13 @@ class Case
       else
         moment(@["Facility"].DateOfPositiveResults, "DD-MM-YYYY")
       if momentDate.isValid()
-        return momentDate.hour(8).min(0).format("YYYY-MM-DD HH:mm")
+        return momentDate.set(hour:0,minute:0).format("YYYY-MM-DD HH:mm")
 
     if @["USSD Notification"]?
-      return moment(@["USSD Notification"].date).hour(8).min(0).format("YYYY-MM-DD HH:mm")
+      return moment(@["USSD Notification"].date).set(hour:0,minute:0).format("YYYY-MM-DD HH:mm")
 
     else if @["Case Notification"]?
-      return moment(@["Case Notification"].createdAt).hour(8).min(0).format("YYYY-MM-DD HH:mm")
+      return moment(@["Case Notification"].createdAt).set(hour:0,minute:0).format("YYYY-MM-DD HH:mm")
 
   IndexCaseDiagnosisDate: =>
     if indexCaseDiagnosisDateAndTime = @IndexCaseDiagnosisDateAndTime()
@@ -1042,40 +1048,44 @@ class Case
         when 4 then "Induced"
         when 5 then "Relapsing"
 
-
-  classificationsWithHouseholdMember: =>
+  classificationsWithPositiveIndividualObjects: =>
     for positiveIndividual in @positiveIndividualObjects()
       {
         classification: positiveIndividual.classification()
-        positiveIndividual: positiveIndividual.data
+        positiveIndividual: positiveIndividual
       }
 
   classificationsBy: (property) =>
-    (for data in @classificationsWithHouseholdMember()
-      "#{data.positiveIndividual[property]}: #{data.classification}"
+    (for data in @classificationsWithPositiveIndividualObjects()
+      "#{data.positiveIndividual.data[property]}: #{data.classification}"
+    ).join(", ")
+
+  classificationsByFunction: (functionName) =>
+    (for data in @classificationsWithPositiveIndividualObjects()
+      "#{data.positiveIndividual[functionName]()}: #{data.classification}"
     ).join(", ")
 
   classificationsByHouseholdMemberType: =>
     # IF household member type is undefined it is either:
     # in progress index case
     # pre 2019 household member
-    (for data in @classificationsWithHouseholdMember()
-      if data.positiveIndividual.question isnt "Household Members"
+    (for data in @classificationsWithPositiveIndividualObjects()
+      if data.positiveIndividual.data.question isnt "Household Members"
         "Index Case: #{data.classification}"
-      else if data.positiveIndividual["HouseholdMemberType"] is undefined
+      else if data.positiveIndividual.data["HouseholdMemberType"] is undefined
         "Household Member: #{data.classification}"
       else
-        "#{data.positiveIndividual["HouseholdMemberType"]}: #{data.classification}"
+        "#{data.positiveIndividual.data["HouseholdMemberType"]}: #{data.classification}"
     ).join(", ")
 
   classificationsByDiagnosisDate: =>
-    @classificationsBy("DateOfPositiveResults")
+    @classificationsByFunction("dateOfPositiveResults")
 
   classificationsByIsoYearIsoWeekFociDistrictFociShehia: =>
-    (for classificationWithHouseholdMember in @classificationsWithHouseholdMember()
-      classification = classificationWithHouseholdMember.classification
-      positiveIndividual = classificationWithHouseholdMember.positiveIndividual
-      dateOfPositiveResults = positiveIndividual.DateOfPositiveResults or positiveIndividual.DateofPositiveResults
+    (for classificationWithPositiveIndividual in @classificationsWithPositiveIndividualObjects()
+      classification = classificationWithPositiveIndividual.classification
+      positiveIndividual = classificationWithPositiveIndividual.positiveIndividual
+      dateOfPositiveResults = positiveIndividual.dateOfPositiveResults()
       date = if dateOfPositiveResults
         moment(dateOfPositiveResults)
       else 
@@ -1087,13 +1097,13 @@ class Case
         isoYear = date.isoWeekYear()
         isoWeek = date.isoWeek()
 
-      fociDistrictShehia = if (focus = positiveIndividual["WhereCouldTheMalariaFocusBe"])
+      fociDistrictShehia = if (focus = positiveIndividual.data["WhereCouldTheMalariaFocusBe"])
         focus = focus.trim()
         if focus is "Patient Shehia"
           [@district(), @shehia()]
         else if focus is "Other Shehia Within Zanzibar"
-          otherDistrict = positiveIndividual["WhichOtherDistrictWithinZanzibar"]
-          otherShehia = positiveIndividual["WhichOtherShehiaWithinZanzibar"]
+          otherDistrict = positiveIndividual.data["WhichOtherDistrictWithinZanzibar"]
+          otherShehia = positiveIndividual.data["WhichOtherShehiaWithinZanzibar"]
           shehiaUnit = @shehiaUnit(otherShehia, otherDistrict)
           [
             shehiaUnit?.ancestorAtLevel("DISTRICT")?.name or @district()
@@ -1101,7 +1111,7 @@ class Case
           ]
         else
           [@district(), @shehia()]
-      else if positiveIndividual.HouseholdMemberType is "Index Case" and (odkData = @["ODK 2017-2019"])
+      else if positiveIndividual.data.HouseholdMemberType is "Index Case" and (odkData = @["ODK 2017-2019"])
 
 
         #TODO waiting to find out which ODK questions were used for this
