@@ -41,7 +41,7 @@ class UsersView extends Backbone.View
         alert "Password can't be blank"
         @resetPassword(username)
       else
-        await Jackfruit.database.upsert username, (doc) =>
+        await Coconut.database.upsert username, (doc) =>
           doc.password = (crypto.pbkdf2Sync newPass, '', 1000, 256/8, 'sha256').toString('base64')
           doc
         .catch (error) =>
