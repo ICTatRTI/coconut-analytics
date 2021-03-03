@@ -21,8 +21,12 @@ class CasesView extends Backbone.View
   render: =>
     @options.startDate or= Coconut.router.defaultStartDate()
     @options.endDate or= Coconut.router.defaultEndDate()
+    HTMLHelpers.ChangeTitle("Household Data")
 
     @$el.html "
+      <div style='margin-bottom:10px'>
+        Each row represents a household investigation/followup that has resulted from someone testing positive at a facility. To get data about individuals please use the <a href='#individuals'>Tested Individuals</a> page.
+      </div>
       <div id='dateSelector' style='display:inline-block'></div>
       <div id='dateDescription' style='display:inline-block;vertical-align:top;margin-top:10px'></div>
       <div id='administrativeAreaSelector' style='display:inline-block;vertical-align:top;' />

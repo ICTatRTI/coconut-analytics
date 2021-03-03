@@ -33,8 +33,12 @@ class IndividualsView extends Backbone.View
   render: =>
     @options.startDate or= Coconut.router.defaultStartDate()
     @options.endDate or= Coconut.router.defaultEndDate()
+    HTMLHelpers.ChangeTitle("Tested Individuals Data")
 
     @$el.html "
+      <div style='margin-bottom:10px'>
+        Each row represents an individual that test positive at a facility or someone that tests positive or negative during investigation/followup activities at households.
+      </div>
       <div id='dateSelector' style='display:inline-block'></div>
       <div id='dateDescription' style='display:inline-block;vertical-align:top;margin-top:10px'></div>
       <div id='administrativeAreaSelector' style='display:inline-block;vertical-align:top;' />
@@ -52,15 +56,15 @@ class IndividualsView extends Backbone.View
           ).join("")
         }
       </div>
-      <div id='tabulatorView'>
-      </div>
       <div style='margin-top:20px'>
         #{
           if Coconut.currentUser.isAdmin()
-            "<button id='updateIndex'>Update Individual Index for Selected Rows</button>"
+            "<button style='float:right' id='updateIndex'>Update Individual Index for Selected Rows</button>"
           else
             ""
         }
+      </div>
+      <div id='tabulatorView'>
       </div>
     "
 
@@ -117,6 +121,7 @@ class IndividualsView extends Backbone.View
       "Malaria Positive"
       "Classification"
     ]
+    @tabulatorView.pivotFields = ["Household District", "Classification"]
     @tabulatorView.data = await @getDataForTabulator()
     @tabulatorView.availableFields = await Coconut.individualIndexDatabase.query "individualFields",
       reduce: true

@@ -1,4 +1,5 @@
 $ = require 'jquery'
+require 'jquery-ui-browserify'
 
 Backbone = require 'backbone'
 Backbone.$  = $
@@ -11,6 +12,8 @@ Chart = require 'chart.js'
 ChartDataLabels = require 'chartjs-plugin-datalabels'
 
 Chart = require 'chart.js'
+require 'jquery-ui-browserify'
+PivotTable = require 'pivottable'
 
 
 class TabulatorView extends Backbone.View
@@ -19,6 +22,9 @@ class TabulatorView extends Backbone.View
     "click #download": "csv"
     "click #downloadItemCount": "itemCountCSV"
     "change select#columnToCount": "updateColumnCount"
+    "click #pivotButton": "loadPivotTable"
+
+
 
   csv: => @tabulator.download "csv", "CoconutTableExport.csv"
 
@@ -45,17 +51,21 @@ class TabulatorView extends Backbone.View
         <span id='numberRows'></span>
       </div>
       <br/>
+      <h4>Additional Analysis</h4>
       <div>
-        Count items in column
-        <select id='columnToCount'>
+        To count and graph unique values in a particular column, select the column here: <select id='columnToCount'>
         </select>
         <div id='itemCount'>
-          <button id='downloadItemCount'>CSV ↓</button>
           <div style='width: 200px; display:inline-block' id='itemCountTabulator'></div>
+          <button style='vertical-align:top' id='downloadItemCount'>CSV ↓</button>
           <div style='width: 600px; display:inline-block; vertical-align:top' id='itemCountChart'>
             <canvas id='itemCountChartCanvas'></canvas>
           </div>
         </div>
+      </div>
+      <div id='pivotTableDiv'>
+        For more complicated groupings and comparisons you can create a <button id='pivotButton'>Pivot Table</button>. The pivot table can also output CSV data that can be copy and pasted into a spreadsheet.
+        <div id='pivotTable'></div>
       </div>
     "
 
@@ -112,8 +122,6 @@ class TabulatorView extends Backbone.View
     @$("#itemCount").show()
 
     for rowData in @tabulator.getData("active")
-      if rowData[columnFieldName] is undefined
-        console.log rowData
       counts[rowData[columnFieldName]] or= 0
       counts[rowData[columnFieldName]] += 1
 
@@ -208,6 +216,76 @@ class TabulatorView extends Backbone.View
           , 500
 
     @updateColumnCountOptions()
+
+
+
+
+  loadPivotTable: =>
+    data = for rowData in @tabulator.getData("active")
+      _(rowData).pick @selector.getValue(true)
+
+    #@$("#pivotTable").pivot data,
+    #  rows: ["Classification"]
+    #  cols: ["Household District"]
+    @pivotFields or= @tabulatorFields[0..1]
+
+    @$("#pivotTable").pivotUI data,
+      rows: [@pivotFields[0]]
+      cols: [@pivotFields[1]]
+      rendererName: "Heatmap"
+      renderers: _($.pivotUtilities.renderers).extend "CSV Export": (pivotData, opts) ->
+        defaults = localeStrings: {}
+
+        opts = $.extend(true, {}, defaults, opts)
+
+        rowKeys = pivotData.getRowKeys()
+        rowKeys.push [] if rowKeys.length == 0
+        colKeys = pivotData.getColKeys()
+        colKeys.push [] if colKeys.length == 0
+        rowAttrs = pivotData.rowAttrs
+        colAttrs = pivotData.colAttrs
+
+        result = []
+
+        row = []
+        for rowAttr in rowAttrs
+            row.push rowAttr
+        if colKeys.length == 1 and colKeys[0].length == 0
+            row.push pivotData.aggregatorName
+        else
+            for colKey in colKeys
+                row.push colKey.join("-")
+
+        result.push row
+
+        for rowKey in rowKeys
+            row = []
+            for r in rowKey
+                row.push r
+
+            for colKey in colKeys
+                agg = pivotData.getAggregator(rowKey, colKey)
+                if agg.value()?
+                    row.push agg.value()
+                else
+                    row.push ""
+            result.push row
+        text = ""
+        for r in result
+            text += r.join(",")+"\n"
+
+        return $("<textarea>").text(text).css(
+                width: ($(window).width() / 2) + "px",
+                height: ($(window).height() / 2) + "px")
+
+
+
+
+
+
+
+
+
 
 TabulatorView.showCasesDialog = (options) =>
   unless casesTabulatorDialog?

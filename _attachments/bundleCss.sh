@@ -10,4 +10,5 @@ css/material.css
 css/materialdesignicons.min.css
 css/leaflet.css
 css/choices.min.css
+css/pivot.min.css
 " | xargs cat | npx uglifycss > css/bundle-css.min.css
