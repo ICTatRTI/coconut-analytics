@@ -61,7 +61,7 @@ class UsersReportView extends Backbone.View
         Term:
         <select id='selectedTerm'>
         #{
-          [1..3].map (term) =>
+          [1..5].map (term) =>
             "<option>#{term}</option>"
           .join("")
         }
@@ -82,11 +82,11 @@ class UsersReportView extends Backbone.View
       </table>
     "
 
-    if @year and @term
-      @$("#selectedYear").val(@year)
-      @$("#selectedTerm").val(@term)
-    else
+    unless @year and @term
       [@year, @term] = Calendar.getYearAndTerm() or [(new Date()).getFullYear(), 1]
+
+    @$("#selectedYear").val(@year)
+    @$("#selectedTerm").val(@term)
 
     Coconut.database.allDocs
       startkey: "user.",

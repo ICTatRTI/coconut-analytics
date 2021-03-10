@@ -111,7 +111,7 @@ class ExportView extends Backbone.View
         Term:
         <select id='selectedTerm'>
         #{
-          [1..3].map (term) =>
+          [1..5].map (term) =>
             "<option>#{term}</option>"
           .join("")
         }

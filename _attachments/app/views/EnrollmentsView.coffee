@@ -78,7 +78,7 @@ class EnrollmentsView extends Backbone.View
         Term:
         <select id='selectedTerm'>
         #{
-          [1..3].map (term) =>
+          [1..5].map (term) =>
             "<option>#{term}</option>"
           .join("")
         }
@@ -121,6 +121,19 @@ class EnrollmentsView extends Backbone.View
       reduce: false
     .then (result) =>
 
+      [femaleStudentsByEnrollment, maleStudentsByEnrollment] = await Coconut.peopleDb.query "genderByEnrollment",
+        reduce: true
+        group: true
+      .then (queryResult) =>
+        femaleStudentsByEnrollment = {}
+        maleStudentsByEnrollment = {}
+        for row in queryResult.rows
+          if row.key[1] is "Female"
+            femaleStudentsByEnrollment[row.key[0]] = row.value
+          else if row.key[1] is "Male"
+            maleStudentsByEnrollment[row.key[0]] = row.value
+        Promise.resolve [femaleStudentsByEnrollment, maleStudentsByEnrollment]
+
       data = _(result.rows).map (row) =>
         doc = row.doc
         doc.region = row.key[2]
@@ -128,11 +141,14 @@ class EnrollmentsView extends Backbone.View
         doc["created-by"] = nameByUsername[doc["created-by"]] or "-"
         doc["school-name"] = schoolNameById["school-#{doc["school-id"]}"]
         doc["# of Students"] = _(doc.students).size()
+        doc["# of Female Students"] = femaleStudentsByEnrollment[doc._id] or 0
+        doc["# of Male Students"] = maleStudentsByEnrollment[doc._id] or 0
         doc["updated-by"] = _(doc["updated-by"]).map( (username) => nameByUsername[username] or "-").join(",")
         doc["update-time"] = _(doc['update-time']).last() or "-"
         delete doc._id
         delete doc._rev
         delete doc.students
+        delete doc.attendance if doc.attendance?
         doc
 
       columns = for property, value of data[0]

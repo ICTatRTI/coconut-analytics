@@ -29,14 +29,21 @@ class TermDatesView extends Backbone.View
                 start: "#{year}-10-01"
                 end: "#{year}-12-01"
 
+        termDates[2020][4] or=
+          start: "2021-01-01"
+          end: "2021-01-31"
+        termDates[2020][5] or=
+          start: "2021-02-01"
+          end: "2021-02-28"
+
         data = for year, terms of termDates
           for term, dates of terms
             "
               <div class='row'>
                 #{year} T#{term} 
-                <input class='termDate' data-year-term='#{year}-#{term}' data-year-term-type='start' type='date' value='#{dates.start}' min='#{year}-01-01' max='#{year}-12-31'></input>
+                <input class='termDate' data-year-term='#{year}-#{term}' data-year-term-type='start' type='date' value='#{dates.start}'></input>
                 - 
-                <input class='termDate' data-year-term='#{year}-#{term}' data-year-term-type='end' type='date' value='#{dates.end}' min='#{year}-01-02' max='#{parseInt(year)+1}-12-31'></input>
+                <input class='termDate' data-year-term='#{year}-#{term}' data-year-term-type='end' type='date' value='#{dates.end}'></input>
               </div>
             "
         _(data).flatten().join("")
@@ -62,9 +69,10 @@ class TermDatesView extends Backbone.View
         newTermDateData[year][term] or= {}
         newTermDateData[year][term][type] = element.value
 
-      Coconut.database.upsert "Term Dates", (doc) =>
+      await Coconut.database.upsert "Term Dates", (doc) =>
         doc.data = newTermDateData
         doc
 
+      Calendar.load()
 
 module.exports = TermDatesView

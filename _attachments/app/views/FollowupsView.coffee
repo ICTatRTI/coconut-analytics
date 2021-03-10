@@ -82,7 +82,7 @@ class FollowupsView extends Backbone.View
         </select>
         <select id='term'>
           #{
-            (for term in [1..3]
+            (for term in [1..5]
               "<option #{if term is @term then "selected" else ""}>#{term}</option>"
             ).join("")
           }

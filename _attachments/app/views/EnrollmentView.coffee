@@ -86,9 +86,54 @@ class EnrollmentView extends Backbone.View
                       #{
                         data = @enrollment.doc[header]
                         if header is "students"
-                          _(peopleByRegistrationNumber).map (person, registrationNumber) =>
-                            "#{registrationNumber}: <a href='#person/#{person.id()}'>#{person.name()}</a> <br/>"
-                          .join("")
+
+                          performanceCategories = {}
+                          for studentId, performanceData of @enrollment.doc.performance
+                            for category, result of performanceData
+                              performanceCategories[category] = true
+
+                          console.log performanceCategories
+                          "
+                          <style>
+                            .students th{
+                              padding: 5px;
+                            }
+                          </style>
+                          <table>
+                          <thead>
+                          <tr class='students'>
+                            <th>Reg Number</th>
+                            <th>Name</th>
+                            #{
+                              (for performanceCategory in Object.keys(performanceCategories)
+                                "<th>#{titleize performanceCategory}</th>"
+                              ).join("")
+                            }
+                          </tr>
+                          </thead>
+                          <tbody>
+                          #{
+
+                            (for registrationNumber, person of peopleByRegistrationNumber
+                              "
+                              <tr>
+                                <td>#{registrationNumber}</td>
+                                <td>
+                                  <a href='#person/#{person.id()}'>#{person.name()}</a>
+                                </td>
+                                #{
+                                  (for performanceCategory in Object.keys(performanceCategories)
+                                    "<td>#{@enrollment.doc.performance?[person.id()]?[performanceCategory] or "-"}</td>"
+                                  ).join("")
+                                }
+                              </tr>
+                              "
+                            ).join("")
+                          }
+                          </tbody>
+                          </table>
+                          "
+
                         else if header is "attendance"
                           _(@enrollment.attendanceSummary()).map (value, property) =>
                             return if property is "Score"

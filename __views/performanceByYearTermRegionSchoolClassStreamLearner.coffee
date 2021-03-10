@@ -10,7 +10,7 @@
         numberOfCategories = 0
         totalScore = 0
         for category, score of data
-          unless score is "" or category is "Total"
+          unless score is "" or score is null or category is "Total"
 
             numberOfCategories +=1
 

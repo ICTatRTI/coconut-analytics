@@ -27,6 +27,9 @@ class ProgressView extends Backbone.View
 
   updateTerm: =>
     @term = @$("#selectedTerm").val()
+    unless Calendar.termDates[@year]?[@term]?
+      alert "Invalid year: #{@year} and term: #{@term}."
+      return
     @render()
 
   headers =  [
@@ -69,7 +72,7 @@ class ProgressView extends Backbone.View
         Term:
         <select id='selectedTerm'>
         #{
-          [1..3].map (term) =>
+          [1..5].map (term) =>
             "<option>#{term}</option>"
           .join("")
         }
