@@ -63,6 +63,7 @@ class TabulatorView extends Backbone.View
           </div>
         </div>
       </div>
+      <hr/>
       <div id='pivotTableDiv'>
         For more complicated groupings and comparisons you can create a <button id='pivotButton'>Pivot Table</button>. The pivot table can also output CSV data that can be copy and pasted into a spreadsheet.
         <div id='pivotTable'></div>

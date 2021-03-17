@@ -86,7 +86,10 @@ class Individual
 
       continue if property.match(/^\d+Entry/)
 
-      result.push {"#{@formatProperty(property)}": "#{value}".trim()}
+      if typeof value isnt "boolean"
+        value = "#{value}".trim()
+
+      result.push {"#{@formatProperty(property)}": value}
 
     result
 

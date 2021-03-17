@@ -350,7 +350,7 @@ class MapView extends Backbone.View
       unless (row.value.latLong?[0] and row.value.latLong?[1])
         console.warn "#{row.value} missing latLong, not mapping"
         continue
-      caseId = row.id.replace(/.*_/,"")
+      caseId = row.id[4..].replace(/_.*/,"")
       L.circleMarker row.value.latLong,
         color: '#000000'
         weight: 0.3
@@ -366,7 +366,7 @@ class MapView extends Backbone.View
       .bindPopup "<a href='#show/case/#{caseId}'>#{caseId}</a>"
 
   getCases: =>
-    Coconut.reportingDatabase.query 'keyIndicatorsByDate',
+    Coconut.individualIndexDatabase.query 'keyIndicatorsByDate',
       startkey: Coconut.router.reportViewOptions.startDate
       endkey: Coconut.router.reportViewOptions.endDate
     .then (result) =>
