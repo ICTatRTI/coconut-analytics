@@ -97,6 +97,7 @@ class Individual
     "ageInYears"
     "isUnder5"
     "relevantTravelOutsideZanzibar"
+    "destinationsOfRelevantTravelOutsideZanzibar"
     "relevantTravelWithinZanzibar"
     "householdShehia"
     "householdDistrict"
@@ -155,11 +156,25 @@ class Individual
 
   relevantTravelOutsideZanzibar: =>
     # TODO add properties from old data - define relevant!
-    if @data["Case Category"] is "Imported"
+    if @data["CaseCategory"] is "Imported"
       return true
     for index in [0..5]
       if @data["Time Outside Zanzibar[#{index}].based-on-the-above-information-do-you-think-this-place-is-the-source-for-this-malaria-transmission"] is "Yes"
         return true
+
+  destinationsOfRelevantTravelOutsideZanzibar: =>
+    if @relevantTravelOutsideZanzibar()
+      destinations = []
+      for index in [0..5]
+        # https://zanzibar.cococloud.co/analytics/#show/case/143336 - example travel history
+        if @data["Time Outside Zanzibar[#{index}].name-of-place-in-tanzania-mainland"]
+          destinations.push @data["Time Outside Zanzibar[#{index}].name-of-place-in-tanzania-mainland"]
+
+
+      if @isIndexCase() and @case.Facility.IfYesListAllPlacesTravelled
+        destinations.push if @case.Facility.IfYesListAllPlacesTravelled
+
+    return destinations.join(",")
 
   relevantTravelWithinZanzibar: =>
     @data["OvernightTravelWithinZanzibar1030DaysBeforePositiveTestResult"] is "Yes"
