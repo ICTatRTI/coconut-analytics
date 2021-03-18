@@ -171,10 +171,10 @@ class Individual
           destinations.push @data["Time Outside Zanzibar[#{index}].name-of-place-in-tanzania-mainland"]
 
 
-      if @isIndexCase() and @case.Facility.IfYesListAllPlacesTravelled
+      if @isIndexCase() and @case.Facility?.IfYesListAllPlacesTravelled
         destinations.push if @case.Facility.IfYesListAllPlacesTravelled
 
-    return destinations.join(",")
+    return destinations?.join(",")
 
   relevantTravelWithinZanzibar: =>
     @data["OvernightTravelWithinZanzibar1030DaysBeforePositiveTestResult"] is "Yes"
