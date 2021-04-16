@@ -129,10 +129,14 @@ class Router extends Backbone.Router
 
   deleteResult: (resultId) =>
     if confirm "Are you sure you want to delete #{resultId}"
-      Coconut.databaste.get(resultId)
+      adminPassword = prompt "Enter the database admin password:"
+      adminDatabase = new PouchDB (await Coconut.database.info()).host,
+        "auth.username": "admin"
+        "auth.password": adminDatabase
+      adminDatabase.get(resultId)
       .catch (error) => alert error
       .then (result) =>
-        Coconut.destroy(result)
+        adminDatabase.destroy(result)
         .catch (error) => alert error
         .then =>
           alert("#{resultId} deleted")

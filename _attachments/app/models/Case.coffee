@@ -1745,7 +1745,7 @@ class Case
           console.log "Creating Household members and neighbor households if necessary"
           @createHouseholdMembers()
           @createNeighborHouseholds()
-        else if @Facility?.complete and @Facility?.IsCaseLostToFollowup is "No"
+        else if @Facility?.complete
           console.log "Creating Household"
           @createHousehold()
         else if @["Case Notification"]?.complete

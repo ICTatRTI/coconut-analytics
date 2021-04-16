@@ -42,7 +42,11 @@ class CasesView extends Backbone.View
     @dateSelectorView.onChange = (startDate, endDate) =>
       @options.startDate = startDate.format("YYYY-MM-DD")
       @options.endDate = endDate.format("YYYY-MM-DD")
-      @renderData()
+      @tabulatorView.tabulator.replaceData([])
+      data = await @getDataForTabulator()
+      @tabulatorView.data = data
+      @tabulatorView.tabulator.replaceData(data)
+      Coconut.router.navigate "cases/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @dateSelectorView.render()
 
 

@@ -24,8 +24,6 @@ class TabulatorView extends Backbone.View
     "change select#columnToCount": "updateColumnCount"
     "click #pivotButton": "loadPivotTable"
 
-
-
   csv: => @tabulator.download "csv", "CoconutTableExport.csv"
 
   itemCountCSV: => @itemCountTabulator.download "csv", "CoconutTableExport.csv"
@@ -87,8 +85,6 @@ class TabulatorView extends Backbone.View
     @tabulatorFields or= [
       "Malaria Case ID" # default if no other defined
     ]
-
-    #console.log @tabulatorFields
 
     choicesData = for field in _(@tabulatorFields.concat(_(@availableFields).sort())).uniq() # This preserves order of tabulatorFields and alphabetizes the rest
       value: field

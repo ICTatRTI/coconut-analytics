@@ -106,6 +106,7 @@ class Individual
     "focalDistrict"
     "focalIsland"
     "administrativeLevels"
+    "village"
     "name" # Hand first Name, name, etc
     "dateOfPositiveResults"
     "yearWeekOfPositiveResults"
@@ -118,6 +119,9 @@ class Individual
   calculatedPropertiesResult: =>
     for functionName in @calculatedProperties
       {"#{@formatProperty(functionName)}": @[functionName]()}
+
+  village: =>
+    @case.Household.Village or @case.Facility.Village
 
   findFirst: (propertyOrProperties, checkPermutations = false) =>
     if checkPermutations
@@ -167,7 +171,7 @@ class Individual
       destinations = []
       for index in [0..5]
         # https://zanzibar.cococloud.co/analytics/#show/case/143336 - example travel history
-        if @data["Time Outside Zanzibar[#{index}].name-of-place-in-tanzania-mainland"]
+        if @data["Time Outside Zanzibar[#{index}].name-of-place-in-tanzania-mainland"] and @data["Time Outside Zanzibar[#{index}].based-on-the-above-information-do-you-think-this-place-is-the-source-for-this-malaria-transmission"] is "Yes"
           destinations.push @data["Time Outside Zanzibar[#{index}].name-of-place-in-tanzania-mainland"]
 
 
