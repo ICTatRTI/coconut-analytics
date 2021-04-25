@@ -121,7 +121,7 @@ class Individual
       {"#{@formatProperty(functionName)}": @[functionName]()}
 
   village: =>
-    @case.Household.Village or @case.Facility.Village
+    @case.Household?.Village or @case.Facility?.Village
 
   findFirst: (propertyOrProperties, checkPermutations = false) =>
     if checkPermutations

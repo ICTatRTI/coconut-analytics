@@ -4,17 +4,18 @@ Backbone.$  = $
 class AdministrativeAreaSelectorView extends Backbone.View
 
   events:
-    "change #administrativeLevel": "updateAdministrativeNames"
+    "change #administrativeLevel": "updateAdministrativeNameOptions"
     "change #administrativeName": "updateAdministrativeArea"
 
-  updateAdministrativeNames: =>
+  updateAdministrativeNameOptions: =>
     @administrativeLevel = @$("#administrativeLevel option:selected").text().trim()
     @$("#administrativeName").html @optionsForAdministrativeNames()
-    @administrativeName = @$("#administrativeName option:selected").text().trim()
+    @administrativeName = null
     @onChange(@administrativeName, @administrativeLevel) if @onlyOneOption
 
   updateAdministrativeArea: =>
     @administrativeName = @$("#administrativeName option:selected").text().trim()
+    @ancestors = GeoHierarchy.findOneMatchOrUndefined(@administrativeName, @administrativeLevel)?.ancestors().map (unit) => unit.name
     @onChange(@administrativeName, @administrativeLevel)
 
   optionsForAdministrativeNames: =>

@@ -86,18 +86,16 @@ class IndividualsView extends Backbone.View
     @administrativeAreaSelectorView = new AdministrativeAreaSelectorView()
     @administrativeAreaSelectorView.setElement "#administrativeAreaSelector"
     @administrativeAreaSelectorView.onChange = (administrativeName, administrativeLevel) => 
-      administrativeLevel = titleize(administrativeLevel.toLowerCase().replace(/ies$/,"y").replace(/s$/,""))
-      unless @tabulatorView.tabulator.setHeaderFilterValue(administrativeLevel,administrativeName) is undefined
-        if _(@tabulatorView.availableFields).contains administrativeLevel
-          #Add it
-          @tabulatorView.selector.setValue([{
-            label: administrativeLevel
-            value: administrativeLevel
-          }])
-          @tabulatorView.renderTabulator()
-          @tabulatorView.tabulator.setHeaderFilterValue(administrativeLevel,administrativeName)
-        else
-          alert "#{administrativeLevel} is not an available field in the data"
+
+      unless @tabulatorView.selector.getValue(true).includes("Administrative Levels")
+        @tabulatorView.selector.setValue([{
+          label: "Administrative Levels"
+          value: "Administrative Levels"
+        }])
+        @tabulatorView.renderTabulator()
+
+      administrativeLevelsFilterText = @administrativeAreaSelectorView.ancestors.reverse().join(",") + ",#{@administrativeAreaSelectorView.administrativeName}"
+      @tabulatorView.tabulator.setHeaderFilterValue("Administrative Levels",administrativeLevelsFilterText)
     @administrativeAreaSelectorView.render()
 
     @renderData()
