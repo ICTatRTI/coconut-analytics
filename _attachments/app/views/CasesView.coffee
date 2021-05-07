@@ -43,8 +43,7 @@ class CasesView extends Backbone.View
       @options.startDate = startDate.format("YYYY-MM-DD")
       @options.endDate = endDate.format("YYYY-MM-DD")
       @tabulatorView.tabulator.replaceData([])
-      data = await @getDataForTabulator()
-      @tabulatorView.data = data
+      @tabulatorView.data = await @getDataForTabulator()
       @tabulatorView.tabulator.replaceData(data)
       Coconut.router.navigate "cases/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @dateSelectorView.render()
@@ -73,6 +72,11 @@ class CasesView extends Backbone.View
     Coconut.router.navigate "cases/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @renderTabulator()
 
+  getDataForTabulator: => await Coconut.reportingDatabase.query "caseIDsByDate",
+      startkey: @dateSelectorView.startDate
+      endkey: @dateSelectorView.endDate
+      include_docs: true
+
   renderTabulator: =>
     @tabulatorView = new TabulatorView()
     @tabulatorView.tabulatorFields = [
@@ -87,10 +91,7 @@ class CasesView extends Backbone.View
       "_rev"
       "Ussd Notification: Created At"
     ]
-    @tabulatorView.data = await Coconut.reportingDatabase.query "caseIDsByDate",
-      startkey: @dateSelectorView.startDate
-      endkey: @dateSelectorView.endDate
-      include_docs: true
+    @tabulatorView.data = @getDataForTabulator()
 
     @tabulatorView.setElement("#tabulatorView")
     @tabulatorView.render()
