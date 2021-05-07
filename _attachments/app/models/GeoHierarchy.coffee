@@ -195,7 +195,7 @@ class GeoHierarchy
     if result.length isnt 0 or tryCorrections is false
       return result
     else
-      if name.match(/\./)
+      if name?.match(/\./)
         return @find(name.replace(/\./g," ", levelName))
 
       unless levelName is "HEALTH FACILITIES"
