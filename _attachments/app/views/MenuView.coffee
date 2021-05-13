@@ -123,6 +123,25 @@ class MenuView extends Backbone.View
         }
         </div>
 
+        <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Entomology' data-category='menuHeader'>
+          <i class='mdl-color-text--blue-grey-400 mdi mdi-file-export mdi-24px'></i>
+            Entomology
+        </span>
+        <div class='m-l-20 dropdown' id='drawer-activities'>
+        #{
+             (for linkUrl, linkText of {
+               entomology_dashboard: "Dashboard"
+               entomology_investigations: "Investigations"
+               entomology_specimens: "Specimens"
+             }
+               "<a class='mdl-navigation__link activity__link' id = '#{linkUrl}' href='##{linkUrl}' data-title='Data'>#{linkText}</a>"
+             ).join ""
+        }
+        </div>
+
+
+
+
 
 
         <span class='mdl-navigation__link drawer__subtitle' id='activity-main' data-title='Activities' data-category='menuHeader'>

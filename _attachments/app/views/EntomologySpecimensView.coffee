@@ -1,31 +1,23 @@
+_ = require 'underscore'
+$ = require 'jquery'
+Backbone = require 'backbone'
+Backbone.$  = $
+
+moment = require 'moment'
+global.Graphs = require '../models/Graphs'
 DateSelectorView = require './DateSelectorView'
 AdministrativeAreaSelectorView = require './AdministrativeAreaSelectorView'
 TabulatorView = require './TabulatorView'
-titleize = require 'underscore.string/titleize'
 
-class CasesView extends Backbone.View
-
-  el: "#content"
-
-  events:
-    "click .shortcut": "shortcut"
-
-  shortcut: (event) =>
-    columnName = $(event.target).attr("data-columnName")
-    value = $(event.target).attr("data-value")
-    switch value
-      when "All" then @tabulatorView.tabulator.setHeaderFilterValue(columnName,"")
-      else
-        @tabulatorView.tabulator.setHeaderFilterValue(columnName,value)
-
+class EntomologySpecimensView extends Backbone.View
   render: =>
     @options.startDate or= Coconut.router.defaultStartDate()
     @options.endDate or= Coconut.router.defaultEndDate()
-    HTMLHelpers.ChangeTitle("Household Data")
+    HTMLHelpers.ChangeTitle("Entomology Specimens")
 
     @$el.html "
       <div style='margin-bottom:10px'>
-        Each row represents a household investigation/followup that has resulted from someone testing positive at a facility. To get data about individuals please use the <a href='#individuals'>Tested Individuals</a> page.
+        Entomology Specimens
       </div>
       <div id='dateSelector' style='display:inline-block'></div>
       <div id='dateDescription' style='display:inline-block;vertical-align:top;margin-top:10px'></div>
@@ -45,7 +37,7 @@ class CasesView extends Backbone.View
       @tabulatorView.tabulator.replaceData([])
       @tabulatorView.data = await @getDataForTabulator()
       @tabulatorView.tabulator.replaceData(@tabulatorView.data)
-      Coconut.router.navigate "cases/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
+      Coconut.router.navigate "entomology_specimens/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @dateSelectorView.render()
 
 
@@ -69,35 +61,35 @@ class CasesView extends Backbone.View
     @renderData()
 
   renderData: =>
-    Coconut.router.navigate "cases/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
+    Coconut.router.navigate "entomology_specimens/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @renderTabulator()
 
   getDataForTabulator: => 
-    Coconut.reportingDatabase.query "caseIDsByDate",
+    Coconut.entomologyDatabase.query "specimensByDate",
       startkey: @dateSelectorView.startDate
       endkey: @dateSelectorView.endDate
-      include_docs: true
     .then (result) =>
-      Promise.resolve _(result.rows).pluck "doc"
+      Promise.resolve _(result.rows).pluck "value"
 
 
   renderTabulator: =>
     @tabulatorView = new TabulatorView()
     @tabulatorView.tabulatorFields = [
-      "Island"
-      "District"
-      "Malaria Case ID"
-      "Index Case Diagnosis Date"
-      "Classifications By Household Member Type"
+      "date-of-collection"
+      "district"
+      "shehia"
+      "pcr-result-species"
     ]
     @tabulatorView.excludeFields = [
       "_id"
       "_rev"
-      "Ussd Notification: Created At"
     ]
     @tabulatorView.data = await @getDataForTabulator()
 
     @tabulatorView.setElement("#tabulatorView")
     @tabulatorView.render()
+    _.delay =>
+      @tabulatorView.updateColumnCount("pcr-result-species")
+    , 2000
 
-module.exports = CasesView
+module.exports = EntomologySpecimensView

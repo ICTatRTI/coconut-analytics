@@ -31,6 +31,9 @@ Graphs = require './models/Graphs'
 GraphView = require './views/GraphView'
 IndividualsView = require './views/IndividualsView'
 CasesView = require './views/CasesView'
+EntomologyInvestigationsView = require './views/EntomologyInvestigationsView'
+EntomologySpecimensView = require './views/EntomologySpecimensView'
+EntomologyDashboardView = require './views/EntomologyDashboardView'
 
 
 # This allows us to create new instances of these dynamically based on the URL, for example:
@@ -119,7 +122,31 @@ class Router extends Backbone.Router
     "show/issue/:issueID": "showIssue"
     "activities": "activities"
     "activities/*options": "activities"
+    "entomology_dashboard": "entomologyDashboard"
+    "entomology_dashboard/*options": "entomologyDashboard"
+    "entomology_investigations": "entomologyInvestigations"
+    "entomology_investigations/*options": "entomologyInvestigations"
+    "entomology_specimens": "entomologySpecimens"
+    "entomology_specimens/*options": "entomologySpecimens"
     "*noMatch": "noMatch"
+
+  entomologyDashboard: (optionString) =>
+    Coconut.entomologyDashboardView = new EntomologyDashboardView()
+    Coconut.entomologyDashboardView.setElement $("#content")
+    Coconut.entomologyDashboardView.options = @parseOptionsString(optionString)
+    Coconut.entomologyDashboardView.render()
+
+  entomologyInvestigations: (optionString) =>
+    Coconut.entomologyInvestigationsView = new EntomologyInvestigationsView()
+    Coconut.entomologyInvestigationsView.setElement $("#content")
+    Coconut.entomologyInvestigationsView.options = @parseOptionsString(optionString)
+    Coconut.entomologyInvestigationsView.render()
+
+  entomologySpecimens: (optionString) =>
+    Coconut.entomologySpecimensView = new EntomologySpecimensView()
+    Coconut.entomologySpecimensView.setElement $("#content")
+    Coconut.entomologySpecimensView.options = @parseOptionsString(optionString)
+    Coconut.entomologySpecimensView.render()
 
   findCase: (caseId) =>
     Coconut.findCaseView or= new FindCaseView()

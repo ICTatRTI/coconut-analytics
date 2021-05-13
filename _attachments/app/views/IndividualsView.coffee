@@ -76,9 +76,8 @@ class IndividualsView extends Backbone.View
       @options.startDate = startDate.format("YYYY-MM-DD")
       @options.endDate = endDate.format("YYYY-MM-DD")
       @tabulatorView.tabulator.replaceData([])
-      data = await @getDataForTabulator()
-      @tabulatorView.data = data
-      @tabulatorView.tabulator.replaceData(data)
+      @tabulatorView.data = await @getDataForTabulator()
+      @tabulatorView.tabulator.replaceData(@tabulatorView.data)
       Coconut.router.navigate "individuals/startDate/#{@options.startDate}/endDate/#{@options.endDate}"
     @dateSelectorView.render()
 

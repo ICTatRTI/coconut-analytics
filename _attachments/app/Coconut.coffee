@@ -32,6 +32,7 @@ class Coconut
     @cachingDatabase = new PouchDB("coconut-zanzibar-caching")
     @weeklyFacilityDatabase = new PouchDB("#{@databaseURL}/zanzibar-weekly-facility")
     @individualIndexDatabase = new PouchDB("#{@databaseURL}/zanzibar-index-individual")
+    @entomologyDatabase = new PouchDB("#{@databaseURL}/entomology_surveillance")
 
   promptUntilCredentialsWork: =>
     @setupDatabases()

@@ -32,7 +32,7 @@ class TabulatorView extends Backbone.View
   normalizeData: =>
     if @data.rows? and @data.total_rows?
       @data = @data.rows
-    if @data[0].id? and @data[0].key? and @data[0].value? and @data[0].doc?
+    if @data[0]?.id? and @data[0].key? and @data[0].value? and @data[0].doc?
       @data = _(@data).pluck "doc" 
 
   render: =>
@@ -106,8 +106,8 @@ class TabulatorView extends Backbone.View
         "<option>#{column}</option>"
       ).join("")
 
-  updateColumnCount: =>
-    columnFieldName = @$("#columnToCount option:selected").text()
+  updateColumnCount: (columnFieldName) =>
+    columnFieldName or= @$("#columnToCount option:selected").text()
     counts = {}
 
     if columnFieldName is ""
@@ -129,6 +129,8 @@ class TabulatorView extends Backbone.View
       }
 
     countData = _(countData).sortBy("Count").reverse()
+
+    return unless countData.length > 0
 
     @itemCountTabulator = new Tabulator "#itemCountTabulator",
       height: 400
