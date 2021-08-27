@@ -82,6 +82,7 @@ class Individual
         "TypeOfTreatmentProvided"
         "TypeOfTreatmentPrescribed"
         "TreatmentProvided"
+        "FacilityName"
       ].map( (propertyToSkip) => propertyToSkip.toLowerCase().replace(/\W/,"") ).includes(property.toLowerCase().replace(/\W/,""))
 
       continue if property.match(/^\d+Entry/)
@@ -107,6 +108,8 @@ class Individual
     "focalIsland"
     "administrativeLevels"
     "village"
+    "facility"
+    "facilityType"
     "name" # Hand first Name, name, etc
     "dateOfPositiveResults"
     "yearWeekOfPositiveResults"
@@ -119,6 +122,16 @@ class Individual
   calculatedPropertiesResult: =>
     for functionName in @calculatedProperties
       {"#{@formatProperty(functionName)}": @[functionName]()}
+
+  facilityUnit: =>
+    if @isIndexCase()
+      @case.facilityUnit()
+
+  facility: =>
+    @facilityUnit()?.name
+
+  facilityType: =>
+    GeoHierarchy.facilityTypeForFacilityUnit(@facilityUnit())
 
   village: =>
     @case.Household?.Village or @case.Facility?.Village

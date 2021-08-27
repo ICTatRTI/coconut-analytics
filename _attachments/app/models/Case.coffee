@@ -1630,6 +1630,11 @@ class Case
 
     wasTransferred: {}
 
+    DmsoVerifiedResults: {}
+    CaseInvestigationStatus: {}
+    lastYearOfIRS: {}
+    lastMonthOfIRS: {}
+
   }
 
   dateOfMalariaResultFromIndividual: (positiveIndividual) =>

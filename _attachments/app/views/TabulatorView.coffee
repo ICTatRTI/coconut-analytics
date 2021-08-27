@@ -15,7 +15,6 @@ Chart = require 'chart.js'
 require 'jquery-ui-browserify'
 PivotTable = require 'pivottable'
 
-
 class TabulatorView extends Backbone.View
 
   events:
@@ -75,6 +74,9 @@ class TabulatorView extends Backbone.View
       for doc in _(@data).sample(1000)
         for key in _(doc).keys()
           @availableFields[key] = true
+
+      if @availableFields["shehia"] and @availableFields["district"]
+        @availableFields["Administrative Levels"] = true
 
       @availableFields = _(@availableFields).keys()
 
@@ -179,7 +181,14 @@ class TabulatorView extends Backbone.View
 
     })
 
-
+  addAdministrativeLevelsIfMissing: => # Allows filtering by any admin level
+    if not @data[0]?["Administrative Levels"] and @data[0]["district"] and @data[0]["shehia"]
+      for row,index in @data
+        district = row["district"]
+        shehia = row["shehia"]
+        if district and shehia
+          districtAncestors = _(GeoHierarchy.findFirst(district, "DISTRICT")?.ancestors()).pluck "name"
+          row["Administrative Levels"] = (districtAncestors.reverse().concat(district).concat(shehia)).join(",")
 
   renderTabulator: =>
     columns = for field in @selector.getValue(true)
@@ -194,6 +203,7 @@ class TabulatorView extends Backbone.View
       result
 
     @normalizeData()
+    @addAdministrativeLevelsIfMissing()
 
     if @tabulator
       @tabulator.setColumns(columns)
