@@ -77,7 +77,7 @@ class Reports
               return malariaCase
           .compact()
           .value()
-        options.success groupedResults
+        options.success? groupedResults or Promise.resolve(groupedResults)
 
   # legacy support - use the static one instead
   getCases: (options) =>

@@ -1632,8 +1632,9 @@ class Case
 
     DmsoVerifiedResults: {}
     CaseInvestigationStatus: {}
-    lastYearOfIRS: {}
-    lastMonthOfIRS: {}
+    HasTheHouseReceivedIrsInTheLast12Months: {}
+    LastYearOfIRS: {}
+    LastMonthOfIRS: {}
 
   }
 
@@ -1714,7 +1715,7 @@ class Case
       shehia = @shehia()
       if date and shehia
         gender = positiveIndividual.Sex
-        if gender isnt "Male" or gender isnt "Female" then gender = "Unknown"
+        if gender isnt "Male" and gender isnt "Female" then gender = "Unknown"
         result[date] or= {}
         result[date][shehia] or= {}
         result[date][shehia][gender] or=0

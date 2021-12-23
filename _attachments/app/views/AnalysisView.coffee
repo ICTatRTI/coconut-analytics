@@ -9,7 +9,7 @@ require 'tablesorter'
 Tabulator = require 'tabulator-tables'
 stripHtml = require("string-strip-html")
 
-Reports = require '../models/Reports'
+global.Reports = require '../models/Reports'
 CaseView = require './CaseView'
 SetsView = require './SetsView'
 IndividualClassificationView = require './IndividualClassificationView'

@@ -54,6 +54,9 @@ class DateSelectorView extends Backbone.View
         "Week #{moment().subtract(2,'week').format('W')}": [moment().subtract(2,'week').startOf('isoWeek'), moment().subtract(2,'week').endOf('isoWeek')]
         'This Month': [moment().startOf('month'), moment().endOf('month')],
         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        'This Quarter': [moment().startOf('quarter'), moment().endOf('quarter')],
+        'This Quarter Last Year': [moment().subtract(1, 'year').startOf('quarter'), moment().subtract(1, 'year').endOf('quarter')],
+        'Last Quarter': [moment().subtract(1, 'quarter').startOf('quarter'), moment().subtract(1, 'quarter').endOf('quarter')]
         'This Year': [moment().startOf('year'), moment().endOf('year')],
         'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
       "locale":
