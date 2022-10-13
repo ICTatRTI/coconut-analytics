@@ -216,7 +216,8 @@ class ProgressView extends Backbone.View
       .then (result) =>
         _(result.rows).each (row) =>
           [year,term,region,schoolId,className,stream] = _(row.key).map( (value) => value.replace(/ /,'-'))
-          @$("#enrollment-school-#{schoolId}-#{year}-term-#{term}-class-#{className.toLowerCase()}-stream-#{stream.toLowerCase()} .attendance").append "- #{Math.round(row.value[0])}%"
+          id = slugify("enrollment-school-#{schoolId}-#{year}-term-#{term}-class-#{className.toLowerCase()}-stream-#{stream.toLowerCase()} .attendance")
+          @$("##{id}").append "- #{Math.round(row.value[0])}%"
 
   enrollmentSpotchecks: =>
     #spotcheck id includes the date
@@ -225,11 +226,12 @@ class ProgressView extends Backbone.View
       endkey: Calendar.termDates[@year][@term].end
       reduce: false
     .then (result) =>
-      console.log result
       _(result.rows).chain().groupBy (row) =>
-        console.log row
         enrollmentId = row.id[10..-12]
       .each (spotchecks, enrollmentId) =>
+        if enrollmentId.match "2453"
+          console.log enrollmentId
+          console.log spotchecks
         @$("##{slugify(enrollmentId)} .spotcheck").html (
           _(spotchecks).map (spotcheck) =>
             moment(spotcheck.key).format("DD MMM")
@@ -327,8 +329,6 @@ class ProgressView extends Backbone.View
 
       #{
         (for region in ["Dadaab","Kakuma"]
-          console.log aggregateScoreByRegion[region]
-          console.log numberOfSchoolsByRegion[region]
           overallScoreByRegion = aggregateScoreByRegion[region]/numberOfSchoolsByRegion[region]
           "
           <div>

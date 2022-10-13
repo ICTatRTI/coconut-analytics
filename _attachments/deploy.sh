@@ -7,7 +7,7 @@ read justareminder
 echo 'Browserifying and uglifying'
 ./node_modules/browserify/bin/cmd.js -v -t coffeeify --extension='.coffee' app/start.coffee | npx terser > bundle.js
 
-rsync --progress --recursive --copy-links --exclude=node_modules ./ keep.cococloud.co:/var/www/analytics/
+rsync --progress --recursive --copy-links --exclude=node_modules ./ coconut.wusc.ca:/var/www/analytics/
 
 TARGETWITHPASSWORD=$1
 if [ $# -lt 1 ]
